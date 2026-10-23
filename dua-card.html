@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>بطاقة دعاء</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg1: #0f3d3e;
+    --bg2: #1b6b5a;
+    --card: #fffaf0;
+    --ink: #1f2d2b;
+    --gold: #c9a24a;
+    --muted: #6b7a76;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    font-family: "Tajawal", "Segoe UI", Tahoma, sans-serif;
+    background: radial-gradient(circle at 30% 20%, var(--bg2), var(--bg1) 70%);
+  }
+  .card {
+    width: 100%;
+    max-width: 560px;
+    background: var(--card);
+    border-radius: 24px;
+    padding: 40px 28px 32px;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, .35);
+    border: 3px double var(--gold);
+    outline: 8px solid rgba(255, 250, 240, .12);
+  }
+  h1 {
+    margin: 0 0 4px;
+    font-family: "Amiri", serif;
+    font-size: 2rem;
+    color: var(--bg1);
+  }
+  .ornament { color: var(--gold); font-size: 1.4rem; letter-spacing: 8px; margin-bottom: 20px; }
+  .dua-box {
+    min-height: 190px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 16px;
+    transition: opacity .35s ease, transform .35s ease;
+  }
+  .dua-box.fade { opacity: 0; transform: translateY(8px); }
+  .dua {
+    font-family: "Amiri", "Traditional Arabic", serif;
+    font-size: clamp(1.6rem, 5.5vw, 2.2rem);
+    line-height: 2;
+    color: var(--ink);
+    margin: 0;
+  }
+  .source { color: var(--muted); font-size: .95rem; margin: 0; }
+  button {
+    margin-top: 28px;
+    font-family: inherit;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #fff;
+    background: linear-gradient(135deg, var(--bg2), var(--bg1));
+    border: 0;
+    border-radius: 999px;
+    padding: 12px 34px;
+    cursor: pointer;
+    box-shadow: 0 6px 16px rgba(15, 61, 62, .4);
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(15, 61, 62, .45); }
+  button:active { transform: translateY(0); }
+  button:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+  @media (prefers-reduced-motion: reduce) {
+    .dua-box, button { transition: none; }
+  }
+</style>
+</head>
+<body>
+  <main class="card">
+    <h1>بطاقة دعاء</h1>
+    <div class="ornament" aria-hidden="true">✦ ✦ ✦</div>
+
+    <div class="dua-box" id="box" aria-live="polite">
+      <p class="dua" id="dua"></p>
+      <p class="source" id="source"></p>
+    </div>
+
+    <button id="next" type="button">دعاء جديد</button>
+  </main>
+
+<script>
+  const duas = [
+    { text: "رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ", source: "سورة البقرة: 201" },
+    { text: "رَبِّ اشْرَحْ لِي صَدْرِي وَيَسِّرْ لِي أَمْرِي", source: "سورة طه: 25-26" },
+    { text: "رَبِّ زِدْنِي عِلْمًا", source: "سورة طه: 114" },
+    { text: "اللَّهُمَّ إِنَّكَ عَفُوٌّ تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي", source: "رواه الترمذي" },
+    { text: "يَا مُقَلِّبَ الْقُلُوبِ ثَبِّتْ قَلْبِي عَلَى دِينِكَ", source: "رواه الترمذي" },
+    { text: "رَبَّنَا لَا تُؤَاخِذْنَا إِنْ نَسِينَا أَوْ أَخْطَأْنَا", source: "سورة البقرة: 286" },
+    { text: "حَسْبِيَ اللَّهُ لَا إِلَهَ إِلَّا هُوَ عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ", source: "سورة التوبة: 129" },
+    { text: "رَبَّنَا اغْفِرْ لِي وَلِوَالِدَيَّ وَلِلْمُؤْمِنِينَ يَوْمَ يَقُومُ الْحِسَابُ", source: "سورة إبراهيم: 41" },
+    { text: "اللَّهُمَّ إِنِّي أَسْأَلُكَ الْهُدَى وَالتُّقَى وَالْعَفَافَ وَالْغِنَى", source: "رواه مسلم" },
+    { text: "لَا إِلَهَ إِلَّا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ", source: "سورة الأنبياء: 87" }
+  ];
+
+  const box = document.getElementById("box");
+  const duaEl = document.getElementById("dua");
+  const sourceEl = document.getElementById("source");
+  let current = -1;
+
+  function pick() {
+    let i;
+    do { i = Math.floor(Math.random() * duas.length); } while (i === current);
+    current = i;
+    return duas[i];
+  }
+
+  function show(animate) {
+    const d = pick();
+    const apply = () => {
+      duaEl.textContent = d.text;
+      sourceEl.textContent = d.source;
+      box.classList.remove("fade");
+    };
+    if (animate) {
+      box.classList.add("fade");
+      setTimeout(apply, 350);
+    } else {
+      apply();
+    }
+  }
+
+  document.getElementById("next").addEventListener("click", () => show(true));
+  show(false);
+</script>
+</body>
+</html>
