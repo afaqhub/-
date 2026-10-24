@@ -1976,6 +1976,8 @@ const FIELD_ALIASES={
   gain:['من فوائد هذا الكلام','فوائد الكلام','فائدة الكلام','الخلاصة','الفائدة المستنبطة','gain'],
   id:['المعرف','المعرّف','id']
 };
+// عناوين التصدير نفسها تُقرأ عند الاستيراد (ذهابٌ وإيابٌ بلا فقد)
+Object.keys(FIELD_LABELS).forEach(f=>{ if(FIELD_ALIASES[f]) FIELD_ALIASES[f].push(FIELD_LABELS[f]); });
 function normKey(s){ return norm(s).replace(/[\s_\-:.()\/\\*#"'`«»\[\]|]/g,''); }
 const KEYMAP=(()=>{ const m={}; Object.keys(FIELD_ALIASES).forEach(f=>FIELD_ALIASES[f].forEach(a=>{ const k=normKey(a); if(k&&!m[k]) m[k]=f; })); return m; })();
 
