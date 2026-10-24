@@ -201,11 +201,17 @@ function hijri_(d){
 }
 function dayKey_(){ return Utilities.formatDate ? Utilities.formatDate(new Date(), 'UTC', 'yyyyMMdd') : new Date().toISOString().slice(0,10).replace(/-/g,''); }
 
+/** كل كتابة تمرّ من هنا: قفل، ثم إبطال ذاكرة القراءة، ثم رفع «رقم النسخة» ليعرف المتصفح أن بياناته قديمة. */
 function withLock_(ms, fn){
   var lock = LockService.getScriptLock();
   lock.waitLock(ms || 20000);
-  try { return fn(); } finally { lock.releaseLock(); }
+  try { _ALL = null; var r = fn(); bump_(); return r; }
+  finally { _ALL = null; lock.releaseLock(); }
 }
+
+/** رقم نسخة البيانات: يتغيّر مع كل كتابة. إن جاء المتصفح بالرقم نفسه فلا حاجة لقراءة الجدول أصلًا. */
+function ver_(){ return PropertiesService.getScriptProperties().getProperty('VER') || '0'; }
+function bump_(){ PropertiesService.getScriptProperties().setProperty('VER', Date.now().toString(36) + Math.floor(Math.random()*1296).toString(36)); }
 
 /* ===================== كلمة المرور ===================== */
 /** (اختياري) كلمة مرور ابتدائية من اختيارك — اكتبها مكان النجوم ثم شغّل الدالة. */
@@ -240,7 +246,8 @@ function doGet(){
 
 var PUBLIC = {
   login:api_login, listPublic:api_listPublic, getPublic:api_getPublic, metaPublic:api_metaPublic,
-  settings:api_settings, contact:api_contact, templates:api_templates, templateImage:api_templateImage
+  settings:api_settings, contact:api_contact, templates:api_templates, templateImage:api_templateImage,
+  boot:api_boot
 };
 var OWNER = {
   checkToken:api_checkToken, list:api_list, get:api_get, save:api_save, setField:api_setField,
@@ -259,7 +266,7 @@ var OWNER = {
 var ALLOWED_BEFORE_CHANGE = { checkToken:1, changePassword:1, logout:1 };
 
 function doPost(e){
-  _SC = {};
+  _SC = {}; _ALL = null;
   var req;
   try { req = JSON.parse(e.postData.contents); }
   catch (err) { return out_({ok:false, error:'طلب غير صالح'}); }
@@ -271,7 +278,7 @@ function doPost(e){
   try {
     // قائمة بيضاء: لا يُستدعى إلا ما هو مسمّى هنا صراحةً
     if (Object.prototype.hasOwnProperty.call(PUBLIC, fn))
-      return out_({ok:true, data: PUBLIC[fn](args)});
+      return out_({ok:true, data: PUBLIC[fn](args, token)});
     if (Object.prototype.hasOwnProperty.call(OWNER, fn)) {
       if (!validToken_(token)) return out_({ok:false, error:'انتهت الجلسة — سجّل الدخول مرة أخرى', auth:true});
       if (mustChange_() && !ALLOWED_BEFORE_CHANGE[fn])
@@ -294,8 +301,8 @@ function api_login(a){
   var now = Date.now();
   var until = Number(p.getProperty('LOCKUNTIL')||0);
   if (until > now) throw new Error('محاولات خاطئة كثيرة — انتظر ' + Math.ceil((until-now)/60000) + ' دقيقة ثم أعد المحاولة');
-  Utilities.sleep(400); // تبطيء المحاولات المتكررة
   if (hash_(salt + String(a.password||'')) !== h) {
+    Utilities.sleep(400); // تبطيء المحاولات الخاطئة المتكررة
     var f = Number(p.getProperty('FAILS')||0) + 1;
     p.setProperty('FAILS', String(f));
     if (f >= 5) {
@@ -308,7 +315,25 @@ function api_login(a){
   purgeTokens_();
   var tok = Utilities.getUuid() + Utilities.getUuid().slice(0,8);
   p.setProperty('TOK_'+tok, String(now + TOKEN_DAYS*86400000));
-  return {ok:true, token:tok, mustChange: mustChange_()};
+  var must = mustChange_(), res = {ok:true, token:tok, mustChange: must};
+  if (!must) res.boot = api_boot({}, tok);     // بيانات الصفحة في الطلب نفسه: لا رحلة ثانية بعد الدخول
+  return res;
+}
+
+/**
+ * طلب واحد يُقلع به المتصفح: الإعدادات + القوائم + الفوائد.
+ * إن أرسل المتصفح رقم النسخة الذي عنده ولم يتغيّر شيء عاد {same:true} فقط دون قراءة الجدول.
+ */
+function api_boot(a, token){
+  a = a || {};
+  var owner = validToken_(token), must = owner && mustChange_(), ver = ver_();
+  var out = {owner:owner, mustChange:must, ver:ver};
+  if (must) return out;
+  if (a.ver && String(a.ver) === ver && !!a.owner === owner) { out.same = true; return out; }
+  out.settings = owner ? api_settingsOwner() : api_settings();
+  out.meta = owner ? api_meta() : api_metaPublic();
+  out.items = owner ? api_list() : api_listPublic();
+  return out;
 }
 
 function purgeTokens_(){
@@ -475,11 +500,15 @@ function registerPeople_(names, idx){
 }
 
 /* ===================== قراءة الفوائد ===================== */
+var _ALL = null;
+/** تُقرأ الورقة مرة واحدة في الطلب الواحد مهما تعدّدت الدوال التي تحتاجها. */
 function readAll_(){
+  if (_ALL) return _ALL.slice();
   var sh = fsheet_(), last = sh.getLastRow();
-  if (last < 2) return [];
+  if (last < 2) return (_ALL = []).slice();
   var vals = sh.getRange(2,1,last-1,COLS.length).getValues();
-  return vals.map(function(r,i){ return rowToObj_(r, i+2); }).filter(function(o){ return o.id; });
+  _ALL = vals.map(function(r,i){ return rowToObj_(r, i+2); }).filter(function(o){ return o.id; });
+  return _ALL.slice();
 }
 
 function rowToObj_(r, rowNum){
@@ -714,10 +743,11 @@ function api_save(a){
 
 function nextId_(){
   var p = PropertiesService.getScriptProperties();
-  var n = Number(p.getProperty('COUNTER')||0);
-  readAll_().forEach(function(o){ var k=Number(String(o.id).replace(/\D/g,'')); if(k>n) n=k; });
-  n++; p.setProperty('COUNTER', String(n));
-  return 'F-' + ('000000'+n).slice(-6);
+  var n = Number(p.getProperty('COUNTER')||0), id;
+  if (!n) readAll_().forEach(function(o){ var k=Number(String(o.id).replace(/\D/g,'')); if(k>n) n=k; });
+  do { n++; id = 'F-' + ('000000'+n).slice(-6); } while (findRow_(id));   // تحقق رخيص من عمود المعرّفات فقط
+  p.setProperty('COUNTER', String(n));
+  return id;
 }
 
 function api_setField(a){

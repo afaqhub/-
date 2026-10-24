@@ -350,6 +350,7 @@ async function api(fn,args,otherUrl){
 }
 
 const db = {
+  async boot(ver,owner){ return await api('boot',{ver:ver||'',owner:!!owner}); },
   async settings(){ return await api(st.owner?'settingsOwner':'settings'); },
   async meta(){ return await api(st.owner?'meta':'metaPublic'); },
   async list(owner){ return await api(owner?'list':'listPublic'); },
@@ -470,31 +471,59 @@ const st={ owner:false, mustChange:false, tab:'all', q:'', f:{cat:'',speaker:'',
 const ADMIN_TABS={reading:'سجل القراءة',stats:'إحصاءات',admin:'لوحة التحكم',trash:'سلة المحذوفات',inbox:'الرسائل'};
 const NOFILTER={cat:'',speaker:'',ref:'',type:'',tag:'',medium:''};
 
-/* ---------- 4) الإقلاع ---------- */
+/* ---------- 4) الإقلاع السريع ----------
+   طلب واحد يجلب كل شيء، والنسخة المحفوظة في الجهاز تُعرض فورًا، وإن لم يتغيّر شيء في الخادم
+   (رقم النسخة نفسه) لا يُقرأ الجدول أصلًا. */
+const IDB={ db:null,
+  open(){ return new Promise(res=>{ try{ const r=indexedDB.open('kunnasha',1); r.onupgradeneeded=()=>r.result.createObjectStore('kv'); r.onsuccess=()=>res(r.result); r.onerror=()=>res(null); }catch(e){ res(null); } }); },
+  async tx(mode,fn){ const d=this.db||(this.db=await this.open()); if(!d) return null;
+    return new Promise(res=>{ try{ const t=d.transaction('kv',mode), q=fn(t.objectStore('kv')); q.onsuccess=()=>res(q.result===undefined?null:q.result); q.onerror=()=>res(null); }catch(e){ res(null); } }); },
+  get(k){ return this.tx('readonly',s=>s.get(k)); },
+  set(k,v){ return this.tx('readwrite',s=>s.put(v,k)); },
+  del(k){ return this.tx('readwrite',s=>s.delete(k)); }
+};
+const cacheKey=role=>srv()+'|'+role;
+const cacheGet=role=>IDB.get(cacheKey(role));
+function cacheSet(role,d){ return IDB.set(cacheKey(role),{ver:d.ver,settings:d.settings,meta:d.meta,items:d.items,at:Date.now()}); }
+
+function applyData(d){
+  st.cfg=d.settings||st.cfg; st.meta=d.meta; st.items=d.items; st.ver=d.ver;
+  st.mediums=(d.meta.mediums&&d.meta.mediums.length)?d.meta.mediums:st.mediums;
+  applySettings();
+}
+/** يُطبّق ردّ الخادم. يعيد 'must' إن لزم تغيير كلمة المرور، و'same' إن لم يتغيّر شيء، و'fresh' إن وصلت بيانات جديدة. */
+function handleBoot(r,presumedOwner){
+  st.owner=!!r.owner; st.mustChange=!!r.mustChange;
+  if(presumedOwner && !r.owner){ IDB.del(cacheKey('o')); setTok(''); }        // انتهت صلاحية الرمز: ارجع زائرًا
+  if(r.mustChange){ renderChrome0(); forceChangeSheet(); return 'must'; }
+  if(r.same){ st.ver=r.ver; renderChrome(); render(); return 'same'; }
+  applyData(r); cacheSet(r.owner?'o':'g',r); renderChrome(); render(); return 'fresh';
+}
+/** أول فتح: اعرض ما في الجهاز فورًا ثم حدّثه من الخادم. */
+async function bootLoad(){
+  const presumed=!!tok();
+  const cached=await cacheGet(presumed?'o':'g');
+  st.fromCache=false;
+  if(cached){ st.owner=presumed; applyData(cached); st.fromCache=true; renderChrome(); render(); }
+  else busy(true,'جارٍ الاتصال بالخادم…');
+  try{ const r=await db.boot(cached&&cached.ver,presumed); busy(false); return handleBoot(r,presumed); }
+  catch(e){ busy(false); if(cached && isNetworkError(e)){ toast('لا اتصال — تعرض آخر نسخة محفوظة في جهازك'); return 'offline'; } throw e; }
+}
+
 (async function(){
   document.documentElement.dataset.theme = localStorage.getItem('k_theme')||'light';
   document.documentElement.style.setProperty('--fs',(localStorage.getItem('k_fs')||16)+'px');
   loadSession(); loadQueue();
   bindChrome();
   if(!srv()){ serverSheet(); return; }          // أول فتح: اطلب رابط الخادم
-  busy(true,'جارٍ الاتصال بالخادم…');
   try{
-    const chk = await db.checkToken();
-    st.owner = !!chk; st.mustChange = !!(chk&&chk.mustChange);
-    st.cfg = await db.settings();
-    applySettings();
-    busy(false);
-    if(st.mustChange){ renderChrome0(); forceChangeSheet(); return; }
-    await refresh();
+    const res=await bootLoad();
+    if(res==='must') return;
     flushQueue(false);
     handleHash();
     restoreDraftNotice();
     maybeWelcome();
-  }catch(e){
-    busy(false);
-    if(e.mustChange){ st.owner=true; renderChrome0(); forceChangeSheet(); return; }
-    fatal(e.message);
-  }
+  }catch(e){ busy(false); fatal(e.message); }
 })();
 
 /** شاشة إدخال رابط الخادم (تظهر مرة واحدة في كل جهاز) */
@@ -513,12 +542,9 @@ function serverSheet(){
     }
     setSrv(u); busy(true,'جارٍ التحقّق…');
     try{
-      const chk=await db.checkToken(); st.owner=!!chk; st.mustChange=!!(chk&&chk.mustChange);
-      st.cfg=await db.settings();
-      applySettings();
+      const res=await bootLoad();
       busy(false); closeSheet(true);
-      if(st.mustChange){ renderChrome0(); forceChangeSheet(); return; }
-      await refresh();
+      if(res==='must') return;
       toast('تم الاتصال بخادمك بنجاح');
       maybeWelcome();
     }catch(e){ busy(false); setSrv(''); $('#srvmsg').innerHTML='<span style="color:var(--danger)">'+esc(e.message)+'</span>'; }
@@ -534,17 +560,14 @@ function fatal(msg){
   b.append(r,c); $('#view').appendChild(b);
 }
 
+/** إعادة تحميل كل شيء بطلب واحد (بعد أي تعديل). */
 async function refresh(){
   busy(true,'جارٍ التحميل…');
   try{
-    st.meta=await db.meta();
-    st.items=await db.list(st.owner);
-    st.mediums=(st.meta.mediums&&st.meta.mediums.length)?st.meta.mediums:st.mediums;
-    busy(false); renderChrome(); render();
+    const r=await db.boot('',st.owner);        // بلا رقم نسخة: نريد البيانات كاملة
+    busy(false); handleBoot(r,st.owner);
   }catch(e){
     busy(false);
-    if(e.mustChange){ renderChrome0(); forceChangeSheet(); return; }
-    if(st.owner===false && /انتهت الجلسة/.test(e.message)){ toast('انتهت الجلسة — سجّل الدخول من جديد'); return refresh(); }   // انتهت صلاحية الرمز: ارجع زائرًا
     if(!st.meta) st.meta={categories:[],speakers:[],refs:[],tags:[],types:[],mediums:st.mediums,people:[]};
     renderChrome();
     // انقطاع الاتصال وعندنا بيانات محمَّلة: أبقِ ما هو معروض ولا تُفرغ الشاشة
@@ -1110,7 +1133,7 @@ async function renderAdmin(v){
   $('#countline').innerHTML='';
   v.innerHTML='<div class="empty">جارٍ التحميل…</div>';
   let C, P;
-  try{ C=await db.metaCounts(); P=await db.people(); st.cfg=await db.settings(); }
+  try{ [C,P,st.cfg]=await Promise.all([db.metaCounts(),db.people(),db.settings()]); }
   catch(e){ v.innerHTML=''; return fatal(e.message); }
   v.innerHTML='';
   const pmap={}; P.forEach(p=>pmap[p.name]=p);
@@ -1576,17 +1599,17 @@ function loginSheet(){
     if(!r){ $('#lgmsg').innerHTML='<span style="color:var(--danger)">كلمة المرور غير صحيحة</span>'; return; }
     st.owner=true; st.mustChange=!!r.mustChange; closeSheet(true);
     if(st.mustChange){ renderChrome0(); forceChangeSheet(); return; }
-    st.tab='all'; st.cfg=await db.settings(); applySettings(); await refresh(); toast('أهلًا بك، دخلتَ بوضع المالك');
-    flushQueue(false); maybeWelcome();
+    st.tab='all'; handleBoot(r.boot,true);       // البيانات جاءت مع ردّ الدخول: لا رحلة ثانية
+    toast('أهلًا بك، دخلتَ بوضع المالك'); flushQueue(false); maybeWelcome();
   };
   $('#go').onclick=go; $('#pw').onkeydown=e=>{if(e.key==='Enter')go()}; $('#pw').focus();
 }
 async function logout(){
   busy(true,'جارٍ الخروج…'); await db.logout();
-  st.owner=false; st.sel=null; st.tab='all'; st.f=Object.assign({},NOFILTER); saveSession(null);
-  try{ st.cfg=await db.settings(); applySettings(); }catch(e){}
+  IDB.del(cacheKey('o'));                       // لا تبقى فوائدك الخاصة مخزَّنة في الجهاز بعد الخروج
+  st.owner=false; st.sel=null; st.tab='all'; st.f=Object.assign({},NOFILTER); saveSession(null); st.items=[]; st.meta=null;
   busy(false);
-  await refresh(); toast('خرجتَ — أنت الآن ترى ما يراه الزائر');
+  try{ await bootLoad(); toast('خرجتَ — أنت الآن ترى ما يراه الزائر'); }catch(e){ fatal(e.message); }
 }
 
 /** شاشة إلزامية: لا تُغلق إلا بتغيير كلمة المرور المؤقتة. */
@@ -1608,8 +1631,8 @@ function forceChangeSheet(){
       const r=await db.changePassword(o,n);
       if(r&&r.ok===false){ busy(false); return say(r.error); }
       const l=await db.login(n);
-      st.owner=!!l; st.mustChange=false; busy(false); closeSheet(true);
-      st.cfg=await db.settings(); applySettings(); await refresh(); toast('تم — كلمة مرورك الجديدة محفوظة');
+      busy(false); closeSheet(true);
+      handleBoot(l.boot,true); toast('تم — كلمة مرورك الجديدة محفوظة');
       maybeWelcome();
     }catch(e){ busy(false); say(e.message); }
   };

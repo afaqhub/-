@@ -288,6 +288,36 @@ t('المراجعة المتباعدة', () => {
   assert.ok(!E.call('due',{},tok).data.some(x=>x.id===id));
 });
 
+console.log('الإقلاع السريع (boot)');
+t('طلب واحد يعيد الإعدادات والقوائم والفوائد، ولكل دور بياناته', () => {
+  const g = E.call('boot',{}).data; assert.strictEqual(g.owner,false); assert.ok(g.settings && g.meta && Array.isArray(g.items) && g.ver);
+  assert.ok(g.items.every(i=>i.visibility==='عامة'), 'الزائر: العام فقط'); assert.ok(!('رد تلقائي' in g.settings));
+  const o = E.call('boot',{},tok).data; assert.strictEqual(o.owner,true); assert.ok(o.items.length>=g.items.length); assert.ok('رد تلقائي' in o.settings); assert.ok(o.meta.people);
+});
+t('رقم النسخة نفسه ⇒ same بلا قراءة الجدول', () => {
+  const o = E.call('boot',{},tok).data;
+  const r = E.call('boot',{ver:o.ver,owner:true},tok).data; assert.strictEqual(r.same,true); assert.ok(!r.items && !r.settings);
+  assert.ok(!E.call('boot',{ver:o.ver,owner:true}).data.same, 'دور مختلف (زائر برمز غير صالح) لا يأخذ same');
+});
+t('أي كتابة تغيّر رقم النسخة', () => {
+  const v0 = E.call('boot',{},tok).data.ver; E.call('save',{item:{text:'فائدة لتغيير الرقم'}},tok);
+  const r = E.call('boot',{ver:v0,owner:true},tok).data; assert.ok(!r.same && r.items.some(i=>i.text==='فائدة لتغيير الرقم'));
+  const v1 = r.ver; E.call('contact',{kind:'ملاحظة',message:'م'}); assert.notStrictEqual(E.call('boot',{},tok).data.ver, v1);
+});
+t('الدخول يعيد البيانات في الردّ نفسه، وmustChange يمنعها', () => {
+  const r = E.call('login',{password:'MyNewPass1'}).data; assert.ok(r.ok && r.boot && r.boot.owner && r.boot.items.length);
+  E.call('resetPassword' in E.ctx ? 'checkToken':'checkToken',{},tok);
+  const temp2 = E.ctx.resetPassword().match(/: (\S{10})\n/)[1];
+  const l = E.call('login',{password:temp2}).data; assert.ok(l.ok && l.mustChange && !l.boot);
+  assert.ok(E.call('boot',{},l.token).data.mustChange); assert.ok(!E.call('boot',{},l.token).data.items);
+  assert.ok(E.call('changePassword',{old:temp2,neu:'MyNewPass1'},l.token).data.ok); tok = E.call('login',{password:'MyNewPass1'}).data.token;
+});
+t('المعرّفات لا تتعارض حتى لو تخلّف العدّاد', () => {
+  E.props.COUNTER = '1';
+  const a = E.call('save',{item:{text:'فائدة بعد تخلّف العدّاد'}},tok).data.id; const all = E.call('list',{},tok).data.map(x=>x.id);
+  assert.strictEqual(all.filter(x=>x===a).length,1);
+});
+
 console.log('الترحيل من الإصدار ١');
 t('جدول قديم (٢٥ عمودًا وقائلون بأربعة أعمدة) يعمل فورًا ثم يُكمَّل بـ setup دون المساس بالبيانات', () => {
   const O = build();
