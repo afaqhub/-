@@ -462,6 +462,23 @@ function hijri(iso){
   try{ return new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura',{day:'numeric',month:'long',year:'numeric'}).format(new Date(iso)); }
   catch(e){ return ''; }
 }
+const HMONTHS=['محرّم','صفر','ربيع الأول','ربيع الآخر','جمادى الأولى','جمادى الآخرة','رجب','شعبان','رمضان','شوال','ذو القعدة','ذو الحجة'];
+/** أجزاء التاريخ الهجري (أم القرى) لتاريخ ميلادي */
+function hijriParts(d){
+  try{ const p=new Intl.DateTimeFormat('en-u-ca-islamic-umalqura-nu-latn',{day:'numeric',month:'numeric',year:'numeric'}).formatToParts(d); const g=t=>+p.find(x=>x.type===t).value; return {y:g('year'),m:g('month'),d:g('day')}; }
+  catch(e){ return null; }
+}
+/** التاريخ الميلادي (ظهر ذلك اليوم) لتاريخ هجري؛ يبحث حول التقدير الجدولي ليطابق أم القرى تمامًا */
+function hijriToDate(y,m,d){
+  const jd=Math.floor((11*y+3)/30)+354*y+30*m-Math.floor((m-1)/2)+d+1948440-385;
+  const base=new Date(Date.UTC(2000,0,1,12)); base.setUTCDate(base.getUTCDate()+(jd-2451545)); // 2451545 = 1 يناير 2000
+  const at=new Date(base.getUTCFullYear(),base.getUTCMonth(),base.getUTCDate(),12);
+  for(const dd of [d,d-1]) for(let off=-3;off<=3;off++){
+    const c=new Date(at.getFullYear(),at.getMonth(),at.getDate()+off+(dd-d),12), h=hijriParts(c);
+    if(h&&h.y===y&&h.m===m&&h.d===dd) return c;
+  }
+  return at;
+}
 function greg(iso){ if(!iso) return ''; try{return new Intl.DateTimeFormat('ar',{day:'numeric',month:'long',year:'numeric'}).format(new Date(iso))}catch(e){return ''} }
 function toast(msg,actionLabel,action){
   const t=$('#toast'); t.innerHTML='';
@@ -1156,8 +1173,31 @@ function editor(item){
         <option value="0" ${i.starred?'':'selected'}>لا</option>
         <option value="1" ${i.starred?'selected':''}>نعم ★</option></select></label>
     </div>
+    <div class="fld" id="dtw"><span>تاريخ الفائدة</span>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><b id="dt_txt" style="font-weight:700"></b><button type="button" class="chip" id="dt_chg">📅 تغيير</button><button type="button" class="chip" id="dt_today" style="display:none">اليوم</button></div>
+      <div id="dt_pick" style="display:none;margin-top:8px"><div class="grid3" style="display:grid;grid-template-columns:.8fr 1.6fr 1fr;gap:6px"><select class="t" id="dt_d"></select><select class="t" id="dt_m"></select><select class="t" id="dt_y"></select></div>
+        <label class="fld" style="margin-top:6px"><span>أو بالميلادي</span><input class="t" type="date" id="dt_g"></label></div></div>
     <div class="row2"><button class="btn" id="save">حفظ</button>${isNew?'<button class="btn ghost" id="save2">حفظ وإضافة أخرى</button>':''}</div>
     ${isNew?'<p class="hint" style="margin-top:10px">يُحفظ ما تكتبه تلقائيًا في جهازك لحظة بلحظة، فلا يضيع إن أُغلقت الصفحة.</p>':''}`);
+  // تاريخ الفائدة: الأصل اليوم (بالهجري)، ويغيّره المستخدم من القوائم إن شاء
+  let dateIso=null; const baseIso=item&&item.createdAt?item.createdAt:'';
+  const curDate=()=>dateIso?new Date(dateIso):(baseIso?new Date(baseIso):new Date());
+  const shownDate=()=>{ const d=curDate(); return hijri(d.toISOString())+' هـ — '+greg(d.toISOString()); };
+  const paintDate=()=>{ $('#dt_txt').textContent=shownDate()+((!dateIso&&isNew)?' (اليوم)':''); $('#dt_today').style.display=(dateIso||(!isNew))?'inline-block':'none'; };
+  const fillPick=()=>{
+    const h=hijriParts(curDate())||{y:1447,m:1,d:1}, thisY=(hijriParts(new Date())||h).y, y0=Math.min(h.y,thisY-8), y1=Math.max(h.y,thisY+1);
+    $('#dt_d').innerHTML=Array.from({length:30},(_,k)=>`<option value="${k+1}" ${k+1===h.d?'selected':''}>${arDigits(k+1)}</option>`).join('');
+    $('#dt_m').innerHTML=HMONTHS.map((n,k)=>`<option value="${k+1}" ${k+1===h.m?'selected':''}>${n}</option>`).join('');
+    let ys=''; for(let y=y1;y>=y0;y--) ys+=`<option value="${y}" ${y===h.y?'selected':''}>${arDigits(y)} هـ</option>`; $('#dt_y').innerHTML=ys;
+    const d=curDate(); $('#dt_g').value=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  };
+  const setDate=d=>{ dateIso=d.toISOString(); paintDate(); fillPick(); };
+  paintDate();
+  $('#dt_chg').onclick=()=>{ const pk=$('#dt_pick'); const open=pk.style.display==='none'; pk.style.display=open?'block':'none'; if(open) fillPick(); };
+  $('#dt_today').onclick=()=>{ dateIso=null; if(item) dateIso=new Date().toISOString(); paintDate(); fillPick(); };
+  const fromHijri=()=>setDate(hijriToDate(+$('#dt_y').value,+$('#dt_m').value,+$('#dt_d').value));
+  ['dt_d','dt_m','dt_y'].forEach(id=>$('#'+id).onchange=fromHijri);
+  $('#dt_g').onchange=e=>{ const v=e.target.value; if(!v) return; const [y,m,d]=v.split('-').map(Number); setDate(new Date(y,m-1,d,12)); };
   let medium=med;
   $('#f_med').onclick=e=>{ const b=e.target.closest('button'); if(!b) return; medium=b.dataset.v;
     [...$('#f_med').children].forEach(c=>c.classList.toggle('on',c===b));
@@ -1193,6 +1233,7 @@ function editor(item){
       tags:[...new Set(tags.concat(p.tags))],
       visibility:$('#f_vis').value, starred:$('#f_star').value==='1'||p.star };
     obj.status = (obj.speaker||obj.ref) ? 'منشورة' : 'مسودة';
+    if(dateIso) obj.createdAt=dateIso;
     if(obj.link && !safeUrl(obj.link)){ toast('الرابط يجب أن يبدأ بـ http:// أو https://'); return; }
     // منع التكرار
     const dup=st.items.find(x=>x.id!==obj.id && dupKey(x.text)===dupKey(obj.text));
@@ -1730,7 +1771,7 @@ async function flushQueue(loud){
 }
 function queuedAsItems(){
   return st.queue.map(q=>Object.assign({},q.obj,{
-    id:q.tmp, createdAt:q.at, updatedAt:q.at, _pending:true, status:q.obj.status||'منشورة'
+    id:q.tmp, createdAt:q.obj.createdAt||q.at, updatedAt:q.at, _pending:true, status:q.obj.status||'منشورة'
   }));
 }
 

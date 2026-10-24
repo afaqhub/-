@@ -724,6 +724,8 @@ function api_save(a){
       Object.keys(cur).forEach(function(k){ if (k !== '_row' && o[k] === undefined) o[k] = cur[k]; });
       if (!o.text) throw new Error('نص الفائدة فارغ');
       o.createdAt = cur.createdAt; o.createdHijri = cur.createdHijri; o.prevStatus = cur.prevStatus;
+      var cd = isoOrEmpty_((a.item || {}).createdAt);   // تغيير تاريخ الفائدة يدويًا
+      if (cd && cd.slice(0,10) !== String(cur.createdAt).slice(0,10)) { o.createdAt = cd; o.createdHijri = hijri_(new Date(cd)); }
       o.updatedAt = now.toISOString();
       sh.getRange(row,1,1,COLS.length).setValues([objToRow_(o)]);
     } else {
@@ -731,9 +733,10 @@ function api_save(a){
       o.id = nextId_();
       o.visibility = o.visibility || 'خاصة';
       o.status = o.status || ((o.speaker || o.ref) ? 'منشورة' : 'مسودة');
-      o.createdAt = now.toISOString();
-      o.createdHijri = hijri_(now);
-      o.updatedAt = o.createdAt;
+      var cd2 = isoOrEmpty_((a.item || {}).createdAt), when = cd2 ? new Date(cd2) : now;   // الأصل: تاريخ اليوم
+      o.createdAt = when.toISOString();
+      o.createdHijri = hijri_(when);
+      o.updatedAt = now.toISOString();
       o.tags = o.tags || [];
       appendText_(sh, objToRow_(o));
     }
