@@ -1,0 +1,4 @@
+node_modules/
+e2e/out/
+e2e/files/
+package-lock.json

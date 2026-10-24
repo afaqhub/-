@@ -1,0 +1,17 @@
+{
+  "name": "kunnasha-dev",
+  "private": true,
+  "description": "أدوات اختبار كُنّاشة الفوائد (لا تلزم لتشغيل المنصة)",
+  "scripts": {
+    "test:server": "node test-server.js",
+    "fixtures": "node e2e/make-fixtures.js",
+    "test:e2e": "npm run fixtures && node e2e/1-smoke.js && node e2e/2-images.js && node e2e/3-import-export.js && node e2e/4-owner-guest.js && node e2e/5-offline-security.js",
+    "test": "npm run test:server && npm run test:e2e"
+  },
+  "devDependencies": {
+    "@fontsource/amiri": "^5.0.0",
+    "@fontsource/cairo": "^5.0.0",
+    "playwright": "^1.40.0",
+    "xlsx": "0.18.5"
+  }
+}
