@@ -49,7 +49,7 @@ let pass=0,fail=0; const ok=(c,m)=>{ if(c){pass++;console.log('  ✓',m)}else{fa
   await shot(P,'37-select'); await P.click('#selbar button:has-text("صور")'); await P.waitForSelector('#pvc');
   ok((await P.locator('#sheet .shhd h3').innerText()).includes('2'),'نافذة الصور لفائدتين');
   await P.check('#im_no'); await P.fill('#im_num','70');
-  const [dl1,dl2]=await Promise.all([P.waitForEvent('download'),P.waitForEvent('download'),P.click('#im_save')]); ok(/kunnasha-F-\d+\.png$/.test(dl1.suggestedFilename()),'نُزّلت صورتان: '+dl1.suggestedFilename()+' '+dl2.suggestedFilename());
+  const [dl1,dl2]=await Promise.all([P.waitForEvent('download'),P.waitForEvent('download'),P.click('#im_save')]); ok(/kunnasha-F-\d+(-\d+)?\.png$/.test(dl1.suggestedFilename()),'نُزّلت صورتان: '+dl1.suggestedFilename()+' '+dl2.suggestedFilename());
   await P.waitForTimeout(1200); const nos=await P.evaluate(()=>st.items.filter(i=>i.pubNo).map(i=>i.pubNo).sort()); ok(nos.join()==='70,71','سُجّل الترقيم والنشر 70 و71: '+nos);
   await P.evaluate(()=>{closeSheet(true);endSelect();});
   // لوحة التحكم

@@ -10,6 +10,7 @@ async function start(){
   const gas=await serve(8787);
   const web=http.createServer((req,res)=>{
     if(req.url.startsWith('/__f/')){ const f=req.url.slice(5); const p=path.join(FONTS,f.replace(/\.\./g,'')); if(fs.existsSync(p)){res.writeHead(200,{'Content-Type':'font/woff2','Access-Control-Allow-Origin':'*'});return res.end(fs.readFileSync(p));} }
+    if(req.url.startsWith('/server.txt')){ if(global.__serverTxt){ res.writeHead(200,{'Content-Type':'text/plain'}); return res.end(global.__serverTxt); } res.writeHead(404); return res.end('not found'); }
     res.writeHead(200,{'Content-Type':'text/html; charset=utf-8'}); res.end(fs.readFileSync(path.join(__dirname,'..','..','index.html')));
   }); await new Promise(r=>web.listen(8788,r));
   const browser=await chromium.launch();
@@ -18,7 +19,7 @@ async function start(){
 async function newPage(browser,opts={}){
   const ctx=await browser.newContext({viewport:{width:430,height:900},locale:'ar-SA',...opts});
   const page=await ctx.newPage();
-  const errors=[]; page.on('pageerror',e=>errors.push('PAGEERR '+e.message)); page.on('console',m=>{ if(m.type()==='error') errors.push('CONSOLE '+m.text()); });
+  const errors=[]; page.on('pageerror',e=>errors.push('PAGEERR '+e.message)); page.on('console',m=>{ if(m.type()==='error' && !/status of 404/.test(m.text())) errors.push('CONSOLE '+m.text()); });
   await page.route('https://fonts.googleapis.com/**',r=>r.fulfill({contentType:'text/css',body:`
     @font-face{font-family:Amiri;font-weight:400;src:url(http://localhost:8788/__f/amiri/files/amiri-arabic-400-normal.woff2)}
     @font-face{font-family:Amiri;font-weight:700;src:url(http://localhost:8788/__f/amiri/files/amiri-arabic-700-normal.woff2)}

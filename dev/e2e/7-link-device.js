@@ -7,7 +7,7 @@ let pass=0,fail=0; const ok=(c,m)=>{ if(c){pass++;console.log('  ✓',m)}else{fa
   const a=await newPage(browser); await a.page.addInitScript(([t,u])=>{ localStorage.setItem('k_server',u); localStorage.setItem('k_token',t); localStorage.setItem('k_welcome_skip','1'); },[tok,URL]);
   await a.page.goto('http://localhost:8788/'); await a.page.waitForSelector('.card');
   const link=await a.page.evaluate(()=>linkAnother()); ok(link==='http://localhost:8788/#srv='+encodeURIComponent(URL),'رابط الجوال: '+link.slice(0,60)+'…');
-  await a.page.evaluate(()=>goTab('admin')); await a.page.waitForSelector('#lk_url'); const ln=await a.page.locator('#ln_line').textContent(); console.log(JSON.stringify(ln)); ok(ln==="const SERVER_URL = '"+URL+"';",'السطر الجاهز للصفحة صحيح');
+  await a.page.evaluate(()=>goTab('admin')); await a.page.waitForSelector('#lk_url',{state:'attached'}); const ln=await a.page.locator('#ln_line').textContent(); console.log(JSON.stringify(ln)); ok(ln===URL,'رابط الخادم الجاهز للنسخ صحيح');
   // الجوال: لا شيء مخزَّن، يفتح الرابط
   const b=await newPage(browser); let dlg='';
   b.page.on('dialog',async d=>{ dlg=d.message(); await d.accept(); });
@@ -25,5 +25,18 @@ let pass=0,fail=0; const ok=(c,m)=>{ if(c){pass++;console.log('  ✓',m)}else{fa
   const d=await newPage(browser); d.page.on('dialog',async x=>{ await x.accept(); }); await d.page.addInitScript(()=>{ localStorage.setItem('k_welcome_skip','1'); });
   await d.page.goto('http://localhost:8788/#srv='+encodeURIComponent('https://evil.example.com/exec')); await d.page.waitForSelector('#srvin');
   ok(await d.page.evaluate(()=>!srv()),'رابط ليس من Google لا يُقبل أبدًا');
+  console.log('ملف server.txt');
+  global.__serverTxt=URL+'\n';
+  const e=await newPage(browser); let asked2=false; e.page.on('dialog',async x=>{ asked2=true; await x.dismiss(); }); await e.page.addInitScript(()=>{ localStorage.setItem('k_welcome_skip','1'); });
+  await e.page.goto('http://localhost:8788/'); await e.page.waitForSelector('.card,.empty'); await e.page.waitForTimeout(300);
+  ok(!asked2 && await e.page.evaluate(()=>st.items.length>0 && !!st.srvFromFile),'جهاز جديد بلا أي إعداد يتصل وحده من server.txt');
+  await e.page.click('#btnAuth'); await e.page.fill('#pw','Secret123'); await e.page.click('#go'); await e.page.waitForSelector('#fab',{state:'visible'});
+  await e.page.evaluate(()=>goTab('admin')); await e.page.waitForSelector('#s_save'); ok((await e.page.locator('.bars:has-text("ربط الأجهزة والزوار")').first().innerText()).includes('server.txt'),'لوحة التحكم تُظهر أنه مضبوط عبر الملف');
+  // الملف يغلب المحفوظ القديم
+  const f=await newPage(browser); await f.page.addInitScript(()=>{ localStorage.setItem('k_server','https://script.google.com/macros/s/OLD/exec'); localStorage.setItem('k_welcome_skip','1'); });
+  await f.page.goto('http://localhost:8788/'); await f.page.waitForFunction(()=>srv().endsWith('/TEST/exec'),null,{timeout:6000}); ok(true,'الرابط في الملف يحلّ محل رابط قديم محفوظ');
+  global.__serverTxt='<html>not a url</html>';
+  const g2=await newPage(browser); await g2.page.addInitScript(()=>{ localStorage.setItem('k_welcome_skip','1'); }); await g2.page.goto('http://localhost:8788/'); await g2.page.waitForSelector('#srvin'); ok(true,'ملف غير صالح لا يُقبل ويُسأل عن الرابط');
+  global.__serverTxt=null;
   console.log(a.errors,b.errors); console.log(pass+' نجح، '+fail+' فشل'); await browser.close(); gas.srv.close(); web.close(); process.exit(fail?1:0);
 })().catch(e=>{console.error(e);process.exit(1)});
