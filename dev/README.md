@@ -25,5 +25,6 @@ node dev/make-release.js
 ## القوالب المستنسخة (templates/)
 - الأصول: `dev/designs/*.jpg` (التصاميم الأصلية).
 - `python3 dev/make-clone-config.py` يكتب `clone-config.json` (مواضع المسح والكتابة).
-- `python3 dev/clone-templates.py [--debug]` يمسح النصوص بالترميم (OpenCV) ويكتب `templates/*.jpg` و`templates/manifest.json`.
+- `python3 dev/clone-templates.py [--debug]` يمسح النصوص بالترميم (OpenCV) ويكتب `templates/*.jpg` و`templates/manifest.json` (مصدر العمل).
+- `node dev/make-release.js` يجمعها في ملف واحد `templates.js` (يُرفع بجانب index.html).
 - الرسم داخل index.html (دالة `drawClone`)، واختباره `e2e/8-clones.js`.

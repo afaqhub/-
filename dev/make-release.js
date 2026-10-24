@@ -15,9 +15,15 @@ const dirs={own:'1-نسخة-خاصة-بي (فيها رابطي)',pub:'2-نسخة
 fs.mkdirSync(path.join(out,dirs.own),{recursive:true}); fs.mkdirSync(path.join(out,dirs.pub),{recursive:true});
 fs.writeFileSync(path.join(out,dirs.own,'index.html'),html.replace(PH,`const SERVER_URL = '${url}';`));
 fs.writeFileSync(path.join(out,dirs.pub,'index.html'),html);
-// مجلد القوالب الجاهزة (خلفيات + manifest) بجانب كل نسخة من index.html
+// القوالب الجاهزة: ملف واحد templates.js (صور + مواضع) يوضع بجانب index.html
 const tdir=path.join(root,'templates');
-if(fs.existsSync(path.join(tdir,'manifest.json'))) for(const d of Object.values(dirs)){ fs.mkdirSync(path.join(out,d,'templates'),{recursive:true}); for(const f of fs.readdirSync(tdir)) if(!f.startsWith('_')) fs.copyFileSync(path.join(tdir,f),path.join(out,d,'templates',f)); }
+if(fs.existsSync(path.join(tdir,'manifest.json'))){
+  const man=JSON.parse(fs.readFileSync(path.join(tdir,'manifest.json'),'utf8'));
+  man.templates.forEach(t=>{ t.img='data:image/jpeg;base64,'+fs.readFileSync(path.join(tdir,t.file)).toString('base64'); delete t.file; });
+  const js='/* قوالب الصور الجاهزة — يُولَّد بـ node dev/make-release.js، ضعه بجانب index.html */\nwindow.KUNNASHA_TPL='+JSON.stringify(man)+';\n';
+  fs.writeFileSync(path.join(root,'templates.js'),js);
+  for(const d of Object.values(dirs)) fs.writeFileSync(path.join(out,d,'templates.js'),js);
+}
 for(const f of ['Code.gs','دليل-الاستخدام.md','خطوات-التثبيت-للمبتدئ.md']) fs.copyFileSync(path.join(root,f),path.join(out,f));
 const zip=path.join(root,'kunnasha-files.zip'); fs.rmSync(zip,{force:true});
 cp.execFileSync('python3',['-c',`import zipfile,os

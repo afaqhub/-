@@ -2653,18 +2653,22 @@ function loadClones(){
   if(clnP) return clnP;
   return clnP=(async()=>{
     try{
-      const ctl=new AbortController(), to=setTimeout(()=>ctl.abort(),6000);
-      const r=await fetch('templates/manifest.json',{signal:ctl.signal}); clearTimeout(to);
-      if(!r.ok) return CLN;
-      const m=await r.json();
-      (m.templates||[]).forEach(t=>{ if(t&&t.id&&t.file&&t.layout) CLN[t.id]={clone:true,id:t.id,n:t.name||t.id,file:t.file,w:t.w,h:t.h,lay:t.layout}; });
+      // الأسهل: ملف واحد templates.js بجانب index.html (فيه الصور والمواضع)
+      await new Promise(res=>{ const sc=document.createElement('script'); sc.src='templates.js'; sc.onload=res; sc.onerror=res; document.head.appendChild(sc); setTimeout(res,10000); });
+      let m=window.KUNNASHA_TPL;
+      if(!m){ // احتياطي: مجلد templates/ بصوره وmanifest.json
+        const ctl=new AbortController(), to=setTimeout(()=>ctl.abort(),6000);
+        const r=await fetch('templates/manifest.json',{signal:ctl.signal}); clearTimeout(to);
+        if(r.ok) m=await r.json();
+      }
+      ((m&&m.templates)||[]).forEach(t=>{ if(t&&t.id&&(t.img||t.file)&&t.layout) CLN[t.id]={clone:true,id:t.id,n:t.name||t.id,file:t.file,data:t.img,w:t.w,h:t.h,lay:t.layout}; });
     }catch(e){}
     return CLN;
   })();
 }
 function getClnImg(T){
   if(T.img) return T.img;
-  return T.img=new Promise((res,rej)=>{ const im=new Image(); im.onload=()=>res(im); im.onerror=()=>{ T.img=null; rej(new Error('تعذّر تحميل خلفية القالب «'+T.n+'»')); }; im.src='templates/'+T.file; });
+  return T.img=new Promise((res,rej)=>{ const im=new Image(); im.onload=()=>res(im); im.onerror=()=>{ T.img=null; rej(new Error('تعذّر تحميل خلفية القالب «'+T.n+'»')); }; im.src=T.data||('templates/'+T.file); });
 }
 function icoLeaf(ctx,x,y,s,c){
   ctx.save(); ctx.translate(x,y); ctx.rotate(-.7); ctx.strokeStyle=c; ctx.fillStyle=c; ctx.lineWidth=s*.07;

@@ -10,6 +10,7 @@ async function start(){
   const gas=await serve(8787);
   const web=http.createServer((req,res)=>{
     if(req.url.startsWith('/__f/')){ const f=req.url.slice(5); const p=path.join(FONTS,f.replace(/\.\./g,'')); if(fs.existsSync(p)){res.writeHead(200,{'Content-Type':'font/woff2','Access-Control-Allow-Origin':'*'});return res.end(fs.readFileSync(p));} }
+    if(req.url.startsWith('/templates.js')){ const p=path.join(__dirname,'..','..','templates.js'); if(!global.__noTemplates&&fs.existsSync(p)){ res.writeHead(200,{'Content-Type':'application/javascript'}); return res.end(fs.readFileSync(p)); } res.writeHead(404); return res.end('nf'); }
     if(req.url.startsWith('/templates/')&&!global.__noTemplates){ const p=path.join(__dirname,'..','..','templates',req.url.slice(11).split('?')[0].replace(/\.\./g,'')); if(fs.existsSync(p)){ res.writeHead(200,{'Content-Type':p.endsWith('.json')?'application/json':'image/jpeg'}); return res.end(fs.readFileSync(p)); } res.writeHead(404); return res.end('nf'); }
     if(req.url.startsWith('/server.txt')){ if(global.__serverTxt){ res.writeHead(200,{'Content-Type':'text/plain'}); return res.end(global.__serverTxt); } res.writeHead(404); return res.end('not found'); }
     res.writeHead(200,{'Content-Type':'text/html; charset=utf-8'}); let html=fs.readFileSync(path.join(__dirname,'..','..','index.html'),'utf8'); if(global.__embedUrl) html=html.replace("const SERVER_URL = 'الصق_رابط_السكربت_هنا';","const SERVER_URL = '"+global.__embedUrl+"';"); res.end(html);

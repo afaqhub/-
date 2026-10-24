@@ -10,6 +10,7 @@ const {start,newPage,shot,OUT}=require('./harness.js'); const seed=require('./se
   await openImg(ids.quran);
   const keys=await page.$$eval('#tp .tcell',b=>b.map(x=>x.dataset.k));
   ok(['c1','c2','c4','c5','c7'].every(k=>keys.includes(k)),'clone templates listed: '+keys.filter(k=>/^c\d/.test(k)).join(','));
+  ok(await page.evaluate(()=>!!window.KUNNASHA_TPL),'القوالب تُحمَّل من ملف templates.js الواحد');
   for(const k of ['c1','c2','c4','c5','c7']){ await page.click(`#tp button[data-k="${k}"]`); await page.waitForTimeout(700); await grab('clone-'+k+'-quran'); ok(await page.evaluate(()=>document.querySelector('#pvc').width)>=1000,k+' preview full size'); }
   ok(await page.$eval('#szw',e=>e.style.display)==='none','size chips hidden for clone');
   // numbering + gain
