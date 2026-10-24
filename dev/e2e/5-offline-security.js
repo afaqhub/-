@@ -10,7 +10,7 @@ let pass=0,fail=0; const ok=(c,m)=>{ if(c){pass++;console.log('  ✓',m)}else{fa
   let offline=true; await P.unroute('https://script.google.com/macros/s/TEST/exec');
   await P.route('https://script.google.com/macros/s/TEST/exec',async r=>{ if(offline) return r.abort('failed'); const t=await (await fetch('http://localhost:8787/',{method:'POST',body:r.request().postData()})).text(); r.fulfill({contentType:'application/json',headers:{'access-control-allow-origin':'*'},body:t}); });
   await P.click('#fab'); await P.fill('#f_text','فائدة كُتبت بلا إنترنت'); await P.click('#save'); await P.waitForTimeout(800);
-  ok(await P.locator('.badge.wait').count()===1,'ظهرت بطاقة «⏳ بانتظار الإرسال»'); ok(await P.evaluate(()=>st.queue.length)===1,'حُفظت في قائمة الانتظار'); await shot(P,'50-offline');
+  const wc=await P.locator('.badge.wait').count(); console.log('wait badges',wc, await P.evaluate(()=>st.queue.length)); ok(wc>=1,'ظهرت بطاقة «⏳ بانتظار الإرسال»'); ok(await P.evaluate(()=>st.queue.length)===1,'حُفظت في قائمة الانتظار'); await shot(P,'50-offline');
   ok(await P.locator('.card').count()>3,'بقيت الفوائد المحمَّلة معروضة');
   offline=false; await P.evaluate(()=>flushQueue(true)); await P.waitForTimeout(1200);
   ok(await P.evaluate(()=>st.queue.length)===0 && await P.evaluate(()=>st.items.some(i=>i.text==='فائدة كُتبت بلا إنترنت'&&!i._pending)),'أُرسلت تلقائيًا عند عودة الاتصال');

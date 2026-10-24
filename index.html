@@ -265,6 +265,19 @@ html[data-theme="dark"] .sectitle{color:var(--gold)}
 .prog span{display:block;height:100%;background:var(--gold);width:0;transition:width .2s}
 input[type=range]{width:100%;accent-color:var(--gold)}
 .guide{outline:2px dashed var(--gold);outline-offset:-2px}
+/* ===== لمسات الإصدار 2.1 ===== */
+.card{transition:box-shadow .15s ease, transform .15s ease}
+.card:active{transform:scale(.995)}
+.sbtn{transition:border-color .12s, background .12s}
+.sbtn:active{background:var(--gold-soft)}
+.btn{transition:opacity .12s, transform .08s}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.5}
+.chip{transition:background .12s,border-color .12s}
+.ctext{color:var(--ink)}
+.cite{line-height:1.9}
+.fab{bottom:calc(18px + env(safe-area-inset-bottom))}
+@media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} }
 </style>
 </head>
 <body>
@@ -442,7 +455,8 @@ function download(name,blobOrText,type){
   const u=URL.createObjectURL(b), a=document.createElement('a'); a.href=u; a.download=name; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(()=>URL.revokeObjectURL(u),4000);
 }
-const MEDIA_ICON={سماع:'🎧',مشاهدة:'🎬',مجلس:'👥',قراءة:'📖'};
+const MEDIA_ICON={سماع:'🎧',مشاهدة:'🎬',مجلس:'👥',قراءة:'📖',إنترنت:'🌐'};
+const ALL_MEDIUMS=['قراءة','سماع','مشاهدة','مجلس','إنترنت'];
 
 /** «32:15» أو «1:02:03» أو «د 32» (دقيقة) ← ثوانٍ */
 function parseTime(s){
@@ -474,7 +488,7 @@ function locusText(i){
 
 /* ---------- 3) الحالة ---------- */
 const st={ owner:false, mustChange:false, tab:'all', q:'', f:{cat:'',speaker:'',ref:'',type:'',tag:'',medium:''},
-           limit:20, meta:null, items:[], cfg:{}, session:null, queue:[], sel:null, mediums:['قراءة','سماع','مشاهدة','مجلس'] };
+           limit:20, meta:null, items:[], cfg:{}, session:null, queue:[], sel:null, mediums:ALL_MEDIUMS.slice() };
 const ADMIN_TABS={reading:'سجل القراءة',stats:'إحصاءات',admin:'لوحة التحكم',trash:'سلة المحذوفات',inbox:'الرسائل'};
 const NOFILTER={cat:'',speaker:'',ref:'',type:'',tag:'',medium:''};
 
@@ -495,7 +509,7 @@ function cacheSet(role,d){ return IDB.set(cacheKey(role),{ver:d.ver,settings:d.s
 
 function applyData(d){
   st.cfg=d.settings||st.cfg; st.meta=d.meta; st.items=d.items; st.ver=d.ver;
-  st.mediums=(d.meta.mediums&&d.meta.mediums.length)?d.meta.mediums:st.mediums;
+  st.mediums=[...new Set(ALL_MEDIUMS.concat(d.meta.mediums||[]))];
   applySettings();
 }
 /** يُطبّق ردّ الخادم. يعيد 'must' إن لزم تغيير كلمة المرور، و'same' إن لم يتغيّر شيء، و'fresh' إن وصلت بيانات جديدة. */
@@ -771,6 +785,13 @@ function render(){
   if(st.tab==='refs') return renderIndex(v,'ref','المراجع');
 
   const a=filtered();
+  const act=Object.keys(st.f).filter(k=>st.f[k]);
+  if(act.length||st.q){
+    const bar=el('div','chips'); bar.style.margin='0 0 8px';
+    act.forEach(k=>{ const b=el('button','chip on','✕ '+esc(st.f[k])); b.onclick=()=>{st.f[k]='';renderChrome();render()}; bar.appendChild(b); });
+    const c=el('button','chip','مسح كل التصفية'); c.onclick=()=>{ st.f=Object.assign({},NOFILTER); st.q=''; $('#q').value=''; $('#qclear').style.display='none'; renderChrome(); render(); }; bar.appendChild(c);
+    v.appendChild(bar);
+  }
   $('#countline').innerHTML = `<span>النتائج: <b>${a.length}</b></span>` +
     (st.owner?`<span>· خاصة: ${a.filter(i=>i.visibility==='خاصة').length}</span><span>· تحتاج استكمالًا: ${a.filter(i=>i.status==='مسودة'||i.verify).length}</span>`:'');
   if(!a.length){
@@ -780,7 +801,7 @@ function render(){
   }
 
   if(!st.q && st.tab==='all' && !Object.values(st.f).some(Boolean) && a.length>3 && !st.sel){
-    const r=a.filter(i=>!i._pending)[Math.floor(Math.random()*a.length)] || a[0];
+    const pool=a.filter(i=>!i._pending), r=pool[Math.floor(Math.random()*pool.length)]||a[0];
     v.appendChild(el('div','listsec','فائدة اليوم'));
     v.appendChild(card(r,true));
     v.appendChild(el('div','listsec','كل الفوائد'));
@@ -871,6 +892,7 @@ function citation(i){
   const ml=(i.medium==='سماع'||i.medium==='مشاهدة')&&mediaLink(i);
   let s=p.length?'— '+p.join('، '):'';
   if(ml) s+=(s?' ':'')+`<a href="${esc(ml)}" target="_blank" rel="noopener">▶ استمع من الموضع</a>`;
+  else if(i.medium==='إنترنت'&&safeUrl(i.link)) s+=(s?' ':'')+`<a href="${esc(safeUrl(i.link))}" target="_blank" rel="noopener">🔗 فتح المصدر</a>`;
   if(!s) return st.owner&&i.status==='مسودة'?'<span style="color:var(--warn)">بلا توثيق — تحتاج استكمال</span>':'';
   return s;
 }
@@ -1034,7 +1056,11 @@ function personDua(name){ const p=((st.meta||{}).people||[]).find(x=>x.n===name)
 /* ---------- 10) المحرّر ---------- */
 const DRAFT='k_draft';
 const LBL={ 'قراءة':['الكتاب أو المرجع','الجزء والصفحة (مثل 2/45)'], 'سماع':['اسم المقطع أو المحاضرة','الدقيقة (مثل 32:15)'],
-            'مشاهدة':['اسم المقطع أو الفيديو','الدقيقة (مثل 32:15)'], 'مجلس':['المجلس أو المناسبة (مثل: خطبة الجمعة)','المكان أو التاريخ'] };
+            'مشاهدة':['اسم المقطع أو الفيديو','الدقيقة (مثل 32:15)'], 'مجلس':['المجلس أو المناسبة (مثل: خطبة الجمعة)','المكان أو التاريخ'],
+            'إنترنت':['عنوان المقال أو الموقع أو الكتاب (PDF)','الموضع: صفحة أو فقرة (اختياري)'] };
+const LINK_LBL={ 'سماع':'رابط المقطع (يوتيوب مع الدقيقة يفتح من الثانية نفسها)', 'مشاهدة':'رابط المقطع (يوتيوب مع الدقيقة يفتح من الثانية نفسها)',
+                 'إنترنت':'الرابط (مقال، موقع، ملف PDF…)' };
+const needLink=m=>!!LINK_LBL[m];
 
 function editor(item){
   const m=st.meta, isNew=!item;
@@ -1057,7 +1083,7 @@ function editor(item){
         <label class="fld"><span id="l_locus">${esc(LBL[med][1])}</span><input class="t" id="f_locus" value="${esc(i.locus)}"></label>
         <label class="fld"><span>المصدر الوسيط (إن نُقلت بواسطة)</span><div><input class="t" id="f_via" autocomplete="off" value="${esc(i.via)}"></div></label>
       </div>
-      <label class="fld"><span>الرابط (اختياري — رابط يوتيوب مع الدقيقة يفتح من الثانية نفسها)</span><input class="t" id="f_link" dir="ltr" value="${esc(i.link)}"></label>
+      <label class="fld" id="f_linkw" style="display:${needLink(med)||i.link?'block':'none'}"><span id="l_link">${esc(LINK_LBL[med]||'الرابط (اختياري)')}</span><input class="t" id="f_link" dir="ltr" placeholder="https://" value="${esc(i.link)}"></label>
     </details>
     <details class="more"><summary>＋ التصنيف والوسوم والعنوان وخيارات أخرى</summary>
       <div class="grid2">
@@ -1087,18 +1113,21 @@ function editor(item){
         <option value="0" ${i.starred?'':'selected'}>لا</option>
         <option value="1" ${i.starred?'selected':''}>نعم ★</option></select></label>
     </div>
-    <button class="btn" id="save">حفظ</button>
+    <div class="row2"><button class="btn" id="save">حفظ</button>${isNew?'<button class="btn ghost" id="save2">حفظ وإضافة أخرى</button>':''}</div>
     ${isNew?'<p class="hint" style="margin-top:10px">يُحفظ ما تكتبه تلقائيًا في جهازك لحظة بلحظة، فلا يضيع إن أُغلقت الصفحة.</p>':''}`);
   let medium=med;
   $('#f_med').onclick=e=>{ const b=e.target.closest('button'); if(!b) return; medium=b.dataset.v;
     [...$('#f_med').children].forEach(c=>c.classList.toggle('on',c===b));
-    $('#l_ref').textContent=LBL[medium][0]; $('#l_locus').textContent=LBL[medium][1]; };
+    $('#l_ref').textContent=LBL[medium][0]; $('#l_locus').textContent=LBL[medium][1];
+    $('#f_linkw').style.display=(needLink(medium)||$('#f_link').value.trim())?'block':'none'; $('#l_link').textContent=LINK_LBL[medium]||'الرابط (اختياري)'; };
   attachSuggest($('#f_speaker'),peopleSource); attachSuggest($('#f_via'),peopleSource);
   attachSuggest($('#f_ref'),()=>st.meta.refs); attachSuggest($('#f_cat'),()=>st.meta.categories);
   attachSuggest($('#f_tags'),()=>st.meta.tags,true); attachSuggest($('#f_series'),()=>seriesNames());
   const ta=$('#f_text'); ta.focus();
   try{ta.setSelectionRange(ta.value.length,ta.value.length)}catch(e){}
   if(isNew) ta.addEventListener('input',()=>{try{localStorage.setItem(DRAFT,ta.value)}catch(e){}});
+  let again=false;
+  if($('#save2')) $('#save2').onclick=()=>{ again=true; $('#save').onclick(); };
   $('#save').onclick=async()=>{
     let text=ta.value.trim();
     if(!text){toast('اكتب نص الفائدة أولًا');ta.focus();return}
@@ -1132,6 +1161,7 @@ function editor(item){
     remember(obj); try{localStorage.removeItem(DRAFT)}catch(e){}
     if(isNew && st.session){ st.session.n=(st.session.n||0)+1; saveSession(st.session); }
     busy(false); closeSheet(); await refresh();
+    if(again){ again=false; editor(null); }
     if(r.queued){
       toast('لا اتصال — حُفظت في جهازك وستُرسل تلقائيًّا','↶ تراجع',
         ()=>{ st.queue=st.queue.filter(q=>q.tmp!==r.id); persistQueue(); render(); });
@@ -2364,6 +2394,10 @@ function aiTab(){
    ============================================================ */
 const SIZES={portrait:{n:'عمودي ٤:٥',w:1080,h:1350},square:{n:'مربع',w:1080,h:1080},story:{n:'قصة ٩:١٦',w:1080,h:1920},wide:{n:'أفقي',w:1600,h:900}};
 const BUILTIN={
+  editorial:{n:'تحريري', bg:['#fbfaf6','#f2eee4'], ink:'#1c1c1c', muted:'#62605a', accent:'#9c7a3c', orn:'quotes', frame:'none', badge:'circle', fill:'rgba(156,122,60,.09)', head:'plain'},
+  quote:  {n:'اقتباس بارز', bg:['#21524a','#143a34'], ink:'#fdfaf2', muted:'#cfe2db', accent:'#e8c77d', orn:'quotes', frame:'none', badge:'circle', fill:'rgba(0,0,0,.18)', head:'plain', big:true},
+  scholar:{n:'بطاقة علمية', bg:['#f5f2ea','#ebe5d6'], ink:'#22303a', muted:'#55606a', accent:'#7a5c2e', orn:'none', frame:'single', badge:'octagon', fill:'rgba(122,92,46,.10)', head:'plain', band:true},
+  night:  {n:'ليلي', bg:['#111827','#0a0f1a'], ink:'#f4efe4', muted:'#aab4c3', accent:'#d9b26a', orn:'dots', frame:'thin', badge:'circle', fill:'rgba(217,178,106,.10)', head:'plain'},
   quran:  {n:'قرآني', bg:['#f5f0e3','#e7dfc6'], ink:'#2e3b22', muted:'#6b7853', accent:'#8a9a62', orn:'leaf',  frame:'round',  badge:'diamond', fill:'rgba(138,154,98,.13)', glow:true},
   hadith: {n:'حديثي', bg:['#17394a','#0a222f'], ink:'#f6f1e6', muted:'#b9c9cf', accent:'#d8b87c', orn:'geo',   frame:'double', badge:'octagon', fill:'rgba(216,184,124,.10)'},
   general:{n:'عام',   bg:['#f8f3e8','#eee4cc'], ink:'#14323f', muted:'#5b6b74', accent:'#b08d57', orn:'dots',  frame:'double', badge:'circle',  fill:'rgba(176,141,87,.11)'},
@@ -2386,7 +2420,7 @@ function autoTpl(i){
   return 'general';
 }
 function autoHeader(i){
-  return cfg('عنوان البطاقة') || ({سماع:'فوائد من السماع',مشاهدة:'فوائد من المشاهدة',مجلس:'فوائد من المجالس'}[i.medium]||'فوائد من القراءة');
+  return cfg('عنوان البطاقة') || ({سماع:'فوائد من السماع',مشاهدة:'فوائد من المشاهدة',مجلس:'فوائد من المجالس',إنترنت:'فوائد منتقاة'}[i.medium]||'فوائد من القراءة');
 }
 
 /* ---------- أدوات الرسم ---------- */
@@ -2421,7 +2455,10 @@ function drawBackground(ctx,W,H,P,k){
 }
 function drawOrnaments(ctx,W,H,P,k){
   const col=P.accent;
-  if(P.orn==='leaf'){
+  if(P.orn==='quotes'){
+    ctx.save(); ctx.fillStyle=P.accent; ctx.globalAlpha=.16; ctx.font=`700 ${420*k}px ${AM}`; ctx.textBaseline='alphabetic';
+    ctx.textAlign='right'; ctx.fillText('”',W-40*k,H*.36); ctx.textAlign='left'; ctx.fillText('“',40*k,H*.98); ctx.restore();
+  } else if(P.orn==='leaf'){
     [[0,0],[1,1]].forEach(([fx,fy])=>{
       ctx.save(); if(fx){ ctx.translate(W,H); ctx.rotate(Math.PI); }
       branch(ctx,-.03*W,.06*H,.33*W,.5,col,7,24*k);
@@ -2582,11 +2619,13 @@ async function drawCard(item,T,o){
   const bodyH=box.h-topH-botH;
 
   ctx.font=`700 ${76*k}px ${AM}`;
-  const fit=fitBody(ctx,o.text,box.w,bodyH,76*k,30*k,k);
+  // النص القصير يكبر ليملأ المساحة بتوازن، والطويل يصغر حتى حدٍّ مقروء ثم يُقسَّم
+  const L=o.text.length, maxS=(L<40?104:L<90?92:L<180?80:72)*(P.big?1.12:1)*k;
+  const fit=fitBody(ctx,o.text,box.w*(L<40?.86:1),bodyH,maxS,34*k,k);
   if(!fit) return {overflow:true};   // يحتاج تقسيمًا
 
   let y=box.y;
-  if(hdr){ drawHeaderPill(ctx,cx,y+42*k,hdr,P,k); y+=84*k+gap; }
+  if(hdr){ if(P.head==='plain'){ ctx.font=`600 ${32*k}px ${CA}`; ctx.fillStyle=P.accent; ctx.fillText(hdr,cx,y+42*k); const tw=ctx.measureText(hdr).width; ctx.strokeStyle=P.accent; ctx.lineWidth=2*k; ctx.globalAlpha=.6; [-1,1].forEach(s=>{ctx.beginPath();ctx.moveTo(cx+s*(tw/2+24*k),y+42*k);ctx.lineTo(cx+s*(tw/2+120*k),y+42*k);ctx.stroke();}); ctx.globalAlpha=1; } else drawHeaderPill(ctx,cx,y+42*k,hdr,P,k); y+=84*k+gap; }
   if(o.num){ drawBadge(ctx,cx,y+52*k,dg(o.num),P,k); y+=104*k+gap; }
   if(speaker){
     let s=42*k; ctx.font=`400 ${s}px ${AM}`; while(ctx.measureText(speaker).width>box.w&&s>22*k){ s-=2*k; ctx.font=`400 ${s}px ${AM}`; }
@@ -2599,6 +2638,7 @@ async function drawCard(item,T,o){
 
   // الأسفل: يُرسم من الحافة السفلى صعودًا
   let by2=box.y+box.h;
+  if(P.band && (src||via||speaker)){ ctx.fillStyle=P.fill; rr(ctx,box.x-24*k,box.y+box.h-botH+gap*.4,box.w+48*k,botH-gap*.4+18*k,28*k); ctx.fill(); }
   if(foot){ by2-=46*k; ctx.font=`600 ${27*k}px ${CA}`; ctx.fillStyle=P.muted;
     if(o.stamp){ ctx.textAlign='center'; ctx.direction=/[\u0600-\u06FF]/.test(o.stamp)?'rtl':'ltr'; ctx.fillText(o.stamp,cx,by2+23*k); ctx.direction='rtl'; }
     if(o.pages>1){ ctx.font=`400 ${30*k}px ${AM}`; ctx.textAlign='right'; ctx.fillText(dg(o.page+' / '+o.pages),box.x+box.w,by2+23*k); ctx.textAlign='center'; }
@@ -2654,7 +2694,7 @@ async function imageSheet(items){
   const multi=items.length>1, first=items[0], owner=st.owner;
   await loadTemplates();
   const pf=loadImgPrefs();
-  const S={tpl:pf.tpl||'auto',size:pf.size||'portrait',digits:pf.digits!==false,header:'',stamp:cfg('ختم الصور'),
+  const S={show:Object.assign({hdr:true,sp:true,ref:true,via:true,stamp:true},pf.show||{}),tpl:pf.tpl||'auto',size:pf.size||'portrait',digits:pf.digits!==false,header:'',stamp:cfg('ختم الصور'),
            numOn:false,num:first.pubNo?Number(first.pubNo):nextPubNo(),page:0};
   if(S.tpl!=='auto'&&!BUILTIN[S.tpl]&&!(st.tpls||[]).some(t=>t.id===S.tpl)) S.tpl='auto';
   const tplChips=[['auto','✨ تلقائي']].concat(Object.keys(BUILTIN).map(k=>[k,BUILTIN[k].n])).concat((st.tpls||[]).map(t=>[t.id,'🖼 '+t.name]));
@@ -2671,19 +2711,22 @@ async function imageSheet(items){
     </div>
     ${owner?`<label class="tgl"><input type="checkbox" id="im_no"> ترقيم الصورة وتسجيلها «منشورة» ${multi?'(تتسلسل الأرقام)':''}</label>
       <label class="fld" id="im_nw" style="display:none"><span>${multi?'رقم أول صورة':'الرقم'}</span><input class="t" id="im_num" type="number" min="1" value="${S.num}"></label>`:''}
+    <div class="mini" style="margin-bottom:4px">يظهر في الصورة</div>
+    <div class="chips" id="im_show">${[['hdr','العنوان'],['sp','القائل'],['ref','المرجع'],['via','الوسيط'],['stamp','الختم']].map(([k,l])=>`<button class="chip${S.show[k]?' on':''}" data-k="${k}">${l}</button>`).join('')}</div>
     <label class="tgl"><input type="checkbox" id="im_dg" ${S.digits?'checked':''}> أرقام عربية (١٢٣)</label>
     <div class="row2" style="margin-top:6px"><button class="btn" id="im_share">مشاركة</button><button class="btn ghost" id="im_save">حفظ الصورة</button></div>
     <p class="hint" id="im_hint" style="margin-top:8px"></p>`);
 
   let pages=[], busyR=false, again=false;
-  const optsFor=(item,n)=>({ w:SIZES[S.size].w,h:SIZES[S.size].h, header:S.header.trim()||autoHeader(item), stamp:S.stamp.trim(),
+  const mask=it=>Object.assign({},it,{speaker:S.show.sp?it.speaker:'',dua:S.show.sp?it.dua:'',via:S.show.via?it.via:'',ref:S.show.ref?it.ref:'',locus:S.show.ref?it.locus:''});
+  const optsFor=(item,n)=>({ w:SIZES[S.size].w,h:SIZES[S.size].h, header:S.show.hdr?(S.header.trim()||autoHeader(item)):'', stamp:S.show.stamp?S.stamp.trim():'',
                               digits:S.digits, num:S.numOn?(S.num+n):0 });
   const rerender=async()=>{
     if(busyR){ again=true; return; } busyR=true;
     try{
       const T=resolveT(S.tpl,first);
       $('#szw').style.display=T.custom?'none':'block';
-      pages=await buildPages(first,T,optsFor(first,0));
+      pages=await buildPages(mask(first),T,optsFor(first,0));
       S.page=Math.min(S.page,pages.length-1);
       const pc=$('#pvc'); if(!pc) return; const src=pages[S.page];
       pc.width=src.width; pc.height=src.height; pc.getContext('2d').drawImage(src,0,0);
@@ -2692,7 +2735,8 @@ async function imageSheet(items){
     }catch(e){ const h=$('#im_hint'); if(h) h.innerHTML='<span class="badc">'+esc(e.message)+'</span>'; }
     finally{ busyR=false; if(again){ again=false; rerender(); } }
   };
-  const persist=()=>saveImgPrefs({tpl:S.tpl,size:S.size,digits:S.digits});
+  const persist=()=>saveImgPrefs({tpl:S.tpl,size:S.size,digits:S.digits,show:S.show});
+  $('#im_show').onclick=e=>{ const b=e.target.closest('button'); if(!b) return; S.show[b.dataset.k]=!S.show[b.dataset.k]; b.classList.toggle('on',S.show[b.dataset.k]); persist(); rerender(); };
   $('#tp').onclick=e=>{ const b=e.target.closest('button'); if(!b) return; S.tpl=b.dataset.k; [...$('#tp').children].forEach(c=>c.classList.toggle('on',c===b)); persist(); rerender(); };
   $('#sz').onclick=e=>{ const b=e.target.closest('button'); if(!b) return; S.size=b.dataset.k; [...$('#sz').children].forEach(c=>c.classList.toggle('on',c===b)); persist(); rerender(); };
   $('#pgs').onclick=e=>{ const b=e.target.closest('button[data-p]'); if(!b) return; S.page=+b.dataset.p; rerender(); };
@@ -2706,7 +2750,7 @@ async function imageSheet(items){
   const produce=async()=>{
     const all=[];
     for(let n=0;n<items.length;n++){
-      const it=items[n], T=resolveT(S.tpl,it), ps=await buildPages(it,T,optsFor(it,n));
+      const it=items[n], T=resolveT(S.tpl,it), ps=await buildPages(mask(it),T,optsFor(it,n));
       ps.forEach((c,pi)=>all.push({c,name:'kunnasha-'+it.id.replace(/[^\w-]/g,'')+(ps.length>1?'-'+(pi+1):'')+'.png'}));
     }
     return all;
