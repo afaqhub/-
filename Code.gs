@@ -576,16 +576,22 @@ function publicItems_(){
     speaker: set['إخفاء القائل']==='نعم', via: set['إخفاء الوسيط']==='نعم',
     ref: set['إخفاء المرجع']==='نعم', link: set['إخفاء الرابط']==='نعم', dates: set['إخفاء التواريخ']==='نعم'
   };
-  var items = readAll_().sort(byNew_), out = [];
+  var items = readAll_().sort(byNew_), out = [], rauth = refAuthors_(pidx);
+  var hiddenNames = pidx.rows.filter(function(p){ return p.hide === 'الاسم'; });
   items.forEach(function(o){
     if (o.visibility !== 'عامة' || o.status !== 'منشورة' || o.verify) return;
     var ps = o.speaker ? pidx.by[norm_(o.speaker)] : null;
     var pv = o.via ? pidx.by[norm_(o.via)] : null;
-    if ((ps && ps.hide === 'كل شيء') || (pv && pv.hide === 'كل شيء')) return;
+    var pvb = o.via ? bookAuthor_(o.via, rauth) : null;      // مؤلف كتاب الوسيط
+    var prb = o.ref ? bookAuthor_(o.ref, rauth) : null;      // مؤلف كتاب المرجع
+    if ([ps,pv,pvb,prb].some(function(p){ return p && p.hide === 'كل شيء'; })) return;
     var c = pub_(o), h = o.hide || [];
     c.dua = (ps && ps.dua) || '';
     if (ps && ps.hide === 'الاسم') { c.speaker = ps.rep || ''; c.dua = ''; }
+    // الوسيط: شخصًا كان أو كتابًا لمحجوب الاسم، لا يظهر اسمه ولا مصدره
     if (pv && pv.hide === 'الاسم') c.via = pv.rep || '';
+    if (pvb && pvb.hide === 'الاسم') c.via = '';
+    hiddenNames.forEach(function(p){ c.ref = scrubName_(c.ref, p); c.via = scrubName_(c.via, p); });
     if (g.speaker || h.indexOf('speaker') >= 0) { c.speaker = ''; c.dua = ''; }
     if (g.via || h.indexOf('via') >= 0) c.via = '';
     if (g.ref || h.indexOf('ref') >= 0) { c.ref = ''; c.locus = ''; }
@@ -594,6 +600,29 @@ function publicItems_(){
     out.push(c);
   });
   return out;
+}
+
+/** كتاب ← مؤلفه (من فهرس المراجع)، ليشمل الإخفاءُ مؤلفَ الكتاب لا القائل وحده. */
+function refAuthors_(pidx){
+  var m = {}, rs = getSheet_(SH.R, HEAD_R);
+  if (rs.getLastRow() > 1) rs.getRange(2,1,rs.getLastRow()-1,2).getValues().forEach(function(r){
+    var t = norm_(String(r[0]||'')), a = String(r[1]||'').trim();
+    if (t && a) m[t] = pidx.by[norm_(a)] || {name:a, hide:'', aliases:[]};
+  });
+  return m;
+}
+function bookAuthor_(text, m){
+  var t = norm_(String(text||'').replace(/\s*(ص\s*[\d٠-٩]+|[\d٠-٩]+\s*\/\s*[\d٠-٩]+)\s*$/,''));
+  return t ? (m[t] || null) : null;
+}
+/** يحذف «لفلان» من نص مرجع أو وسيط قديم (مثل «أعمال القلوب لخالد السبت») إن كان فلان محجوب الاسم. أسماء العناوين (تفسير ابن كثير) تبقى. */
+function scrubName_(text, p){
+  if (!text || !p) return text;
+  [p.name].concat(p.aliases || []).filter(Boolean).forEach(function(n){
+    var esc = String(n).replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+    text = text.replace(new RegExp('\\s+ل(?:ـ)?(?:ال)?'+esc+'(?=\\s|$)','g'), '');
+  });
+  return text.replace(/\s{2,}/g,' ').trim();
 }
 
 function api_listPublic(){ return publicItems_(); }

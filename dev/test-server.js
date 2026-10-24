@@ -136,6 +136,22 @@ t('إخفاء كل ما يتعلق بالشخص (قائلًا أو وسيطًا)
   E.call('savePerson',{name:'ابن قيم الجوزية',data:{name:'ابن قيم الجوزية',aliases:['ابن القيم'],hide:''}},tok);
   assert.ok(E.call('listPublic').data.some(x=>x.id===ids.b));
 });
+t('إخفاء مؤلف: كتابه وسيطًا يختفي، وكتابه مرجعًا يبقى اسم الكتاب بلا اسمه', () => {
+  E.call('importMeta',{refs:[{title:'أعمال القلوب',author:'خالد السبت'},{title:'التكميل شرح مقدمات ابن جزي',author:'خالد السبت'}],people:[{name:'خالد السبت',aliases:['السبت']}]},tok);
+  const a = E.call('save',{item:{text:'فائدة أصلها كتاب مؤلف محجوب',speaker:'خالد السبت',ref:'أعمال القلوب',locus:'ص٥',visibility:'عامة'}},tok).data.id;
+  const b = E.call('save',{item:{text:'فائدة بوسيط كتاب مؤلف محجوب',speaker:'ابن كثير',ref:'تفسير ابن كثير',via:'أعمال القلوب ١/ ٣٩',visibility:'عامة'}},tok).data.id;
+  const c = E.call('save',{item:{text:'فائدة مرجعها قديم يحوي الاسم',speaker:'ابن كثير',ref:'التكميل لخالد السبت',via:'أعمال القلوب لخالد السبت',visibility:'عامة'}},tok).data.id;
+  E.call('savePerson',{name:'خالد السبت',data:{name:'خالد السبت',aliases:['السبت'],hide:'الاسم'}},tok);
+  let l = E.call('listPublic').data, A = l.find(i=>i.id===a), B = l.find(i=>i.id===b), C = l.find(i=>i.id===c);
+  assert.strictEqual(A.speaker,''); assert.strictEqual(A.ref,'أعمال القلوب');
+  assert.strictEqual(B.via,''); assert.strictEqual(B.speaker,'ابن كثير');
+  assert.ok(!JSON.stringify(C).includes('السبت'), 'ظهر الاسم: '+JSON.stringify(C));
+  E.call('savePerson',{name:'خالد السبت',data:{name:'خالد السبت',aliases:['السبت'],hide:'كل شيء'}},tok);
+  l = E.call('listPublic').data;
+  [a,b].forEach(i=>assert.ok(!l.some(x=>x.id===i),'ظهرت '+i));
+  E.call('savePerson',{name:'خالد السبت',data:{name:'خالد السبت',aliases:['السبت'],hide:''}},tok);
+  assert.ok(E.call('listPublic').data.some(x=>x.id===b));
+});
 t('إخفاءات عامة من الإعدادات وإخفاءات الفائدة', () => {
   E.call('saveSettings',{settings:{'إخفاء المرجع':'نعم','إخفاء التواريخ':'نعم'}},tok);
   let x = E.call('listPublic').data.find(i=>i.id===ids.b);

@@ -304,6 +304,24 @@ html[data-theme="dark"] .hero{background:radial-gradient(circle at 12% 0%,rgba(2
 .cite{line-height:1.9}
 .fab{bottom:calc(18px + env(safe-area-inset-bottom))}
 @media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} }
+.vbar{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}
+.vbar .t{flex:1 1 120px;min-width:0;padding:8px 10px;font-size:.85rem;height:auto}
+.vbar input.t{flex:2 1 180px}
+.lrows{display:block}
+.lrow{background:var(--paper2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:0 0 8px;cursor:pointer;transition:border-color .15s}
+.lrow:hover{border-color:var(--gold)}
+.lrow.private{border-style:dashed}
+.lrow .ltext{line-height:1.85}
+.lrow .lmeta{font-size:.78rem;color:var(--muted);margin-top:3px}
+.gsec small{color:var(--muted);font-weight:400}
+.ixrow{display:flex!important;flex-direction:row!important;gap:8px;align-items:center;flex-wrap:nowrap;cursor:default;padding:10px 12px}
+.ixname{flex:1 1 160px;display:flex;justify-content:space-between;gap:8px;align-items:center;background:none;border:0;color:inherit;font:inherit;text-align:right;cursor:pointer;padding:0}
+.ixname small{color:var(--muted)}
+.ixrow .ixhide{flex:0 0 auto;width:auto!important;max-width:150px;padding:6px 8px;font-size:.8rem;height:auto;margin:0}
+.ixrow .sbtn{flex:0 0 auto}
+.ixname{min-width:0}
+.ixname span{overflow:hidden;text-overflow:ellipsis}
+.ixhide.on{border-color:#b0563a;color:#b0563a}
 </style>
 </head>
 <body>
@@ -459,7 +477,7 @@ function norm(s){ return (s||'')
 function dupKey(t){ return norm(t).replace(/[^ء-غف-يa-z0-9 ]/g,'').replace(/\s+/g,' ').trim().slice(0,70); }
 function hijri(iso){
   if(!iso) return '';
-  try{ return new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura',{day:'numeric',month:'long',year:'numeric'}).format(new Date(iso)); }
+  try{ return new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura',{day:'numeric',month:'long',year:'numeric'}).format(new Date(iso)).replace(/\s*هـ\s*$/,'')+' هـ'; }
   catch(e){ return ''; }
 }
 const HMONTHS=['محرّم','صفر','ربيع الأول','ربيع الآخر','جمادى الأولى','جمادى الآخرة','رجب','شعبان','رمضان','شوال','ذو القعدة','ذو الحجة'];
@@ -530,8 +548,13 @@ function locusText(i){
 }
 
 /* ---------- 3) الحالة ---------- */
+function lsGet(k){ try{ return localStorage.getItem(k)||''; }catch(e){ return ''; } }
+function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+const SORTS=[['','الأحدث'],['old','الأقدم'],['star','المميّزة أولًا'],['speaker','القائل (أ–ي)'],['ref','المرجع (أ–ي)'],['cat','التصنيف (أ–ي)'],['long','الأطول'],['short','الأقصر']];
+const GROUPS=[['','بلا تجميع'],['speaker','تجميع حسب القائل'],['ref','تجميع حسب المرجع'],['cat','تجميع حسب التصنيف'],['month','تجميع حسب الشهر']];
+const VIEWS=[['cards','بطاقات'],['list','قائمة مختصرة']];
 const st={ owner:false, mustChange:false, tab:'all', q:'', f:{cat:'',speaker:'',ref:'',type:'',tag:'',medium:''},
-           limit:20, sort:'', meta:null, items:[], cfg:{}, session:null, queue:[], sel:null, mediums:ALL_MEDIUMS.slice() };
+           limit:20, sort:lsGet('k_sort'), group:lsGet('k_group'), view:lsGet('k_view')||'cards', ixq:'', ixs:'n', meta:null, items:[], cfg:{}, session:null, queue:[], sel:null, mediums:ALL_MEDIUMS.slice() };
 const ADMIN_TABS={reading:'سجل القراءة',stats:'إحصاءات',admin:'لوحة التحكم',trash:'سلة المحذوفات',inbox:'الرسائل'};
 const NOFILTER={cat:'',speaker:'',ref:'',type:'',tag:'',medium:''};
 
@@ -740,7 +763,7 @@ function renderChrome(){
   });
 
   const f=$('#filters'); f.innerHTML='';
-  { const row=el('div','frow'); row.appendChild(el('span','flabel','الترتيب')); [['','الأحدث'],['old','الأقدم'],['star','المميّزة أولًا']].forEach(([v,l])=>{ const c=el('button','chip'+(st.sort===v?' on':''),l); c.onclick=()=>{st.sort=v;renderChrome();render()}; row.appendChild(c); }); f.appendChild(row); }
+  { const row=el('div','frow'); row.appendChild(el('span','flabel','الترتيب')); SORTS.forEach(([v,l])=>{ const c=el('button','chip'+(st.sort===v?' on':''),l); c.onclick=()=>{st.sort=v;lsSet('k_sort',v);renderChrome();render()}; row.appendChild(c); }); f.appendChild(row); }
   const m=st.meta||{};
   const groups=[['cat','تصنيف',m.categories],['speaker','قائل',m.speakers],['ref','مرجع',m.refs],
                 ['type','نوع',m.types],['medium','وسيلة',m.mediums],['tag','وسم',m.tags]];
@@ -794,6 +817,35 @@ function menuSheet(){
 function goTab(t){ st.tab=t; st.limit=perPage(); renderChrome(); render(); window.scrollTo({top:0}); }
 
 /* ---------- 6) التصفية والبحث ---------- */
+function sortItems(a){
+  const ar=(x,y)=>(x?0:1)-(y?0:1)||String(x||'').localeCompare(String(y||''),'ar'), S=st.sort; a=a.slice();
+  if(S==='old') a.sort((x,y)=>String(x.createdAt||'').localeCompare(String(y.createdAt||'')));
+  else if(S==='star') a.sort((x,y)=>(y.starred?1:0)-(x.starred?1:0));
+  else if(S==='speaker'||S==='ref'||S==='cat') a.sort((x,y)=>ar(x[S],y[S]));
+  else if(S==='long') a.sort((x,y)=>y.text.length-x.text.length);
+  else if(S==='short') a.sort((x,y)=>x.text.length-y.text.length);
+  return a;
+}
+function groupKey(i){
+  if(st.group==='month'){ try{ return new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura',{month:'long',year:'numeric'}).format(new Date(i.createdAt)); }catch(e){ return ''; } }
+  return i[st.group]||'';
+}
+function viewBar(n){
+  const tb=el('div','vbar');
+  const sel=(opts,val,fn,lbl)=>{ const s=el('select','t vsel'); s.setAttribute('aria-label',lbl); s.innerHTML=opts.map(([k,l])=>`<option value="${k}" ${k===val?'selected':''}>${l}</option>`).join(''); s.onchange=()=>fn(s.value); tb.appendChild(s); };
+  sel(SORTS,st.sort,v=>{ st.sort=v; lsSet('k_sort',v); renderChrome(); render(); },'الترتيب');
+  sel(GROUPS,st.group,v=>{ st.group=v; lsSet('k_group',v); render(); },'التجميع');
+  sel(VIEWS,st.view,v=>{ st.view=v; lsSet('k_view',v); render(); },'طريقة العرض');
+  return tb;
+}
+function lrow(i){
+  const r=el('div','lrow'+(i.visibility==='خاصة'?' private':'')+(i.status==='مسودة'?' draft':''));
+  r.appendChild(el('div','ltext',esc(i.text.length>150?i.text.slice(0,150)+'…':i.text)));
+  const meta=[i.speaker,i.ref&&(i.ref+(i.locus?' '+i.locus:'')),i.cat].filter(Boolean).join(' · ');
+  r.appendChild(el('div','lmeta',(i.starred?'★ ':'')+esc(meta)+(st.owner&&i.visibility==='خاصة'?' · خاصة':'')+(i.status==='مسودة'?' · مسودة':'')));
+  r.onclick=()=>i._pending?null:detail(i.id);
+  return r;
+}
 function filtered(){
   let a=(st.owner?queuedAsItems():[]).concat(st.items);
   if(st.tab==='star') a=a.filter(i=>i.starred);
@@ -806,7 +858,7 @@ function filtered(){
   if(f.type) a=a.filter(i=>i.type===f.type);
   if(f.medium) a=a.filter(i=>(i.medium||'قراءة')===f.medium);
   if(f.tag) a=a.filter(i=>(i.tags||[]).includes(f.tag));
-  if(st.sort==='old') a=a.slice().reverse(); else if(st.sort==='star') a=a.slice().sort((x,y)=>(y.starred?1:0)-(x.starred?1:0));
+  a=sortItems(a);
   const q=norm(st.q);
   if(q){ const w=q.split(' ').filter(Boolean);
     a=a.filter(i=>{ const hay=norm([i.title,i.text,i.speaker,i.via,i.ref,i.locus,i.cat,i.series,i.anchor,i.note,(i.tags||[]).join(' ')].join(' '));
@@ -845,16 +897,29 @@ function render(){
     return;
   }
 
-  if(!st.q && st.tab==='all' && !Object.values(st.f).some(Boolean) && a.length>3 && !st.sel){
+  if(a.length>1) v.appendChild(viewBar(a.length));
+  if(!st.q && st.tab==='all' && !Object.values(st.f).some(Boolean) && a.length>3 && !st.sel && !st.group && st.view!=='list'){
     const pool=a.filter(i=>!i._pending), r=pool[Math.floor(Math.random()*pool.length)]||a[0];
     v.appendChild(heroBlock(a.length));
     v.appendChild(el('div','listsec','فائدة اليوم'));
     const fc=card(r,true); fc.classList.add('feat'); v.appendChild(fc);
     v.appendChild(el('div','listsec','كل الفوائد'));
   }
-  const wrapEl=el('div','cards');
-  a.slice(0,st.limit).forEach(i=>wrapEl.appendChild(card(i)));
-  v.appendChild(wrapEl);
+  const shown=a.slice(0,st.limit), mk=i=>(st.view==='list'&&!st.sel)?lrow(i):card(i);
+  if(st.group){
+    const total={}; a.forEach(i=>{ const k=groupKey(i); total[k]=(total[k]||0)+1; });
+    const G=new Map(); shown.forEach(i=>{ const k=groupKey(i); if(!G.has(k)) G.set(k,[]); G.get(k).push(i); });
+    let keys=[...G.keys()]; if(st.group!=='month') keys.sort((x,y)=>(x?0:1)-(y?0:1)||(st.sort===st.group?0:total[y]-total[x])||x.localeCompare(y,'ar'));
+    keys.forEach(k=>{
+      const h=el('div','listsec gsec',esc(k||'بلا '+({speaker:'قائل',ref:'مرجع',cat:'تصنيف',month:'تاريخ'}[st.group]))+` <small>· ${arDigits(total[k])} ${total[k]>10?'فائدة':'فوائد'}</small>`);
+      if(k&&st.group!=='month'){ h.style.cursor='pointer'; h.title='اعرض فوائده فقط'; h.onclick=()=>{ st.f[st.group]=k; st.group=''; lsSet('k_group',''); st.limit=perPage(); renderChrome(); render(); }; }
+      v.appendChild(h); const w=el('div','cards'+(st.view==='list'?' lrows':'')); G.get(k).forEach(i=>w.appendChild(mk(i))); v.appendChild(w);
+    });
+  } else {
+    const wrapEl=el('div','cards'+(st.view==='list'?' lrows':''));
+    shown.forEach(i=>wrapEl.appendChild(mk(i)));
+    v.appendChild(wrapEl);
+  }
   if(a.length>st.limit){
     const b=el('button','btn ghost','عرض المزيد ('+(a.length-st.limit)+')');
     b.style.marginTop='14px'; b.onclick=()=>{st.limit+=perPage();render()}; v.appendChild(b);
@@ -973,16 +1038,51 @@ function copyText(t,msg){
 }
 
 function renderIndex(v,field,label){
-  const map={};
-  st.items.forEach(i=>{ [i[field]].concat(field==='speaker'?[i.via]:[]).forEach(k=>{ if(k) map[k]=(map[k]||0)+1; }); });
-  const keys=Object.keys(map).sort((a,b)=>map[b]-map[a]);
-  if(!keys.length){v.appendChild(el('div','empty','<p>لا شيء بعد.</p>'));return}
-  $('#countline').innerHTML=`<span>${esc(label)}: <b>${keys.length}</b></span>`;
-  keys.forEach(k=>{
-    const b=el('button','pbtn',`<span>${esc(k)}</span><small>${map[k]} فائدة</small>`);
-    b.onclick=()=>{st.f[field]=k;st.tab='all';st.limit=perPage();renderChrome();render();window.scrollTo({top:0,behavior:'smooth'})};
-    v.appendChild(b);
-  });
+  const map={}, known=new Set(((st.meta||{}).speakers||[]).concat(((st.meta||{}).people||[]).map(p=>p.n)));
+  st.items.forEach(i=>{ if(i[field]) map[i[field]]=(map[i[field]]||0)+1; if(field==='speaker'&&i.via&&known.has(i.via)) map[i.via]=(map[i.via]||0)+1; });
+  const ownerP=field==='speaker'&&st.owner;
+  const tools=el('div','vbar');
+  const q=el('input','t'); q.placeholder='ابحث في '+label+'…'; q.value=st.ixq; tools.appendChild(q);
+  const so=el('select','t vsel'); so.innerHTML=[['n','الأكثر فوائد'],['a','أبجديًّا']].map(([k,l])=>`<option value="${k}" ${st.ixs===k?'selected':''}>${l}</option>`).join(''); tools.appendChild(so);
+  v.appendChild(tools);
+  if(ownerP) v.appendChild(el('p','hint','لكل شخص ما يراه الزوار: <b>ظاهر</b> · <b>الاسم محجوب</b> (يظهر كتابه دون اسمه، ولا يظهر إن كان مصدرًا وسيطًا) · <b>محجوب كليًّا</b> (لا تظهر للزوار أي فائدة له قائلًا أو وسيطًا أو مؤلفًا لمرجعها). وأنت ترى كل شيء دائمًا.'));
+  const list=el('div'); v.appendChild(list);
+  let P=null;
+  const draw=()=>{
+    list.innerHTML='';
+    const all=Object.assign({},map); if(P) P.forEach(p=>{ if(!(p.name in all)&&!(p.aliases||[]).some(a=>a in all)) all[p.name]=0; });
+    const nq=norm(q.value);
+    let keys=Object.keys(all).filter(k=>!nq||norm(k).includes(nq));
+    keys.sort(st.ixs==='a'?(x,y)=>x.localeCompare(y,'ar'):(x,y)=>all[y]-all[x]||x.localeCompare(y,'ar'));
+    $('#countline').innerHTML=`<span>${esc(label)}: <b>${keys.length}</b></span>`;
+    if(!keys.length){ list.appendChild(el('div','empty','<p>لا شيء.</p>')); return; }
+    keys.forEach(k=>{
+      const row=el('div','pbtn ixrow');
+      const nm=el('button','ixname',`<span>${esc(k)}</span><small>${all[k]?arDigits(all[k])+' فائدة':'مؤلف أو وسيط فقط'}</small>`);
+      nm.onclick=()=>{ if(!all[k]) return; st.f[field]=k; st.tab='all'; st.limit=perPage(); renderChrome(); render(); window.scrollTo({top:0,behavior:'smooth'}); };
+      row.appendChild(nm);
+      if(ownerP){
+        const p=P&&P.find(x=>x.name===k||(x.aliases||[]).includes(k));
+        const hs=el('select','t ixhide'+((p&&p.hide)?' on':''));
+        hs.innerHTML=[['','👁 ظاهر'],['الاسم','🙈 الاسم محجوب'],['كل شيء','⛔ محجوب كليًّا']].map(([x,l])=>`<option value="${x}" ${(p&&p.hide||'')===x?'selected':''}>${l}</option>`).join('');
+        hs.onchange=async()=>{
+          const d=Object.assign({name:k,aliases:[],dua:'',death:'',rep:'',bio:''},p||{},{hide:hs.value});
+          busy(true,'جارٍ الحفظ…');
+          try{ await db.savePerson(p?p.name:'',{name:d.name,aliases:(d.aliases||[]).join('، '),dua:d.dua,death:d.death,hide:d.hide,rep:d.rep,bio:d.bio}); busy(false);
+            if(p) p.hide=hs.value; else P.push({name:k,aliases:[],hide:hs.value}); hs.classList.toggle('on',!!hs.value);
+            toast(hs.value?'«'+k+'»: '+(hs.value==='الاسم'?'حُجب اسمه عن الزوار':'حُجب كل ما يتعلق به عن الزوار'):'«'+k+'» ظاهر للزوار'); }
+          catch(e){ busy(false); toast(e.message); hs.value=(p&&p.hide)||''; }
+        };
+        const dt=el('button','sbtn','تفاصيل'); dt.onclick=()=>personSheet(p||{name:k,aliases:[]});
+        row.appendChild(hs); row.appendChild(dt);
+      }
+      list.appendChild(row);
+    });
+  };
+  draw();
+  q.oninput=()=>{ st.ixq=q.value; draw(); };
+  so.onchange=()=>{ st.ixs=so.value; draw(); };
+  if(ownerP) db.people().then(r=>{ P=r||[]; draw(); }).catch(()=>{});
 }
 
 /* ---------- التحديد المتعدد ---------- */
@@ -1046,7 +1146,7 @@ async function detail(id, fromHash){
       ${i.series?`<div><b>السلسلة:</b>${esc(i.series)}${i.sorder?' ('+i.sorder+')':''}</div>`:''}
       ${(i.tags||[]).length?`<div><b>الوسوم:</b>${i.tags.map(t=>'#'+esc(t)).join('، ')}</div>`:''}
       ${st.owner&&i.note?`<div><b>تعليقي:</b>${esc(i.note)}</div>`:''}
-      ${i.createdAt?`<div><b>أُضيفت:</b>${esc(hijri(i.createdAt))} هـ — ${esc(greg(i.createdAt))} م</div>`:''}
+      ${i.createdAt?`<div><b>أُضيفت:</b>${esc(hijri(i.createdAt))} — ${esc(greg(i.createdAt))} م</div>`:''}
       ${st.owner&&i.pubNo?`<div><b>رقم النشر:</b>${esc(arDigits(i.pubNo))}${i.pubDate?' — '+esc(hijri(i.pubDate)):''}</div>`:''}
       <div><b>المعرّف:</b>${esc(i.id)}</div>
     </div>
@@ -1182,7 +1282,7 @@ function editor(item){
   // تاريخ الفائدة: الأصل اليوم (بالهجري)، ويغيّره المستخدم من القوائم إن شاء
   let dateIso=null; const baseIso=item&&item.createdAt?item.createdAt:'';
   const curDate=()=>dateIso?new Date(dateIso):(baseIso?new Date(baseIso):new Date());
-  const shownDate=()=>{ const d=curDate(); return hijri(d.toISOString())+' هـ — '+greg(d.toISOString()); };
+  const shownDate=()=>{ const d=curDate(); return hijri(d.toISOString())+' — '+greg(d.toISOString()); };
   const paintDate=()=>{ $('#dt_txt').textContent=shownDate()+((!dateIso&&isNew)?' (اليوم)':''); $('#dt_today').style.display=(dateIso||(!isNew))?'inline-block':'none'; };
   const fillPick=()=>{
     const h=hijriParts(curDate())||{y:1447,m:1,d:1}, thisY=(hijriParts(new Date())||h).y, y0=Math.min(h.y,thisY-8), y1=Math.max(h.y,thisY+1);
@@ -1470,11 +1570,11 @@ function personSheet(p){
     </div>
     <label class="fld"><span>ما يراه الزوار</span><select class="t" id="pp_hide">
       <option value="" ${!p.hide?'selected':''}>يظهر اسمه عاديًّا</option>
-      <option value="الاسم" ${p.hide==='الاسم'?'selected':''}>يُحجب اسمه فقط (تبقى فوائده)</option>
-      <option value="كل شيء" ${p.hide==='كل شيء'?'selected':''}>يُحجب كل ما يتعلق به (لا تظهر فوائده قائلًا ولا وسيطًا)</option></select></label>
+      <option value="الاسم" ${p.hide==='الاسم'?'selected':''}>يُحجب اسمه فقط (يظهر كتابه دون اسمه، ولا يظهر وسيطًا)</option>
+      <option value="كل شيء" ${p.hide==='كل شيء'?'selected':''}>يُحجب كل ما يتعلق به (لا تظهر فوائده قائلًا أو وسيطًا أو مؤلفًا لمرجعها)</option></select></label>
     <label class="fld" id="pp_repw"><span>عبارة تظهر بدل اسمه (مثل: بعض أهل العلم) — اختياري</span><input class="t" id="pp_rep" value="${esc(p.rep||'')}"></label>
     <label class="fld"><span>نبذة (خاصة بك)</span><input class="t" id="pp_bio" value="${esc(p.bio||'')}"></label>
-    <p class="hint">تنبيه: الحجب يشمل حقول القائل والوسيط، لكنه لا يعدّل اسمًا وُرد داخل نص الفائدة نفسه.</p>
+    <p class="hint">الحجب يشمل القائل والمصدر الوسيط ومؤلف الكتاب (من فهرس المراجع)، ويحذف «لفلان» من أسماء الكتب. لا يعدّل اسمًا ورد داخل نص الفائدة نفسه.</p>
     <button class="btn" id="pp_save">حفظ</button>`);
   const sync=()=>{ $('#pp_repw').style.display=$('#pp_hide').value==='الاسم'?'block':'none'; };
   $('#pp_hide').onchange=sync; sync();
@@ -3225,7 +3325,7 @@ async function imageSheet(items){
   await loadTemplates(); await loadClones();
   const pf=loadImgPrefs();
   const S={pals:pf.pals||{},over:{},show:Object.assign({hdr:true,sp:true,ref:true,via:true,stamp:true,gain:true},pf.show||{}),tpl:pf.tpl||'auto',size:pf.size||'portrait',digits:pf.digits!==false,header:'',stamp:cfg('ختم الصور'),
-           numOn:false,num:first.pubNo?Number(first.pubNo):nextPubNo(),page:0,fdef:pf.fdef||null,ft:pf.ft||{}};
+           ed:null,numOn:false,num:first.pubNo?Number(first.pubNo):nextPubNo(),page:0,fdef:pf.fdef||null,ft:pf.ft||{}};
   if(S.tpl!=='auto'&&!CLN[S.tpl]&&!NEWT[S.tpl]&&!BUILTIN[S.tpl]&&!(st.tpls||[]).some(t=>t.id===S.tpl)) S.tpl='auto';
   const gal=[['auto','✨ تلقائي']].concat(Object.keys(CLN).map(k=>[k,'🌿 '+CLN[k].n])).concat(Object.keys(NEWT).map(k=>[k,NEWT[k].n])).concat(Object.keys(BUILTIN).map(k=>[k,BUILTIN[k].n+' (كلاسيكي)'])).concat((st.tpls||[]).map(t=>[t.id,'🖼 '+t.name]));
   openSheet(`${shhd(multi?'صور '+items.length+' فوائد':'صورة الفائدة')}
@@ -3240,6 +3340,14 @@ async function imageSheet(items){
         <button class="btn ghost" id="oc_rs" type="button">إعادة الألوان الأصلية</button></details></div>
     <div id="szw"><div class="mini" style="margin-bottom:4px">المقاس</div>
     <div class="chips" id="sz">${Object.keys(SIZES).map(k=>`<button class="chip${S.size===k?' on':''}" data-k="${k}">${esc(SIZES[k].n)}</button>`).join('')}</div></div>
+    <details class="more" id="edbox" style="margin:6px 0 8px"><summary>✏️ تحرير النص داخل الصورة</summary>
+      ${multi?'<p class="hint">التحرير الحر متاح عند تصدير فائدة واحدة.</p>':`
+      <p class="hint" style="margin:4px 0">عدّل بحرية: اكتب أو أضف أو احذف. التغيير يخص الصورة فقط${owner?'، إلا إن ضغطت «حفظ في الفائدة»':''}. لتقسيم النص إلى صور اكتب سطرًا فيه <code>---</code>.</p>
+      <label class="fld"><span>نص الفائدة في الصورة</span><textarea class="t" id="ed_text" rows="6"></textarea></label>
+      <div class="grid2"><label class="fld"><span>القائل</span><input class="t" id="ed_sp"></label><label class="fld"><span>المرجع</span><input class="t" id="ed_ref"></label>
+        <label class="fld"><span>الموضع</span><input class="t" id="ed_loc"></label><label class="fld"><span>المصدر الوسيط</span><input class="t" id="ed_via"></label></div>
+      <label class="fld"><span>من فوائد هذا الكلام</span><input class="t" id="ed_gain"></label>
+      <div class="row2"><button class="btn ghost" id="ed_reset" type="button">إعادة الأصل</button>${owner?'<button class="btn ghost" id="ed_save" type="button">حفظ في الفائدة</button>':''}</div>`}</details>
     <div class="grid2">
       <label class="fld"><span>العنوان العلوي (فارغ = تلقائي)</span><input class="t" id="im_hd" placeholder="${esc(autoHeader(first))}"></label>
       <label class="fld"><span>ختم أسفل الصورة (اختياري)</span><input class="t" id="im_st" value="${esc(S.stamp)}"></label>
@@ -3263,7 +3371,22 @@ async function imageSheet(items){
   const tkey=it=>S.tpl==='auto'?autoTpl(it):S.tpl;
   const eff=key=>{ const e=S.ft[key]||S.fdef||{}; return {font:FONTS[e.font]?e.font:'',scale:e.scale||100}; };
   const curPal=()=>S.pals[S.tpl==='auto'?autoTpl(first):S.tpl]||0;
-  const mask=it=>Object.assign({},it,{speaker:S.show.sp?it.speaker:'',dua:S.show.sp?it.dua:'',via:S.show.via?it.via:'',ref:S.show.ref?it.ref:'',locus:S.show.ref?it.locus:'',gain:S.show.gain?it.gain:''});
+  const mask=it=>{ if(!multi&&S.ed&&it.id===first.id) it=Object.assign({},it,S.ed); return maskBase(it); };
+  const maskBase=it=>Object.assign({},it,{speaker:S.show.sp?it.speaker:'',dua:S.show.sp?it.dua:'',via:S.show.via?it.via:'',ref:S.show.ref?it.ref:'',locus:S.show.ref?it.locus:'',gain:S.show.gain?it.gain:''});
+  if(!multi){
+    const E=(id)=>$('#'+id), F={ed_text:'text',ed_sp:'speaker',ed_ref:'ref',ed_loc:'locus',ed_via:'via',ed_gain:'gain'};
+    const load=()=>Object.keys(F).forEach(id=>{ E(id).value=first[F[id]]||''; });
+    load();
+    Object.keys(F).forEach(id=>E(id).oninput=()=>{
+      S.ed=S.ed||{}; S.ed[F[id]]=E(id).value; if(id==='ed_sp') S.ed.dua=personDua(E(id).value.trim()); if(id==='ed_text'&&!E(id).value.trim()){ /* يُترك فارغًا مؤقتًا دون رسم */ }
+      if(S.ed.text!==undefined&&!S.ed.text.trim()){ const h=$('#im_hint'); if(h) h.innerHTML='<span class="badc">النص فارغ</span>'; return; }
+      rerender(); refreshThumbs(); });
+    E('ed_reset').onclick=()=>{ S.ed=null; load(); rerender(); refreshThumbs(); };
+    if(owner) E('ed_save').onclick=async()=>{
+      const o={id:first.id}; Object.keys(F).forEach(id=>{ o[F[id]]=E(id).value.trim(); }); if(!o.text) return toast('النص فارغ');
+      try{ busy(true,'جارٍ الحفظ…'); await saveItem(o); busy(false); first.text=o.text; first.speaker=o.speaker; first.ref=o.ref; first.locus=o.locus; first.via=o.via; first.gain=o.gain; S.ed=null; await refresh(); toast('حُفظ التعديل في الفائدة'); }
+      catch(e){ busy(false); toast(e.message); } };
+  }
   const optsFor=(item,n)=>({ w:SIZES[S.size].w,h:SIZES[S.size].h, header:S.show.hdr?(S.header.trim()||autoHeader(item)):'', stamp:S.show.stamp?S.stamp.trim():'',
                               digits:S.digits, num:S.numOn?(S.num+n):0, pal:curPal(), over:S.over, font:eff(tkey(item)).font, fscale:eff(tkey(item)).scale/100 });
   const rerender=async()=>{
