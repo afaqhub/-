@@ -114,6 +114,12 @@ t('«يحتاج تحقق» لا يظهر للزوار', () => {
   assert.ok(E.call('listPublic').data.some(x=>x.id===r.data.id));
 });
 
+t('«من فوائد هذا الكلام» تُحفظ وتظهر للزائر', () => {
+  const r = E.call('save',{item:{text:'فائدة بخلاصة',speaker:'ابن كثير',visibility:'عامة',gain:'أن التوكل يزيل القلق'}},tok);
+  assert.strictEqual(E.call('get',{id:r.data.id},tok).data.gain,'أن التوكل يزيل القلق');
+  assert.strictEqual(E.call('getPublic',{id:r.data.id}).data.gain,'أن التوكل يزيل القلق');
+});
+
 console.log('الإخفاء');
 t('إخفاء الاسم فقط مع عبارة بديلة', () => {
   E.call('savePerson',{name:'ابن تيمية',data:{name:'ابن تيمية',hide:'الاسم',rep:'بعض أهل العلم'}},tok);

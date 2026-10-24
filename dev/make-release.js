@@ -15,6 +15,9 @@ const dirs={own:'1-نسخة-خاصة-بي (فيها رابطي)',pub:'2-نسخة
 fs.mkdirSync(path.join(out,dirs.own),{recursive:true}); fs.mkdirSync(path.join(out,dirs.pub),{recursive:true});
 fs.writeFileSync(path.join(out,dirs.own,'index.html'),html.replace(PH,`const SERVER_URL = '${url}';`));
 fs.writeFileSync(path.join(out,dirs.pub,'index.html'),html);
+// مجلد القوالب الجاهزة (خلفيات + manifest) بجانب كل نسخة من index.html
+const tdir=path.join(root,'templates');
+if(fs.existsSync(path.join(tdir,'manifest.json'))) for(const d of Object.values(dirs)){ fs.mkdirSync(path.join(out,d,'templates'),{recursive:true}); for(const f of fs.readdirSync(tdir)) if(!f.startsWith('_')) fs.copyFileSync(path.join(tdir,f),path.join(out,d,'templates',f)); }
 for(const f of ['Code.gs','دليل-الاستخدام.md','خطوات-التثبيت-للمبتدئ.md']) fs.copyFileSync(path.join(root,f),path.join(out,f));
 const zip=path.join(root,'kunnasha-files.zip'); fs.rmSync(zip,{force:true});
 cp.execFileSync('python3',['-c',`import zipfile,os

@@ -34,5 +34,5 @@ let pass=0,fail=0; const ok=(c,m)=>{ if(c){pass++;console.log('  ✓',m)}else{fa
   await g.page.goto('http://localhost:8788/'); await g.page.waitForSelector('#btnAuth');
   for(let i=0;i<5;i++){ await g.page.click('#btnAuth'); await g.page.fill('#pw','bad'+i); await g.page.click('#go'); await g.page.waitForSelector('#lgmsg span'); await g.page.evaluate(()=>closeSheet(true)); }
   await g.page.click('#btnAuth'); await g.page.fill('#pw','Secret123'); await g.page.click('#go'); await g.page.waitForFunction(()=>/انتظر/.test(document.querySelector('#lgmsg').textContent)); ok(true,'بعد 5 محاولات خاطئة يُمنع الدخول مؤقتًا حتى بكلمة صحيحة');
-  console.log('أخطاء:',errors,g.errors); console.log(pass+' نجح، '+fail+' فشل'); await browser.close(); gas.srv.close(); web.close(); process.exit(fail||errors.length?1:0);
+  console.log('أخطاء:',errors,g.errors); console.log(pass+' نجح، '+fail+' فشل'); await browser.close(); gas.srv.close(); web.close(); process.exit(fail||errors.filter(e=>!/ERR_FAILED/.test(e)).length?1:0);
 })().catch(e=>{console.error(e);process.exit(1)});

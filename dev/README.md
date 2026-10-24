@@ -21,3 +21,9 @@ node dev/make-release.js
 يقرأ رابط السكربت من `dev/release-url.txt` ويصنع `kunnasha-files.zip` فيه:
 **١) نسخة صاحب المنصة** (الرابط مضمَّن) و**٢) نسخة النشر للآخرين** (العبارة العربية `الصق_رابط_السكربت_هنا` ليضعوا رابطهم مكانها)، مع `Code.gs` والأدلة.
 `index.html` في المستودع هو نسخة النشر (بلا رابط).
+
+## القوالب المستنسخة (templates/)
+- الأصول: `dev/designs/*.jpg` (التصاميم الأصلية).
+- `python3 dev/make-clone-config.py` يكتب `clone-config.json` (مواضع المسح والكتابة).
+- `python3 dev/clone-templates.py [--debug]` يمسح النصوص بالترميم (OpenCV) ويكتب `templates/*.jpg` و`templates/manifest.json`.
+- الرسم داخل index.html (دالة `drawClone`)، واختباره `e2e/8-clones.js`.
