@@ -258,7 +258,7 @@ var OWNER = {
   deleteMeta:api_deleteMeta, saveSettings:api_saveSettings, settingsOwner:api_settingsOwner,
   emptyTrash:api_emptyTrash, due:api_due, review:api_review, series:api_series, reading:api_reading,
   people:api_people, savePerson:api_savePerson,
-  importBatch:api_importBatch, importMeta:api_importMeta, trashAll:api_trashAll,
+  importBatch:api_importBatch, importMeta:api_importMeta, trashAll:api_trashAll, bulk:api_bulk,
   messages:api_messages, setMessageStatus:api_setMessageStatus, deleteMessage:api_deleteMessage,
   saveTemplate:api_saveTemplate, deleteTemplate:api_deleteTemplate
 };
@@ -861,6 +861,35 @@ function api_emptyTrash(){
     writeRows_(arch, arch.getLastRow() + 1, del.map(function(i){ return vals[i]; }), COLS.length);
     for (var k=del.length-1;k>=0;k--) sh.deleteRow(del[k]+2);   // من الأسفل لئلا تتزحزح الصفوف
     return {count:del.length};
+  });
+}
+
+/**
+ * إجراء جماعي بنداء واحد: على معرّفات محدّدة أو على الكل (all:true).
+ * op: visibility (value: عامة|خاصة) · starred (value: true|false) · trash (إلى السلة، يمكن استعادته)
+ * لا يمسّ المحذوفات (إلا بالاستعادة من السلة).
+ */
+function api_bulk(a){
+  return withLock_(60000, function(){
+    var sh = fsheet_(), last = sh.getLastRow();
+    if (last < 2) return {count:0};
+    var n = last - 1, ids = sh.getRange(2,1,n,1).getValues(), want = null, op = String(a.op || '');
+    if (['visibility','starred','trash'].indexOf(op) < 0) throw new Error('إجراء غير مسموح');
+    if (!a.all) { want = {}; (a.ids || []).slice(0,5000).forEach(function(i){ want[String(i)] = 1; }); }
+    var col = {visibility:13, starred:15, trash:14}[op];
+    var cur = sh.getRange(2,col,n,1).getValues(), stt = sh.getRange(2,14,n,1).getValues();
+    var prev = sh.getRange(2,20,n,1).getValues(), upd = sh.getRange(2,19,n,1).getValues(), now = new Date().toISOString(), c = 0;
+    var val = op === 'visibility' ? (a.value === 'عامة' ? 'عامة' : 'خاصة') : (op === 'starred' ? (a.value ? 'نعم' : 'لا') : 'محذوفة');
+    for (var i = 0; i < n; i++) {
+      if (!ids[i][0] || String(stt[i][0]) === 'محذوفة') continue;
+      if (want && !want[String(ids[i][0])]) continue;
+      if (op === 'trash') { prev[i][0] = stt[i][0]; }
+      cur[i][0] = val; upd[i][0] = now; c++;
+    }
+    sh.getRange(2,col,n,1).setValues(cur);
+    sh.getRange(2,19,n,1).setValues(upd);
+    if (op === 'trash') sh.getRange(2,20,n,1).setValues(prev);
+    return {count:c};
   });
 }
 

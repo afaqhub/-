@@ -442,6 +442,7 @@ const db = {
   async importBatch(items,options){ return await api('importBatch',{items,options}); },
   async importMeta(payload){ return await api('importMeta',payload); },
   async trashAll(){ return await api('trashAll'); },
+  async bulk(a){ return await api('bulk',a); },
   async messages(){ return await api('messages'); },
   async setMessageStatus(id,status){ return await api('setMessageStatus',{id,status}); },
   async deleteMessage(id){ return await api('deleteMessage',{id}); },
@@ -794,7 +795,8 @@ function menuSheet(){
   const B=[];
   if(o){
     B.push(item('📖',st.session?'إنهاء جلسة القراءة':'بدء جلسة قراءة أو سماع',()=>st.session?endSession():sessionSheet()));
-    B.push(item('☑','تحديد عدة فوائد (تصدير صور، تغيير الظهور)',()=>startSelect()));
+    B.push(item('⚡','إجراءات جماعية: إظهار الكل أو إخفاؤه أو حذفه',()=>bulkSheet()));
+    B.push(item('☑','تحديد فوائد بعينها (صور، ظهور، حذف)',()=>startSelect()));
     B.push(item('⇅','استيراد وتصدير ونسخ احتياطي',()=>transferSheet()));
     B.push(item('🖼','قوالب الصور',()=>templatesSheet()));
     B.push(item('✉','الرسائل'+(inbox?' ('+inbox+' جديدة)':''),()=>goTab('inbox')));
@@ -1099,13 +1101,40 @@ function renderSelbar(){
   add('🖼 صور',()=>{ const a=st.items.filter(i=>st.sel.has(i.id)); if(!a.length) return toast('حدّد فائدة أولًا'); imageSheet(a); });
   add('عامة',()=>bulkField('visibility','عامة'));
   add('خاصة',()=>bulkField('visibility','خاصة'));
+  add('🗑 حذف',()=>bulkField('trash'));
   add('إلغاء',endSelect);
 }
 async function bulkField(field,value){
   const ids=[...st.sel]; if(!ids.length) return toast('حدّد فائدة أولًا');
+  if(field==='trash'&&!confirm('ستُنقل '+ids.length+' فائدة إلى السلة (يمكن استعادتها). متابعة؟')) return;
   busy(true,'جارٍ التنفيذ…');
-  try{ for(const id of ids) await db.setField(id,field,value); busy(false); endSelect(); await refresh(); toast('تم تعديل '+ids.length+' فائدة'); }
+  try{ await db.bulk({ids,op:field==='trash'?'trash':field,value}); busy(false); endSelect(); await refresh(); toast((field==='trash'?'نُقلت إلى السلة: ':'تم تعديل ')+ids.length+' فائدة'); }
   catch(e){ busy(false); toast(e.message); }
+}
+/** نافذة الإجراءات الجماعية: على كل الفوائد أو ما يعرضه التصفية الحالية، بضغطة واحدة. */
+function bulkSheet(){
+  const act=st.items.filter(i=>!i._pending), view=filtered().filter(i=>!i._pending), hasF=st.q||Object.values(st.f).some(Boolean)||['star','draft','private'].includes(st.tab);
+  openSheet(`${shhd('إجراءات جماعية')}
+    <p class="hint">اختر النطاق ثم الإجراء. كل ما يُنقل إلى السلة يمكن استعادته منها.</p>
+    <div class="seg" id="bk_scope"><button type="button" class="chip on" data-s="all">كل الفوائد (${arDigits(act.length)})</button>${hasF?`<button type="button" class="chip" data-s="view">ما يعرضه التصفية الآن (${arDigits(view.length)})</button>`:''}</div>
+    <div class="menu" style="margin-top:10px">
+      <button class="pbtn" data-op="pub"><span class="ic">👁</span><b>إظهارها للجميع (عامة)</b></button>
+      <button class="pbtn" data-op="priv"><span class="ic">🙈</span><b>إخفاؤها عن الزوار (خاصة)</b></button>
+      <button class="pbtn" data-op="trash"><span class="ic">🗑</span><b>نقلها إلى السلة</b></button>
+    </div>
+    <p class="hint" id="bk_note" style="margin-top:8px"></p><p class="hint" id="bk_msg"></p>`);
+  let scope='all'; const ids=()=>(scope==='all'?act:view).map(i=>i.id);
+  const note=()=>{ const L=scope==='all'?act:view, d=L.filter(i=>i.status==='مسودة'||i.verify).length; $('#bk_note').textContent=d?arDigits(d)+' منها مسودة أو تحتاج تحقق، فلا تظهر للزوار حتى لو كانت عامة (استكمل توثيقها أولًا).':''; };
+  note();
+  $('#bk_scope').onclick=e=>{ const b=e.target.closest('button'); if(!b) return; scope=b.dataset.s; [...$('#bk_scope').children].forEach(c=>c.classList.toggle('on',c===b)); note(); };
+  $('#sheet').querySelector('.menu').onclick=async e=>{
+    const b=e.target.closest('button'); if(!b) return; const op=b.dataset.op, n=ids().length; if(!n) return toast('لا فوائد في هذا النطاق');
+    const label={pub:'إظهار',priv:'إخفاء',trash:'نقل إلى السلة'}[op];
+    if(!confirm(label+' '+arDigits(n)+' فائدة؟')) return;
+    busy(true,'جارٍ التنفيذ…');
+    try{ await db.bulk({ids:ids(),op:op==='trash'?'trash':'visibility',value:op==='pub'?'عامة':'خاصة'}); busy(false); closeSheet(); await refresh(); toast('تم: '+label+' '+arDigits(n)+' فائدة'); }
+    catch(er){ busy(false); toast(er.message); }
+  };
 }
 
 /* ---------- 8) الأوراق (sheets) ---------- */

@@ -164,6 +164,24 @@ t('الوسيط كتاب لا يُحسب قائلًا، وله موضعه الم
   const x = E.call('listPublic').data.find(i=>i.id===id); assert.strictEqual(x.via,''); assert.strictEqual(x.vlocus,'');
   const r = E.call('exportAll',{},tok).data.refs.find(r=>r.title==='كتاب وسيط تجريبي'); assert.strictEqual(r.author,'مؤلف تجريبي'); assert.strictEqual(r.edition,'الطبعة الثانية');
 });
+t('إجراءات جماعية: إظهار الكل وإخفاء وحذف إلى السلة بنداء واحد', () => {
+  const orig = E.call('list',{},tok).data.filter(i=>i.status!=='محذوفة'), total = orig.length;
+  const r = E.call('bulk',{all:true,op:'visibility',value:'عامة'},tok).data; assert.strictEqual(r.count,total);
+  assert.ok(E.call('list',{},tok).data.filter(i=>i.status!=='محذوفة').every(i=>i.visibility==='عامة'));
+  const some = E.call('list',{},tok).data.slice(0,2).map(i=>i.id);
+  assert.strictEqual(E.call('bulk',{ids:some,op:'visibility',value:'خاصة'},tok).data.count,2);
+  assert.strictEqual(E.call('bulk',{ids:some,op:'starred',value:true},tok).data.count,2);
+  assert.ok(E.call('get',{id:some[0]},tok).data.starred);
+  assert.strictEqual(E.call('bulk',{ids:some,op:'trash'},tok).data.count,2);
+  assert.strictEqual(E.call('trash',{},tok).data.filter(i=>some.includes(i.id)).length,2);
+  some.forEach(id=>E.call('restore',{id},tok));
+  assert.strictEqual(E.call('get',{id:some[0]},tok).data.status,'منشورة');
+  assert.throws(()=>{ const x=E.call('bulk',{all:true,op:'drop'},tok); if(!x.ok) throw new Error(x.error); });
+  E.call('bulk',{all:true,op:'visibility',value:'خاصة'},tok);
+  E.call('bulk',{ids:orig.filter(i=>i.visibility==='عامة').map(i=>i.id),op:'visibility',value:'عامة'},tok);
+  E.call('bulk',{ids:orig.filter(i=>i.starred).map(i=>i.id),op:'starred',value:true},tok);
+  E.call('bulk',{ids:some,op:'starred',value:false},tok); E.call('bulk',{ids:orig.filter(i=>i.starred&&some.includes(i.id)).map(i=>i.id),op:'starred',value:true},tok);
+});
 t('إخفاءات عامة من الإعدادات وإخفاءات الفائدة', () => {
   E.call('saveSettings',{settings:{'إخفاء المرجع':'نعم','إخفاء التواريخ':'نعم'}},tok);
   let x = E.call('listPublic').data.find(i=>i.id===ids.b);
