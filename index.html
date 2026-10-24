@@ -854,14 +854,14 @@ function filtered(){
   const f=st.f;
   if(f.cat) a=a.filter(i=>i.cat===f.cat);
   if(f.speaker) a=a.filter(i=>i.speaker===f.speaker||i.via===f.speaker);
-  if(f.ref) a=a.filter(i=>i.ref===f.ref);
+  if(f.ref) a=a.filter(i=>i.ref===f.ref||i.via===f.ref);
   if(f.type) a=a.filter(i=>i.type===f.type);
   if(f.medium) a=a.filter(i=>(i.medium||'قراءة')===f.medium);
   if(f.tag) a=a.filter(i=>(i.tags||[]).includes(f.tag));
   a=sortItems(a);
   const q=norm(st.q);
   if(q){ const w=q.split(' ').filter(Boolean);
-    a=a.filter(i=>{ const hay=norm([i.title,i.text,i.speaker,i.via,i.ref,i.locus,i.cat,i.series,i.anchor,i.note,(i.tags||[]).join(' ')].join(' '));
+    a=a.filter(i=>{ const hay=norm([i.title,i.text,i.speaker,i.via,i.vlocus,i.ref,i.locus,i.cat,i.series,i.anchor,i.note,(i.tags||[]).join(' ')].join(' '));
       return w.every(x=>hay.includes(x)); }); }
   return a;
 }
@@ -1011,7 +1011,7 @@ function citation(i){
   const p=[]; if(i.speaker)p.push('<b>'+esc(i.speaker)+'</b>');
   if(i.ref)p.push(esc(i.ref)+(i.locus?' ('+esc(locusText(i))+')':''));
   else if(i.locus&&i.medium==='مجلس')p.push(esc(i.locus));
-  if(i.via)p.push('نقلًا عن '+esc(i.via));
+  if(i.via)p.push('نقلًا عن '+esc(i.via)+(i.vlocus?' ('+esc(i.vlocus)+')':''));
   const ml=(i.medium==='سماع'||i.medium==='مشاهدة')&&mediaLink(i);
   let s=p.length?'— '+p.join('، '):'';
   if(ml) s+=(s?' ':'')+`<a href="${esc(ml)}" target="_blank" rel="noopener">▶ استمع من الموضع</a>`;
@@ -1023,7 +1023,7 @@ function citeText(i){
   const p=[]; if(i.speaker)p.push(i.speaker);
   if(i.ref)p.push(i.ref+(i.locus?' ('+locusText(i)+')':''));
   else if(i.locus&&i.medium==='مجلس')p.push(i.locus);
-  if(i.via)p.push('نقلًا عن '+i.via);
+  if(i.via)p.push('نقلًا عن '+i.via+(i.vlocus?' ('+i.vlocus+')':''));
   return '«'+i.text+'»'+(p.length?'\n— '+p.join('، '):'')+(i.gain?'\nمن فوائد هذا الكلام: '+i.gain:'');
 }
 function copyCited(i){
@@ -1039,7 +1039,7 @@ function copyText(t,msg){
 
 function renderIndex(v,field,label){
   const map={}, known=new Set(((st.meta||{}).speakers||[]).concat(((st.meta||{}).people||[]).map(p=>p.n)));
-  st.items.forEach(i=>{ if(i[field]) map[i[field]]=(map[i[field]]||0)+1; if(field==='speaker'&&i.via&&known.has(i.via)) map[i.via]=(map[i.via]||0)+1; });
+  st.items.forEach(i=>{ if(i[field]) map[i[field]]=(map[i[field]]||0)+1; if(i.via&&((field==='speaker'&&known.has(i.via))||(field==='ref'&&!known.has(i.via)))) map[i.via]=(map[i.via]||0)+1; });
   const ownerP=field==='speaker'&&st.owner;
   const tools=el('div','vbar');
   const q=el('input','t'); q.placeholder='ابحث في '+label+'…'; q.value=st.ixq; tools.appendChild(q);
@@ -1138,7 +1138,7 @@ async function detail(id, fromHash){
       ${i.type?`<div><b>النوع:</b>${esc(i.type)}</div>`:''}
       ${i.speaker?`<div><b>القائل:</b>${esc(i.speaker)}</div>`:''}
       ${i.ref?`<div><b>المرجع:</b>${esc(i.ref)}${i.locus?' — '+esc(locusText(i)):''}</div>`:(i.locus?`<div><b>الموضع:</b>${esc(i.locus)}</div>`:'')}
-      ${i.via?`<div><b>الوسيط:</b>${esc(i.via)}</div>`:''}
+      ${i.via?`<div><b>الوسيط:</b>${esc(i.via)}${i.vlocus?' — '+esc(i.vlocus):''}</div>`:''}
       ${plain?`<div><b>الرابط:</b><a href="${esc(plain)}" target="_blank" rel="noopener">فتح</a>${ml&&ml!==plain?` · <a href="${esc(ml)}" target="_blank" rel="noopener">▶ من الموضع نفسه</a>`:''}</div>`:''}
       ${i.cat?`<div><b>التصنيف:</b>${esc(i.cat)}</div>`:''}
       ${i.gain?`<div><b>من فوائد هذا الكلام:</b>${esc(i.gain)}</div>`:''}
@@ -1240,8 +1240,10 @@ function editor(item){
         <label class="fld"><span>القائل</span><div><input class="t" id="f_speaker" autocomplete="off" value="${esc(i.speaker)}"></div></label>
         <label class="fld"><span id="l_ref">${esc(LBL[med][0])}</span><div><input class="t" id="f_ref" autocomplete="off" value="${esc(i.ref)}"></div></label>
         <label class="fld"><span id="l_locus">${esc(LBL[med][1])}</span><input class="t" id="f_locus" value="${esc(i.locus)}"></label>
-        <label class="fld"><span>المصدر الوسيط (إن نُقلت بواسطة)</span><div><input class="t" id="f_via" autocomplete="off" value="${esc(i.via)}"></div></label>
+        <label class="fld"><span>المصدر الوسيط (شخص أو كتاب نُقلت بواسطته)</span><div><input class="t" id="f_via" autocomplete="off" value="${esc(i.via)}"></div></label>
+        <label class="fld"><span>موضع الوسيط (صفحة/جزء)</span><input class="t" id="f_vloc" value="${esc(i.vlocus||'')}"></label>
       </div>
+      <label class="tgl"><input type="checkbox" id="f_viabook" ${(st.meta.refs||[]).includes(i.via)?'checked':''}> الوسيط <b>كتاب</b> وليس شخصًا (فلا يُحسب بين القائلين)</label>
       <label class="fld" id="f_linkw" style="display:${needLink(med)||i.link?'block':'none'}"><span id="l_link">${esc(LINK_LBL[med]||'الرابط (اختياري)')}</span><input class="t" id="f_link" dir="ltr" placeholder="https://" value="${esc(i.link)}"></label>
     </details>
     <details class="more"><summary>＋ التصنيف والوسوم والعنوان وخيارات أخرى</summary>
@@ -1324,7 +1326,7 @@ function editor(item){
       speaker:p.speaker||$('#f_speaker').value.trim()||'',
       ref:p.ref||$('#f_ref').value.trim()||'',
       locus:p.locus||$('#f_locus').value.trim()||'',
-      via:p.via||$('#f_via').value.trim()||'',
+      via:p.via||$('#f_via').value.trim()||'', vlocus:$('#f_vloc').value.trim(),
       link:$('#f_link').value.trim(),
       cat:p.cat||$('#f_cat').value.trim()||'فوائد متفرقة',
       series:$('#f_series').value.trim(), sorder:Number($('#f_sorder').value)||'',
@@ -1340,7 +1342,7 @@ function editor(item){
     if(dup && !confirm('هذه الفائدة تشبه فائدة دوّنتها سابقًا بتاريخ '+hijri(dup.createdAt)+'. أحفظها على أي حال؟')) return;
     busy(true,'جارٍ الحفظ…');
     let r;
-    try{ r=await saveItem(obj); }
+    try{ if(obj.via&&$('#f_viabook').checked&&!(st.meta.refs||[]).includes(obj.via)){ try{ await db.addMeta('refs',obj.via); }catch(e){} } r=await saveItem(obj); }
     catch(e){ busy(false); toast(e.message); return; }
     remember(obj); try{localStorage.removeItem(DRAFT)}catch(e){}
     if(isNew && st.session){ st.session.n=(st.session.n||0)+1; saveSession(st.session); }
@@ -2045,7 +2047,7 @@ footer{margin-top:26pt;border-top:1px solid #e3dac7;padding-top:8pt;text-align:c
   keys.forEach(k=>{
     html+=`<h2>${esc(k)}</h2>`;
     groups[k].forEach(i=>{
-      const cite=[i.speaker,i.ref?(i.ref+(i.locus?' ('+locusText(i)+')':'')):'',i.via?('نقلًا عن '+i.via):'']
+      const cite=[i.speaker,i.ref?(i.ref+(i.locus?' ('+locusText(i)+')':'')):'',i.via?('نقلًا عن '+i.via+(i.vlocus?' ('+i.vlocus+')':'')):'']
                  .filter(Boolean).map((s,n)=>n===0?'<b>'+esc(s)+'</b>':esc(s)).join('، ');
       html+=`<div class="f"><p class="t${i.starred?' star':''}">${esc(i.text)}</p>`;
       if(cite) html+=`<div class="c">— ${cite}</div>`;
@@ -2090,7 +2092,7 @@ function helpSheet(){
    ============================================================ */
 
 const FIELD_LABELS={ text:'نص الفائدة', title:'العنوان', speaker:'القائل', ref:'المرجع (الكتاب/المقطع)', locus:'الموضع (صفحة/دقيقة)',
-  via:'المصدر الوسيط', link:'الرابط', cat:'التصنيف', tags:'الوسوم', type:'النوع', note:'تعليقي', medium:'وسيلة التلقي',
+  via:'المصدر الوسيط', vlocus:'موضع الوسيط', link:'الرابط', cat:'التصنيف', tags:'الوسوم', type:'النوع', note:'تعليقي', medium:'وسيلة التلقي',
   gain:'من فوائد هذا الكلام', series:'السلسلة', sorder:'ترتيب السلسلة', anchor:'الموضع القرآني/الحديثي', visibility:'الظهور', starred:'مميّزة',
   createdAt:'تاريخ الإضافة', status:'الحالة', verify:'تحتاج تحقق', id:'المعرّف' };
 const FIELD_ALIASES={
@@ -2100,6 +2102,7 @@ const FIELD_ALIASES={
   ref:['المرجع','مرجع','الكتاب','كتاب','المصدر','مصدر','المقطع','الدرس','المحاضرة','اسم المقطع','ref','book','source','reference'],
   locus:['الموضع','موضع','الصفحة','صفحة','ص','الجزء والصفحة','الجزء/الصفحة','جزء وصفحة','الدقيقة','دقيقة','locus','page','pages','minute','time','position'],
   via:['المصدر الوسيط','الوسيط','وسيط','نقلا عن','بواسطة','عن','via','through'],
+  vlocus:['موضع الوسيط','صفحة الوسيط','موضع المصدر الوسيط','vlocus'],
   link:['الرابط','رابط','link','url','youtube'],
   cat:['التصنيف','تصنيف','الباب','الفن','القسم','category','cat','topic'],
   tags:['الوسوم','وسوم','وسم','الكلمات المفتاحية','كلمات مفتاحية','tags','keywords','tag'],
@@ -2149,7 +2152,7 @@ function coerceItem(r){
   const text=cleanText(r.text); if(!text) return null;
   const o={ text };
   const put=(k,v)=>{ if(v!==undefined&&v!=='') o[k]=v; };
-  put('title',S(r.title).slice(0,200)); put('speaker',S(r.speaker)); put('ref',S(r.ref)); put('locus',S(r.locus));
+  put('title',S(r.title).slice(0,200)); put('speaker',S(r.speaker)); put('ref',S(r.ref)); put('locus',S(r.locus)); put('vlocus',S(r.vlocus));
   put('via',S(r.via).replace(/^(نقلا|نقلًا)\s*عن\s*/,'')); put('cat',S(r.cat)); put('type',S(r.type).slice(0,40));
   put('gain',S(r.gain).slice(0,600)); put('note',cleanText(r.note)); put('series',S(r.series)); put('anchor',S(r.anchor));
   const link=safeUrl(S(r.link)); if(link) o.link=link; else if(S(r.link)) o._badLink=true;
@@ -2455,7 +2458,7 @@ async function runImport(){
 
 /* ---------- التصدير ---------- */
 const EXPORT_COLS=[['العنوان','title'],['النص','text'],['النوع','type'],['القائل','speaker'],['المرجع','ref'],['الموضع','locus'],
-  ['المصدر الوسيط','via'],['الرابط','link'],['التصنيف','cat'],['الوسوم','tags'],['تعليقي','note'],['الظهور','visibility'],['الحالة','status'],
+  ['المصدر الوسيط','via'],['موضع الوسيط','vlocus'],['الرابط','link'],['التصنيف','cat'],['الوسوم','tags'],['تعليقي','note'],['الظهور','visibility'],['الحالة','status'],
   ['مميّزة','starred'],['وسيلة التلقي','medium'],['السلسلة','series'],['ترتيب السلسلة','sorder'],['الموضع القرآني أو الحديثي','anchor'],['من فوائد هذا الكلام','gain'],
   ['يحتاج تحقق','verify'],['تاريخ الإضافة','createdAt'],['المعرّف','id']];
 function exportRows(items){
@@ -2851,7 +2854,7 @@ async function drawClone(item,T,o){
   const UF=o.font&&FONTS[o.font]?FONTS[o.font].css:'', F=UF||'Tajawal,Cairo,sans-serif', fs=o.fscale||1;
   const speaker=item.speaker?('قال '+item.speaker+((item.dua)?' -'+item.dua+'-':'')+':'):'';
   const ref=item.ref?(item.ref+(item.locus?'   '+((item.medium==='سماع'||item.medium==='مشاهدة')&&parseTime(item.locus)!=null?'الدقيقة '+item.locus:item.locus):'')):(item.medium==='مجلس'&&item.locus?item.locus:'');
-  const via=item.via?('نقلًا عن: '+item.via):'';
+  const via=item.via?('نقلًا عن: '+item.via+(item.vlocus?' '+item.vlocus:'')):'';
   const src=[ref,via].filter(Boolean).join('\n');
   // النص: داخل صندوقه، ويُحجز أسفله مكان «من فوائد الكلام» ورقم الصفحة
   const B=L.body, gain=(item.gain||'').trim(), paged=o.pages>1;
@@ -3223,7 +3226,7 @@ function drawCardSync(item,T,o){
   const hdr=(custom&&cfgC.header===false)?'':o.header;
   const speaker=item.speaker?('قال '+item.speaker+((item.dua)?' -'+item.dua+'-':'')+':'):'';
   const src=item.ref?(item.ref+(item.locus?'   '+((item.medium==='سماع'||item.medium==='مشاهدة')&&parseTime(item.locus)!=null?'الدقيقة '+item.locus:item.locus):'')):(item.medium==='مجلس'&&item.locus?item.locus:'');
-  const via=item.via?('نقلًا عن: '+item.via):'';
+  const via=item.via?('نقلًا عن: '+item.via+(item.vlocus?' '+item.vlocus:'')):'';
   const srcStyle=T.src||'hex', divStyle=T.div||'leaf';
   const foot=(o.stamp||o.pages>1);
   // «من فوائد هذا الكلام»
@@ -3345,7 +3348,7 @@ async function imageSheet(items){
       <p class="hint" style="margin:4px 0">عدّل بحرية: اكتب أو أضف أو احذف. التغيير يخص الصورة فقط${owner?'، إلا إن ضغطت «حفظ في الفائدة»':''}. لتقسيم النص إلى صور اكتب سطرًا فيه <code>---</code>.</p>
       <label class="fld"><span>نص الفائدة في الصورة</span><textarea class="t" id="ed_text" rows="6"></textarea></label>
       <div class="grid2"><label class="fld"><span>القائل</span><input class="t" id="ed_sp"></label><label class="fld"><span>المرجع</span><input class="t" id="ed_ref"></label>
-        <label class="fld"><span>الموضع</span><input class="t" id="ed_loc"></label><label class="fld"><span>المصدر الوسيط</span><input class="t" id="ed_via"></label></div>
+        <label class="fld"><span>الموضع</span><input class="t" id="ed_loc"></label><label class="fld"><span>المصدر الوسيط</span><input class="t" id="ed_via"></label><label class="fld"><span>موضع الوسيط</span><input class="t" id="ed_vloc"></label></div>
       <label class="fld"><span>من فوائد هذا الكلام</span><input class="t" id="ed_gain"></label>
       <div class="row2"><button class="btn ghost" id="ed_reset" type="button">إعادة الأصل</button>${owner?'<button class="btn ghost" id="ed_save" type="button">حفظ في الفائدة</button>':''}</div>`}</details>
     <div class="grid2">
@@ -3372,9 +3375,9 @@ async function imageSheet(items){
   const eff=key=>{ const e=S.ft[key]||S.fdef||{}; return {font:FONTS[e.font]?e.font:'',scale:e.scale||100}; };
   const curPal=()=>S.pals[S.tpl==='auto'?autoTpl(first):S.tpl]||0;
   const mask=it=>{ if(!multi&&S.ed&&it.id===first.id) it=Object.assign({},it,S.ed); return maskBase(it); };
-  const maskBase=it=>Object.assign({},it,{speaker:S.show.sp?it.speaker:'',dua:S.show.sp?it.dua:'',via:S.show.via?it.via:'',ref:S.show.ref?it.ref:'',locus:S.show.ref?it.locus:'',gain:S.show.gain?it.gain:''});
+  const maskBase=it=>Object.assign({},it,{speaker:S.show.sp?it.speaker:'',dua:S.show.sp?it.dua:'',via:S.show.via?it.via:'',vlocus:S.show.via?it.vlocus:'',ref:S.show.ref?it.ref:'',locus:S.show.ref?it.locus:'',gain:S.show.gain?it.gain:''});
   if(!multi){
-    const E=(id)=>$('#'+id), F={ed_text:'text',ed_sp:'speaker',ed_ref:'ref',ed_loc:'locus',ed_via:'via',ed_gain:'gain'};
+    const E=(id)=>$('#'+id), F={ed_text:'text',ed_sp:'speaker',ed_ref:'ref',ed_loc:'locus',ed_via:'via',ed_vloc:'vlocus',ed_gain:'gain'};
     const load=()=>Object.keys(F).forEach(id=>{ E(id).value=first[F[id]]||''; });
     load();
     Object.keys(F).forEach(id=>E(id).oninput=()=>{
@@ -3384,7 +3387,7 @@ async function imageSheet(items){
     E('ed_reset').onclick=()=>{ S.ed=null; load(); rerender(); refreshThumbs(); };
     if(owner) E('ed_save').onclick=async()=>{
       const o={id:first.id}; Object.keys(F).forEach(id=>{ o[F[id]]=E(id).value.trim(); }); if(!o.text) return toast('النص فارغ');
-      try{ busy(true,'جارٍ الحفظ…'); await saveItem(o); busy(false); first.text=o.text; first.speaker=o.speaker; first.ref=o.ref; first.locus=o.locus; first.via=o.via; first.gain=o.gain; S.ed=null; await refresh(); toast('حُفظ التعديل في الفائدة'); }
+      try{ busy(true,'جارٍ الحفظ…'); await saveItem(o); busy(false); first.text=o.text; first.speaker=o.speaker; first.ref=o.ref; first.locus=o.locus; first.via=o.via; first.vlocus=o.vlocus; first.gain=o.gain; S.ed=null; await refresh(); toast('حُفظ التعديل في الفائدة'); }
       catch(e){ busy(false); toast(e.message); } };
   }
   const optsFor=(item,n)=>({ w:SIZES[S.size].w,h:SIZES[S.size].h, header:S.show.hdr?(S.header.trim()||autoHeader(item)):'', stamp:S.show.stamp?S.stamp.trim():'',

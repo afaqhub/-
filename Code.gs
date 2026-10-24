@@ -23,7 +23,7 @@ var COLS = ['المعرّف','العنوان','النص','النوع','القا�
             'الرابط','التصنيف','الوسوم','تعليقي','الظهور','الحالة','مميّزة','فوائد مرتبطة',
             'تاريخ الإضافة هجري','تاريخ الإضافة','تاريخ التعديل','الحالة السابقة',
             'مرحلة المراجعة','المراجعة القادمة','السلسلة','ترتيب السلسلة','الموضع القرآني أو الحديثي',
-            'وسيلة التلقي','رقم النشر','تاريخ النشر','يحتاج تحقق','إخفاءات','من فوائد هذا الكلام'];
+            'وسيلة التلقي','رقم النشر','تاريخ النشر','يحتاج تحقق','إخفاءات','من فوائد هذا الكلام','موضع الوسيط'];
 
 var HEAD_C = ['الاسم','الأب','اللون','الأيقونة','الترتيب','الحالة'];
 var HEAD_S = ['الاسم المعتمد','الأسماء البديلة','سنة الوفاة','نبذة','إخفاء','عبارة بديلة','الدعاء'];
@@ -526,7 +526,7 @@ function rowToObj_(r, rowNum){
     medium:String(r[25]||''), pubNo:String(r[26]||''), pubDate: toIso_(r[27]),
     verify: String(r[28]) === 'نعم',
     hide: splitList_(r[29]).filter(function(k){ return HIDE_KEYS.indexOf(k) >= 0; }),
-    gain: String(r[30]||''),
+    gain: String(r[30]||''), vlocus: String(r[31]||''),
     _row: rowNum
   };
 }
@@ -536,7 +536,7 @@ function objToRow_(o){
           (o.tags||[]).join('، '), o.note||'', o.visibility||'خاصة', o.status||'منشورة', o.starred?'نعم':'لا',
           o.related||'', o.createdHijri||'', o.createdAt||'', o.updatedAt||'', o.prevStatus||'',
           o.rstage||'', o.rnext||'', o.series||'', o.sorder||'', o.anchor||'',
-          o.medium||'', o.pubNo||'', o.pubDate||'', o.verify?'نعم':'', (o.hide||[]).join('،'), o.gain||''];
+          o.medium||'', o.pubNo||'', o.pubDate||'', o.verify?'نعم':'', (o.hide||[]).join('،'), o.gain||'', o.vlocus||''];
 }
 
 function toIso_(v){
@@ -594,6 +594,7 @@ function publicItems_(){
     hiddenNames.forEach(function(p){ c.ref = scrubName_(c.ref, p); c.via = scrubName_(c.via, p); });
     if (g.speaker || h.indexOf('speaker') >= 0) { c.speaker = ''; c.dua = ''; }
     if (g.via || h.indexOf('via') >= 0) c.via = '';
+    if (!c.via) c.vlocus = '';
     if (g.ref || h.indexOf('ref') >= 0) { c.ref = ''; c.locus = ''; }
     if (g.link || h.indexOf('link') >= 0) c.link = '';
     if (g.dates) { c.createdAt = ''; c.createdHijri = ''; c.updatedAt = ''; }
@@ -635,11 +636,11 @@ function api_getPublic(a){
 function api_metaPublic(){
   var items = publicItems_(), set = api_settings();
   var cats = listCol_(getSheet_(SH.C, HEAD_C), 1, 6, 'مفعّل');
-  var used = {}, sp = {}, rf = {}, tg = {};
+  var used = {}, sp = {}, rf = {}, tg = {}, books = bookSet_();
   items.forEach(function(o){
     if (o.cat) used[o.cat] = 1;
     if (o.speaker) sp[o.speaker] = 1;
-    if (o.via) sp[o.via] = 1;
+    if (o.via) { if (isBook_(o.via, books)) rf[o.via] = 1; else sp[o.via] = 1; }
     if (o.ref) rf[o.ref] = 1;
     (o.tags||[]).forEach(function(t){ tg[t] = 1; });
   });
@@ -668,11 +669,11 @@ function api_meta(){
   var cats = listCol_(getSheet_(SH.C, HEAD_C), 1, 6, 'مفعّل');
   var sp = pidx.rows.map(function(p){ return p.name; });
   var rf = listCol_(getSheet_(SH.R, HEAD_R), 1);
-  var tags = {};
+  var tags = {}, books = bookSet_();
   items.forEach(function(o){
     (o.tags||[]).forEach(function(t){ tags[t] = 1; });
     if (o.speaker && sp.indexOf(o.speaker)<0) sp.push(o.speaker);
-    if (o.via && sp.indexOf(o.via)<0) sp.push(o.via);
+    if (o.via) { if (isBook_(o.via, books)) { if (rf.indexOf(o.via)<0) rf.push(o.via); } else if (sp.indexOf(o.via)<0) sp.push(o.via); }
     if (o.ref && rf.indexOf(o.ref)<0) rf.push(o.ref);
     if (o.cat && cats.indexOf(o.cat)<0) cats.push(o.cat);
   });
@@ -696,7 +697,7 @@ function listCol_(sh, col, statusCol, statusVal){
 function sanitize_(src, idx){
   var o = {}, has = function(k){ return src[k] !== undefined && src[k] !== null; };
   var S = function(k,n){ if (has(k)) o[k] = clip_(src[k], n); };
-  S('id',20); S('title',200); S('text',TEXT_MAX); S('type',40); S('ref',300); S('locus',100);
+  S('id',20); S('title',200); S('text',TEXT_MAX); S('type',40); S('ref',300); S('locus',100); S('vlocus',100);
   S('cat',100); S('gain',600); S('note',3000); S('related',200); S('series',150); S('anchor',200);
   if (has('speaker')) o.speaker = canon_(src.speaker, idx);
   if (has('via')) o.via = canon_(src.via, idx);
@@ -722,11 +723,23 @@ function sanitize_(src, idx){
   return o;
 }
 
+/** عناوين الكتب في فهرس المراجع (مفتاح مُنقّى) — الوسيط الذي يطابق أحدها كتابٌ لا شخص. */
+function bookSet_(){
+  var m = {}, rs = getSheet_(SH.R, HEAD_R);
+  listCol_(rs, 1).forEach(function(t){ m[norm_(t)] = 1; });
+  return m;
+}
+function isBook_(name, m){
+  var t = norm_(String(name||'').replace(/\s*(ص\s*[\d٠-٩]+|[\d٠-٩]+\s*\/\s*[\d٠-٩]+)\s*$/,''));
+  return !!(t && m[t]);
+}
+
 /** يسجّل ما جدّ من قائلين ومراجع وتصنيفات في الأوراق المساعدة. */
 function registerMeta_(o, idx){
-  var names = [];
+  var names = [], books = bookSet_();
   if (o.speaker) names.push(o.speaker);
-  if (o.via) names.push(o.via);
+  var viaBook = o.via && isBook_(o.via, books);
+  if (o.via && !viaBook) names.push(o.via);
   registerPeople_(names, idx);
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   if (o.ref) addIfNew_(getSheet_(SH.R, HEAD_R), o.ref, HEAD_R.length);
@@ -1060,7 +1073,7 @@ function api_importBatch(a){
       if (o.status !== 'محذوفة') keys[dupKey_(o.text)] = 1;
     });
     var set = settingsAll_(), defVis = set['الظهور الافتراضي'] === 'عامة' ? 'عامة' : 'خاصة';
-    var rows = [], added = 0, skipped = 0, bad = 0, ids = [], names = [], cats = {}, refs = {};
+    var rows = [], added = 0, skipped = 0, bad = 0, ids = [], names = [], cats = {}, refs = {}, books = bookSet_();
     var fmt = {};
 
     items.forEach(function(raw){
@@ -1085,7 +1098,7 @@ function api_importBatch(a){
         o.createdAt = d.toISOString(); o.createdHijri = hijri_(d); o.updatedAt = o.createdAt;
         o.prevStatus = '';
         if (o.speaker) names.push(o.speaker);
-        if (o.via) names.push(o.via);
+        if (o.via && !isBook_(o.via, books)) names.push(o.via);
         if (o.cat) cats[o.cat] = 1;
         if (o.ref) refs[o.ref] = 1;
         rows.push(objToRow_(o)); ids.push(o.id); added++;
@@ -1122,9 +1135,17 @@ function api_importMeta(a){
       idx.by[norm_(name)] = {name:name, aliases:al}; cnt.people++;
     });
     var rsh = getSheet_(SH.R, HEAD_R), haveR = listCol_(rsh,1).map(norm_);
+    var rrows = rsh.getLastRow() > 1 ? rsh.getRange(2,1,rsh.getLastRow()-1,HEAD_R.length).getValues() : [];
     (a.refs || []).slice(0,5000).forEach(function(r){
-      var t = clip_(r && r.title, 300); if (!t || haveR.indexOf(norm_(t)) >= 0) return;
-      appendText_(rsh, [t, clip_(r.author,100), clip_(r.kind,40), clip_(r.edition,300)]); haveR.push(norm_(t)); cnt.refs++;
+      var t = clip_(r && r.title, 300); if (!t) return;
+      var at = haveR.indexOf(norm_(t));
+      if (at >= 0) {   // موجود: يُكمَل المؤلف والنوع والطبعة إن كانت فارغة
+        var row = rrows[at], ch = false;
+        [[1,r.author,100],[2,r.kind,40],[3,r.edition,300]].forEach(function(f){ if (!row[f[0]] && f[1]) { row[f[0]] = clip_(f[1], f[2]); ch = true; } });
+        if (ch) rsh.getRange(at+2,1,1,HEAD_R.length).setNumberFormat('@').setValues([row.map(String)]);
+        return;
+      }
+      appendText_(rsh, [t, clip_(r.author,100), clip_(r.kind,40), clip_(r.edition,300)]); haveR.push(norm_(t)); rrows.push([t,'','','']); cnt.refs++;
     });
     var csh = getSheet_(SH.C, HEAD_C), haveC = listCol_(csh,1).map(norm_);
     (a.categories || []).slice(0,500).forEach(function(c){

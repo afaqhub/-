@@ -152,6 +152,18 @@ t('إخفاء مؤلف: كتابه وسيطًا يختفي، وكتابه مرج
   E.call('savePerson',{name:'خالد السبت',data:{name:'خالد السبت',aliases:['السبت'],hide:''}},tok);
   assert.ok(E.call('listPublic').data.some(x=>x.id===b));
 });
+t('الوسيط كتاب لا يُحسب قائلًا، وله موضعه المنفصل ويُحجب معه', () => {
+  E.call('importMeta',{refs:[{title:'كتاب وسيط تجريبي',author:'مؤلف تجريبي',kind:'كتاب',edition:'الطبعة الثانية'}]},tok);
+  const id = E.call('save',{item:{text:'فائدة بوسيط كتاب',speaker:'ابن كثير',ref:'تفسير ابن كثير',via:'كتاب وسيط تجريبي',vlocus:'ص ٥',visibility:'عامة'}},tok).data.id;
+  const m = E.call('meta',{},tok).data;
+  assert.ok(!m.speakers.includes('كتاب وسيط تجريبي'), 'ظهر الكتاب بين القائلين');
+  assert.ok(m.refs.includes('كتاب وسيط تجريبي'));
+  assert.strictEqual(E.call('get',{id},tok).data.vlocus,'ص ٥');
+  assert.strictEqual(E.call('listPublic').data.find(i=>i.id===id).vlocus,'ص ٥');
+  E.call('save',{item:{id,hide:['via']}},tok);
+  const x = E.call('listPublic').data.find(i=>i.id===id); assert.strictEqual(x.via,''); assert.strictEqual(x.vlocus,'');
+  const r = E.call('exportAll',{},tok).data.refs.find(r=>r.title==='كتاب وسيط تجريبي'); assert.strictEqual(r.author,'مؤلف تجريبي'); assert.strictEqual(r.edition,'الطبعة الثانية');
+});
 t('إخفاءات عامة من الإعدادات وإخفاءات الفائدة', () => {
   E.call('saveSettings',{settings:{'إخفاء المرجع':'نعم','إخفاء التواريخ':'نعم'}},tok);
   let x = E.call('listPublic').data.find(i=>i.id===ids.b);
