@@ -11,7 +11,7 @@ async function start(){
   const web=http.createServer((req,res)=>{
     if(req.url.startsWith('/__f/')){ const f=req.url.slice(5); const p=path.join(FONTS,f.replace(/\.\./g,'')); if(fs.existsSync(p)){res.writeHead(200,{'Content-Type':'font/woff2','Access-Control-Allow-Origin':'*'});return res.end(fs.readFileSync(p));} }
     if(req.url.startsWith('/server.txt')){ if(global.__serverTxt){ res.writeHead(200,{'Content-Type':'text/plain'}); return res.end(global.__serverTxt); } res.writeHead(404); return res.end('not found'); }
-    res.writeHead(200,{'Content-Type':'text/html; charset=utf-8'}); res.end(fs.readFileSync(path.join(__dirname,'..','..','index.html')));
+    res.writeHead(200,{'Content-Type':'text/html; charset=utf-8'}); let html=fs.readFileSync(path.join(__dirname,'..','..','index.html'),'utf8'); if(global.__embedUrl) html=html.replace("const SERVER_URL = '';","const SERVER_URL = '"+global.__embedUrl+"';"); res.end(html);
   }); await new Promise(r=>web.listen(8788,r));
   const browser=await chromium.launch();
   return {gas,web,browser};

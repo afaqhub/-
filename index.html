@@ -313,11 +313,15 @@ input[type=range]{width:100%;accent-color:var(--gold)}
    يُضبط من «الإعدادات» لا من الكود، فالملف نفسه يصلح لأي صاحب منصة.
    ============================================================ */
 
-/* ---------- 1) الاتصال بخادم Google Apps Script ----------
-   ضع رابط الخادم (المنتهي بـ /exec) في السطر التالي، أو اتركه فارغًا
-   فتطلبه المنصة مرة واحدة عند أول فتح وتحفظه في هذا الجهاز.            */
+/* ---------- 1) الاتصال بخادم Google Apps Script ---------- */
+/* ================================================================
+   ⚙️ الإعداد الوحيد المطلوب: الصق رابط نشر Apps Script (المنتهي بـ /exec)
+   بين علامتي التنصيص في السطر التالي، ثم ارفع الملف على GitHub.
+   فتعمل المنصة على أي جهاز وعند أي زائر دون أن يُسأل أحد عن شيء.
+   مثال:  const SERVER_URL = 'https://script.google.com/macros/s/AKfy.../exec';
+   ================================================================ */
 
-const SERVER_URL = '';   // ◀◀◀ اختياري. مثال: 'https://script.google.com/macros/s/AKfy..../exec'
+const SERVER_URL = '';
 
 const SRV='k_server', TOK='k_token';
 const SERVER_RE=/^https:\/\/script\.google\.com\/.+\/exec$/;
@@ -1172,23 +1176,28 @@ async function renderAdmin(v){
   const embedded=!!(SERVER_URL||'').trim(), viaFile=!!st.srvFromFile;
   const lb=el('div','bars','<h4>ربط الأجهزة والزوار</h4>');
   lb.insertAdjacentHTML('beforeend',`
-    <p class="hint">${(embedded||viaFile)?'✅ رابط الخادم <b>موضوع في الصفحة'+(viaFile?' (ملف server.txt)':'')+'</b>: تعمل على كل جهاز وعند الزوار دون أن يُسأل أحد عنه، وتدخل فقط بكلمة المرور.':'رابط الخادم الآن محفوظ <b>في هذا الجهاز وحده</b> (لأن الصفحة لا تستطيع أن تنقل شيئًا من جهاز إلى آخر)، فيسألك عنه كل جهاز جديد، ويرى الزائر الصفحة غير مضبوطة. الحل مرة واحدة:'}</p>
-    ${(embedded||viaFile)?'':`<details class="more" open><summary>الحل الأسهل: ملف server.txt على GitHub (دقيقة واحدة)</summary>
+    <p class="hint">${(embedded||viaFile)?'✅ رابط الخادم <b>موضوع في الصفحة'+(viaFile?' (ملف server.txt)':'')+'</b>: تعمل على كل جهاز وعند الزوار دون أن يُسأل أحد عنه، وتدخل فقط بكلمة المرور.':'رابط الخادم الآن محفوظ <b>في هذا الجهاز وحده</b>، فيسألك عنه كل جهاز جديد، ويرى الزائر الصفحة غير مضبوطة. الحل مرة واحدة (كما في المنصات الأخرى): ضعه في سطر واحد داخل index.html.'}</p>
+    ${(embedded||viaFile)?'':`<details class="more" open><summary>الطريقة المعتادة: ضع الرابط في سطر واحد داخل index.html</summary>
+      <p class="hint">١. انسخ هذا السطر:</p>
+      <div class="pre" dir="ltr" id="ln_line2" style="word-break:break-all">const SERVER_URL = '${esc(srv())}';</div>
+      <button class="btn ghost" id="ln_cp2" style="margin-top:8px">نسخ السطر</button>
+      <p class="hint" style="margin-top:8px">٢. على GitHub: مستودع <code>kunnasha</code> ← <code>index.html</code> ← ✏️ (Edit).<br>
+      ٣. <b>Ctrl+F</b> وابحث عن <code>SERVER_URL = ''</code> فتجد السطر: <code>const SERVER_URL = '';</code><br>
+      ٤. استبدل هذا السطر كله بالسطر المنسوخ، ثم <b>Commit changes</b>.<br>
+      (أو افعل هذا في ملف <code>index.html</code> على جهازك بالمفكرة قبل رفعه.)</p></details>
+    <details class="more"><summary>أو بلا كود: ملف server.txt على GitHub</summary>
       <p class="hint">١. انسخ رابط الخادم:</p>
       <div class="pre" dir="ltr" id="ln_line" style="word-break:break-all">${esc(srv())}</div>
       <button class="btn ghost" id="ln_cp" style="margin-top:8px">نسخ الرابط</button>
-      <p class="hint" style="margin-top:8px">٢. افتح <b>github.com</b> ← مستودع <code>kunnasha</code>.<br>
-      ٣. اضغط <b>Add file</b> ← <b>Create new file</b>.<br>
-      ٤. في خانة الاسم اكتب: <code>server.txt</code><br>
-      ٥. في المربع الكبير الصق الرابط (<b>Ctrl+V</b>) — وحده بلا أي كلام آخر.<br>
-      ٦. اضغط <b>Commit changes…</b> ثم <b>Commit changes</b>.<br>
-      ٧. انتظر دقيقة، ثم افتح الكُنّاشة من أي جهاز: تتصل وحدها.</p></details>
+      <p class="hint" style="margin-top:8px">٢. GitHub ← مستودع <code>kunnasha</code> ← <b>Add file ← Create new file</b>.<br>
+      ٣. الاسم: <code>server.txt</code> — والصق الرابط فيه وحده، ثم <b>Commit changes</b>.</p></details>
     <details class="more"><summary>أو: رابط سريع لجوالك الآن فقط</summary>
       <p class="hint">أرسله لنفسك وافتحه من الجوال: يسألك مرة واحدة «هل هذا خادمك؟» فتوافق. (لا يفيد الزوار.)</p>
       <div class="pre" dir="ltr" id="lk_url" style="word-break:break-all">${esc(linkAnother())}</div>
       <div class="row2" style="margin-top:8px"><button class="btn" id="lk_cp">نسخ</button><button class="btn ghost" id="lk_sh">إرسال</button></div></details>`}`);
   v.appendChild(lb);
   if($('#ln_cp')){
+    $('#ln_cp2').onclick=()=>copyText($('#ln_line2').textContent,'نُسخ السطر');
     $('#ln_cp').onclick=()=>copyText(srv(),'نُسخ رابط الخادم');
     $('#lk_cp').onclick=()=>copyText(linkAnother(),'نُسخ الرابط');
     $('#lk_sh').onclick=()=>{ if(navigator.share) navigator.share({title:'رابط كُنّاشتي',url:linkAnother()}).catch(()=>{}); else copyText(linkAnother(),'نُسخ الرابط'); };

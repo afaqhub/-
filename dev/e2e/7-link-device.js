@@ -25,6 +25,14 @@ let pass=0,fail=0; const ok=(c,m)=>{ if(c){pass++;console.log('  ✓',m)}else{fa
   const d=await newPage(browser); d.page.on('dialog',async x=>{ await x.accept(); }); await d.page.addInitScript(()=>{ localStorage.setItem('k_welcome_skip','1'); });
   await d.page.goto('http://localhost:8788/#srv='+encodeURIComponent('https://evil.example.com/exec')); await d.page.waitForSelector('#srvin');
   ok(await d.page.evaluate(()=>!srv()),'رابط ليس من Google لا يُقبل أبدًا');
+  console.log('الرابط مضمَّن في index.html (الطريقة المعتادة)');
+  global.__embedUrl=URL;
+  const h=await newPage(browser); let asked3=false; h.page.on('dialog',async x=>{ asked3=true; await x.dismiss(); }); await h.page.addInitScript(()=>{ localStorage.setItem('k_welcome_skip','1'); });
+  await h.page.goto('http://localhost:8788/'); await h.page.waitForSelector('.card,.empty'); await h.page.waitForTimeout(300);
+  ok(!asked3 && await h.page.evaluate(()=>st.items.length>0 && !srv().length===false && !document.querySelector('#srvin')),'جهاز جديد يفتح مباشرة كزائر دون أي سؤال عن الرابط');
+  await h.page.click('#btnAuth'); await h.page.fill('#pw','Secret123'); await h.page.click('#go'); await h.page.waitForSelector('#fab',{state:'visible'}); ok(true,'ويدخل بكلمة المرور فقط');
+  await h.page.evaluate(()=>goTab('admin')); await h.page.waitForSelector('#s_save'); ok((await h.page.locator('.bars:has-text("ربط الأجهزة والزوار")').first().innerText()).includes('موضوع في الصفحة'),'لوحة التحكم تؤكد أنه مضمَّن');
+  global.__embedUrl=null;
   console.log('ملف server.txt');
   global.__serverTxt=URL+'\n';
   const e=await newPage(browser); let asked2=false; e.page.on('dialog',async x=>{ asked2=true; await x.dismiss(); }); await e.page.addInitScript(()=>{ localStorage.setItem('k_welcome_skip','1'); });
