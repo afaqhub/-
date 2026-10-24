@@ -29,6 +29,8 @@ async function newPage(browser,opts={}){
     @font-face{font-family:'Reem Kufi';font-weight:400;src:url(http://localhost:8788/__f/reem-kufi/files/reem-kufi-arabic-400-normal.woff2)}
     @font-face{font-family:'Aref Ruqaa';font-weight:400;src:url(http://localhost:8788/__f/aref-ruqaa/files/aref-ruqaa-arabic-400-normal.woff2)}
     @font-face{font-family:'Aref Ruqaa';font-weight:700;src:url(http://localhost:8788/__f/aref-ruqaa/files/aref-ruqaa-arabic-700-normal.woff2)}
+    @font-face{font-family:'Noto Naskh Arabic';font-weight:400;src:url(http://localhost:8788/__f/noto-naskh-arabic/files/noto-naskh-arabic-arabic-400-normal.woff2)}
+    @font-face{font-family:'Noto Naskh Arabic';font-weight:700;src:url(http://localhost:8788/__f/noto-naskh-arabic/files/noto-naskh-arabic-arabic-700-normal.woff2)}
     @font-face{font-family:Tajawal;font-weight:500;src:url(http://localhost:8788/__f/tajawal/files/tajawal-arabic-500-normal.woff2)}
     @font-face{font-family:Tajawal;font-weight:700;src:url(http://localhost:8788/__f/tajawal/files/tajawal-arabic-700-normal.woff2)}
     @font-face{font-family:Cairo;font-weight:700;src:url(http://localhost:8788/__f/cairo/files/cairo-arabic-700-normal.woff2)}`}));

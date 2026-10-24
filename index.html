@@ -11,7 +11,7 @@
 <meta name="description" content="كُنّاشة رقمية للفوائد العلمية">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@400;600;700&family=Reem+Kufi:wght@400;600&family=Aref+Ruqaa:wght@400;700&family=Tajawal:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@400;600;700&family=Reem+Kufi:wght@400;600&family=Aref+Ruqaa:wght@400;700&family=Tajawal:wght@500;700&family=Noto+Naskh+Arabic:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --paper:#f6f1e6; --paper2:#fffdf8; --ink:#1d2b36; --muted:#6b7b85;
@@ -2685,9 +2685,9 @@ function clnFit(ctx,text,font,wt,w,size,min,maxLines,lhK){
   if(L.length>maxLines){ let t=cut[maxLines-1]; while(t.length>2&&ctx.measureText(t+'…').width>w) t=t.slice(0,-1); cut[maxLines-1]=t+'…'; }
   return {size:min,lh:min*lhK,lines:cut};
 }
-function clnPut(ctx,text,E,k,dg,alpha){
+function clnPut(ctx,text,E,k,dg,F){
   if(!text) return;
-  const font=E.font||'Tajawal,Cairo,sans-serif', f=clnFit(ctx,dg(text),font,E.weight||500,E.maxW*k,E.size*k,(E.min||E.size*.6)*k,E.maxLines||3,1.45);
+  const alpha=1, font=F||E.font||'Tajawal,Cairo,sans-serif', f=clnFit(ctx,dg(text),font,E.weight||500,E.maxW*k,E.size*k,(E.min||E.size*.6)*k,E.maxLines||3,1.45);
   ctx.textAlign=E.align||'center'; ctx.fillStyle=E.color; ctx.globalAlpha=alpha||1;
   let y=E.y*k-f.lines.length*f.lh/2+f.lh/2; f.lines.forEach(l=>{ ctx.fillText(l,E.x*k,y); y+=f.lh; }); ctx.globalAlpha=1;
 }
@@ -2701,6 +2701,7 @@ async function drawClone(item,T,o){
   const cv=document.createElement('canvas'); cv.width=W; cv.height=H; const ctx=cv.getContext('2d');
   ctx.drawImage(img,0,0,W,H); ctx.direction='rtl'; ctx.textBaseline='middle';
   const dg=s=>o.digits?arDigits(s):String(s==null?'':s);
+  const UF=o.font&&FONTS[o.font]?FONTS[o.font].css:'', F=UF||'Tajawal,Cairo,sans-serif', fs=o.fscale||1;
   const speaker=item.speaker?('قال '+item.speaker+((item.dua)?' -'+item.dua+'-':'')+':'):'';
   const ref=item.ref?(item.ref+(item.locus?'   '+((item.medium==='سماع'||item.medium==='مشاهدة')&&parseTime(item.locus)!=null?'الدقيقة '+item.locus:item.locus):'')):(item.medium==='مجلس'&&item.locus?item.locus:'');
   const via=item.via?('نقلًا عن: '+item.via):'';
@@ -2709,11 +2710,10 @@ async function drawClone(item,T,o){
   const B=L.body, gain=(item.gain||'').trim(), paged=o.pages>1;
   const tryBody=(withGain)=>{
     let h=B.h, gLines=[], gs=Math.max(24,Math.round(B.min*.95));
-    if(withGain){ ctx.font=`500 ${gs}px Tajawal,Cairo,sans-serif`; gLines=wrapLines(ctx,dg(gain),B.w).slice(0,2); h-=(gLines.length+1)*gs*1.55+16; }
+    if(withGain){ ctx.font=`500 ${gs}px ${F}`; gLines=wrapLines(ctx,dg(gain),B.w).slice(0,2); h-=(gLines.length+1)*gs*1.55+16; }
     if(paged) h-=gs*1.5;
-    ctx.font=`500 ${B.max}px Tajawal`;
-    for(let s=B.max;s>=B.min;s-=2){
-      ctx.font=`${B.weight||500} ${s}px Tajawal,Cairo,sans-serif`; const lh=s*1.8, lines=wrapLines(ctx,dg(o.text),B.w);
+    for(let s=B.max*fs;s>=B.min*Math.min(fs,1);s-=2){
+      ctx.font=`${B.weight||500} ${s}px ${F}`; const lh=s*1.8, lines=wrapLines(ctx,dg(o.text),B.w);
       if(lines.length*lh<=h) return {size:s,lh,lines,h,gLines,gs};
     }
     return null;
@@ -2722,29 +2722,29 @@ async function drawClone(item,T,o){
   if(!fit&&gain){ fit=tryBody(false); if(fit){ note='حُذفت «من فوائد الكلام» من هذا القالب لضيق مساحته'; fit.gLines=[]; } }
   if(!fit) return {overflow:true};
   // العنوان والرقم والقائل
-  if(o.header){ const H1=L.header; ctx.textAlign='center'; const f=clnFit(ctx,o.header,`${H1.font||'Tajawal'},Cairo,sans-serif`,H1.weight||700,H1.maxW,H1.size,H1.min||H1.size*.6,1,1.3);
-    ctx.font=`${H1.weight||700} ${f.size}px ${H1.font||'Tajawal'},Cairo,sans-serif`; ctx.fillStyle=H1.color; ctx.fillText(f.lines[0],H1.x,H1.y); }
+  if(o.header){ const H1=L.header; ctx.textAlign='center'; const f=clnFit(ctx,o.header,UF||`${H1.font||'Tajawal'},Cairo,sans-serif`,H1.weight||700,H1.maxW,H1.size,H1.min||H1.size*.6,1,1.3);
+    ctx.font=`${H1.weight||700} ${f.size}px ${UF||`${H1.font||'Tajawal'},Cairo,sans-serif`}`; ctx.fillStyle=H1.color; ctx.fillText(f.lines[0],H1.x,H1.y); }
   const N=L.num;
   if(o.num){ if(N.circle){ ctx.beginPath(); ctx.arc(N.x,N.y,N.circle.r,0,7); ctx.fillStyle=N.circle.fill; ctx.fill(); ctx.strokeStyle=N.circle.ring; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(N.x,N.y,N.circle.r-7,0,7); ctx.stroke(); }
-    const t=dg(o.num); ctx.font=`700 ${N.size*(t.length>2?.78:1)}px Tajawal,Cairo,sans-serif`; ctx.textAlign='center'; ctx.fillStyle=N.color; ctx.fillText(t,N.x,N.y+N.size*.04); }
+    const t=dg(o.num); ctx.font=`700 ${N.size*(t.length>2?.78:1)}px ${F}`; ctx.textAlign='center'; ctx.fillStyle=N.color; ctx.fillText(t,N.x,N.y+N.size*.04); }
   else if(N.circle){ ctx.beginPath(); ctx.arc(N.x,N.y,N.circle.r,0,7); ctx.fillStyle=N.circle.fill; ctx.fill(); icoBook(ctx,N.x,N.y,N.circle.r*.95,N.color); }
   else icoBook(ctx,N.x,N.y,N.size*.9,N.color);
   const A=L.attr;
-  if(speaker){ if(A.pill) clnPill(ctx,A.pill,k); if(A.icon) (A.icon.t==='leaf'?icoLeaf:icoBook)(ctx,A.icon.x,A.pill?A.pill.y+A.pill.h/2:A.y,44,A.icon.color); clnPut(ctx,speaker,A,k,dg); }
+  if(speaker){ if(A.pill) clnPill(ctx,A.pill,k); if(A.icon) (A.icon.t==='leaf'?icoLeaf:icoBook)(ctx,A.icon.x,A.pill?A.pill.y+A.pill.h/2:A.y,44,A.icon.color); clnPut(ctx,speaker,A,k,dg,UF); }
   // النص
-  ctx.font=`${B.weight||500} ${fit.size}px Tajawal,Cairo,sans-serif`; ctx.textAlign='center'; ctx.fillStyle=B.color;
+  ctx.font=`${B.weight||500} ${fit.size}px ${F}`; ctx.textAlign='center'; ctx.fillStyle=B.color;
   const th=fit.lines.length*fit.lh; let by=B.y+(fit.h-th)/2+fit.lh/2; fit.lines.forEach(l=>{ ctx.fillText(dg(l),B.x+B.w/2,by); by+=fit.lh; });
   let gy=B.y+fit.h+8;
   if(fit.gLines.length){
     ctx.strokeStyle=B.color; ctx.globalAlpha=.25; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(B.x+B.w*.3,gy); ctx.lineTo(B.x+B.w*.7,gy); ctx.stroke(); ctx.globalAlpha=1; gy+=fit.gs*.8;
-    ctx.font=`700 ${fit.gs}px Tajawal,Cairo,sans-serif`; ctx.fillText('من فوائد هذا الكلام:',B.x+B.w/2,gy); gy+=fit.gs*1.55;
-    ctx.font=`500 ${fit.gs}px Tajawal,Cairo,sans-serif`; fit.gLines.forEach(g=>{ ctx.fillText(dg(g),B.x+B.w/2,gy); gy+=fit.gs*1.55; });
+    ctx.font=`700 ${fit.gs}px ${F}`; ctx.fillText('من فوائد هذا الكلام:',B.x+B.w/2,gy); gy+=fit.gs*1.55;
+    ctx.font=`500 ${fit.gs}px ${F}`; fit.gLines.forEach(g=>{ ctx.fillText(dg(g),B.x+B.w/2,gy); gy+=fit.gs*1.55; });
   }
-  if(paged){ ctx.font=`500 ${fit.gs}px Tajawal,Cairo,sans-serif`; ctx.globalAlpha=.8; ctx.fillText(dg(o.page+' من '+o.pages),B.x+B.w/2,B.y+B.h-fit.gs*.6); ctx.globalAlpha=1; }
+  if(paged){ ctx.font=`500 ${fit.gs}px ${F}`; ctx.globalAlpha=.8; ctx.fillText(dg(o.page+' من '+o.pages),B.x+B.w/2,B.y+B.h-fit.gs*.6); ctx.globalAlpha=1; }
   const S=L.src;
-  if(src){ if(S.pill) clnPill(ctx,S.pill,k); if(S.icon) (S.icon.t==='leaf'?icoLeaf:icoBook)(ctx,S.icon.x,S.pill?S.pill.y+S.pill.h/2:S.y,44,S.icon.color); clnPut(ctx,src,S,k,dg); }
-  if(o.stamp){ const t=L.stamp||{x:W/2,y:H-34,align:'center'}; ctx.font=`500 26px Tajawal,Cairo,sans-serif`; ctx.textAlign=t.align||'center'; ctx.fillStyle=B.color; ctx.globalAlpha=.7; ctx.direction=/[؀-ۿ]/.test(o.stamp)?'rtl':'ltr'; ctx.fillText(o.stamp,t.x,t.y); ctx.direction='rtl'; ctx.globalAlpha=1; }
-  cv.__note=note;
+  if(src){ if(S.pill) clnPill(ctx,S.pill,k); if(S.icon) (S.icon.t==='leaf'?icoLeaf:icoBook)(ctx,S.icon.x,S.pill?S.pill.y+S.pill.h/2:S.y,44,S.icon.color); clnPut(ctx,src,S,k,dg,UF); }
+  if(o.stamp){ const t=L.stamp||{x:W/2,y:H-34,align:'center'}; ctx.font=`500 26px ${F}`; ctx.textAlign=t.align||'center'; ctx.fillStyle=B.color; ctx.globalAlpha=.7; ctx.direction=/[؀-ۿ]/.test(o.stamp)?'rtl':'ltr'; ctx.fillText(o.stamp,t.x,t.y); ctx.direction='rtl'; ctx.globalAlpha=1; }
+  cv.__note=note||((fs>1&&fit.size<B.max*fs*.999)?'بلغ الخط أكبر حجم يتسع في هذا القالب':'');
   if(o.w&&o.w<=400){ // مصغّرة للمعرض
     const oh=o.h||Math.round(o.w*1.25), t=document.createElement('canvas'); t.width=o.w; t.height=oh; const c=t.getContext('2d');
     const sc=Math.min(o.w/W,oh/H), dw=W*sc, dh=H*sc; c.fillStyle='#f3efe6'; c.fillRect(0,0,o.w,oh); c.drawImage(cv,(o.w-dw)/2,(oh-dh)/2,dw,dh); return {canvas:t};
@@ -2768,7 +2768,17 @@ const BUILTIN={
   listen: {n:'سماع',  bg:['#ebf3f0','#d4e5df'], ink:'#12403c', muted:'#4a736e', accent:'#2f8f83', orn:'waves', frame:'round',  badge:'circle',  fill:'rgba(47,143,131,.11)'},
   minimal:{n:'بسيط',  bg:['#ffffff','#f5f5f2'], ink:'#1d2b36', muted:'#6b7b85', accent:'#b08d57', orn:'none',  frame:'thin',   badge:'circle',  fill:'rgba(176,141,87,.08)'}
 };
-const AM='Amiri,"Traditional Arabic","Noto Naskh Arabic","Geeza Pro",serif', CA='Cairo,"Noto Sans Arabic","Geeza Pro",sans-serif';
+const AM0='Amiri,"Traditional Arabic","Noto Naskh Arabic","Geeza Pro",serif', CA='Cairo,"Noto Sans Arabic","Geeza Pro",sans-serif';
+let AM=AM0;
+/** خطوط يختارها المستخدم للنصوص (الافتراضي: ما يختاره القالب نفسه). */
+const FONTS={
+  amiri:{n:'أميري',css:AM0},
+  naskh:{n:'نسخ',css:'"Noto Naskh Arabic",Amiri,"Geeza Pro",serif'},
+  cairo:{n:'كايرو',css:CA},
+  tajawal:{n:'تجوال',css:'Tajawal,Cairo,"Geeza Pro",sans-serif'},
+  kufi:{n:'كوفي',css:'"Reem Kufi",Cairo,"Geeza Pro",sans-serif'},
+  ruqaa:{n:'رقعة',css:'"Aref Ruqaa",Amiri,serif'}
+};
 const IMGPREF='k_img';
 function loadImgPrefs(){ try{ return JSON.parse(localStorage.getItem(IMGPREF))||{}; }catch(e){ return {}; } }
 function saveImgPrefs(p){ try{ localStorage.setItem(IMGPREF,JSON.stringify(p)); }catch(e){} }
@@ -2941,7 +2951,7 @@ function palette(T,img,cfgC,W,H){
               :{ink:'#1d2b36',muted:'rgba(29,43,54,.75)',accent:'#8a6a35',fill:'rgba(255,255,255,.55)',badge:'circle',orn:'none',frame:'none'};
 }
 
-const fontsReady=(()=>{ let p=null; return ()=>p||(p=Promise.all([document.fonts.load('700 40px Amiri','ابتث'),document.fonts.load('400 40px Amiri','ابتث'),document.fonts.load('600 28px Cairo','ابتث'),document.fonts.load('400 30px "Reem Kufi"','ابتث'),document.fonts.load('400 30px "Aref Ruqaa"','ابتث'),document.fonts.load('500 30px Tajawal','ابتث'),document.fonts.load('700 30px Tajawal','ابتث')]).catch(()=>{})); })();
+const fontsReady=(()=>{ let p=null; return ()=>p||(p=Promise.all([document.fonts.load('700 40px Amiri','ابتث'),document.fonts.load('400 40px Amiri','ابتث'),document.fonts.load('600 28px Cairo','ابتث'),document.fonts.load('400 30px "Reem Kufi"','ابتث'),document.fonts.load('400 30px "Aref Ruqaa"','ابتث'),document.fonts.load('400 30px "Noto Naskh Arabic"','ابتث'),document.fonts.load('700 30px "Noto Naskh Arabic"','ابتث'),document.fonts.load('500 30px Tajawal','ابتث'),document.fonts.load('700 30px Tajawal','ابتث')]).catch(()=>{})); })();
 const tplImgCache={};
 async function getTplImg(id){
   if(tplImgCache[id]) return tplImgCache[id];
@@ -3033,10 +3043,16 @@ function divDraw(ctx,style,cx,ax,y,box,P,k,right){
 async function drawCard(item,T,o){
   if(T.clone) return drawClone(item,T,o);
   await fontsReady();
+  if(T.custom&&!T.img) T=Object.assign({},T,{img:await getTplImg(T.id)});
+  // الاستبدال والاستعادة متزامنان (لا await بينهما) فلا يتداخل رسمان
+  const prev=AM; if(o.font&&FONTS[o.font]) AM=FONTS[o.font].css;
+  try{ return drawCardSync(item,T,o); } finally{ AM=prev; }
+}
+function drawCardSync(item,T,o){
   const custom=!!T.custom, cfgC=T.cfg||{}, NT=!!T.nw;
   const W=custom?cfgC.w:o.w, H=custom?cfgC.h:o.h, k=W/1080;
   const cv=document.createElement('canvas'); cv.width=W; cv.height=H; const ctx=cv.getContext('2d');
-  let img=null; if(custom) img=T.img||await getTplImg(T.id);
+  let img=null; if(custom) img=T.img;
   let P;
   if(custom) P=palette(T,img,cfgC,W,H);
   else if(NT){ P=Object.assign({},T.pals[Math.min(o.pal||0,T.pals.length-1)]); P.fill=P.fill||hexA(P.accent,.13); }
@@ -3073,10 +3089,11 @@ async function drawCard(item,T,o){
   botH+=30*k+gap*.7+gainH; if(via) botH+=46*k; if(src) botH+=(srcStyle==='line'?70*k:78*k)+gap*.5; if(foot) botH+=46*k+gap*.4;
   const bodyH=box.h-topH-botH;
 
-  const L=o.text.length, big=P.big||T.big, maxS=(L<30?124:L<60?108:L<110?94:L<200?80:72)*(big?1.1:1)*k;
+  const fs=o.fscale||1, minB=34*k*Math.min(fs,1);
+  const L=o.text.length, big=P.big||T.big, maxS=(L<30?124:L<60?108:L<110?94:L<200?80:72)*(big?1.1:1)*k*fs;
   let poem=null, fit=null;
-  if(T.poem) poem=fitPoem(ctx,o.text,box.w,bodyH,(o.text.split('\n').length<=2?96:70)*k,34*k,k);
-  if(!poem){ ctx.font=`700 ${maxS}px ${AM}`; fit=fitBody(ctx,o.text,box.w,bodyH,maxS,34*k,k); if(!fit) return {overflow:true}; }
+  if(T.poem) poem=fitPoem(ctx,o.text,box.w,bodyH,(o.text.split('\n').length<=2?96:70)*k*fs,minB,k);
+  if(!poem){ ctx.font=`700 ${maxS}px ${AM}`; fit=fitBody(ctx,o.text,box.w,bodyH,maxS,minB,k); if(!fit) return {overflow:true}; }
 
   let y=box.y;
   if(hdr){ headDraw(ctx,headStyle,hdr,cx,ax,y,box,P,k); y+=(headStyle==='brush'?96*k:84*k)+gap; }
@@ -3115,6 +3132,7 @@ async function drawCard(item,T,o){
     ctx.font=`400 ${35*k}px ${AM}`; ctx.fillStyle=P.ink; gLines.forEach(g=>{ ctx.fillText(dg(g),ax,gy); gy+=46*k; });
   }
   by2-=30*k+gap*.7; divDraw(ctx,divStyle,cx,ax,by2+15*k,box,P,k,right);
+  if(fs>1&&fit&&fit.size<maxS*.999) cv.__note='بلغ الخط أكبر حجم يتسع في هذا القالب؛ للأكبر اختر مقاسًا أو قالبًا أوسع';
   return {canvas:cv};
 }
 
@@ -3160,7 +3178,7 @@ async function imageSheet(items){
   await loadTemplates(); await loadClones();
   const pf=loadImgPrefs();
   const S={pals:pf.pals||{},over:{},show:Object.assign({hdr:true,sp:true,ref:true,via:true,stamp:true,gain:true},pf.show||{}),tpl:pf.tpl||'auto',size:pf.size||'portrait',digits:pf.digits!==false,header:'',stamp:cfg('ختم الصور'),
-           numOn:false,num:first.pubNo?Number(first.pubNo):nextPubNo(),page:0};
+           numOn:false,num:first.pubNo?Number(first.pubNo):nextPubNo(),page:0,fdef:pf.fdef||null,ft:pf.ft||{}};
   if(S.tpl!=='auto'&&!CLN[S.tpl]&&!NEWT[S.tpl]&&!BUILTIN[S.tpl]&&!(st.tpls||[]).some(t=>t.id===S.tpl)) S.tpl='auto';
   const gal=[['auto','✨ تلقائي']].concat(Object.keys(CLN).map(k=>[k,'🌿 '+CLN[k].n])).concat(Object.keys(NEWT).map(k=>[k,NEWT[k].n])).concat(Object.keys(BUILTIN).map(k=>[k,BUILTIN[k].n+' (كلاسيكي)'])).concat((st.tpls||[]).map(t=>[t.id,'🖼 '+t.name]));
   openSheet(`${shhd(multi?'صور '+items.length+' فوائد':'صورة الفائدة')}
@@ -3184,15 +3202,23 @@ async function imageSheet(items){
     <div class="mini" style="margin-bottom:4px">يظهر في الصورة</div>
     <div class="chips" id="im_show">${[['hdr','العنوان'],['sp','القائل'],['ref','المرجع'],['via','الوسيط'],['gain','من فوائد الكلام'],['stamp','الختم']].map(([k,l])=>`<button class="chip${S.show[k]?' on':''}" data-k="${k}">${l}</button>`).join('')}</div>
     <label class="tgl"><input type="checkbox" id="im_dg" ${S.digits?'checked':''}> أرقام عربية (١٢٣)</label>
+    <details class="more" id="fnbox" style="margin:6px 0 8px"><summary>🔤 الخط وحجمه</summary>
+      <div class="mini" id="fn_st" style="margin:4px 0"></div>
+      <div class="chips" id="fn_ft"><button class="chip" data-f="">الأصلي للقالب</button>${Object.keys(FONTS).map(k=>`<button class="chip" data-f="${k}" style="font-family:${FONTS[k].css.replace(/"/g,"'")}">${FONTS[k].n}</button>`).join('')}</div>
+      <label class="fld" style="margin-top:6px"><span>حجم الخط: <b id="fn_pc"></b></span><input type="range" id="fn_sc" min="60" max="150" step="5" style="width:100%"></label>
+      <p class="hint" style="margin:2px 0 6px">يصغر الخط تلقائيًا إذا طال النص ليتسع في التصميم، والتكبير هنا يسري ما أمكن.</p>
+      <div class="row2"><button class="btn ghost" id="fn_def" type="button">اجعله افتراضيًا لكل القوالب</button><button class="btn ghost" id="fn_rs" type="button">إعادة الضبط</button></div></details>
     <div class="row2" style="margin-top:6px"><button class="btn" id="im_share">مشاركة</button><button class="btn ghost" id="im_save">حفظ الصورة</button></div>
     <p class="hint" id="im_hint" style="margin-top:8px"></p>`);
 
   let pages=[], busyR=false, again=false;
-  const savePrefs=()=>saveImgPrefs({tpl:S.tpl,size:S.size,digits:S.digits,show:S.show,pals:S.pals});
+  const savePrefs=()=>saveImgPrefs({tpl:S.tpl,size:S.size,digits:S.digits,show:S.show,pals:S.pals,fdef:S.fdef,ft:S.ft});
+  const tkey=it=>S.tpl==='auto'?autoTpl(it):S.tpl;
+  const eff=key=>{ const e=S.ft[key]||S.fdef||{}; return {font:FONTS[e.font]?e.font:'',scale:e.scale||100}; };
   const curPal=()=>S.pals[S.tpl==='auto'?autoTpl(first):S.tpl]||0;
   const mask=it=>Object.assign({},it,{speaker:S.show.sp?it.speaker:'',dua:S.show.sp?it.dua:'',via:S.show.via?it.via:'',ref:S.show.ref?it.ref:'',locus:S.show.ref?it.locus:'',gain:S.show.gain?it.gain:''});
   const optsFor=(item,n)=>({ w:SIZES[S.size].w,h:SIZES[S.size].h, header:S.show.hdr?(S.header.trim()||autoHeader(item)):'', stamp:S.show.stamp?S.stamp.trim():'',
-                              digits:S.digits, num:S.numOn?(S.num+n):0, pal:curPal(), over:S.over });
+                              digits:S.digits, num:S.numOn?(S.num+n):0, pal:curPal(), over:S.over, font:eff(tkey(item)).font, fscale:eff(tkey(item)).scale/100 });
   const rerender=async()=>{
     if(busyR){ again=true; return; } busyR=true;
     try{
@@ -3216,12 +3242,23 @@ async function imageSheet(items){
       if(g!==tgen||!$('#tp')) return;
       const k=c.dataset.k, it=mask(first), T=resolveT(k,it);
       try{
-        const r=await drawCard(it,T,{w:300,h:375,header:S.show.hdr?(S.header.trim()||autoHeader(it)):'',stamp:S.show.stamp?S.stamp.trim():'',digits:S.digits,num:0,text:it.text.length>260?it.text.slice(0,260)+'…':it.text,page:1,pages:1,pal:S.pals[k==='auto'?autoTpl(it):k]||0,over:k===S.tpl?S.over:null});
+        const r=await drawCard(it,T,{w:300,h:375,header:S.show.hdr?(S.header.trim()||autoHeader(it)):'',stamp:S.show.stamp?S.stamp.trim():'',digits:S.digits,num:0,text:it.text.length>260?it.text.slice(0,260)+'…':it.text,page:1,pages:1,pal:S.pals[k==='auto'?autoTpl(it):k]||0,over:k===S.tpl?S.over:null,font:eff(k==='auto'?autoTpl(it):k).font,fscale:eff(k==='auto'?autoTpl(it):k).scale/100});
         const cv=c.querySelector('canvas'); if(r.canvas){ cv.width=r.canvas.width; cv.height=r.canvas.height; cv.getContext('2d').drawImage(r.canvas,0,0); }
       }catch(e){}
       await new Promise(r=>setTimeout(r,0));
     }
   };
+  const syncFont=()=>{
+    const key=tkey(first), e=eff(key), own=!!S.ft[key], def=!!S.fdef;
+    [...$('#fn_ft').children].forEach(b=>b.classList.toggle('on',b.dataset.f===e.font));
+    $('#fn_sc').value=e.scale; $('#fn_pc').textContent=arDigits(e.scale)+'٪';
+    $('#fn_st').textContent=own?'إعداد خاص بهذا القالب':def?'الإعداد الافتراضي العام':'الإعداد الأصلي للقالب';
+  };
+  const setFont=patch=>{ const key=tkey(first), e=eff(key); S.ft[key]=Object.assign({font:e.font,scale:e.scale},patch); savePrefs(); syncFont(); rerender(); refreshThumbs(); };
+  $('#fn_ft').onclick=e=>{ const b=e.target.closest('button'); if(b) setFont({font:b.dataset.f}); };
+  $('#fn_sc').oninput=e=>setFont({scale:+e.target.value});
+  $('#fn_def').onclick=()=>{ const key=tkey(first), e=eff(key); S.fdef={font:e.font,scale:e.scale}; delete S.ft[key]; savePrefs(); syncFont(); refreshThumbs(); toast('صار هذا الخط والحجم افتراضيًا لكل القوالب'); };
+  $('#fn_rs').onclick=()=>{ const key=tkey(first); delete S.ft[key]; S.fdef=null; savePrefs(); syncFont(); rerender(); refreshThumbs(); };
   const syncPals=(T)=>{
     const w=$('#palw'); if(!w) return;
     if(!T.nw){ w.style.display='none'; return; }
@@ -3229,7 +3266,7 @@ async function imageSheet(items){
     $('#pals').innerHTML=T.pals.map((p,i)=>`<button class="chip${i===cur?' on':''}" data-i="${i}" style="display:inline-flex;gap:6px;align-items:center"><span style="width:16px;height:16px;border-radius:50%;background:linear-gradient(135deg,${p.bg[0]} 45%,${p.accent} 55%);border:1px solid rgba(0,0,0,.25)"></span>${esc(p.n)}</button>`).join('');
     const P=T.pals[cur]; $('#oc_ac').value=S.over.accent||P.accent; $('#oc_ink').value=S.over.ink||P.ink;
   };
-  $('#tp').onclick=e=>{ const b=e.target.closest('.tcell'); if(!b) return; S.tpl=b.dataset.k; S.over={}; [...$('#tp').children].forEach(c=>c.classList.toggle('on',c===b)); savePrefs(); rerender(); };
+  $('#tp').onclick=e=>{ const b=e.target.closest('.tcell'); if(!b) return; S.tpl=b.dataset.k; S.over={}; syncFont(); [...$('#tp').children].forEach(c=>c.classList.toggle('on',c===b)); savePrefs(); rerender(); };
   $('#pals').onclick=e=>{ const b=e.target.closest('button'); if(!b) return; S.pals[S.tpl==='auto'?autoTpl(first):S.tpl]=+b.dataset.i; S.over={}; savePrefs(); rerender(); thumbs(); };
   $('#oc_ac').oninput=e=>{ S.over.accent=e.target.value; rerender(); };
   $('#oc_ink').oninput=e=>{ S.over.ink=e.target.value; rerender(); };
@@ -3273,7 +3310,7 @@ async function imageSheet(items){
     }catch(e){ busy(false); toast(e.message); }
   };
   $('#im_share').onclick=()=>go('share'); $('#im_save').onclick=()=>go('save');
-  rerender().then(()=>thumbs());
+  syncFont(); rerender().then(()=>thumbs());
 }
 
 /* ---------- إدارة القوالب (قوالب بخلفياتك) ---------- */
