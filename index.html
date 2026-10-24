@@ -510,7 +510,20 @@ async function bootLoad(){
   catch(e){ busy(false); if(cached && isNetworkError(e)){ toast('لا اتصال — تعرض آخر نسخة محفوظة في جهازك'); return 'offline'; } throw e; }
 }
 
+/** رابط جاهز يربط جهازًا آخر بخادمك: يُفتح فيُسأل مرة واحدة ثم يُحفظ. لا يُقبل إن كان للجهاز خادم مضبوط أصلًا. */
+function linkAnother(){ return location.origin+location.pathname+'#srv='+encodeURIComponent(srv()); }
+function adoptHashServer(){
+  const m=(location.hash||'').match(/(?:^#|&)srv=([^&]+)/); if(!m) return;
+  let u=''; try{ u=decodeURIComponent(m[1]); }catch(e){}
+  const keep=location.hash.slice(1).split('&').filter(x=>x&&!x.startsWith('srv='));
+  try{ history.replaceState(null,'',location.pathname+location.search+(keep.length?'#'+keep.join('&'):'')); }catch(e){}
+  if(srv()||!SERVER_RE.test(u)) return;      // مضبوط مسبقًا: نتجاهل الرابط حمايةً من التوجيه إلى خادم غريب
+  const tail=u.replace(/^https:\/\/script\.google\.com\/macros\/s\//,'').slice(0,14)+'…'+u.slice(-12);
+  if(confirm('هذا الرابط يربط الكُنّاشة بالخادم:\n'+tail+'\n\nاضغط «موافق» فقط إن كان خادمك أنت (أرسلتَه لنفسك).')) setSrv(u);
+}
+
 (async function(){
+  adoptHashServer();
   document.documentElement.dataset.theme = localStorage.getItem('k_theme')||'light';
   document.documentElement.style.setProperty('--fs',(localStorage.getItem('k_fs')||16)+'px');
   loadSession(); loadQueue();
@@ -529,7 +542,9 @@ async function bootLoad(){
 /** شاشة إدخال رابط الخادم (تظهر مرة واحدة في كل جهاز) */
 function serverSheet(){
   openSheet(`<div class="shhd"><h3>ربط الكُنّاشة بخادمك</h3></div>
-    <p class="hint">الصق رابط تطبيق الويب الذي نسخته من Apps Script (ينتهي بـ <code>/exec</code>). يُحفظ في هذا الجهاز فقط، ويُطلب مرة واحدة.</p>
+    <p class="hint">الصق رابط تطبيق الويب الذي نسخته من Apps Script (ينتهي بـ <code>/exec</code>). يُحفظ في هذا الجهاز فقط، ويُطلب مرة واحدة في كل جهاز.</p>
+    <p class="hint">💡 <b>لا تريد لصقه في كل جهاز ولا أن يراه الزوار؟</b> بعد أن تتصل مرة، افتح <b>☰ ← لوحة التحكم ← ربط الأجهزة والزوار</b>: فيه رابط جاهز لجوالك، وسطر واحد تضعه في الصفحة فتعمل لكل الأجهزة والزوار دون سؤال.</p>
+    <p class="hint">إن كنتَ زائرًا فهذه الصفحة لم تُضبط بعد، فاطلب الرابط الصحيح من صاحبها.</p>
     <label class="fld"><span>رابط الخادم</span>
       <input class="t" id="srvin" dir="ltr" placeholder="https://script.google.com/macros/s/.../exec" value="${esc(srv())}"></label>
     <button class="btn" id="srvgo">اتصال</button>
@@ -1138,7 +1153,32 @@ async function renderAdmin(v){
   v.innerHTML='';
   const pmap={}; P.forEach(p=>pmap[p.name]=p);
 
-  /* الإعدادات أولًا لأنها الأكثر استعمالًا */
+  /* ربط الأجهزة والزوار */
+  const embedded=!!(SERVER_URL||'').trim();
+  const lb=el('div','bars','<h4>ربط الأجهزة والزوار</h4>');
+  lb.insertAdjacentHTML('beforeend',`
+    <p class="hint">${embedded?'✅ رابط الخادم <b>مضمَّن في الصفحة</b>: تعمل على كل جهاز وللزوار دون أن يُسأل أحد عنه، وتسجّل دخولك فقط بكلمة المرور.':'الصفحة الآن تحفظ رابط الخادم <b>في هذا الجهاز فقط</b>، لذلك تسألك عنه على كل جهاز جديد، ويراها الزوار «غير مضبوطة». الحلّان:'}</p>
+    ${embedded?'':`<details class="more" open><summary>١) لجوالك أنت: رابط جاهز</summary>
+      <p class="hint">انسخ الرابط التالي وأرسله لنفسك (واتساب مثلًا) ثم افتحه من الجوال: يسألك مرة واحدة «هل هذا خادمك؟» فتوافق، ثم تدخل بكلمة مرورك.</p>
+      <div class="pre" dir="ltr" id="lk_url" style="word-break:break-all">${esc(linkAnother())}</div>
+      <div class="row2" style="margin-top:8px"><button class="btn" id="lk_cp">نسخ الرابط</button><button class="btn ghost" id="lk_sh">إرسال</button></div></details>
+    <details class="more"><summary>٢) للزوار ولكل أجهزتك: ضع الرابط في الصفحة (مرة واحدة)</summary>
+      <p class="hint">رابط الخادم ليس سرًّا (الحماية بكلمة المرور)، فوجوده في الصفحة آمن. الخطوات:<br>
+      ١. انسخ هذا السطر:</p>
+      <div class="pre" dir="ltr" id="ln_line" style="word-break:break-all">const SERVER_URL = '${esc(srv())}';</div>
+      <button class="btn ghost" id="ln_cp" style="margin-top:8px">نسخ السطر</button>
+      <p class="hint" style="margin-top:8px">٢. افتح GitHub ← مستودع <code>kunnasha</code> ← الملف <code>index.html</code> ← أيقونة القلم ✏️ (Edit).<br>
+      ٣. اضغط <b>Ctrl + F</b> وابحث عن <code>const SERVER_URL</code> فتجد سطرًا فيه <code>''</code> فارغة.<br>
+      ٤. استبدل هذا السطر كله بالسطر المنسوخ.<br>
+      ٥. اضغط <b>Commit changes</b> ثم انتظر دقيقة وحدّث الصفحة (<b>Ctrl+Shift+R</b>).</p></details>`}`);
+  v.appendChild(lb);
+  if($('#lk_cp')){
+    $('#lk_cp').onclick=()=>copyText(linkAnother(),'نُسخ رابط الجوال');
+    $('#lk_sh').onclick=()=>{ if(navigator.share) navigator.share({title:'رابط كُنّاشتي',url:linkAnother()}).catch(()=>{}); else copyText(linkAnother(),'نُسخ رابط الجوال'); };
+    $('#ln_cp').onclick=()=>copyText($('#ln_line').textContent,'نُسخ السطر');
+  }
+
+  /* الإعدادات */
   const s=st.cfg||{};
   const tg=(id,label,on)=>`<label class="tgl"><input type="checkbox" id="${id}" ${on?'checked':''}> ${esc(label)}</label>`;
   const sb=el('div','bars','<h4>إعدادات المنصة</h4>');
