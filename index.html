@@ -186,6 +186,13 @@ html[data-theme="dark"] .toast div{background:var(--gold);color:#11191e}
   place-items:center;font-weight:600;backdrop-filter:blur(2px)}
 html[data-theme="dark"] .loading{background:rgba(17,25,30,.8)}
 .loading.on{display:grid}
+.loading .box{display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;max-width:80vw}
+.spin{width:46px;height:46px;border-radius:50%;border:4px solid rgba(176,141,87,.28);border-top-color:var(--gold,#b08d57);animation:kspin .9s linear infinite}
+@keyframes kspin{to{transform:rotate(360deg)}}
+.loading .lm{font-weight:700}.loading .lw{font-size:.85rem;color:var(--muted,#6b7b85);min-height:1.2em}
+#topbar{position:fixed;top:0;inset-inline:0;height:3px;z-index:95;background:linear-gradient(90deg,transparent,var(--gold,#b08d57),transparent);background-size:40% 100%;background-repeat:no-repeat;animation:kbar 1.1s ease-in-out infinite;display:none}
+#topbar.on{display:block}
+@keyframes kbar{from{background-position:-40% 0}to{background-position:140% 0}}
 .banner{display:flex;align-items:center;gap:8px;background:var(--gold-soft);border:1px solid var(--gold);
   border-radius:12px;padding:8px 12px;margin-top:10px;font-size:.84rem}
 html[data-theme="dark"] .banner{color:var(--gold)}
@@ -219,6 +226,24 @@ html[data-theme="dark"] .listsec{color:var(--gold)}
 .sg button{display:block;width:100%;text-align:right;padding:9px 12px;border-bottom:1px solid var(--line)}
 .sg button:last-child{border-bottom:none}
 .sg small{color:var(--muted);margin-inline-start:8px}
+.sg{max-height:260px}
+.sg .sgh{padding:6px 12px;font-size:.76rem;color:var(--gold);background:var(--gold-soft);position:sticky;top:0}
+.sg .sgn{padding:8px 12px;font-size:.8rem;color:var(--muted)}
+.sgw.cmb input.t{padding-inline-end:38px}
+.cbtn{position:absolute;inset-inline-end:6px;top:50%;transform:translateY(-50%);width:30px;height:30px;border-radius:8px;color:var(--muted);font-size:.95rem}
+.cbtn:hover{background:var(--gold-soft)}
+.qhint{display:flex;align-items:center;gap:8px;margin:2px 0 6px;font-size:.82rem;color:var(--muted)}
+.qbtn{border:1px solid var(--gold);border-radius:999px;padding:1px 10px;font-size:.78rem;color:var(--gold)}
+.qex{background:var(--gold-soft);border-radius:12px;padding:10px 12px;margin:0 0 8px;font-size:.86rem;line-height:1.9}
+.qex code{background:var(--paper2);border-radius:6px;padding:1px 6px;direction:rtl;unicode-bidi:plaintext}
+.qex .ex{background:var(--paper2);border:1px dashed var(--gold);border-radius:10px;padding:8px 10px;margin:6px 0;user-select:all}
+.qlive{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 6px}
+.qlive span{background:var(--gold-soft);border-radius:999px;padding:2px 10px;font-size:.78rem}
+.otools{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}
+.otools .chip{padding:6px 12px}
+.onb{background:var(--paper2);border:1px dashed var(--gold);border-radius:16px;padding:18px 16px;text-align:center}
+.onb h3{margin:0 0 6px}.onb p{color:var(--muted);margin:0 0 12px;line-height:1.9}
+.onb .btns{display:grid;gap:8px}
 .badge.verify{background:transparent;border:1px dashed var(--danger);color:var(--danger)}
 .badge.med{background:transparent;border:1px solid var(--gold);color:var(--ink)}
 html[data-theme="dark"] .badge.med{color:var(--gold)}
@@ -361,7 +386,7 @@ html[data-theme="dark"] .hero{background:radial-gradient(circle at 12% 0%,rgba(2
 
 <div class="scrim" id="scrim"><div class="sheet" id="sheet"></div></div>
 <div class="toast" id="toast"></div>
-<div class="loading" id="loading">جارٍ الحفظ…</div>
+<div class="loading" id="loading"></div><div id="topbar"></div>
 
 <script>
 /* ============================================================
@@ -394,13 +419,13 @@ function setTok(t){ try{ t?localStorage.setItem(TOK,t):localStorage.removeItem(T
 async function api(fn,args,otherUrl){
   const url=otherUrl||srv();
   if(!url) throw new Error('لم يُضبط رابط الخادم بعد');
-  let res;
+  let res; barStart();
   try{
     res = await fetch(url,{ method:'POST', redirect:'follow',
       headers:{'Content-Type':'text/plain;charset=utf-8'},          // لا application/json: يمنع طلب الإذن المسبق
       body: JSON.stringify({token:otherUrl?'':tok(), fn:fn, args:args||{}}) });
-  }catch(e){ throw new Error('تعذّر الاتصال بالخادم — تحقّق من الإنترنت ومن رابط الخادم'); }
-  const txt = await res.text();
+  }catch(e){ barEnd(); throw new Error('تعذّر الاتصال بالخادم — تحقّق من الإنترنت ومن رابط الخادم'); }
+  let txt; try{ txt = await res.text(); } finally{ barEnd(); }
   let j; try{ j=JSON.parse(txt) }catch(e){
     throw new Error('رد غير متوقّع من الخادم — غالبًا رابط النشر خاطئ أو الوصول ليس «أي شخص»');
   }
@@ -505,7 +530,18 @@ function toast(msg,actionLabel,action){
   if(actionLabel){const a=el('button',null,esc(actionLabel));a.onclick=()=>{t.innerHTML='';action&&action()};b.appendChild(a);}
   t.appendChild(b); clearTimeout(toast._t); toast._t=setTimeout(()=>t.innerHTML='',5000);
 }
-function busy(on,msg){ const l=$('#loading'); if(msg) l.textContent=msg; l.classList.toggle('on',!!on); }
+let busyT=null;
+function busy(on,msg){
+  const l=$('#loading'); clearTimeout(busyT);
+  if(on){
+    l.innerHTML='<div class="box"><div class="spin"></div><div class="lm">'+esc(msg||'جارٍ العمل…')+'</div><div class="lw"></div></div>';
+    busyT=setTimeout(()=>{ const w=l.querySelector('.lw'); if(w) w.textContent='ما زال يعمل… قد يطول هذا قليلًا، يُرجى الانتظار وعدم إغلاق الصفحة.'; },15000);
+  }
+  l.classList.toggle('on',!!on);
+}
+let pendingApi=0, barT=null;
+function barStart(){ pendingApi++; if(pendingApi===1){ clearTimeout(barT); barT=setTimeout(()=>{ if(pendingApi>0) $('#topbar').classList.add('on'); },600); } }
+function barEnd(){ pendingApi=Math.max(0,pendingApi-1); if(!pendingApi){ clearTimeout(barT); $('#topbar').classList.remove('on'); } }
 const AR_DIG='٠١٢٣٤٥٦٧٨٩';
 function arDigits(s){ return String(s==null?'':s).replace(/[0-9]/g,d=>AR_DIG[d]); }
 function latDigits(s){ return String(s==null?'':s).replace(/[٠-٩]/g,d=>AR_DIG.indexOf(d)).replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)); }
@@ -884,6 +920,11 @@ function render(){
   if(st.tab==='refs') return renderIndex(v,'ref','المراجع');
 
   const a=filtered();
+  if(st.owner&&!st.sel&&['all','star','draft','private'].includes(st.tab)&&st.items.length){
+    const ot=el('div','otools');
+    [['☑ تحديد وإدارة',()=>startSelect()],['⚡ إظهار/إخفاء/حذف جماعي',()=>bulkSheet()],['⇅ استيراد وتصدير',()=>transferSheet()]].forEach(([l,fn])=>{ const b=el('button','chip',l); b.onclick=fn; ot.appendChild(b); });
+    v.appendChild(ot);
+  }
   const act=Object.keys(st.f).filter(k=>st.f[k]);
   if(act.length||st.q){
     const bar=el('div','chips'); bar.style.margin='0 0 8px';
@@ -895,6 +936,12 @@ function render(){
     (st.owner?`<span>· خاصة: ${a.filter(i=>i.visibility==='خاصة').length}</span><span>· تحتاج استكمالًا: ${a.filter(i=>i.status==='مسودة'||i.verify).length}</span>`:'');
   if(!a.length){
     const hasFilter=st.q||Object.values(st.f).some(Boolean);
+    if(!hasFilter&&st.owner&&!st.items.length){
+      const o=el('div','onb','<h3>ابدأ كُنّاشتك في دقيقة</h3><p>اختر ما يناسبك — وكل شيء قابل للتعديل لاحقًا.</p><div class="btns"><button class="btn" id="ob_add">＋ اكتب أول فائدة</button><button class="btn ghost" id="ob_imp">⇅ عندي فوائد في ملف (Word / Excel / نص) — استوردها</button><button class="btn ghost" id="ob_ai">✨ لخّص لي نصًّا بالذكاء الاصطناعي ثم استورده</button></div>');
+      v.appendChild(o);
+      o.querySelector('#ob_add').onclick=()=>editor(null); o.querySelector('#ob_imp').onclick=()=>transferSheet(); o.querySelector('#ob_ai').onclick=()=>transferSheet('ai');
+      return;
+    }
     v.appendChild(el('div','empty','<div class="big">✣</div><p>'+(hasFilter?'لا توجد فوائد مطابقة.':(st.owner?'لا فوائد بعد — اضغط «＋ فائدة» لتدوين أول فائدة.':'لا فوائد عامة بعد.'))+'</p>'));
     return;
   }
@@ -1046,6 +1093,7 @@ function renderIndex(v,field,label){
   const tools=el('div','vbar');
   const q=el('input','t'); q.placeholder='ابحث في '+label+'…'; q.value=st.ixq; tools.appendChild(q);
   const so=el('select','t vsel'); so.innerHTML=[['n','الأكثر فوائد'],['a','أبجديًّا']].map(([k,l])=>`<option value="${k}" ${st.ixs===k?'selected':''}>${l}</option>`).join(''); tools.appendChild(so);
+  if(st.owner){ const adm=el('button','sbtn','⚙ تسمية ودمج وحذف'); adm.onclick=()=>goTab('admin'); tools.appendChild(adm); }
   v.appendChild(tools);
   if(ownerP) v.appendChild(el('p','hint','لكل شخص ما يراه الزوار: <b>ظاهر</b> · <b>الاسم محجوب</b> (يظهر كتابه دون اسمه، ولا يظهر إن كان مصدرًا وسيطًا) · <b>محجوب كليًّا</b> (لا تظهر للزوار أي فائدة له قائلًا أو وسيطًا أو مؤلفًا لمرجعها). وأنت ترى كل شيء دائمًا.'));
   const list=el('div'); v.appendChild(list);
@@ -1200,16 +1248,24 @@ async function detail(id, fromHash){
 
 /* ---------- 9) الاقتراح أثناء الكتابة (يوحّد الأسماء) ---------- */
 /** source(): مصفوفة نصوص أو {n:الاسم المعتمد, a:[بدائل]}. تكتب أول حرف فيظهر الاسم كاملًا. */
-function attachSuggest(input, source, multi){
-  const wrap=input.parentElement; wrap.classList.add('sgw');
+/**
+ * حقل مع قائمة منسدلة: تظهر عند الضغط على الحقل أو السهم ▾ (كل ما هو مخزّن)، وتُصفّى بالكتابة.
+ * source() يرجع نصوصًا أو {n,a:[بدائل],g:'عنوان المجموعة'}؛ والكتابة الحرة مقبولة دائمًا.
+ * opts.all: أظهر القائمة كاملة عند التركيز · opts.onPick: بعد اختيار عنصر.
+ */
+function attachSuggest(input, source, multi, opts){
+  opts=opts||{};
+  const wrap=input.parentElement; wrap.classList.add('sgw'); if(opts.all) wrap.classList.add('cmb');
   const box=el('div','sg'); wrap.appendChild(box);
-  const show=()=>{
+  const hide=()=>{ box.style.display='none'; };
+  const items=()=>(source()||[]).map(o=>typeof o==='string'?{n:o,a:[]}:o);
+  const show=(force)=>{
     let v=input.value; if(multi) v=v.split(/[،,]/).pop();
-    const q=norm(v); box.innerHTML='';
-    if(!q){ box.style.display='none'; return; }
-    const sc=[];
-    (source()||[]).forEach(o=>{
-      o=typeof o==='string'?{n:o,a:[]}:o;
+    const q=force?'':norm(v); box.innerHTML='';
+    if(!q&&!opts.all&&!force){ hide(); return; }
+    const rows=[];
+    items().forEach(o=>{
+      if(!q){ rows.push([1,o,'']); return; }
       if(norm(o.n)===q) return;
       let best=0, via='';
       [o.n].concat(o.a||[]).forEach((x,k)=>{
@@ -1217,25 +1273,37 @@ function attachSuggest(input, source, multi){
         if(nx.startsWith(q)) s=4; else if(nx.split(' ').some(w=>w.startsWith(q))) s=3; else if(nx.includes(q)) s=2;
         if(s>best||(s===best&&k===0)){ if(s>0){best=s; via=k>0?x:'';} }
       });
-      if(best>0) sc.push([best,o,via]);
+      if(best>0) rows.push([best,o,via]);
     });
-    sc.sort((a,b)=>b[0]-a[0]||a[1].n.length-b[1].n.length);
-    sc.slice(0,6).forEach(([,o,via])=>{
-      const b=el('button',null,esc(o.n)+(via?`<small>(${esc(via)})</small>`:''));
+    if(q) rows.sort((a,b)=>b[0]-a[0]||a[1].n.length-b[1].n.length);
+    const lim=q?8:80, seen=new Set(); let lastG=null, n=0;
+    rows.forEach(([,o,via])=>{
+      if(n>=lim||seen.has(o.n)) return; seen.add(o.n); n++;
+      if(o.g&&o.g!==lastG){ box.appendChild(el('div','sgh',esc(o.g))); lastG=o.g; }
+      const b=el('button',null,esc(o.n)+(via?`<small>(${esc(via)})</small>`:(o.h?`<small>${esc(o.h)}</small>`:'')));
       b.type='button';
       b.onpointerdown=e=>{
         e.preventDefault();
         if(multi){ const parts=input.value.split(/[،,]/); parts[parts.length-1]=' '+o.n; input.value=parts.map(s=>s.trim()).filter(Boolean).join('، ')+'، '; }
         else input.value=o.n;
-        box.style.display='none'; input.dispatchEvent(new Event('change'));
+        hide(); input.dispatchEvent(new Event('change'));
+        if(opts.onPick) opts.onPick(o);
         input.focus();
       };
       box.appendChild(b);
     });
-    box.style.display=sc.length?'block':'none';
+    if(q&&!items().some(o=>norm(o.n)===q)) box.appendChild(el('div','sgn','＋ «'+esc(v.trim())+'» جديد — سيُضاف عند الحفظ'));
+    box.style.display=box.children.length?'block':'none';
   };
-  input.addEventListener('input',show);
-  input.addEventListener('blur',()=>setTimeout(()=>{box.style.display='none'},180));
+  input.addEventListener('input',()=>show());
+  if(opts.all){
+    input.addEventListener('focus',()=>show(true));
+    input.addEventListener('click',()=>{ if(box.style.display==='none') show(true); });
+    const ar=el('button','cbtn','▾'); ar.type='button'; ar.tabIndex=-1; ar.setAttribute('aria-label','عرض القائمة');
+    ar.onpointerdown=e=>{ e.preventDefault(); if(box.style.display==='block') hide(); else { input.focus(); show(true); } };
+    wrap.appendChild(ar);
+  }
+  input.addEventListener('blur',()=>setTimeout(hide,180));
 }
 function peopleSource(){ const m=st.meta||{}; const people=m.people||[]; const known=new Set(people.map(p=>p.n));
   return people.map(p=>({n:p.n,a:p.a})).concat((m.speakers||[]).filter(s=>!known.has(s)).map(s=>({n:s,a:[]}))); }
@@ -1262,7 +1330,15 @@ function editor(item){
     <label class="fld"><span>نص الفائدة (وحده يكفي للحفظ)</span>
       <textarea class="t main" id="f_text" placeholder="اكتب الفائدة…">${esc(i.text)}</textarea></label>
     ${isNew&&st.session?`<p class="hint" style="color:var(--gold)">📖 ضمن جلسة: ${esc([st.session.ref,st.session.speaker].filter(Boolean).join(' — '))}</p>`:''}
-    <p class="hint">اختصارات داخل النص: <code>#تصنيف</code> <code>@القائل</code> <code>[الكتاب 2/45]</code> <code>[المقطع د 32:15]</code> <code>~الوسيط</code> <code>!</code> للتمييز — تُقرأ عند الحفظ وتُحذف من النص.</p>
+    <div class="qhint"><span>⚡ كتابة سريعة (اختياري)</span><button type="button" class="qbtn" id="qh_btn" aria-expanded="false">؟ مثال توضيحي</button></div>
+    <div class="qex" id="qh_box" hidden>
+      <b>ما هذه؟</b> طريقة مختصرة بديلة عن الخانات أدناه: تكتب التوثيق والتصنيف <u>داخل خانة الفائدة نفسها</u> بعد النص، فيُنقل كل شيء إلى خاناته عند الحفظ وتُحذف الرموز من النص. لست مضطرًّا لها أبدًا؛ تستطيع ملء الخانات أدناه بالطريقة المعتادة.
+      <div class="ex">العلم نور يقذفه الله في القلب @ابن_القيم [مفتاح دار السعادة 1/120] #تربية !</div>
+      <div>تُحفظ هكذا: النص «العلم نور يقذفه الله في القلب» · القائل <b>ابن القيم</b> · المرجع <b>مفتاح دار السعادة</b> · الموضع <b>1/120</b> · التصنيف <b>تربية</b> · ★ مميّزة</div>
+      <div style="margin-top:6px"><b>الرموز:</b> <code>@</code> القائل (الشرطة _ مكان المسافة) · <code>[كتاب 2/45]</code> المرجع والصفحة · <code>[مقطع د 32:15]</code> مقطع صوتي عند الدقيقة · <code>#</code> التصنيف (وما بعده وسوم) · <code>~</code> الوسيط · <code>!</code> تمييز</div>
+      <button type="button" class="chip" id="qh_try" style="margin-top:8px">أدرج المثال في الخانة لأجرّبه</button>
+    </div>
+    <div class="qlive" id="sc_live"></div>
     <details class="more" ${(i.speaker||i.ref||S.ref||S.speaker)?'open':''}><summary>＋ التوثيق (القائل والمرجع والوسيط)</summary>
       <div class="seg" id="f_med">${st.mediums.map(x=>`<button type="button" class="chip${x===med?' on':''}" data-v="${esc(x)}">${esc((MEDIA_ICON[x]||'')+' '+x)}</button>`).join('')}</div>
       <div class="grid2">
@@ -1272,6 +1348,7 @@ function editor(item){
         <label class="fld"><span>المصدر الوسيط (شخص أو كتاب نُقلت بواسطته)</span><div><input class="t" id="f_via" autocomplete="off" value="${esc(i.via)}"></div></label>
         <label class="fld"><span>موضع الوسيط (صفحة/جزء)</span><input class="t" id="f_vloc" value="${esc(i.vlocus||'')}"></label>
       </div>
+      <p class="hint" id="f_hint" style="color:var(--gold);margin:0"></p>
       <label class="tgl"><input type="checkbox" id="f_viabook" ${(st.meta.refs||[]).includes(i.via)?'checked':''}> الوسيط <b>كتاب</b> وليس شخصًا (فلا يُحسب بين القائلين)</label>
       <label class="fld" id="f_linkw" style="display:${needLink(med)||i.link?'block':'none'}"><span id="l_link">${esc(LINK_LBL[med]||'الرابط (اختياري)')}</span><input class="t" id="f_link" dir="ltr" placeholder="https://" value="${esc(i.link)}"></label>
     </details>
@@ -1334,9 +1411,36 @@ function editor(item){
     [...$('#f_med').children].forEach(c=>c.classList.toggle('on',c===b));
     $('#l_ref').textContent=LBL[medium][0]; $('#l_locus').textContent=LBL[medium][1];
     $('#f_linkw').style.display=(needLink(medium)||$('#f_link').value.trim())?'block':'none'; $('#l_link').textContent=LINK_LBL[medium]||'الرابط (اختياري)'; };
-  attachSuggest($('#f_speaker'),peopleSource); attachSuggest($('#f_via'),peopleSource);
-  attachSuggest($('#f_ref'),()=>st.meta.refs); attachSuggest($('#f_cat'),()=>st.meta.categories);
+  // قوائم منسدلة مترابطة: القائل ⇄ الكتاب، والكتابة الحرة مقبولة دائمًا
+  const M=()=>st.meta||{}, usage=f=>{ const c={}; st.items.forEach(x=>{ if(x[f]) c[x[f]]=(c[x[f]]||0)+1; }); return c; };
+  const aliasSet=name=>{ const p=(M().people||[]).find(x=>x.n===name||(x.a||[]).includes(name)); const set=new Set([norm(name)]); if(p){ set.add(norm(p.n)); (p.a||[]).forEach(a=>set.add(norm(a))); } return set; };
+  const booksOf=sp=>{ sp=sp.trim(); if(!sp) return []; const S=aliasSet(sp), out=[], add=t=>{ if(t&&!out.includes(t)) out.push(t); };
+    (M().refsFull||[]).forEach(r=>{ if(r.a&&S.has(norm(r.a))) add(r.t); }); st.items.forEach(x=>{ if(x.ref&&x.speaker&&S.has(norm(x.speaker))) add(x.ref); }); return out; };
+  const authorOf=ref=>{ const k=norm(ref.trim()); if(!k) return ''; const r=(M().refsFull||[]).find(x=>norm(x.t)===k); if(r&&r.a) return r.a;
+    const c={}; st.items.forEach(x=>{ if(x.ref&&norm(x.ref)===k&&x.speaker) c[x.speaker]=(c[x.speaker]||0)+1; }); const top=Object.keys(c).sort((a,b)=>c[b]-c[a])[0]; return top&&c[top]>=2?top:''; };
+  const isBookName=v=>(M().refs||[]).some(r=>norm(r)===norm(v));
+  const flash=msg=>{ const h=$('#f_hint'); if(h){ h.textContent=msg; clearTimeout(flash.t); flash.t=setTimeout(()=>h.textContent='',4000); } };
+  attachSuggest($('#f_speaker'),()=>{ const rv=$('#f_ref').value.trim(), au=rv?authorOf(rv):'', u=usage('speaker');
+      const ppl=peopleSource().slice().sort((a,b)=>(u[b.n]||0)-(u[a.n]||0)).map(p=>Object.assign({},p,{g:au?'كل القائلين':'',h:u[p.n]?arDigits(u[p.n])+' فائدة':''}));
+      return (au?[{n:au,a:[],g:'مؤلف «'+rv+'»'}]:[]).concat(ppl.filter(p=>p.n!==au)); },false,{all:true});
+  attachSuggest($('#f_ref'),()=>{ const sp=$('#f_speaker').value.trim(), mine=booksOf(sp), u=usage('ref');
+      const all=(M().refs||[]).slice().sort((a,b)=>(u[b]||0)-(u[a]||0));
+      return mine.map(t=>({n:t,a:[],g:'كتب «'+sp+'»'})).concat(all.filter(t=>!mine.includes(t)).map(t=>({n:t,a:[],g:mine.length?'كل المراجع':'',h:u[t]?arDigits(u[t])+' فائدة':''}))); },false,{all:true});
+  attachSuggest($('#f_via'),()=>{ const u=usage('speaker'); return peopleSource().slice().sort((a,b)=>(u[b.n]||0)-(u[a.n]||0)).map(p=>Object.assign({},p,{g:'أشخاص'})).concat((M().refs||[]).map(t=>({n:t,a:[],g:'كتب',book:true}))); },false,
+    {all:true,onPick:o=>{ $('#f_viabook').checked=!!o.book; }});
+  $('#f_via').addEventListener('change',()=>{ if($('#f_via').value.trim()) $('#f_viabook').checked=isBookName($('#f_via').value); });
+  const fillFromRef=()=>{ const r=$('#f_ref').value.trim(); if(!r) return;
+    if(!$('#f_speaker').value.trim()){ const a=authorOf(r); if(a){ $('#f_speaker').value=a; flash('عُبّئ القائل تلقائيًا: '+a); } }
+    if(!$('#f_cat').value.trim()){ const it=st.items.find(x=>x.ref&&norm(x.ref)===norm(r)&&x.cat); if(it) $('#f_cat').value=it.cat; } };
+  $('#f_ref').addEventListener('change',fillFromRef);
+  attachSuggest($('#f_cat'),()=>{ const u=usage('cat'); return (M().categories||[]).slice().sort((a,b)=>(u[b]||0)-(u[a]||0)).map(c=>({n:c,a:[],h:u[c]?arDigits(u[c])+' فائدة':''})); },false,{all:true});
   attachSuggest($('#f_tags'),()=>st.meta.tags,true); attachSuggest($('#f_series'),()=>seriesNames());
+  $('#qh_btn').onclick=()=>{ const b=$('#qh_box'); b.hidden=!b.hidden; $('#qh_btn').setAttribute('aria-expanded',String(!b.hidden)); };
+  $('#qh_try').onclick=()=>{ const t=$('#f_text'); t.value='العلم نور يقذفه الله في القلب @ابن_القيم [مفتاح دار السعادة 1/120] #تربية !'; t.dispatchEvent(new Event('input')); t.focus(); };
+  const liveSc=()=>{ const p=parseShortcuts($('#f_text').value), c=[]; const add=(l,v)=>{ if(v) c.push('<span>'+l+': <b>'+esc(v)+'</b></span>'); };
+    add('القائل',p.speaker); add('المرجع',p.ref); add('الموضع',p.locus); add('التصنيف',p.cat); add('الوسيط',p.via); if((p.tags||[]).length) add('وسوم',p.tags.join('، ')); if(p.star) c.push('<span>★ مميّزة</span>');
+    $('#sc_live').innerHTML=c.length?'<span style="color:var(--muted);font-size:.78rem">سيُحفظ في الخانات:</span>'+c.join(''):''; };
+  $('#f_text').addEventListener('input',liveSc); liveSc();
   const ta=$('#f_text'); ta.focus();
   try{ta.setSelectionRange(ta.value.length,ta.value.length)}catch(e){}
   if(isNew) ta.addEventListener('input',()=>{try{localStorage.setItem(DRAFT,ta.value)}catch(e){}});
@@ -2456,7 +2560,7 @@ async function runImport(){
   if(mode==='replace' && !confirm('ستُنقل فوائدك الحالية كلها إلى السلة ثم تُستورد هذه. يُنزَّل لك أولًا ملف نسخة احتياطية. متابعة؟')) return;
   const go=$('#im_go'), prog=$('#im_prog'), bar=prog.firstElementChild;
   go.disabled=true; prog.style.display='block';
-  const say=m=>{$('#im_msg').innerHTML=m};
+  const say=m=>{ const e=$('#im_msg'); if(e) e.innerHTML=m; busy(true,String(m).replace(/<[^>]+>/g,'')); };
   let added=0, skipped=0, bad=0;
   try{
     if(mode==='replace'){
@@ -2477,12 +2581,13 @@ async function runImport(){
       added+=r.added; skipped+=r.skipped; bad+=r.bad;
       bar.style.width=Math.round(Math.min(k+CH,items.length)/items.length*100)+'%';
     }
-    say(`<span class="okc">تم: أُضيفت ${added} فائدة</span>${skipped?' · تُخطّيت '+skipped+' مكررة':''}${bad?' · تعذّر '+bad:''}`);
-    await refresh(); toast('أُضيفت '+added+' فائدة');
-    if(ver) setTimeout(()=>{ closeSheet(); st.tab='draft'; renderChrome(); render(); },1200);
+    prog.style.display='none'; busy(true,'جارٍ تحديث القائمة…');
+    await refresh(); busy(false); closeSheet(true); IM=null;
+    toast('تم الاستيراد: أُضيفت '+arDigits(added)+' فائدة'+(skipped?' · تُخطّيت '+arDigits(skipped)+' مكررة':'')+(bad?' · تعذّر '+arDigits(bad):''));
+    if(ver){ st.tab='draft'; renderChrome(); render(); } else { st.tab='all'; renderChrome(); render(); window.scrollTo({top:0}); }
   }catch(e){
     say('<span class="badc">'+esc(e.message)+'</span> — ما أُضيف قبل العطب محفوظ، ويمكنك إعادة الاستيراد وسيتخطى المكرر.');
-  }finally{ go.disabled=false; }
+  }finally{ busy(false); go.disabled=false; }
 }
 
 /* ---------- التصدير ---------- */

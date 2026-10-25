@@ -663,6 +663,12 @@ function api_get(a){
   return o ? own_(o) : null;
 }
 
+/** المراجع مع مؤلفيها: [{t:العنوان, a:المؤلف}] لقوائم المحرر المترابطة. */
+function refsFull_(){
+  var rs = getSheet_(SH.R, HEAD_R);
+  return rs.getLastRow() > 1 ? rs.getRange(2,1,rs.getLastRow()-1,2).getValues().filter(function(r){ return r[0]; }).map(function(r){ return {t:String(r[0]), a:String(r[1]||'')}; }) : [];
+}
+
 function api_meta(){
   var items = readAll_().filter(function(o){ return o.status !== 'محذوفة'; });
   var set = settingsAll_(), pidx = personIndex_();
@@ -681,6 +687,7 @@ function api_meta(){
            types:splitList_(set['أنواع الفوائد'] || DEFAULT_TYPES.join('، ')),
            mediums:splitList_(set['وسائل التلقي'] || MEDIUMS.join('، ')),
            people: pidx.rows.map(function(p){ return {n:p.name, a:p.aliases, d:p.dua}; }),
+           refsFull: refsFull_(),
            inbox: countNewMessages_() };
 }
 

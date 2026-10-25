@@ -18,6 +18,7 @@ let pass=0,fail=0; const ok=(c,m)=>{ if(c){pass++;console.log('  ✓',m)}else{fa
   ok(prev.first.speaker==='الشيخ ابن عثيمين'&&prev.first.locus==='3/108'&&prev.first.tags.length===2&&prev.first.type==='تنبيه','حقول الكتلة الأولى');
   ok(await page.isChecked('#im_ver'),'علامة «تحتاج تحقق» مفعّلة افتراضيًا لنص الذكاء');
   await page.click('#im_go'); await page.waitForFunction(n=>st.items.length>=n,n0+3,{timeout:8000});
+  await page.waitForTimeout(1500); ok(!(await page.evaluate(()=>document.querySelector('#scrim').classList.contains('open'))),'نافذة الاستيراد تُغلق تلقائيًا عند الانتهاء');
   const imp=await page.evaluate(()=>st.items.filter(i=>i.verify).map(i=>({s:i.speaker,v:i.visibility,st:i.status,t:i.text.slice(0,20)})));
   ok(imp.length===3 && imp.every(x=>x.v==='خاصة'&&x.st==='مسودة'),'دخلت 3 مسودات خاصة بعلامة تحقق');
   ok(imp.some(x=>x.s==='ابن عثيمين'),'وُحّد «الشيخ ابن عثيمين» إلى «ابن عثيمين»');
