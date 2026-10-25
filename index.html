@@ -55,6 +55,7 @@ html[data-theme="dark"] header{background:linear-gradient(180deg,#0e171c,#152027
   background:rgba(255,255,255,.1);color:inherit;font-size:1.05rem}
 html[data-theme="dark"] .iconbtn{background:rgba(255,255,255,.06)}
 .iconbtn:active{transform:scale(.94)}
+.iconbtn.spinning{animation:kspin .8s linear infinite}
 .modepill{font-size:.72rem;padding:3px 9px;border-radius:999px;background:var(--gold);color:#1d2b36;font-weight:700}
 .modepill.guest{background:rgba(255,255,255,.18);color:inherit}
 
@@ -405,6 +406,7 @@ html[data-theme="dark"] .hero{background:radial-gradient(circle at 12% 0%,rgba(2
       <div class="brand" id="brand">كُنّاشة <span>الفوائد</span></div>
       <span class="modepill guest" id="modePill">زائر</span>
       <div class="sp"></div>
+      <button class="iconbtn" id="btnRefresh" title="تحديث البيانات" aria-label="تحديث البيانات">⟳</button>
       <button class="iconbtn" id="btnTheme" title="الوضع الليلي" aria-label="الوضع الليلي">🌓</button>
       <button class="iconbtn" id="btnMenu" title="القائمة" aria-label="القائمة">☰<i id="menuDot"></i></button>
       <button class="iconbtn" id="btnAuth" title="دخول" aria-label="دخول">🔑</button>
@@ -516,6 +518,7 @@ const db = {
   async importMeta(payload){ return await api('importMeta',payload); },
   async trashAll(){ return await api('trashAll'); },
   async bulk(a){ return await api('bulk',a); },
+  async cleanMeta(kind){ return await api('cleanMeta',{kind}); },
   async qplans(){ return await api('qplans'); },
   async qsave(a){ return await api('qsave',a); },
   async qdelete(id){ return await api('qdelete',{id}); },
@@ -787,6 +790,23 @@ async function refresh(){
   }
 }
 
+/** زر التحديث: يعيد قراءة كل شيء من الخادم (يلتقط ما غيّرتَه في جدول جوجل مباشرة) ويُنظّف النسخة المحفوظة في الجهاز. */
+async function hardRefresh(){
+  const b=$('#btnRefresh'); if(b.classList.contains('spinning')) return;
+  b.classList.add('spinning');
+  try{
+    await IDB.del(cacheKey(st.owner?'o':'g'));
+    const r=await db.boot('',st.owner); handleBoot(r,st.owner);
+    Q.log=null; try{ tplImgCache&&Object.keys(tplImgCache).forEach(k=>delete tplImgCache[k]); }catch(e){}
+    if(st.tab==='qitaf') render();
+    toast('حُدّثت البيانات — '+arDigits(st.items.length)+' فائدة');
+  }catch(e){ toast(isNetworkError(e)?'لا اتصال — تعذّر التحديث':e.message); }
+  finally{ b.classList.remove('spinning'); }
+}
+/** عند العودة إلى الصفحة بعد غياب: فحص صامت، ولا يُقرأ الجدول إلا إن تغيّر رقم النسخة. */
+async function softRefresh(){
+  try{ const r=await db.boot(st.ver,st.owner); if(!r.same) handleBoot(r,st.owner); }catch(e){}
+}
 function seriesNames(){ return [...new Set(st.items.map(i=>i.series).filter(Boolean))]; }
 
 /* ---------- 5) الواجهة العامة ---------- */
@@ -796,6 +816,10 @@ function bindChrome(){
   $('#btnFilters').onclick=()=>$('#filters').classList.toggle('open');
   $('#btnTheme').onclick=()=>{const d=document.documentElement.dataset.theme==='dark';document.documentElement.dataset.theme=d?'light':'dark';localStorage.setItem('k_theme',d?'light':'dark')};
   $('#btnMenu').onclick=()=>menuSheet();
+  $('#btnRefresh').onclick=()=>hardRefresh();
+  let hiddenAt=0;
+  document.addEventListener('visibilitychange',()=>{ if(document.hidden){ hiddenAt=Date.now(); return; }
+    if(hiddenAt&&Date.now()-hiddenAt>120000&&!st.sel&&!document.querySelector('#scrim.open')) softRefresh(); });
   $('#btnAuth').onclick=()=>st.owner?logout():loginSheet();
   $('#fab').onclick=()=>editor(null);
   window.addEventListener('online',()=>flushQueue(true));
@@ -1153,7 +1177,11 @@ function renderIndex(v,field,label){
   const tools=el('div','vbar');
   const q=el('input','t'); q.placeholder='ابحث في '+label+'…'; q.value=st.ixq; tools.appendChild(q);
   const so=el('select','t vsel'); so.innerHTML=[['n','الأكثر فوائد'],['a','أبجديًّا']].map(([k,l])=>`<option value="${k}" ${st.ixs===k?'selected':''}>${l}</option>`).join(''); tools.appendChild(so);
-  if(st.owner){ const adm=el('button','sbtn','⚙ تسمية ودمج وحذف'); adm.onclick=()=>goTab('admin'); tools.appendChild(adm); }
+  if(st.owner){ const adm=el('button','sbtn','⚙ تسمية ودمج وحذف'); adm.onclick=()=>goTab('admin'); tools.appendChild(adm);
+    if(field==='speaker'||field==='ref'){ const cl=el('button','sbtn','🧹 تنظيف غير المستعمل'); cl.title='يحذف من الفهرس من لا فائدة له الآن (مثلًا بعد حذف فوائد من الجدول)';
+      cl.onclick=async()=>{ if(!confirm('سيُحذف من فهرس «'+label+'» كل اسم لا تستعمله أي فائدة الآن (عدا من ضُبط له إخفاء). تبقى فوائدك كما هي. متابعة؟')) return;
+        busy(true,'جارٍ التنظيف…'); try{ const r=await db.cleanMeta(field==='speaker'?'speakers':'refs'); busy(false); await refresh(); toast('نُظّف الفهرس: حُذف '+arDigits(r.count)+' اسمًا غير مستعمل'); }catch(e){ busy(false); toast(e.message); } };
+      tools.appendChild(cl); } }
   v.appendChild(tools);
   if(ownerR) v.appendChild(el('p','hint','لكل كتاب: <b>المؤلف</b> (يربط الكتاب بمؤلفه فتُملأ قوائم التدوين تلقائيًّا) و<b>ما يراه الزوار</b>: ظاهر · <b>اسم الكتاب محجوب</b> (تبقى فوائده بلا ذكره) · <b>محجوب كليًّا</b> (لا تظهر فوائده للزوار، مرجعًا أو وسيطًا).'));
   if(ownerP) v.appendChild(el('p','hint','لكل شخص ما يراه الزوار: <b>ظاهر</b> · <b>الاسم محجوب</b> (يظهر كتابه دون اسمه، ولا يظهر إن كان مصدرًا وسيطًا) · <b>محجوب كليًّا</b> (لا تظهر للزوار أي فائدة له قائلًا أو وسيطًا أو مؤلفًا لمرجعها). وأنت ترى كل شيء دائمًا.'));

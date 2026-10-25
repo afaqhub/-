@@ -212,7 +212,15 @@ function withLock_(ms, fn){
 }
 
 /** رقم نسخة البيانات: يتغيّر مع كل كتابة. إن جاء المتصفح بالرقم نفسه فلا حاجة لقراءة الجدول أصلًا. */
-function ver_(){ return PropertiesService.getScriptProperties().getProperty('VER') || '0'; }
+/** رقم النسخة: يُرفع مع كل كتابة من المنصة، ويُضاف إليه عدد صفوف أوراق الفوائد والقائلين والمراجع ليلتقط حذفك أو إضافتك المباشرة في جدول جوجل. */
+function ver_(){
+  var v = PropertiesService.getScriptProperties().getProperty('VER') || '0', fp = '';
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    [SH.F, SH.S, SH.R, SH.C].forEach(function(n){ var sh = ss.getSheetByName(n); fp += '.' + (sh ? sh.getLastRow() : 0); });
+  } catch (e) {}
+  return v + fp;
+}
 function bump_(){ PropertiesService.getScriptProperties().setProperty('VER', Date.now().toString(36) + Math.floor(Math.random()*1296).toString(36)); }
 
 /* ===================== كلمة المرور ===================== */
@@ -257,7 +265,7 @@ var OWNER = {
   meta:api_meta, addMeta:api_addMeta, exportAll:api_exportAll,
   changePassword:api_changePassword, logout:api_logout,
   metaCounts:api_metaCounts, renameMeta:api_renameMeta, mergeMeta:api_mergeMeta,
-  deleteMeta:api_deleteMeta, saveSettings:api_saveSettings, settingsOwner:api_settingsOwner,
+  deleteMeta:api_deleteMeta, cleanMeta:api_cleanMeta, saveSettings:api_saveSettings, settingsOwner:api_settingsOwner,
   emptyTrash:api_emptyTrash, due:api_due, review:api_review, series:api_series, reading:api_reading,
   people:api_people, savePerson:api_savePerson,
   importBatch:api_importBatch, importMeta:api_importMeta, trashAll:api_trashAll, bulk:api_bulk,
@@ -1151,6 +1159,36 @@ function api_deleteMeta(a){
     var names = listCol_(ms,1), i = names.indexOf(String(a.value));
     if (i >= 0) ms.deleteRow(i+2);
     return {ok:true};
+  });
+}
+
+/**
+ * تنظيف الفهارس: يحذف من «القائلون» أو «المراجع» ما لا فائدة تستعمله (بعد حذفك فوائد من الجدول مباشرة مثلًا).
+ * يُبقي من له فائدة (قائلًا أو وسيطًا أو مؤلفًا لكتاب مستعمل) ومن ضُبط له إخفاء.
+ */
+function api_cleanMeta(a){
+  var kind = String(a.kind || '');
+  if (['speakers','refs'].indexOf(kind) < 0) throw new Error('نوع غير معروف');
+  return withLock_(60000, function(){
+    var items = readAll_().filter(function(o){ return o.status !== 'محذوفة'; });
+    var books = {}, people = {}, pidx = personIndex_();
+    var mark = function(n){ var p = pidx.by[norm_(n)]; people[norm_(p ? p.name : n)] = 1; };
+    items.forEach(function(o){
+      if (o.ref) books[norm_(o.ref)] = 1;
+      if (o.via) { var bv = norm_(String(o.via).replace(/\s*(ص\s*[\d٠-٩]+|[\d٠-٩]+\s*\/\s*[\d٠-٩]+)\s*$/,'')); books[bv] = 1; people[norm_(o.via)] = 1; }
+      if (o.speaker) mark(o.speaker);
+      if (o.via) mark(o.via);
+    });
+    var rs = getSheet_(SH.R, HEAD_R), rv = rs.getLastRow() > 1 ? rs.getRange(2,1,rs.getLastRow()-1,HEAD_R.length).getValues() : [];
+    rv.forEach(function(r){ if (books[norm_(r[0])] && r[1]) mark(r[1]); });          // مؤلف كتاب مستعمل
+    var sh = kind === 'refs' ? rs : getSheet_(SH.S, HEAD_S), del = [], vals = kind === 'refs' ? rv : (sh.getLastRow() > 1 ? sh.getRange(2,1,sh.getLastRow()-1,HEAD_S.length).getValues() : []);
+    vals.forEach(function(r,i){
+      var key = norm_(r[0]); if (!key) return;
+      if (kind === 'refs') { if (!books[key] && !r[4]) del.push(i+2); }                  // غير مستعمل وغير مُخفى
+      else if (!people[key] && !r[4]) del.push(i+2);
+    });
+    for (var k = del.length - 1; k >= 0; k--) sh.deleteRow(del[k]);
+    return {count:del.length};
   });
 }
 

@@ -182,6 +182,18 @@ t('إجراءات جماعية: إظهار الكل وإخفاء وحذف إلى
   E.call('bulk',{ids:orig.filter(i=>i.starred).map(i=>i.id),op:'starred',value:true},tok);
   E.call('bulk',{ids:some,op:'starred',value:false},tok); E.call('bulk',{ids:orig.filter(i=>i.starred&&some.includes(i.id)).map(i=>i.id),op:'starred',value:true},tok);
 });
+t('تحديث: حذف مباشر من الجدول يغيّر رقم النسخة، والتنظيف يحذف غير المستعمل', () => {
+  const v0 = E.call('boot',{},tok).data.ver;
+  const sh = E.sheet ? E.sheet('الفوائد') : null;
+  E.call('save',{item:{text:'فائدة لقائل سيُنظَّف',speaker:'قائل مؤقت للتنظيف',ref:'كتاب مؤقت للتنظيف',visibility:'عامة'}},tok);
+  const id = E.call('list',{},tok).data.find(i=>i.speaker==='قائل مؤقت للتنظيف').id;
+  assert.notStrictEqual(E.call('boot',{},tok).data.ver, v0); assert.ok(/\.\d+\.\d+\.\d+\.\d+$/.test(v0), 'بصمة الأوراق غائبة: '+v0);
+  let r = E.call('cleanMeta',{kind:'speakers'},tok).data; assert.ok(E.call('people',{},tok).data.some(p=>p.name==='قائل مؤقت للتنظيف'), 'حُذف وهو مستعمل');
+  E.call('purge',{id},tok);   // يشبه حذفه مباشرة (الصف يختفي)
+  r = E.call('cleanMeta',{kind:'speakers'},tok).data; assert.ok(r.count>=1);
+  assert.ok(!E.call('people',{},tok).data.some(p=>p.name==='قائل مؤقت للتنظيف'));
+  r = E.call('cleanMeta',{kind:'refs'},tok).data; assert.ok(!E.call('refs',{},tok).data.some(x=>x.t==='كتاب مؤقت للتنظيف'));
+});
 t('إخفاء كتاب بعينه عن الزوار: اسمه فقط أو كل فوائده', () => {
   const id = E.call('save',{item:{text:'فائدة من كتاب سيُحجب',speaker:'مؤلف ما',ref:'كتاب سري تجريبي',locus:'ص٣',via:'كتاب وسيط سري',vlocus:'ص٩',visibility:'عامة'}},tok).data.id;
   E.call('saveRef',{title:'كتاب سري تجريبي',author:'مؤلف ما'},tok);

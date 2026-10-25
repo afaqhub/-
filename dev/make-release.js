@@ -6,8 +6,8 @@
 const fs=require('fs'), path=require('path'), cp=require('child_process');
 const root=path.join(__dirname,'..'), out=path.join(root,'release');
 const PH="const SERVER_URL = 'الصق_رابط_السكربت_هنا';";
-const url=(process.env.KUNNASHA_URL||(fs.existsSync(path.join(__dirname,'release-url.txt'))?fs.readFileSync(path.join(__dirname,'release-url.txt'),'utf8'):'')).trim();
-if(!/^https:\/\/script\.google\.com\/.+\/exec$/.test(url)) throw new Error('ضع رابط السكربت في dev/release-url.txt');
+const url=(process.env.KUNNASHA_URL||(fs.existsSync(path.join(__dirname,'private','release-url.txt'))?fs.readFileSync(path.join(__dirname,'private','release-url.txt'),'utf8'):'')).trim();
+if(!/^https:\/\/script\.google\.com\/.+\/exec$/.test(url)) throw new Error('ضع رابط السكربت في dev/private/release-url.txt (مجلد لا يُرفع إلى GitHub)');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 if(!html.includes(PH)) throw new Error('لم أجد سطر SERVER_URL بالعبارة العربية في index.html');
 fs.rmSync(out,{recursive:true,force:true});
@@ -24,10 +24,10 @@ if(fs.existsSync(path.join(tdir,'manifest.json'))){
   fs.writeFileSync(path.join(root,'templates.js'),js);
   for(const d of Object.values(dirs)) fs.writeFileSync(path.join(out,d,'templates.js'),js);
 }
-// نسخ إضافية برابط مستخدم آخر: ضع الرابط في dev/release-url-<اسم>.txt فتُنتَج «3-نسخة-<اسم> (فيها رابطه)» وهكذا
-const extra=fs.readdirSync(__dirname).filter(f=>/^release-url-.+\.txt$/.test(f)).sort();
+// نسخ إضافية برابط مستخدم آخر: ضع الرابط في dev/private/release-url-<اسم>.txt فتُنتَج «3-نسخة-<اسم> (فيها رابطه)» وهكذا
+const PRIV=path.join(__dirname,'private'), extra=(fs.existsSync(PRIV)?fs.readdirSync(PRIV):[]).filter(f=>/^release-url-.+\.txt$/.test(f)).sort();
 extra.forEach((f,k)=>{
-  const u=fs.readFileSync(path.join(__dirname,f),'utf8').trim(), nm=f.replace(/^release-url-|\.txt$/g,'');
+  const u=fs.readFileSync(path.join(PRIV,f),'utf8').trim(), nm=f.replace(/^release-url-|\.txt$/g,'');
   if(!/^https:\/\/script\.google\.com\/.+\/exec$/.test(u)) throw new Error('رابط غير صالح في '+f);
   dirs['x'+k]=(3+k)+'-نسخة-'+nm+' (فيها رابطه)';
   fs.mkdirSync(path.join(out,dirs['x'+k]),{recursive:true});
