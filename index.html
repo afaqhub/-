@@ -2316,6 +2316,7 @@ function helpSheet(){
       <p class="hint" style="margin-top:14px">«قيّدوا العلمَ بالكتاب».</p>
     </div>`);
 }
+const ORG_PROMPT="أنت مساعد دقيق متخصص في ترتيب «الفوائد العلمية» المبعثرة وتحويلها إلى ملف JSON جاهز للاستيراد في منصة «كُنّاشة الفوائد». سأعطيك موادّي (ملف Excel أو Word أو ملاحظات أو نصًّا مختلطًا غير مرتب، وربما فيه الكتاب والمؤلف والمصدر والتاريخ في خانات متفرقة أو مختلطة)، وعملك: قراءتها كلها، وفهم كل فائدة، وتوزيع معلوماتها على الحقول الصحيحة، ثم إخراج JSON صالح بالمخطط أدناه حرفيًّا. اقرأ هذه التعليمات كاملة قبل أن تبدأ، والتزم بها 100%.\n\n═══ ١) المخرج المطلوب ═══\nكتلة كود واحدة بصيغة ```json لكل دفعة، لا شرح داخلها، وفيها كائن واحد بهذا الشكل بالضبط:\n\n{\n  \"format\": \"kunnasha\",\n  \"part\": {\"n\": 1, \"of\": 3},\n  \"items\": [ {فائدة}, {فائدة}, … ],\n  \"people\": [ {شخص}, … ],\n  \"refs\": [ {كتاب}, … ]\n}\n\n«part»: رقم الدفعة وعدد الدفعات (أو null إن لم تعرف العدد). أما مفاتيح الفائدة فهي هذه فقط (احذف المفتاح الذي لا قيمة له ولا تكتب قيمة فارغة، ولا تُضف مفاتيح غيرها):\n\ntext      نص الفائدة (إلزامي).\nspeaker   القائل: صاحب الكلام نفسه.\nref       المرجع الأصلي: عنوان الكتاب أو المقطع الذي ورد فيه الكلام (العنوان وحده).\nlocus     موضع الفائدة في المرجع: الجزء والصفحة أو رقم الحديث (مثل: \"٣ / ٢٧٣\" أو \"ص ٣٤\" أو \"رقم ٧٨٩\"). وللمقطع الصوتي: الدقيقة (مثل \"32:15\").\nvia       المصدر الوسيط: الكتاب أو الشخص الذي نقلتُ الفائدة من خلاله (العنوان أو الاسم فقط).\nvlocus    موضع الفائدة في المصدر الوسيط (جزء/صفحة).\ncat       التصنيف: كلمة أو كلمتان (مثل: عقيدة، تفسير، فقه، تربية، حديث، لغة…).\ntags      مصفوفة وسوم قصيرة (اختياري).\nmedium    وسيلة التلقي: واحدة من: قراءة | سماع | مشاهدة | مجلس | إنترنت (الافتراضي «قراءة»).\nlink      رابط (للسماع والمشاهدة والإنترنت فقط).\ngain      «من فوائد هذا الكلام»: سطر يلخّص الفائدة المستنبطة، إن وُجد في مادتي.\nnote      أي معلومة أخرى لا تنتمي إلى حقل مما سبق (سياق الكلام، تخريج الحديث، تعليق لي، تاريخ هجري…).\ncreatedAt تاريخ التدوين إن وُجد، بصيغة \"YYYY-MM-DD\" ميلاديًّا.\n\nالشخص في «people»: {\"name\": الاسم المعتمد, \"aliases\": [أسماء أخرى للشخص نفسه], \"dua\": الدعاء كما ورد في مادتي}.\nالكتاب في «refs»: {\"title\": العنوان وحده, \"author\": المؤلف, \"kind\": \"كتاب\" أو \"مقطع\" أو \"مقال\", \"edition\": الطبعة}.\n\n═══ ٢) قواعد التوزيع (الأهم) ═══\n١. «text»: الفائدة بلفظ صاحبها دون تغيير ولا تلخيص ولا إضافة. نظّف فقط: الترقيم الأول (١- أو 1.)، والأقواس وعلامات التنصيص التي تحيط بالنص كله، والمسافات الزائدة، وكسر السطر داخل الجملة الواحدة. أبقِ التشكيل وعلامات الترقيم. الأبيات والقوائم: كل بيت أو بند في سطر (\\n). وإن بدأ النص بعبارة «قال فلان:» فانقل فلانًا إلى «speaker» واحذف العبارة من النص. و«قال ﷺ» تعني speaker = \"النبي ﷺ\".\n٢. «speaker» هو من قال الكلام لا من كتبه في كتابه: إن نُقل كلام ابن القيم في كتاب لغيره فالقائل ابن القيم. بلا ألقاب ولا دعاء («ابن تيمية» لا «شيخ الإسلام ابن تيمية رحمه الله»). فإن لم يُذكر قائل وكانت الفائدة كلام مؤلف الكتاب نفسه (فائدة مأخوذة من كتابه مباشرة، ولا مصدر أقدم منها) فالقائل هو مؤلف الكتاب. وإن لم تعرف القائل يقينًا فاحذف المفتاح.\n٣. «ref» عنوان الكتاب وحده: بلا مؤلف («أعمال القلوب» لا «أعمال القلوب لخالد السبت»)، وبلا طبعة، وبلا صفحة (الصفحة في locus، والطبعة في refs.edition). ولا تضع اسم كتاب في «speaker» أبدًا، ولا اسم شخص في «ref».\n٤. «via» (الوسيط) يُستعمل فقط حين يكون للفائدة مصدران: مصدر أصلي قديم (ref) ومصدر حديث قرأتَها فيه ونقلها عنه (via). مثال: فائدة من «مجموع الفتاوى» لابن تيمية قرأتُها في كتاب «أعمال القلوب»: ref = \"مجموع الفتاوى\"، via = \"أعمال القلوب\". وإن لم يُذكر إلا مصدر واحد فهو «ref» ولا «via». وإن كان الوسيط كتابًا فاكتب عنوانه وحده (بلا مؤلفه وبلا صفحته) وصفحته في «vlocus»، وأضفه إلى «refs».\n٥. كل كتاب ظهر في ref أو via يُكتب مرة واحدة في «refs» مع مؤلفه. لا تُخمّن مؤلفًا: اكتبه إن ذُكر في مادتي أو كنتَ متيقنًا منه (كمجموع الفتاوى لابن تيمية)، وإلا فاترك «author». المؤلف يُكتب بالاسم نفسه الموحَّد المستعمل في «people».\n٦. توحيد الأسماء: الشخص الواحد باسم معتمد واحد في كل الفوائد (ابن القيم، لا «ابن قيم الجوزية» مرة و«الإمام ابن القيم» مرة)، وبقية صيغه في «aliases». وكذلك عناوين الكتب (لا تكتب «تفسير المحرر الوجيز» مرة و«المحرر الوجيز» مرة). وأدرج في «people» كل من ورد قائلًا أو مؤلفًا.\n٧. «dua»: الدعاء كما ورد في مادتي لذلك الشخص (رحمه الله، رضي الله عنه، حفظه الله، وفقه الله…)، وإن لم يرد فاتركه فارغًا (لا تختلقه).\n٨. «cat»: تصنيف واحد قصير. استعمل الأسماء المعتمدة المذكورة في آخر هذا الأمر إن وُجدت، وإلا فاختر من تلقاء نفسك تصنيفًا واحدًا لكل فائدة، وحافظ على الاتساق بين الفوائد.\n٩. لا تضيّع معلومة: كل ما في مادتي ولا يناسب حقلًا (تاريخ هجري، تخريج حديث، سياق «حاكيًا عن شيخه…»، تعليقي) ضعه في «note» نصًّا. والتاريخ الهجري يُحفظ في note كما هو (مثل: «قُيّدت في ٢٨/٨/١٤٤٥ هـ»)؛ أما «createdAt» فميلادي فقط ولا تضعه إلا إن كان معروفًا يقينًا.\n١٠. لا تخترع شيئًا: لا رقم صفحة ولا مؤلفًا ولا قائلًا ولا تصنيفًا غير موجود. إن شككتَ في حقل فاحذفه، وأضف إلى «note» عبارة «يحتاج مراجعة: …» مع السبب في سطر.\n١١. الفوائد المكررة نصًّا تُدمج في واحدة. ورتّب الفوائد في المخرج كما وردت في مادتي. ولا تحذف فائدة ولا تتجاوز أي واحدة.\n١٢. مادتي قد تكون مرتبة في أعمدة (الفائدة، الكتاب، التصنيف، التاريخ…) أو مختلطة في نص واحد؛ افهم المعنى من القرائن لا من أسماء الأعمدة وحدها. وقد يكون عمود «الكتاب» هو المصدر الوسيط إن كان تحت الفائدة مصدر أصلي (انظر القاعدة ٤)، وقد يكون هو المرجع الأصلي إن لم يوجد غيره. لا تتحيّر: طبّق القواعد.\n\n═══ ٣) إن كانت الفوائد كثيرة: اعمل على دفعات ═══\n• اقرأ مادتي كلها أولًا وأحصِ فوائدها، ثم أخرجها دفعات؛ الدفعة بحد أقصى نحو ٣٠ فائدة (أقل إن كانت الفوائد طويلة).\n• كل دفعة JSON كامل صحيح مستقل (يُقبل وحده)، ويحوي فوائدها هي، و«people» و«refs» الخاصين بها فقط. لا تقطع JSON في منتصفه أبدًا؛ وإن اقتربتَ من حد طول الرد فأنهِ الدفعة بآخر فائدة مكتملة، وأخبرني عند أي فائدة تُكمل.\n• بعد كل دفعة (غير الأخيرة) اكتب خارج الكتلة سطرًا واحدًا فقط: «تمّت الدفعة ١ من ٣ (الفوائد ١–٣٠ من ٨٥) — اكتب: أكمل». ثم توقف وانتظر كلمتي «أكمل».\n• عند «أكمل»: تابع من الفائدة التالية مباشرة دون إعادة ما سبق، وأبقِ الأسماء والتصنيفات والعناوين الموحَّدة كما استعملتَها.\n• في الدفعة الأخيرة اكتب: «تمّت الدفعات كلها — مجموع الفوائد: ٨٥».\n• أنا ألصق الدفعات في المنصة تباعًا فتُدمج وحدها، فلا تجمع شيئًا ولا تكرر شيئًا.\n\n═══ ٤) شروط صحة JSON (إلزامية) ═══\n• علامات اقتباس مزدوجة مستقيمة \" لكل مفتاح ونص؛ وإن ورد \" داخل النص فاكتبها \\\" ، وكسر السطر داخل النص \\n .\n• لا فاصلة بعد آخر عنصر، ولا تعليقات، ولا مفاتيح غير المذكورة، ولا قيم null أو فارغة (احذف المفتاح).\n• «tags» و«aliases» مصفوفات نصوص؛ وكل ما عداها نصوص.\n• الأرقام داخل النصوص تُترك كما كتبتُها (عربية أو غربية).\n• لا تُخرج أي شيء غير الكتلة وسطر المتابعة: لا مقدمة ولا خاتمة ولا شرح.\n\n═══ ٥) فحص ذاتي قبل كل دفعة ═══\nهل كل فائدة فيها «text»؟ هل كل «speaker» شخص لا كتاب؟ هل كل «ref» و«via» عنوان كتاب بلا مؤلف ولا صفحة؟ هل الصفحات في locus/vlocus؟ هل كل كتاب في «refs» وكل شخص في «people» مرة واحدة؟ هل الأسماء موحَّدة؟ هل JSON صالح؟ — صحّح ما وجدت ثم أخرج.\n\n═══ ٦) مثال صغير ═══\nالمادة:\n«١- قال ابن القيم رحمه الله: (العلم نور يقذفه الله في القلب). مفتاح دار السعادة ١/١٢٠ — أعمال القلوب لخالد السبت ص٣٩ — تربية — ٢٨/٨/١٤٤٥ هـ»\n«من أعظم ما يعين على تدبر القرآن التقلل من الفضول. (الطريق إلى القرآن للسكران ص٧٧) تربية»\n\nالمخرج:\n```json\n{\n  \"format\": \"kunnasha\",\n  \"part\": {\"n\": 1, \"of\": 1},\n  \"items\": [\n    {\"text\": \"العلم نور يقذفه الله في القلب.\", \"speaker\": \"ابن القيم\", \"ref\": \"مفتاح دار السعادة\", \"locus\": \"١ / ١٢٠\", \"via\": \"أعمال القلوب\", \"vlocus\": \"ص ٣٩\", \"cat\": \"تربية\", \"medium\": \"قراءة\", \"note\": \"قُيّدت في ٢٨/٨/١٤٤٥ هـ\"},\n    {\"text\": \"من أعظم ما يعين على تدبر القرآن التقلل من الفضول.\", \"speaker\": \"السكران\", \"ref\": \"الطريق إلى القرآن\", \"locus\": \"ص ٧٧\", \"cat\": \"تربية\", \"medium\": \"قراءة\"}\n  ],\n  \"people\": [\n    {\"name\": \"ابن القيم\", \"dua\": \"رحمه الله\"},\n    {\"name\": \"خالد السبت\"},\n    {\"name\": \"السكران\"}\n  ],\n  \"refs\": [\n    {\"title\": \"مفتاح دار السعادة\", \"author\": \"ابن القيم\", \"kind\": \"كتاب\"},\n    {\"title\": \"أعمال القلوب\", \"author\": \"خالد السبت\", \"kind\": \"كتاب\"},\n    {\"title\": \"الطريق إلى القرآن\", \"author\": \"السكران\", \"kind\": \"كتاب\"}\n  ]\n}\n```\n(لاحظ: الفائدة الثانية بلا مصدر أصلي فالكتاب هو «ref» والقائل مؤلفه، ولا «via».)\n\n{{الأسماء}}\n\n═══ ٧) ابدأ ═══\nسألصق لك الآن مادتي (أو أرفق الملف). اقرأها كلها ثم أخرج الدفعة الأولى.";
 
 /* ============================================================
    19) الاستيراد والتصدير والاستخراج بالذكاء الاصطناعي
@@ -2404,9 +2405,38 @@ function coerceItem(r){
 /* ---------- القارئات ---------- */
 function stripFences(t){ return t.replace(/^\uFEFF/,'').replace(/^\s*```[\w-]*\s*\n?/,'').replace(/\n?\s*```\s*$/,'').trim(); }
 
+/** كتل JSON المستقلة في نص واحد (دفعات الذكاء الاصطناعي الملصوقة تباعًا). */
+function jsonBlocks(t){
+  const out=[]; let depth=0, start=-1, inStr=false, esc=false;
+  for(let i=0;i<t.length;i++){
+    const c=t[i];
+    if(inStr){ if(esc) esc=false; else if(c==='\\') esc=true; else if(c==='"') inStr=false; continue; }
+    if(c==='"'){ if(depth>0) inStr=true; continue; }
+    if(c==='{'||c==='['){ if(depth===0) start=i; depth++; }
+    else if(c==='}'||c===']'){ if(depth>0){ depth--; if(depth===0&&start>=0){ out.push(t.slice(start,i+1)); start=-1; } } }
+  }
+  return out;
+}
+/** يدمج نتائج قراءة متعددة (دفعات/ملفات) في نتيجة واحدة، مع توحيد القائلين والمراجع. */
+function mergeParsed(ps){
+  const out={kind:'json',items:[],rawCount:0,meta:null,table:null,warnings:[],parts:ps.length};
+  const people=new Map(), refs=new Map(), cats=new Map();
+  ps.forEach((p,n)=>{
+    out.items.push(...p.items); out.rawCount+=p.rawCount||0; (p.warnings||[]).forEach(w=>out.warnings.push((ps.length>1?'['+(n+1)+'] ':'')+w));
+    if(p.meta){
+      (p.meta.people||[]).forEach(x=>{ const k=norm(x.name||x.n||''); if(!k) return; const c=people.get(k)||{name:x.name||x.n,aliases:[],dua:''};
+        c.aliases=[...new Set(c.aliases.concat(Array.isArray(x.aliases)?x.aliases:String(x.aliases||'').split(/[،,]/)).map(s=>String(s).trim()).filter(Boolean))]; if(!c.dua&&x.dua) c.dua=x.dua; ['death','hide','rep','bio'].forEach(f=>{ if(!c[f]&&x[f]) c[f]=x[f]; }); people.set(k,c); });
+      (p.meta.refs||[]).forEach(x=>{ const k=norm(x.title||''); if(!k) return; const c=refs.get(k)||{title:x.title,author:'',kind:'',edition:'',hide:''}; ['author','kind','edition','hide'].forEach(f=>{ if(!c[f]&&x[f]) c[f]=x[f]; }); refs.set(k,c); });
+      (p.meta.categories||[]).forEach(x=>{ const k=norm(x.name||''); if(k&&!cats.has(k)) cats.set(k,x); });
+    }
+  });
+  if(people.size||refs.size||cats.size) out.meta={people:[...people.values()],refs:[...refs.values()],categories:[...cats.values()],settings:null};
+  return out;
+}
 function parseAny(raw){
   let t=stripFences(String(raw||'')); const out={kind:'',items:[],rawCount:0,meta:null,table:null,warnings:[]};
   if(!t) return out;
+  { const bl=jsonBlocks(String(raw||'').replace(/```[\w-]*/g,' ')); if(bl.length>1){ const ps=[]; bl.forEach(b=>{ try{ JSON.parse(b.replace(/,\s*([\]}])/g,'$1')); ps.push(parseAny(b)); }catch(e){} }); if(ps.length>1) return mergeParsed(ps); } }
   // 1) JSON
   if(/^[\[{]/.test(t)){
     let j=null;
@@ -2576,14 +2606,14 @@ function transferSheet(tab){
 function importTab(prefill){
   const b=$('#tr_body');
   b.innerHTML=`<p class="hint">استورد من: ملف نسخة احتياطية للمنصة (JSON)، أو ملف Excel / CSV، أو نص ملصوق (ناتج الذكاء الاصطناعي، أو قائمة مرقمة، أو فقرات). كل فائدة تُعالج وحدها، فلا يتعطل الاستيراد بسبب فاصلة أو سطر.</p>
-    <label class="fld"><span>اختر ملفًا</span><input class="t" type="file" id="im_file" accept=".json,.xlsx,.xls,.xlsm,.ods,.csv,.txt,.md,text/plain,application/json"></label>
+    <label class="fld"><span>اختر ملفًا (أو عدة ملفات JSON لدفعات الذكاء الاصطناعي، فتُدمج)</span><input class="t" type="file" id="im_file" multiple accept=".json,.xlsx,.xls,.xlsm,.ods,.csv,.txt,.md,text/plain,application/json"></label>
     <label class="fld"><span>أو الصق النص هنا</span><textarea class="t" id="im_text" rows="6" placeholder="الصق هنا ناتج الذكاء الاصطناعي أو أي نص…">${esc(prefill||'')}</textarea></label>
     <button class="btn" id="im_read">قراءة ومعاينة</button>
     <div id="im_out" style="margin-top:12px"></div>`;
   $('#im_file').onchange=async e=>{
-    const f=e.target.files[0]; if(!f) return;
+    const fs=[...e.target.files]; if(!fs.length) return;
     busy(true,'جارٍ قراءة الملف…');
-    try{ IM={src:f.name, parsed:await readFileToParsed(f)}; busy(false); importPreview(); }
+    try{ const ps=[]; for(const f of fs) ps.push(await readFileToParsed(f)); IM={src:fs.map(f=>f.name).join('، '), parsed:ps.length>1?mergeParsed(ps):ps[0]}; busy(false); importPreview(); }
     catch(err){ busy(false); $('#im_out').innerHTML='<p class="badc">'+esc(err.message)+'</p>'; }
   };
   $('#im_read').onclick=()=>{
@@ -2804,8 +2834,39 @@ ${isAudio?'المقطع':'الكتاب'}: ${o.title||''}
 من فوائد هذا الكلام: (اختياري: سطر واحد يبيّن الفائدة المستنبطة)
 ---`;
 }
-function aiTab(){
-  $('#tr_body').innerHTML=`<p class="hint">انسخ «نص الأمر» الجاهز والصقه في أي ذكاء اصطناعي، ثم أرفق معه الكتاب أو نصّ المحاضرة. يعيد لك فوائد منسّقة، تلصقها هنا فتدخل المنصة مباشرة مسودات «تحتاج تحقق» لتراجعها.</p>
+function aiTab(mode){
+  mode=mode||'organize';
+  $('#tr_body').innerHTML=`<div class="seg" id="ai_modes"><button type="button" class="chip${mode==='organize'?' on':''}" data-m="organize">🗂 رتّب فوائدي المبعثرة (Excel / Word / ملاحظات)</button><button type="button" class="chip${mode==='extract'?' on':''}" data-m="extract">📖 استخرج فوائد من كتاب أو محاضرة</button></div><div id="ai_sub"></div>`;
+  $('#ai_modes').onclick=e=>{ const b=e.target.closest('button'); if(b) aiTab(b.dataset.m); };
+  return mode==='organize'?aiOrganize():aiExtract();
+}
+/** الأمر الجاهز لترتيب فوائد مبعثرة وإخراجها JSON مطابقًا للمنصة؛ مع أسماء المستخدم المعتمدة اختياريًّا. */
+function buildOrganizePrompt(withNames){
+  let names='═══ أسماء لا توجد عندي بعد ═══\nلا تقيّدك أسماء معتمدة؛ وحّد الأسماء بنفسك.';
+  const m=st.meta||{}, cats=(m.categories||[]).slice(0,60), ppl=(m.people||[]).map(p=>p.n).slice(0,150), refs=(m.refs||[]).slice(0,150);
+  if(withNames&&(cats.length||ppl.length||refs.length)){
+    names='═══ أسمائي المعتمدة في المنصة (استعملها حرفيًّا إن انطبقت على ما في مادتي، ولا تُنشئ اسمًا جديدًا لشخص أو كتاب موجود هنا) ═══'
+      +(cats.length?'\nالتصنيفات: '+cats.join('، '):'')+(ppl.length?'\nالأشخاص (قائلون ومؤلفون): '+ppl.join('، '):'')+(refs.length?'\nالكتب: '+refs.join('، '):'');
+  } else names='═══ أسماء معتمدة ═══\nلا قائمة عندي؛ وحّد الأسماء والتصنيفات بنفسك واستعمل تصنيفات قصيرة متسقة.';
+  return ORG_PROMPT.replace('{{الأسماء}}',names);
+}
+function aiOrganize(){
+  const has=((st.meta||{}).people||[]).length||((st.meta||{}).refs||[]).length;
+  $('#ai_sub').innerHTML=`<p class="hint">عندك فوائد في ملف Excel أو Word أو ملاحظات، مرتبة أو «ملخبطة»؟ <b>١)</b> انسخ الأمر الجاهز <b>٢)</b> الصقه في أي ذكاء اصطناعي (ChatGPT أو Claude أو Gemini…) وأرفق معه ملفك أو الصق نصّه <b>٣)</b> يعيد لك فوائدك مفروزة (القائل، الكتاب، المؤلف، الوسيط، التصنيف…) بصيغة JSON، وإن كثرت أعطاك دفعات: اكتب له «أكمل» وهو يتابع <b>٤)</b> الصق الدفعات هنا تباعًا (أو اختر ملفاتها دفعة واحدة) فتُدمج وتدخل المنصة.</p>
+    ${has?'<label class="tgl"><input type="checkbox" id="og_names" checked> أرفق أسمائي المعتمدة (التصنيفات والأشخاص والكتب) ليلتزم بها الذكاء الاصطناعي ولا يكرر الأسماء بصيغ أخرى</label>':''}
+    <div class="pre" id="ai_pre" style="max-height:200px;overflow:auto"></div>
+    <div class="row2" style="margin-top:10px"><button class="btn" id="ai_copy">نسخ الأمر</button><button class="btn ghost" id="ai_dl">تنزيله ملفًّا نصيًّا</button></div>
+    <div class="row2" style="margin-top:8px"><button class="btn ghost" id="ai_paste">لصق ناتج الذكاء الاصطناعي ←</button></div>
+    <p class="hint" style="margin-top:8px">⚠ الذكاء الاصطناعي قد يخطئ أحيانًا، فتدخل الفوائد المستوردة بالطريقة التي تختارها في نافذة الاستيراد (يُنصح بتعليمها «تحتاج تحقق» في المرة الأولى ثم مراجعة أول عشرين فائدة).</p>`;
+  const upd=()=>{ $('#ai_pre').textContent=buildOrganizePrompt(!$('#og_names')||$('#og_names').checked); };
+  if($('#og_names')) $('#og_names').onchange=upd; upd();
+  $('#ai_copy').onclick=()=>copyText(buildOrganizePrompt(!$('#og_names')||$('#og_names').checked),'نُسخ الأمر — الصقه في الذكاء الاصطناعي مع فوائدك');
+  $('#ai_dl').onclick=()=>download('kunnasha-organize-prompt.txt',buildOrganizePrompt(!$('#og_names')||$('#og_names').checked));
+  $('#ai_paste').onclick=()=>{ [...$('#tr_tabs').children].forEach(c=>c.classList.toggle('on',c.dataset.t==='import')); importTab(); $('#im_text').focus(); };
+}
+function aiExtract(){
+
+  $('#ai_sub').innerHTML=`<p class="hint">انسخ «نص الأمر» الجاهز والصقه في أي ذكاء اصطناعي، ثم أرفق معه الكتاب أو نصّ المحاضرة. يعيد لك فوائد منسّقة، تلصقها هنا فتدخل المنصة مباشرة مسودات «تحتاج تحقق» لتراجعها.</p>
     <div class="grid2">
       <label class="fld"><span>نوع المادة</span><select class="t" id="ai_kind"><option value="book">كتاب</option><option value="audio">محاضرة أو مقطع</option></select></label>
       <label class="fld"><span>الفن</span><select class="t" id="ai_field">${['عام','فقه','حديث','تفسير','عقيدة','تربية وسلوك','سيرة وتاريخ','لغة وأدب'].map(x=>`<option>${x}</option>`).join('')}</select></label>

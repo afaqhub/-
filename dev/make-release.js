@@ -34,6 +34,8 @@ extra.forEach((f,k)=>{
   fs.writeFileSync(path.join(out,dirs['x'+k],'index.html'),html.replace(PH,`const SERVER_URL = '${u}';`));
   if(fs.existsSync(path.join(root,'templates.js'))) fs.copyFileSync(path.join(root,'templates.js'),path.join(out,dirs['x'+k],'templates.js'));
 });
+// الأمر الجاهز لترتيب الفوائد بالذكاء الاصطناعي (نسخة عامة بلا أسماء)
+fs.writeFileSync(path.join(out,'أمر-ترتيب-الفوائد.txt'),fs.readFileSync(path.join(__dirname,'organize-prompt.txt'),'utf8').replace('{{الأسماء}}','═══ أسماء معتمدة ═══\nلا قائمة عندي؛ وحّد الأسماء والتصنيفات بنفسك واستعمل تصنيفات قصيرة متسقة.'));
 for(const f of ['Code.gs','دليل-الاستخدام.md','خطوات-التثبيت-للمبتدئ.md']) fs.copyFileSync(path.join(root,f),path.join(out,f));
 const zip=path.join(root,'kunnasha-files.zip'); fs.rmSync(zip,{force:true});
 cp.execFileSync('python3',['-c',`import zipfile,os
