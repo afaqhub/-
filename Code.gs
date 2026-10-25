@@ -23,7 +23,7 @@ var COLS = ['المعرّف','العنوان','النص','النوع','القا�
             'الرابط','التصنيف','الوسوم','تعليقي','الظهور','الحالة','مميّزة','فوائد مرتبطة',
             'تاريخ الإضافة هجري','تاريخ الإضافة','تاريخ التعديل','الحالة السابقة',
             'مرحلة المراجعة','المراجعة القادمة','السلسلة','ترتيب السلسلة','الموضع القرآني أو الحديثي',
-            'وسيلة التلقي','رقم النشر','تاريخ النشر','يحتاج تحقق','إخفاءات','من فوائد هذا الكلام','موضع الوسيط'];
+            'وسيلة التلقي','رقم النشر','تاريخ النشر','يحتاج تحقق','إخفاءات','من فوائد هذا الكلام','موضع الوسيط','بالتصرف'];
 
 var HEAD_C = ['الاسم','الأب','اللون','الأيقونة','الترتيب','الحالة'];
 var HEAD_S = ['الاسم المعتمد','الأسماء البديلة','سنة الوفاة','نبذة','إخفاء','عبارة بديلة','الدعاء'];
@@ -538,7 +538,7 @@ function rowToObj_(r, rowNum){
     medium:String(r[25]||''), pubNo:String(r[26]||''), pubDate: toIso_(r[27]),
     verify: String(r[28]) === 'نعم',
     hide: splitList_(r[29]).filter(function(k){ return HIDE_KEYS.indexOf(k) >= 0; }),
-    gain: String(r[30]||''), vlocus: String(r[31]||''),
+    gain: String(r[30]||''), vlocus: String(r[31]||''), paraphrase: String(r[32]) === 'نعم',
     _row: rowNum
   };
 }
@@ -548,7 +548,7 @@ function objToRow_(o){
           (o.tags||[]).join('، '), o.note||'', o.visibility||'خاصة', o.status||'منشورة', o.starred?'نعم':'لا',
           o.related||'', o.createdHijri||'', o.createdAt||'', o.updatedAt||'', o.prevStatus||'',
           o.rstage||'', o.rnext||'', o.series||'', o.sorder||'', o.anchor||'',
-          o.medium||'', o.pubNo||'', o.pubDate||'', o.verify?'نعم':'', (o.hide||[]).join('،'), o.gain||'', o.vlocus||''];
+          o.medium||'', o.pubNo||'', o.pubDate||'', o.verify?'نعم':'', (o.hide||[]).join('،'), o.gain||'', o.vlocus||'', o.paraphrase?'نعم':''];
 }
 
 function toIso_(v){
@@ -733,6 +733,7 @@ function sanitize_(src, idx){
   var o = {}, has = function(k){ return src[k] !== undefined && src[k] !== null; };
   var S = function(k,n){ if (has(k)) o[k] = clip_(src[k], n); };
   S('id',20); S('title',200); S('text',TEXT_MAX); S('type',40); S('ref',300); S('locus',100); S('vlocus',100);
+  if (has('paraphrase')) o.paraphrase = src.paraphrase === true || /^(نعم|true|1|yes)$/i.test(String(src.paraphrase));   // الأصل: بالنص
   S('cat',100); S('gain',600); S('note',3000); S('related',200); S('series',150); S('anchor',200);
   if (has('speaker')) o.speaker = canon_(src.speaker, idx);
   if (has('via')) o.via = canon_(src.via, idx);

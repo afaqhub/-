@@ -194,6 +194,18 @@ t('تحديث: حذف مباشر من الجدول يغيّر رقم النسخ�
   assert.ok(!E.call('people',{},tok).data.some(p=>p.name==='قائل مؤقت للتنظيف'));
   r = E.call('cleanMeta',{kind:'refs'},tok).data; assert.ok(!E.call('refs',{},tok).data.some(x=>x.t==='كتاب مؤقت للتنظيف'));
 });
+t('النقل بالنص هو الأصل، وبالتصرف لا يكون إلا بنص صريح (يدويًّا واستيرادًا)', () => {
+  const a = E.call('save',{item:{text:'فائدة بلا تحديد النقل'}},tok).data.id;
+  assert.strictEqual(E.call('get',{id:a},tok).data.paraphrase,false);
+  const b = E.call('save',{item:{text:'فائدة بتصرف',paraphrase:true,speaker:'ابن القيم',visibility:'عامة'}},tok).data.id;
+  assert.strictEqual(E.call('get',{id:b},tok).data.paraphrase,true);
+  assert.strictEqual(E.call('listPublic').data.find(i=>i.id===b).paraphrase,true);
+  E.call('save',{item:{id:b,text:'فائدة بتصرف',speaker:'ابن القيم'}},tok); assert.strictEqual(E.call('get',{id:b},tok).data.paraphrase,true);   // التعديل بلا ذكر الحقل لا يمسّه
+  E.call('save',{item:{id:b,paraphrase:false}},tok); assert.strictEqual(E.call('get',{id:b},tok).data.paraphrase,false);
+  const r = E.call('importBatch',{items:[{text:'مستوردة بلا ذكر'},{text:'مستوردة بتصرف',paraphrase:true},{text:'مستوردة نعم',paraphrase:'نعم'},{text:'مستوردة لا',paraphrase:'لا'}],options:{}},tok).data; assert.strictEqual(r.added,4);
+  const L = E.call('list',{},tok).data; const f=t=>L.find(x=>x.text===t).paraphrase;
+  assert.deepStrictEqual([f('مستوردة بلا ذكر'),f('مستوردة بتصرف'),f('مستوردة نعم'),f('مستوردة لا')],[false,true,true,false]);
+});
 t('إخفاء كتاب بعينه عن الزوار: اسمه فقط أو كل فوائده', () => {
   const id = E.call('save',{item:{text:'فائدة من كتاب سيُحجب',speaker:'مؤلف ما',ref:'كتاب سري تجريبي',locus:'ص٣',via:'كتاب وسيط سري',vlocus:'ص٩',visibility:'عامة'}},tok).data.id;
   E.call('saveRef',{title:'كتاب سري تجريبي',author:'مؤلف ما'},tok);
