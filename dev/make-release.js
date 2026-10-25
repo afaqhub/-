@@ -24,6 +24,16 @@ if(fs.existsSync(path.join(tdir,'manifest.json'))){
   fs.writeFileSync(path.join(root,'templates.js'),js);
   for(const d of Object.values(dirs)) fs.writeFileSync(path.join(out,d,'templates.js'),js);
 }
+// نسخ إضافية برابط مستخدم آخر: ضع الرابط في dev/release-url-<اسم>.txt فتُنتَج «3-نسخة-<اسم> (فيها رابطه)» وهكذا
+const extra=fs.readdirSync(__dirname).filter(f=>/^release-url-.+\.txt$/.test(f)).sort();
+extra.forEach((f,k)=>{
+  const u=fs.readFileSync(path.join(__dirname,f),'utf8').trim(), nm=f.replace(/^release-url-|\.txt$/g,'');
+  if(!/^https:\/\/script\.google\.com\/.+\/exec$/.test(u)) throw new Error('رابط غير صالح في '+f);
+  dirs['x'+k]=(3+k)+'-نسخة-'+nm+' (فيها رابطه)';
+  fs.mkdirSync(path.join(out,dirs['x'+k]),{recursive:true});
+  fs.writeFileSync(path.join(out,dirs['x'+k],'index.html'),html.replace(PH,`const SERVER_URL = '${u}';`));
+  if(fs.existsSync(path.join(root,'templates.js'))) fs.copyFileSync(path.join(root,'templates.js'),path.join(out,dirs['x'+k],'templates.js'));
+});
 for(const f of ['Code.gs','دليل-الاستخدام.md','خطوات-التثبيت-للمبتدئ.md']) fs.copyFileSync(path.join(root,f),path.join(out,f));
 const zip=path.join(root,'kunnasha-files.zip'); fs.rmSync(zip,{force:true});
 cp.execFileSync('python3',['-c',`import zipfile,os
