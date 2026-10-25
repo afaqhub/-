@@ -12,13 +12,13 @@ const {start,newPage}=require('./harness.js'); const seed=require('./seed.js'); 
   ok(!/\{\{/.test(pr),'لا بقايا قوالب');
   // مثال الأمر نفسه صالح للاستيراد
   const ex=await page.evaluate(()=>{ const m=ORG_PROMPT.match(/```json\n([\s\S]*?)```/); return m&&m[1]; });
-  ok(!!ex&&JSON.parse(ex).items.length===5,'المثال داخل الأمر JSON صالح');
+  ok(!!ex&&JSON.parse(ex).items.length===6,'المثال داخل الأمر JSON صالح');
   // دفعتان ملصوقتان تباعًا (ببقايا نص وأسوار كود) تُدمجان
   const p1=JSON.parse(ex); const p2={format:'kunnasha',part:{n:2,of:2},items:[{text:'فائدة الدفعة الثانية',speaker:'ابن القيم',ref:'مدارج السالكين',locus:'٢ / ٣',cat:'تربية'}],people:[{name:'ابن القيم',aliases:['ابن قيم الجوزية'],dua:'رحمه الله'}],refs:[{title:'مدارج السالكين',author:'ابن القيم',kind:'كتاب'}]};
   p1.part={n:1,of:2};
   const pasted='تمّت الدفعة ١ من ٢ — اكتب: أكمل\n```json\n'+JSON.stringify(p1,null,1)+'\n```\n\nتمّت الدفعات كلها\n```json\n'+JSON.stringify(p2)+'\n```';
   const r=await page.evaluate(t=>{ const p=parseAny(t); return {items:p.items.length,parts:p.parts,people:p.meta.people.length,refs:p.meta.refs.length,first:p.items[1],ibn:p.meta.people.find(x=>x.name==='ابن القيم')}; },pasted);
-  ok(r.items===6&&r.parts===2,'دمج الدفعات: '+r.items+' فوائد من '+r.parts+' دفعات');
+  ok(r.items===7&&r.parts===2,'دمج الدفعات: '+r.items+' فوائد من '+r.parts+' دفعات');
   ok(r.people===5&&r.refs===8,'دمج الفهارس بلا تكرار (ابن القيم مرة واحدة)'); ok(r.ibn.dua==='رحمه الله'&&r.ibn.aliases.includes('ابن قيم الجوزية'),'يحتفظ بالدعاء والبدائل');
   ok(r.first.via==='أعمال القلوب'&&r.first.vlocus==='ص ٣٩'&&r.first.locus==='١ / ١٢٠','تُقرأ حقول الوسيط والموضع');
   // استيراد فعلي عبر الواجهة

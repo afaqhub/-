@@ -23,7 +23,7 @@ var COLS = ['المعرّف','العنوان','النص','النوع','القا�
             'الرابط','التصنيف','الوسوم','تعليقي','الظهور','الحالة','مميّزة','فوائد مرتبطة',
             'تاريخ الإضافة هجري','تاريخ الإضافة','تاريخ التعديل','الحالة السابقة',
             'مرحلة المراجعة','المراجعة القادمة','السلسلة','ترتيب السلسلة','الموضع القرآني أو الحديثي',
-            'وسيلة التلقي','رقم النشر','تاريخ النشر','يحتاج تحقق','إخفاءات','من فوائد هذا الكلام','موضع الوسيط','بالتصرف'];
+            'وسيلة التلقي','رقم النشر','تاريخ النشر','يحتاج تحقق','إخفاءات','من فوائد هذا الكلام','موضع الوسيط','بالتصرف','من عندي'];
 
 var HEAD_C = ['الاسم','الأب','اللون','الأيقونة','الترتيب','الحالة'];
 var HEAD_S = ['الاسم المعتمد','الأسماء البديلة','سنة الوفاة','نبذة','إخفاء','عبارة بديلة','الدعاء'];
@@ -59,6 +59,8 @@ var DEFAULT_SETTINGS = [
   ['إخفاء الرابط','لا',1],
   ['إخفاء التواريخ','لا',1],
   ['ختم الصور','',1],
+  ['اسم صاحب التأملات','',1],
+  ['قوالب الفوائد','',1],
   ['عنوان البطاقة','',1],
   ['تم الإعداد','لا',0]
 ];
@@ -538,7 +540,7 @@ function rowToObj_(r, rowNum){
     medium:String(r[25]||''), pubNo:String(r[26]||''), pubDate: toIso_(r[27]),
     verify: String(r[28]) === 'نعم',
     hide: splitList_(r[29]).filter(function(k){ return HIDE_KEYS.indexOf(k) >= 0; }),
-    gain: String(r[30]||''), vlocus: String(r[31]||''), paraphrase: String(r[32]) === 'نعم',
+    gain: String(r[30]||''), vlocus: String(r[31]||''), paraphrase: String(r[32]) === 'نعم', own: String(r[33]||''),
     _row: rowNum
   };
 }
@@ -548,7 +550,7 @@ function objToRow_(o){
           (o.tags||[]).join('، '), o.note||'', o.visibility||'خاصة', o.status||'منشورة', o.starred?'نعم':'لا',
           o.related||'', o.createdHijri||'', o.createdAt||'', o.updatedAt||'', o.prevStatus||'',
           o.rstage||'', o.rnext||'', o.series||'', o.sorder||'', o.anchor||'',
-          o.medium||'', o.pubNo||'', o.pubDate||'', o.verify?'نعم':'', (o.hide||[]).join('،'), o.gain||'', o.vlocus||'', o.paraphrase?'نعم':''];
+          o.medium||'', o.pubNo||'', o.pubDate||'', o.verify?'نعم':'', (o.hide||[]).join('،'), o.gain||'', o.vlocus||'', o.paraphrase?'نعم':'', o.own||''];
 }
 
 function toIso_(v){
@@ -733,6 +735,7 @@ function sanitize_(src, idx){
   var o = {}, has = function(k){ return src[k] !== undefined && src[k] !== null; };
   var S = function(k,n){ if (has(k)) o[k] = clip_(src[k], n); };
   S('id',20); S('title',200); S('text',TEXT_MAX); S('type',40); S('ref',300); S('locus',100); S('vlocus',100);
+  S('own',40);   // من تأملاتي: فارغ = منقولة؛ وإلا نوع التأمل (تأمل، خاطرة…)
   if (has('paraphrase')) o.paraphrase = src.paraphrase === true || /^(نعم|true|1|yes)$/i.test(String(src.paraphrase));   // الأصل: بالنص
   S('cat',100); S('gain',600); S('note',3000); S('related',200); S('series',150); S('anchor',200);
   if (has('speaker')) o.speaker = canon_(src.speaker, idx);
@@ -810,7 +813,7 @@ function api_save(a){
       if (!o.text) throw new Error('اكتب نص الفائدة');
       o.id = nextId_();
       o.visibility = o.visibility || 'خاصة';
-      o.status = o.status || ((o.speaker || o.ref) ? 'منشورة' : 'مسودة');
+      o.status = o.status || ((o.speaker || o.ref || o.own) ? 'منشورة' : 'مسودة');
       var cd2 = isoOrEmpty_((a.item || {}).createdAt), when = cd2 ? new Date(cd2) : now;   // الأصل: تاريخ اليوم
       o.createdAt = when.toISOString();
       o.createdHijri = hijri_(when);
@@ -1298,7 +1301,7 @@ function api_importBatch(a){
         keys[k] = 1;
         o.tags = o.tags || [];
         o.visibility = opt.visibility ? (opt.visibility === 'عامة' ? 'عامة' : 'خاصة') : (o.visibility || defVis);
-        o.status = (o.status && o.status !== 'محذوفة') ? o.status : ((o.speaker || o.ref) ? 'منشورة' : 'مسودة');
+        o.status = (o.status && o.status !== 'محذوفة') ? o.status : ((o.speaker || o.ref || o.own) ? 'منشورة' : 'مسودة');
         if (opt.forceDraft) o.status = 'مسودة';
         if (opt.markVerify) o.verify = true;
         // المعرّف: يُحفظ القديم إن لم يتعارض، وإلا يُعطى جديدًا
