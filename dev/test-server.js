@@ -182,6 +182,40 @@ t('إجراءات جماعية: إظهار الكل وإخفاء وحذف إلى
   E.call('bulk',{ids:orig.filter(i=>i.starred).map(i=>i.id),op:'starred',value:true},tok);
   E.call('bulk',{ids:some,op:'starred',value:false},tok); E.call('bulk',{ids:orig.filter(i=>i.starred&&some.includes(i.id)).map(i=>i.id),op:'starred',value:true},tok);
 });
+t('إخفاء كتاب بعينه عن الزوار: اسمه فقط أو كل فوائده', () => {
+  const id = E.call('save',{item:{text:'فائدة من كتاب سيُحجب',speaker:'مؤلف ما',ref:'كتاب سري تجريبي',locus:'ص٣',via:'كتاب وسيط سري',vlocus:'ص٩',visibility:'عامة'}},tok).data.id;
+  E.call('saveRef',{title:'كتاب سري تجريبي',author:'مؤلف ما'},tok);
+  assert.strictEqual(E.call('refs',{},tok).data.find(r=>r.t==='كتاب سري تجريبي').a,'مؤلف ما');
+  E.call('saveRef',{title:'كتاب سري تجريبي',hide:'المرجع'},tok);
+  let x = E.call('listPublic').data.find(i=>i.id===id); assert.ok(x); assert.strictEqual(x.ref,''); assert.strictEqual(x.locus,''); assert.strictEqual(x.speaker,'مؤلف ما');
+  E.call('saveRef',{title:'كتاب سري تجريبي',hide:'كل شيء'},tok);
+  assert.ok(!E.call('listPublic').data.some(i=>i.id===id));
+  assert.ok(E.call('list',{},tok).data.some(i=>i.id===id));
+  E.call('saveRef',{title:'كتاب سري تجريبي',hide:''},tok);
+  assert.ok(E.call('listPublic').data.some(i=>i.id===id));
+  // كتاب وسيط محجوب الاسم
+  E.call('saveRef',{title:'كتاب وسيط سري',hide:'المرجع'},tok);
+  x = E.call('listPublic').data.find(i=>i.id===id); assert.strictEqual(x.via,''); assert.strictEqual(x.vlocus,'');
+  E.call('saveRef',{title:'كتاب وسيط سري',hide:''},tok);
+});
+t('القِطاف: خطط وحالة وسجل، والزائر لا يرى المسودات ولا الخاصة', () => {
+  const a = E.call('qsave',{plan:{name:'خطة عامة',cfg:{count:2},status:'نشطة',vis:'الزوار'}},tok).data.id;
+  const b = E.call('qsave',{plan:{name:'خطة خاصة',cfg:{count:3},status:'نشطة',vis:'لي'}},tok).data.id;
+  const c = E.call('qsave',{plan:{name:'مسودة عامة',cfg:{},status:'مسودة',vis:'الزوار'}},tok).data.id;
+  assert.strictEqual(E.call('qplans',{},tok).data.length,3);
+  const pub = E.call('qplans',{}).data; assert.deepStrictEqual(pub.map(p=>p.id),[a]); assert.ok(!('state' in pub[0]));
+  E.call('qorder',{ids:[c,b,a]},tok); assert.deepStrictEqual(E.call('qplans',{},tok).data.map(p=>p.id),[c,b,a]);
+  const ids = E.call('list',{},tok).data.slice(0,3).map(i=>i.id);
+  E.call('qread',{plan:a,items:ids,state:{read:ids,deck:[]},status:'منتهية'},tok);
+  assert.strictEqual(E.call('qlog',{},tok).data.length,3);
+  const pa = E.call('qplans',{},tok).data.find(p=>p.id===a); assert.strictEqual(pa.status,'منتهية'); assert.deepStrictEqual(pa.state.read,ids);
+  assert.strictEqual(E.call('qplans',{}).data.length,0);   // المنتهية لا تُعرض للزائر نشطةً… لكنها ليست مسودة
+  E.call('qsave',{plan:{id:b,name:'خطة خاصة 2',cfg:{count:5},status:'نشطة',vis:'لي'}},tok);
+  const pb = E.call('qplans',{},tok).data.find(p=>p.id===b); assert.strictEqual(pb.name,'خطة خاصة 2'); assert.strictEqual(pb.cfg.count,5);
+  assert.throws(()=>{ const r=E.call('qlog',{}); if(!r.ok) throw new Error(r.error); });
+  E.call('qdelete',{id:c},tok); assert.strictEqual(E.call('qplans',{},tok).data.length,2);
+  assert.ok(E.call('boot',{},tok).data.q.length===2);
+});
 t('إخفاءات عامة من الإعدادات وإخفاءات الفائدة', () => {
   E.call('saveSettings',{settings:{'إخفاء المرجع':'نعم','إخفاء التواريخ':'نعم'}},tok);
   let x = E.call('listPublic').data.find(i=>i.id===ids.b);

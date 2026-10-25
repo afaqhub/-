@@ -16,7 +16,7 @@
 /* ===================== ثوابت ===================== */
 var SH = {
   F:'الفوائد', C:'التصنيفات', S:'القائلون', R:'المراجع', T:'الإعدادات',
-  M:'الرسائل', P:'القوالب', A:'المحذوف نهائيًا'
+  M:'الرسائل', P:'القوالب', A:'المحذوف نهائيًا', Q:'القطاف', G:'سجل القطاف'
 };
 
 var COLS = ['المعرّف','العنوان','النص','النوع','القائل','المرجع','الموضع','المصدر الوسيط',
@@ -27,7 +27,9 @@ var COLS = ['المعرّف','العنوان','النص','النوع','القا�
 
 var HEAD_C = ['الاسم','الأب','اللون','الأيقونة','الترتيب','الحالة'];
 var HEAD_S = ['الاسم المعتمد','الأسماء البديلة','سنة الوفاة','نبذة','إخفاء','عبارة بديلة','الدعاء'];
-var HEAD_R = ['العنوان','المؤلف','النوع','الطبعة أو الرابط'];
+var HEAD_R = ['العنوان','المؤلف','النوع','الطبعة أو الرابط','إخفاء'];
+var HEAD_Q = ['المعرّف','الاسم','الإعدادات','الحالة','الترتيب','الظهور','الحالة الجارية','تاريخ الإنشاء'];
+var HEAD_G = ['الوقت','المعرّف','الخطة'];
 var HEAD_T = ['المفتاح','القيمة'];
 var HEAD_M = ['المعرّف','التاريخ','النوع','الاسم','التواصل','يُذكر الاسم','الرسالة','الفائدة','الحالة','رد تلقائي'];
 var HEAD_P = ['المعرّف','الاسم','الإعدادات','الجزء','البيانات'];
@@ -247,7 +249,7 @@ function doGet(){
 var PUBLIC = {
   login:api_login, listPublic:api_listPublic, getPublic:api_getPublic, metaPublic:api_metaPublic,
   settings:api_settings, contact:api_contact, templates:api_templates, templateImage:api_templateImage,
-  boot:api_boot
+  boot:api_boot, qplans:api_qplans
 };
 var OWNER = {
   checkToken:api_checkToken, list:api_list, get:api_get, save:api_save, setField:api_setField,
@@ -259,6 +261,7 @@ var OWNER = {
   emptyTrash:api_emptyTrash, due:api_due, review:api_review, series:api_series, reading:api_reading,
   people:api_people, savePerson:api_savePerson,
   importBatch:api_importBatch, importMeta:api_importMeta, trashAll:api_trashAll, bulk:api_bulk,
+  qsave:api_qsave, qdelete:api_qdelete, qorder:api_qorder, qstate:api_qstate, qread:api_qread, qlog:api_qlog, saveRef:api_saveRef, refs:api_refs,
   messages:api_messages, setMessageStatus:api_setMessageStatus, deleteMessage:api_deleteMessage,
   saveTemplate:api_saveTemplate, deleteTemplate:api_deleteTemplate
 };
@@ -329,6 +332,7 @@ function api_boot(a, token){
   var owner = validToken_(token), must = owner && mustChange_(), ver = ver_();
   var out = {owner:owner, mustChange:must, ver:ver};
   if (must) return out;
+  out.q = api_qplans({}, token);
   if (a.ver && String(a.ver) === ver && !!a.owner === owner) { out.same = true; return out; }
   out.settings = owner ? api_settingsOwner() : api_settings();
   out.meta = owner ? api_meta() : api_metaPublic();
@@ -576,7 +580,7 @@ function publicItems_(){
     speaker: set['إخفاء القائل']==='نعم', via: set['إخفاء الوسيط']==='نعم',
     ref: set['إخفاء المرجع']==='نعم', link: set['إخفاء الرابط']==='نعم', dates: set['إخفاء التواريخ']==='نعم'
   };
-  var items = readAll_().sort(byNew_), out = [], rauth = refAuthors_(pidx);
+  var items = readAll_().sort(byNew_), out = [], rauth = refAuthors_(pidx), bhide = refHides_();
   var hiddenNames = pidx.rows.filter(function(p){ return p.hide === 'الاسم'; });
   items.forEach(function(o){
     if (o.visibility !== 'عامة' || o.status !== 'منشورة' || o.verify) return;
@@ -584,6 +588,8 @@ function publicItems_(){
     var pv = o.via ? pidx.by[norm_(o.via)] : null;
     var pvb = o.via ? bookAuthor_(o.via, rauth) : null;      // مؤلف كتاب الوسيط
     var prb = o.ref ? bookAuthor_(o.ref, rauth) : null;      // مؤلف كتاب المرجع
+    var hr = o.ref ? bookHide_(o.ref, bhide) : '', hv = o.via ? bookHide_(o.via, bhide) : '';
+    if (hr === 'كل شيء' || hv === 'كل شيء') return;
     if ([ps,pv,pvb,prb].some(function(p){ return p && p.hide === 'كل شيء'; })) return;
     var c = pub_(o), h = o.hide || [];
     c.dua = (ps && ps.dua) || '';
@@ -591,6 +597,8 @@ function publicItems_(){
     // الوسيط: شخصًا كان أو كتابًا لمحجوب الاسم، لا يظهر اسمه ولا مصدره
     if (pv && pv.hide === 'الاسم') c.via = pv.rep || '';
     if (pvb && pvb.hide === 'الاسم') c.via = '';
+    if (hr === 'المرجع') { c.ref = ''; c.locus = ''; }
+    if (hv === 'المرجع') { c.via = ''; c.vlocus = ''; }
     hiddenNames.forEach(function(p){ c.ref = scrubName_(c.ref, p); c.via = scrubName_(c.via, p); });
     if (g.speaker || h.indexOf('speaker') >= 0) { c.speaker = ''; c.dua = ''; }
     if (g.via || h.indexOf('via') >= 0) c.via = '';
@@ -604,6 +612,18 @@ function publicItems_(){
 }
 
 /** كتاب ← مؤلفه (من فهرس المراجع)، ليشمل الإخفاءُ مؤلفَ الكتاب لا القائل وحده. */
+/** إخفاء الكتب عن الزوار: العنوان ← '' | 'المرجع' (يُحذف اسم الكتاب وتبقى الفائدة) | 'كل شيء' (تُحجب فوائده). */
+function refHides_(){
+  var m = {}, rs = getSheet_(SH.R, HEAD_R);
+  if (rs.getLastRow() > 1) rs.getRange(2,1,rs.getLastRow()-1,5).getValues().forEach(function(r){
+    var h = String(r[4]||''); if (r[0] && (h === 'المرجع' || h === 'كل شيء')) m[norm_(r[0])] = h;
+  });
+  return m;
+}
+function bookHide_(text, m){
+  var t = norm_(String(text||'').replace(/\s*(ص\s*[\d٠-٩]+|[\d٠-٩]+\s*\/\s*[\d٠-٩]+)\s*$/,''));
+  return t ? (m[t] || '') : '';
+}
 function refAuthors_(pidx){
   var m = {}, rs = getSheet_(SH.R, HEAD_R);
   if (rs.getLastRow() > 1) rs.getRange(2,1,rs.getLastRow()-1,2).getValues().forEach(function(r){
@@ -666,7 +686,7 @@ function api_get(a){
 /** المراجع مع مؤلفيها: [{t:العنوان, a:المؤلف}] لقوائم المحرر المترابطة. */
 function refsFull_(){
   var rs = getSheet_(SH.R, HEAD_R);
-  return rs.getLastRow() > 1 ? rs.getRange(2,1,rs.getLastRow()-1,2).getValues().filter(function(r){ return r[0]; }).map(function(r){ return {t:String(r[0]), a:String(r[1]||'')}; }) : [];
+  return rs.getLastRow() > 1 ? rs.getRange(2,1,rs.getLastRow()-1,5).getValues().filter(function(r){ return r[0]; }).map(function(r){ return {t:String(r[0]), a:String(r[1]||''), h:String(r[4]||'')}; }) : [];
 }
 
 function api_meta(){
@@ -900,6 +920,124 @@ function api_bulk(a){
   });
 }
 
+/* ===================== المراجع (الكتب): مؤلف وإخفاء ===================== */
+function api_refs(){ return refsFull_(); }
+function api_saveRef(a){
+  return withLock_(30000, function(){
+    var t = clip_(a.title, 300); if (!t) throw new Error('العنوان فارغ');
+    var rs = getSheet_(SH.R, HEAD_R), last = rs.getLastRow(), k = norm_(t), row = 0, cur = ['','','','',''];
+    if (last > 1) rs.getRange(2,1,last-1,HEAD_R.length).getValues().some(function(r,i){ if (norm_(String(r[0])) === k) { row = i+2; cur = r.map(String); return true; } return false; });
+    if (a.author !== undefined) cur[1] = clip_(a.author, 100);
+    if (a.kind !== undefined) cur[2] = clip_(a.kind, 40);
+    if (a.edition !== undefined) cur[3] = clip_(a.edition, 300);
+    if (a.hide !== undefined) cur[4] = ['المرجع','كل شيء'].indexOf(a.hide) >= 0 ? a.hide : '';
+    cur[0] = cur[0] || t;
+    if (row) rs.getRange(row,1,1,HEAD_R.length).setNumberFormat('@').setValues([cur]);
+    else appendText_(rs, cur);
+    if (cur[1]) registerPeople_([cur[1]], personIndex_());
+    return {ok:true};
+  });
+}
+
+/* ===================== القِطاف: خطط قراءة الفوائد وسجلها ===================== */
+function qSheet_(create){
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  if (!create) return ss.getSheetByName(SH.Q);
+  return getSheet_(SH.Q, HEAD_Q);
+}
+function qRows_(sh){
+  if (!sh || sh.getLastRow() < 2) return [];
+  return sh.getRange(2,1,sh.getLastRow()-1,HEAD_Q.length).getValues().map(function(r,i){
+    var cfg = {}, state = {};
+    try { cfg = JSON.parse(String(r[2]||'{}')); } catch (e) {}
+    try { state = JSON.parse(String(r[6]||'{}')); } catch (e) {}
+    return {id:String(r[0]), name:String(r[1]), cfg:cfg, status:String(r[3]||'نشطة'), order:Number(r[4])||0,
+            vis:String(r[5]||'لي'), state:state, createdAt:String(r[7]||''), _row:i+2};
+  }).filter(function(p){ return p.id; });
+}
+function qPlan_(p, owner){
+  var o = {id:p.id, name:p.name, cfg:p.cfg, status:p.status, order:p.order, vis:p.vis, createdAt:p.createdAt};
+  if (owner) o.state = p.state;
+  return o;
+}
+/** الزائر يرى خطط «لي وللزوار» غير المسودة فقط، بلا حالتها. */
+function api_qplans(a, token){
+  var owner = validToken_(token), sh = qSheet_(false);
+  var rows = qRows_(sh).sort(function(x,y){ return x.order - y.order; });
+  if (!owner) rows = rows.filter(function(p){ return p.vis === 'الزوار' && p.status === 'نشطة'; });
+  return rows.map(function(p){ return qPlan_(p, owner); });
+}
+function qClean_(x){
+  var cfg = x.cfg && typeof x.cfg === 'object' ? x.cfg : {};
+  return JSON.stringify(cfg).slice(0, 20000);
+}
+function api_qsave(a){
+  return withLock_(30000, function(){
+    var x = a.plan || {}, sh = qSheet_(true), rows = qRows_(sh), cur = null;
+    if (x.id) cur = rows.filter(function(p){ return p.id === String(x.id); })[0] || null;
+    var name = clip_(x.name, 100) || 'قِطاف جديد';
+    var status = ['نشطة','مسودة','منتهية'].indexOf(x.status) >= 0 ? x.status : 'نشطة';
+    var vis = x.vis === 'الزوار' ? 'الزوار' : 'لي';
+    var state = x.state && typeof x.state === 'object' ? JSON.stringify(x.state).slice(0, 45000) : (cur ? JSON.stringify(cur.state) : '{}');
+    if (cur) {
+      var ord = x.order !== undefined ? Number(x.order) || 0 : cur.order;
+      sh.getRange(cur._row,1,1,HEAD_Q.length).setNumberFormat('@').setValues([[cur.id, name, qClean_(x), status, String(ord), vis, state, cur.createdAt]]);
+      return {id:cur.id};
+    }
+    var n = 0; rows.forEach(function(p){ var k = Number(String(p.id).replace(/\D/g,'')); if (k > n) n = k; });
+    var id = 'Q-' + ('0000'+(n+1)).slice(-4), mo = 0; rows.forEach(function(p){ if (p.order > mo) mo = p.order; });
+    appendText_(sh, [id, name, qClean_(x), status, String(x.order !== undefined ? Number(x.order)||0 : mo+1), vis, state, new Date().toISOString()]);
+    return {id:id};
+  });
+}
+function api_qdelete(a){
+  return withLock_(30000, function(){
+    var sh = qSheet_(false); if (!sh) return {ok:true};
+    var r = qRows_(sh).filter(function(p){ return p.id === String(a.id); })[0];
+    if (r) sh.deleteRow(r._row);
+    return {ok:true};
+  });
+}
+function api_qorder(a){
+  return withLock_(30000, function(){
+    var sh = qSheet_(false); if (!sh) return {ok:true};
+    var rows = qRows_(sh), pos = {}; (a.ids || []).forEach(function(id,i){ pos[String(id)] = i+1; });
+    rows.forEach(function(p){ if (pos[p.id]) sh.getRange(p._row,5).setNumberFormat('@').setValue(String(pos[p.id])); });
+    return {ok:true};
+  });
+}
+function api_qstate(a){
+  return withLock_(30000, function(){
+    var sh = qSheet_(false); if (!sh) throw new Error('لا خطط');
+    var r = qRows_(sh).filter(function(p){ return p.id === String(a.id); })[0]; if (!r) throw new Error('لم تُوجد الخطة');
+    sh.getRange(r._row,7).setNumberFormat('@').setValue(JSON.stringify(a.state || {}).slice(0, 45000));
+    if (['نشطة','مسودة','منتهية'].indexOf(a.status) >= 0) sh.getRange(r._row,4).setValue(a.status);
+    return {ok:true};
+  });
+}
+/** «قرأتُ»: يسجّل الفوائد المقروءة في السجل ويحفظ حالة الخطة بنداء واحد. */
+function api_qread(a){
+  return withLock_(30000, function(){
+    var g = getSheet_(SH.G, HEAD_G), now = new Date().toISOString(), ids = (a.items || []).slice(0, 100), plan = String(a.plan || '');
+    if (ids.length) writeRows_(g, g.getLastRow() + 1, ids.map(function(id){ return [now, String(id), plan]; }), HEAD_G.length);
+    var sh = qSheet_(false);
+    if (sh && plan) {
+      var r = qRows_(sh).filter(function(p){ return p.id === plan; })[0];
+      if (r) {
+        sh.getRange(r._row,7).setNumberFormat('@').setValue(JSON.stringify(a.state || {}).slice(0, 45000));
+        if (['نشطة','مسودة','منتهية'].indexOf(a.status) >= 0) sh.getRange(r._row,4).setValue(a.status);
+      }
+    }
+    return {ok:true, at:now};
+  });
+}
+function api_qlog(){
+  var g = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SH.G);
+  if (!g || g.getLastRow() < 2) return [];
+  var n = g.getLastRow() - 1, from = Math.max(2, g.getLastRow() - 40000 + 1);
+  return g.getRange(from,1,g.getLastRow()-from+1,3).getValues().map(function(r){ return [toIso_(r[0]), String(r[1]), String(r[2])]; });
+}
+
 /** يُنقل كل ما في الكُنّاشة إلى السلة (لخيار «استبدال الكل» عند الاستيراد) — يمكن استعادته. */
 function api_trashAll(){
   return withLock_(60000, function(){
@@ -1083,7 +1221,7 @@ function api_exportAll(){
   if (cs.getLastRow() > 1) cats = cs.getRange(2,1,cs.getLastRow()-1,HEAD_C.length).getValues().filter(function(r){ return r[0]; })
     .map(function(r){ return {name:String(r[0]), parent:String(r[1]), color:String(r[2]), icon:String(r[3]), order:String(r[4]), status:String(r[5])}; });
   if (rs.getLastRow() > 1) refs = rs.getRange(2,1,rs.getLastRow()-1,HEAD_R.length).getValues().filter(function(r){ return r[0]; })
-    .map(function(r){ return {title:String(r[0]), author:String(r[1]), kind:String(r[2]), edition:String(r[3])}; });
+    .map(function(r){ return {title:String(r[0]), author:String(r[1]), kind:String(r[2]), edition:String(r[3]), hide:String(r[4]||'')}; });
   return { format:'kunnasha', version:2,
            items: readAll_().filter(function(o){ return o.status !== 'محذوفة'; }).map(own_),
            people: api_people(), refs:refs, categories:cats, settings: api_settings(),
@@ -1147,7 +1285,7 @@ function api_importBatch(a){
       registerPeople_(names, idx);
       var rsh = getSheet_(SH.R, HEAD_R), csh = getSheet_(SH.C, HEAD_C);
       var haveR = listCol_(rsh,1).map(norm_), haveC = listCol_(csh,1).map(norm_);
-      var addR = Object.keys(refs).filter(function(x){ return haveR.indexOf(norm_(x)) < 0; }).map(function(x){ return [x,'','','']; });
+      var addR = Object.keys(refs).filter(function(x){ return haveR.indexOf(norm_(x)) < 0; }).map(function(x){ return [x,'','','','']; });
       var addC = Object.keys(cats).filter(function(x){ return haveC.indexOf(norm_(x)) < 0; }).map(function(x){ return [x,'','','',9999,'مفعّل']; });
       if (addR.length) writeRows_(rsh, rsh.getLastRow()+1, addR, HEAD_R.length);
       if (addC.length) writeRows_(csh, csh.getLastRow()+1, addC, HEAD_C.length);
@@ -1181,7 +1319,7 @@ function api_importMeta(a){
         if (ch) rsh.getRange(at+2,1,1,HEAD_R.length).setNumberFormat('@').setValues([row.map(String)]);
         return;
       }
-      appendText_(rsh, [t, clip_(r.author,100), clip_(r.kind,40), clip_(r.edition,300)]); haveR.push(norm_(t)); rrows.push([t,'','','']); cnt.refs++;
+      appendText_(rsh, [t, clip_(r.author,100), clip_(r.kind,40), clip_(r.edition,300), ['المرجع','كل شيء'].indexOf(r.hide)>=0?r.hide:'']); haveR.push(norm_(t)); rrows.push([t,'','','','']); cnt.refs++;
     });
     var csh = getSheet_(SH.C, HEAD_C), haveC = listCol_(csh,1).map(norm_);
     (a.categories || []).slice(0,500).forEach(function(c){

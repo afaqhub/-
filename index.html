@@ -347,6 +347,54 @@ html[data-theme="dark"] .hero{background:radial-gradient(circle at 12% 0%,rgba(2
 .ixname{min-width:0}
 .ixname span{overflow:hidden;text-overflow:ellipsis}
 .ixhide.on{border-color:#b0563a;color:#b0563a}
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 10px}
+.qt{margin:0;font-size:1.5rem;font-family:'Aref Ruqaa',Amiri,serif;color:var(--gold)}
+.qs{margin:2px 0 0;color:var(--muted);font-size:.88rem}
+.qkpi{display:flex;gap:8px}.qkpi .kp{background:var(--gold-soft);border-radius:14px;padding:6px 12px;display:flex;flex-direction:column;align-items:center;font-size:.72rem;color:var(--muted);min-width:64px}
+.qkpi .kp b{font-size:1.25rem;color:var(--ink)}
+.qtabs{margin-bottom:12px}
+.qplan{position:relative;background:linear-gradient(160deg,var(--paper2),var(--gold-soft));border:1px solid var(--line);border-radius:20px;padding:14px;margin:0 0 16px;overflow:hidden;box-shadow:var(--shadow)}
+.qph{display:flex;justify-content:space-between;align-items:center;gap:10px}.qph h3{margin:0;font-size:1.1rem}
+.qsum{color:var(--muted);font-size:.8rem;margin-top:2px;line-height:1.7}
+.qring{--p:0;width:54px;height:54px;border-radius:50%;background:conic-gradient(var(--gold) calc(var(--p)*1%),var(--line) 0);display:grid;place-items:center;flex:none;position:relative}
+.qring::before{content:'';position:absolute;inset:5px;border-radius:50%;background:var(--paper2)}
+.qring b{position:relative;font-size:.78rem}.qring.sm{width:44px;height:44px}.qring.sm::before{inset:4px}
+.qbar{height:6px;border-radius:99px;background:var(--line);margin:10px 0 4px;overflow:hidden}
+.qbar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),#7aa07a);border-radius:99px;transition:width .6s}
+.qmeta{font-size:.76rem;color:var(--muted)}
+.qdeck{margin-top:10px;display:grid;gap:10px}
+.qcard{position:relative;background:var(--paper2);border:1px solid var(--line);border-radius:16px;padding:14px 14px 10px;animation:qin .5s both}
+@keyframes qin{from{opacity:0;transform:translateY(18px) scale(.98)}to{opacity:1;transform:none}}
+.qnum{position:absolute;top:10px;inset-inline-start:12px;width:24px;height:24px;border-radius:50%;background:var(--gold-soft);color:var(--gold);display:grid;place-items:center;font-size:.8rem;font-weight:700}
+.qtext{margin:2px 0 8px;padding-inline-start:30px;font-family:Amiri,serif;font-size:1.28rem;line-height:2.1}
+.qact{position:sticky;bottom:10px;z-index:5;margin-top:14px}
+.qdone{width:100%;font-size:1.05rem;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,.18);animation:qpulse 2.4s ease-in-out infinite}
+@keyframes qpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.025)}}
+.qdonecard{text-align:center;padding:18px 8px}.qdonecard .big{font-size:2.6rem}.qdonecard h3{margin:6px 0}.qdonecard p{color:var(--muted);line-height:1.9}
+.qdonecard .btn{margin:4px}
+.qconf{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:6}
+.qconf span{position:absolute;top:-30px;animation:qfall 2.2s ease-in forwards}
+@keyframes qfall{to{transform:translate(var(--dx),420px) rotate(260deg);opacity:0}}
+.qpop{position:absolute;inset-inline:16px;top:38%;z-index:7;background:var(--ink);color:var(--paper2);border-radius:16px;padding:14px;text-align:center;font-weight:700;animation:qpopin .45s both;box-shadow:var(--shadow)}
+@keyframes qpopin{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:none}}
+.qrow{background:var(--paper2);border:1px solid var(--line);border-radius:14px;padding:11px 12px;margin:0 0 9px}
+.qrow.off{opacity:.72;border-style:dashed}.qrow.cold{border-color:var(--gold)}
+.qrh{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.qtiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 14px}
+.qtile{background:var(--gold-soft);border-radius:14px;padding:10px 6px;text-align:center;display:flex;flex-direction:column;gap:2px}
+.qtile span{font-size:1.2rem}.qtile b{font-size:1.05rem}.qtile small{font-size:.7rem;color:var(--muted)}
+.qchart{display:flex;gap:4px;align-items:flex-end;height:90px;margin:6px 0 16px}
+.qcol{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:3px}
+.qcol i{width:100%;background:linear-gradient(0deg,var(--gold),#7aa07a);border-radius:5px 5px 2px 2px;min-height:3px}
+.qcol small{font-size:.62rem;color:var(--muted)}
+.qhome{display:flex;gap:12px;align-items:center;width:100%;text-align:right;background:linear-gradient(135deg,var(--gold-soft),var(--paper2));border:1px solid var(--gold);border-radius:18px;padding:12px 14px;margin:0 0 14px;box-shadow:var(--shadow)}
+.qhi{font-size:2rem;animation:qsway 3s ease-in-out infinite}@keyframes qsway{50%{transform:rotate(12deg)}}
+.qhb{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}.qhb span{color:var(--muted);font-size:.82rem}.qhb em{font-style:normal;font-family:Amiri,serif;font-size:.95rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qgrp{border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin:0 0 12px}
+.qmp{margin:0 0 10px}.mpc{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0}
+.ixau{flex:0 1 120px;min-width:0;padding:6px 8px;font-size:.8rem;height:auto;margin:0}
+@media (prefers-reduced-motion:reduce){.qdone,.qhi,.qcard{animation:none}}
+.flabel{font-size:.8rem;color:var(--muted);align-self:center}
 </style>
 </head>
 <body>
@@ -468,6 +516,15 @@ const db = {
   async importMeta(payload){ return await api('importMeta',payload); },
   async trashAll(){ return await api('trashAll'); },
   async bulk(a){ return await api('bulk',a); },
+  async qplans(){ return await api('qplans'); },
+  async qsave(a){ return await api('qsave',a); },
+  async qdelete(id){ return await api('qdelete',{id}); },
+  async qorder(ids){ return await api('qorder',{ids}); },
+  async qstate(a){ return await api('qstate',a); },
+  async qread(a){ return await api('qread',a); },
+  async qlog(){ return await api('qlog'); },
+  async refs(){ return await api('refs'); },
+  async saveRef(a){ return await api('saveRef',a); },
   async messages(){ return await api('messages'); },
   async setMessageStatus(id,status){ return await api('setMessageStatus',{id,status}); },
   async deleteMessage(id){ return await api('deleteMessage',{id}); },
@@ -591,7 +648,7 @@ const SORTS=[['','الأحدث'],['old','الأقدم'],['star','المميّز�
 const GROUPS=[['','بلا تجميع'],['speaker','تجميع حسب القائل'],['ref','تجميع حسب المرجع'],['cat','تجميع حسب التصنيف'],['month','تجميع حسب الشهر']];
 const VIEWS=[['cards','بطاقات'],['list','قائمة مختصرة']];
 const st={ owner:false, mustChange:false, tab:'all', q:'', f:{cat:'',speaker:'',ref:'',type:'',tag:'',medium:''},
-           limit:20, sort:lsGet('k_sort'), group:lsGet('k_group'), view:lsGet('k_view')||'cards', ixq:'', ixs:'n', meta:null, items:[], cfg:{}, session:null, queue:[], sel:null, mediums:ALL_MEDIUMS.slice() };
+           limit:20, sort:lsGet('k_sort'), group:lsGet('k_group'), view:lsGet('k_view')||'cards', ixq:'', ixs:'n', meta:null, items:[], qplans:[], cfg:{}, session:null, queue:[], sel:null, mediums:ALL_MEDIUMS.slice() };
 const ADMIN_TABS={reading:'سجل القراءة',stats:'إحصاءات',admin:'لوحة التحكم',trash:'سلة المحذوفات',inbox:'الرسائل'};
 const NOFILTER={cat:'',speaker:'',ref:'',type:'',tag:'',medium:''};
 
@@ -608,10 +665,10 @@ const IDB={ db:null,
 };
 const cacheKey=role=>srv()+'|'+role;
 const cacheGet=role=>IDB.get(cacheKey(role));
-function cacheSet(role,d){ return IDB.set(cacheKey(role),{ver:d.ver,settings:d.settings,meta:d.meta,items:d.items,at:Date.now()}); }
+function cacheSet(role,d){ return IDB.set(cacheKey(role),{ver:d.ver,settings:d.settings,meta:d.meta,items:d.items,q:d.q,at:Date.now()}); }
 
 function applyData(d){
-  st.cfg=d.settings||st.cfg; st.meta=d.meta; st.items=d.items; st.ver=d.ver;
+  st.cfg=d.settings||st.cfg; st.meta=d.meta; st.items=d.items; st.ver=d.ver; st.qplans=d.q||[];
   st.mediums=[...new Set(ALL_MEDIUMS.concat(d.meta.mediums||[]))];
   applySettings();
 }
@@ -620,7 +677,7 @@ function handleBoot(r,presumedOwner){
   st.owner=!!r.owner; st.mustChange=!!r.mustChange;
   if(presumedOwner && !r.owner){ IDB.del(cacheKey('o')); setTok(''); }        // انتهت صلاحية الرمز: ارجع زائرًا
   if(r.mustChange){ renderChrome0(); forceChangeSheet(); return 'must'; }
-  if(r.same){ st.ver=r.ver; renderChrome(); render(); return 'same'; }
+  if(r.same){ st.ver=r.ver; if(r.q) st.qplans=r.q; renderChrome(); render(); return 'same'; }
   applyData(r); cacheSet(r.owner?'o':'g',r); renderChrome(); render(); return 'fresh';
 }
 /** أول فتح: اعرض ما في الجهاز فورًا ثم حدّثه من الخادم. */
@@ -776,7 +833,8 @@ function renderChrome0(){
 }
 
 function pageTabs(){
-  const tabs=[['all','الكل'],['star','المميزة'],['series','السلاسل'],['speakers','القائلون'],['refs','المراجع']];
+  const tabs=[['all','الكل'],['qitaf','🍃 قِطاف'],['star','المميزة'],['series','السلاسل'],['speakers','القائلون'],['refs','المراجع']];
+  if(!st.owner&&!(st.qplans||[]).length) tabs.splice(1,1);
   if(st.owner) tabs.splice(2,0,['due','للمراجعة'],['draft','تحتاج استكمال'],['private','الخاصة']);
   return tabs;
 }
@@ -909,6 +967,7 @@ function render(){
   const v=$('#view'); v.innerHTML='';
   $('#countline').innerHTML='';
   if(!st.meta) return;
+  if(st.tab==='qitaf') return renderQitaf(v);
   if(st.tab==='stats') return renderStats(v);
   if(st.tab==='trash') return renderTrash(v);
   if(st.tab==='admin') return renderAdmin(v);
@@ -950,8 +1009,9 @@ function render(){
   if(!st.q && st.tab==='all' && !Object.values(st.f).some(Boolean) && a.length>3 && !st.sel && !st.group && st.view!=='list'){
     const pool=a.filter(i=>!i._pending), r=pool[Math.floor(Math.random()*pool.length)]||a[0];
     v.appendChild(heroBlock(a.length));
-    v.appendChild(el('div','listsec','فائدة اليوم'));
-    const fc=card(r,true); fc.classList.add('feat'); v.appendChild(fc);
+    const qc=qHomeCard();
+    if(qc) v.appendChild(qc); else { v.appendChild(el('div','listsec','فائدة اليوم'));
+    const fc=card(r,true); fc.classList.add('feat'); v.appendChild(fc); }
     v.appendChild(el('div','listsec','كل الفوائد'));
   }
   const shown=a.slice(0,st.limit), mk=i=>(st.view==='list'&&!st.sel)?lrow(i):card(i);
@@ -1089,18 +1149,20 @@ function copyText(t,msg){
 function renderIndex(v,field,label){
   const map={}, known=new Set(((st.meta||{}).speakers||[]).concat(((st.meta||{}).people||[]).map(p=>p.n)));
   st.items.forEach(i=>{ if(i[field]) map[i[field]]=(map[i[field]]||0)+1; if(i.via&&((field==='speaker'&&known.has(i.via))||(field==='ref'&&!known.has(i.via)))) map[i.via]=(map[i.via]||0)+1; });
-  const ownerP=field==='speaker'&&st.owner;
+  const ownerP=field==='speaker'&&st.owner, ownerR=field==='ref'&&st.owner; let R=null;
   const tools=el('div','vbar');
   const q=el('input','t'); q.placeholder='ابحث في '+label+'…'; q.value=st.ixq; tools.appendChild(q);
   const so=el('select','t vsel'); so.innerHTML=[['n','الأكثر فوائد'],['a','أبجديًّا']].map(([k,l])=>`<option value="${k}" ${st.ixs===k?'selected':''}>${l}</option>`).join(''); tools.appendChild(so);
   if(st.owner){ const adm=el('button','sbtn','⚙ تسمية ودمج وحذف'); adm.onclick=()=>goTab('admin'); tools.appendChild(adm); }
   v.appendChild(tools);
+  if(ownerR) v.appendChild(el('p','hint','لكل كتاب: <b>المؤلف</b> (يربط الكتاب بمؤلفه فتُملأ قوائم التدوين تلقائيًّا) و<b>ما يراه الزوار</b>: ظاهر · <b>اسم الكتاب محجوب</b> (تبقى فوائده بلا ذكره) · <b>محجوب كليًّا</b> (لا تظهر فوائده للزوار، مرجعًا أو وسيطًا).'));
   if(ownerP) v.appendChild(el('p','hint','لكل شخص ما يراه الزوار: <b>ظاهر</b> · <b>الاسم محجوب</b> (يظهر كتابه دون اسمه، ولا يظهر إن كان مصدرًا وسيطًا) · <b>محجوب كليًّا</b> (لا تظهر للزوار أي فائدة له قائلًا أو وسيطًا أو مؤلفًا لمرجعها). وأنت ترى كل شيء دائمًا.'));
   const list=el('div'); v.appendChild(list);
   let P=null;
   const draw=()=>{
     list.innerHTML='';
     const all=Object.assign({},map); if(P) P.forEach(p=>{ if(!(p.name in all)&&!(p.aliases||[]).some(a=>a in all)) all[p.name]=0; });
+    if(R) R.forEach(r=>{ if(!(r.t in all)) all[r.t]=0; });
     const nq=norm(q.value);
     let keys=Object.keys(all).filter(k=>!nq||norm(k).includes(nq));
     keys.sort(st.ixs==='a'?(x,y)=>x.localeCompare(y,'ar'):(x,y)=>all[y]-all[x]||x.localeCompare(y,'ar'));
@@ -1126,6 +1188,14 @@ function renderIndex(v,field,label){
         const dt=el('button','sbtn','تفاصيل'); dt.onclick=()=>personSheet(p||{name:k,aliases:[]});
         row.appendChild(hs); row.appendChild(dt);
       }
+      if(ownerR){
+        const r=(R||[]).find(x=>sameName(x.t,k))||{t:k,a:'',h:''};
+        const au=el('input','t ixau'); au.placeholder='المؤلف'; au.value=r.a||''; au.setAttribute('list','dl_authors');
+        au.onchange=async()=>{ try{ await db.saveRef({title:k,author:au.value.trim()}); r.a=au.value.trim(); if(!R.includes(r)) R.push(r); toast('رُبط «'+k+'» بمؤلفه'); await refresh(); }catch(e){ toast(e.message); } };
+        const hs=el('select','t ixhide'+(r.h?' on':'')); hs.innerHTML=[['','👁 ظاهر'],['المرجع','🙈 اسم الكتاب محجوب'],['كل شيء','⛔ محجوب كليًّا']].map(([x,l])=>`<option value="${x}" ${(r.h||'')===x?'selected':''}>${l}</option>`).join('');
+        hs.onchange=async()=>{ try{ await db.saveRef({title:k,hide:hs.value}); r.h=hs.value; if(!R.includes(r)) R.push(r); hs.classList.toggle('on',!!hs.value); toast(hs.value?'«'+k+'»: '+(hs.value==='المرجع'?'حُجب اسمه عن الزوار':'حُجبت فوائده عن الزوار'):'«'+k+'» ظاهر للزوار'); }catch(e){ toast(e.message); hs.value=r.h||''; } };
+        row.appendChild(au); row.appendChild(hs);
+      }
       list.appendChild(row);
     });
   };
@@ -1133,6 +1203,7 @@ function renderIndex(v,field,label){
   q.oninput=()=>{ st.ixq=q.value; draw(); };
   so.onchange=()=>{ st.ixs=so.value; draw(); };
   if(ownerP) db.people().then(r=>{ P=r||[]; draw(); }).catch(()=>{});
+  if(ownerR){ const dl=el('datalist'); dl.id='dl_authors'; dl.innerHTML=peopleSource().map(p=>'<option value="'+esc(p.n)+'">').join(''); v.appendChild(dl); db.refs().then(r=>{ R=r||[]; draw(); }).catch(()=>{}); }
 }
 
 /* ---------- التحديد المتعدد ---------- */
@@ -3764,6 +3835,414 @@ function contactSheet(o){
   };
 }
 function noteSheet(fact){ contactSheet({fact}); }
+
+/* ============================================================
+   قِطاف — قراءة الفوائد بخطط مرنة: كتاب/مؤلف/تصنيف/وسم، دفعات، تنويع، جدولة، إحصاءات.
+   الخطط والسجل عند المالك في الخادم (ورقتا «القطاف» و«سجل القطاف»)، وعند الزائر في جهازه.
+   ============================================================ */
+const Q={ log:null, tab:'today', pick:lsGet('k_q_pick'), busy:false };
+const Q_MIX=[['blend','منوّع: في كل دفعة من كل عنصر مختار'],['rotate','بالتناوب: دفعة من الأول ثم دفعة من الثاني…'],['sequential','واحدًا بعد الآخر: لا ينتقل حتى ينتهي من الأول']];
+const Q_ORDER=[['least','الأقل قراءة أولًا (موصى به)'],['random','عشوائي'],['seq','بالتسلسل (الجزء والصفحة)'],['newest','الأحدث تدوينًا'],['oldest','الأقدم تدوينًا']];
+const Q_HYPE=['أحسنت! فائدة تُقرأ خيرٌ من ألف تُنسى 🌿','ثباتك أجمل من حماسك 🔥','قطفتَ ثمرًا طيّبًا اليوم 🍃','العلم يُبنى لبنةً لبنة — وأنت تبني ✨','بارك الله في وقتك وفهمك 🌟','مراجعتك اليوم هي حفظك غدًا 💎','هكذا يُبنى الرسوخ: قليلٌ دائم ⛰'];
+const Q_DEFAULT_CFG=()=>({src:{books:[],authors:[],cats:[],tags:[],starred:false,combine:'or'},count:3,order:'least',mix:'blend',repeat:'cycle',pace:'one',parallel:false});
+
+const dayStr=d=>(d instanceof Date?d:new Date(d)).toLocaleDateString('en-CA');
+const todayStr=()=>dayStr(new Date());
+function qPlans(){ return (st.qplans||[]).slice().sort((a,b)=>(a.order||0)-(b.order||0)); }
+function qCfg(p){ return Object.assign(Q_DEFAULT_CFG(),p.cfg||{},{src:Object.assign(Q_DEFAULT_CFG().src,(p.cfg||{}).src||{})}); }
+function qState(p){
+  if(st.owner) return p.state||(p.state={});
+  try{ return JSON.parse(lsGet('k_qs_'+p.id)||'{}'); }catch(e){ return {}; }
+}
+/** الخطط المعروضة الآن: المالك: أول خطة نشطة عادية + كل النشطة «المتوازية»؛ الزائر: ما اختاره من العامة. */
+function qActivePlans(){
+  const all=qPlans().filter(p=>p.status==='نشطة');
+  if(!st.owner){ if(!all.length) return []; const p=all.find(x=>x.id===Q.pick)||all[0]; return [p]; }
+  const first=all.find(p=>!qCfg(p).parallel); return all.filter(p=>qCfg(p).parallel||p===first);
+}
+function qPool(){ return st.items.filter(i=>!i._pending&&i.status!=='محذوفة'&&i.status!=='مسودة'&&!i.verify&&i.text); }
+
+/* ---------- السجل والإحصاء ---------- */
+async function qLoadLog(force){
+  if(Q.log&&!force) return Q.log;
+  if(st.owner){ try{ Q.log=await db.qlog(); }catch(e){ Q.log=Q.log||[]; } }
+  else { try{ Q.log=JSON.parse(lsGet('k_qlog')||'[]'); }catch(e){ Q.log=[]; } }
+  qFlushPending(); return Q.log;
+}
+function qFlushPending(){
+  if(!st.owner) return; let pend=[]; try{ pend=JSON.parse(lsGet('k_qpend')||'[]'); }catch(e){}
+  if(!pend.length) return;
+  const by={}; pend.forEach(([t,id,pl])=>{ (by[pl]=by[pl]||[]).push(id); });
+  Promise.all(Object.keys(by).map(pl=>db.qread({plan:pl,items:by[pl],state:(qPlans().find(p=>p.id===pl)||{}).state||{}}))).then(()=>lsSet('k_qpend','[]')).catch(()=>{});
+}
+function qCounts(){ const c=new Map(); (Q.log||[]).forEach(([t,id])=>{ const o=c.get(id)||{n:0,last:''}; o.n++; if(t>o.last) o.last=t; c.set(id,o); }); return c; }
+function qDaysSet(){ const s=new Set(); (Q.log||[]).forEach(([t])=>s.add(dayStr(t))); return s; }
+function qStreak(){
+  const days=qDaysSet(); const d=new Date(); if(!days.has(dayStr(d))) d.setDate(d.getDate()-1);
+  let n=0; while(days.has(dayStr(d))){ n++; d.setDate(d.getDate()-1); } return n;
+}
+function qBestStreak(){
+  const a=[...qDaysSet()].sort(); let best=0,cur=0,prev=null;
+  a.forEach(s=>{ const d=new Date(s+'T12:00:00'); if(prev&&Math.round((d-prev)/864e5)===1) cur++; else cur=1; best=Math.max(best,cur); prev=d; });
+  return best;
+}
+const sameName=(a,b)=>a&&b&&norm(a)===norm(b);
+
+/* ---------- المطابقة والتجميع والترتيب ---------- */
+function qAliases(name){
+  const p=((st.meta||{}).people||[]).find(x=>sameName(x.n,name)||(x.a||[]).some(a=>sameName(a,name)));
+  return new Set([norm(name)].concat(p?[norm(p.n)].concat((p.a||[]).map(norm)):[]));
+}
+function qGroupTests(src){
+  const G=[];
+  src.books.forEach(b=>G.push({kind:'book',label:b,test:i=>sameName(i.ref,b)||sameName(i.via,b)}));
+  src.authors.forEach(a=>{ const S=qAliases(a); G.push({kind:'author',label:a,test:i=>(i.speaker&&S.has(norm(i.speaker)))||(i.via&&S.has(norm(i.via)))}); });
+  src.cats.forEach(c=>G.push({kind:'cat',label:c,test:i=>sameName(i.cat,c)}));
+  src.tags.forEach(t=>G.push({kind:'tag',label:'#'+t,test:i=>(i.tags||[]).some(x=>sameName(x,t))}));
+  return G;
+}
+function qMatcher(src){
+  const G=qGroupTests(src), need=G.length||src.starred;
+  if(!need) return ()=>true;
+  return i=>{
+    const hit=G.map(g=>g.test(i)); if(src.starred) hit.push(!!i.starred);
+    return src.combine==='and'?hit.every(Boolean):hit.some(Boolean);
+  };
+}
+function qGroups(src){ const G=qGroupTests(src); return G.length?G:[{kind:'all',label:'كل الفوائد',test:()=>true}]; }
+const locNums=s=>(String(latDigits(s||'')).match(/\d+/g)||[]).map(Number);
+function cmpLoc(a,b){ const x=locNums(a.locus),y=locNums(b.locus); for(let k=0;k<Math.max(x.length,y.length);k++){ const d=(x[k]||0)-(y[k]||0); if(d) return d; } return String(a.createdAt).localeCompare(String(b.createdAt)); }
+const shuffle=a=>{ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+function qOrder(items,cfg,counts){
+  if(cfg.order==='random') return shuffle(items);
+  if(cfg.order==='seq') return items.slice().sort((a,b)=>String(a.ref||'').localeCompare(String(b.ref||''),'ar')||cmpLoc(a,b));
+  if(cfg.order==='newest') return items.slice().sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)));
+  if(cfg.order==='oldest') return items.slice().sort((a,b)=>String(a.createdAt).localeCompare(String(b.createdAt)));
+  const sc=i=>{ const c=counts.get(i.id); return c?c.n:0; };           // least
+  return shuffle(items).sort((a,b)=>sc(a)-sc(b)||String((counts.get(a.id)||{}).last||'').localeCompare(String((counts.get(b.id)||{}).last||'')));
+}
+/** يبني دفعة جديدة لخطة. يرجع {deck, label, state, finished}. */
+function qBuild(plan){
+  const cfg=qCfg(plan), counts=qCounts(), state=Object.assign({},qState(plan));
+  const match=qMatcher(cfg.src), matched=qPool().filter(match);
+  if(!matched.length) return {deck:[],empty:true,state};
+  let read=new Set(state.read||[]);
+  const groups=qGroups(cfg.src);
+  const lists=groups.map(g=>({g,items:qOrder(matched.filter(g.test),cfg,counts)}));
+  const unread=l=>l.items.filter(i=>!read.has(i.id));
+  if(!lists.some(l=>unread(l).length)){
+    if(cfg.repeat==='cycle'){ read=new Set(); state.read=[]; state.cycles=(state.cycles||0)+1; }
+    else return {deck:[],finished:true,state};
+  }
+  const n=Math.max(1,Math.min(30,cfg.count|0)), picked=[], seen=new Set();
+  const take=it=>{ if(!it||seen.has(it.id)) return false; seen.add(it.id); picked.push(it); return true; };
+  let label='';
+  if(cfg.mix==='blend'&&groups.length>1){
+    const qs=shuffle(lists.map(l=>unread(l).slice())); let guard=0;
+    while(picked.length<n&&qs.some(q=>q.length)&&guard++<500) qs.forEach(q=>{ while(q.length&&picked.length<n&&!take(q.shift())){} });
+    label='منوّع من '+arDigits(groups.length)+' مصادر';
+  } else if(cfg.mix==='rotate'&&groups.length>1){
+    const L=lists.length; let k=(state.rot||0)%L, tries=0;
+    while(tries++<L&&!unread(lists[k]).length) k=(k+1)%L;
+    const q=unread(lists[k]); q.slice(0,n).forEach(take); state.rot=(k+1)%L; label=lists[k].g.label;
+  } else {                                                        // sequential، أو مصدر واحد
+    const used=new Set();
+    for(const l of lists){ const q=unread(l); if(!q.length) continue; if(!label) label=l.g.label; q.forEach(it=>{ if(picked.length<n) take(it); }); used.add(l.g.label); if(picked.length>=n) break; }
+    if(used.size>1) label=[...used].join(' ← ');
+  }
+  return {deck:picked.map(i=>i.id),label,state};
+}
+
+/* ---------- حفظ الحالة والقراءة ---------- */
+async function qPersist(plan,state,opts){
+  opts=opts||{}; const items=opts.items||[]; plan.state=state;
+  if(opts.status) plan.status=opts.status;
+  if(st.owner){
+    try{
+      if(items.length) await db.qread({plan:plan.id,items,state,status:opts.status});
+      else await db.qstate({id:plan.id,state,status:opts.status});
+    }catch(e){
+      if(items.length){ let p=[]; try{ p=JSON.parse(lsGet('k_qpend')||'[]'); }catch(x){} const now=new Date().toISOString(); items.forEach(id=>p.push([now,id,plan.id])); lsSet('k_qpend',JSON.stringify(p)); }
+      toast('لا اتصال — حُفظ التقدّم في جهازك وسيُرسل لاحقًا');
+    }
+  } else {
+    lsSet('k_qs_'+plan.id,JSON.stringify(state));
+    if(items.length){ const now=new Date().toISOString(); Q.log=Q.log||[]; items.forEach(id=>Q.log.push([now,id,plan.id])); lsSet('k_qlog',JSON.stringify(Q.log.slice(-6000))); }
+  }
+  if(items.length&&st.owner){ const now=new Date().toISOString(); Q.log=Q.log||[]; items.forEach(id=>Q.log.push([now,id,plan.id])); }
+}
+/** الخطة جاهزة للعرض: دفعتها الحالية باقية حتى «قرأتُ». */
+async function qEnsureDeck(plan){
+  const cfg=qCfg(plan), state=qState(plan), today=todayStr();
+  const pool=new Set(qPool().map(i=>i.id));
+  if((state.deck||[]).length){ const alive=state.deck.filter(id=>pool.has(id)); if(alive.length){ if(alive.length!==state.deck.length){ state.deck=alive; await qPersist(plan,state); } return {state}; } }
+  if(cfg.pace==='one'&&state.doneDay===today&&!state.extra) return {state,doneToday:true};
+  const b=qBuild(plan);
+  if(b.finished) return {state:b.state,finished:true};
+  if(b.empty) return {state,empty:true};
+  const ns=Object.assign({},b.state,{deck:b.deck,label:b.label,deckDay:today,extra:false});
+  await qPersist(plan,ns); return {state:ns};
+}
+async function qMarkRead(plan,ids){
+  const cfg=qCfg(plan), state=Object.assign({},qState(plan)), today=todayStr();
+  const readSet=new Set(state.read||[]); ids.forEach(id=>readSet.add(id));
+  state.read=[...readSet]; state.deck=[]; state.doneDay=today; state.extra=false; state.lastCount=ids.length; state.total=(state.total||0)+ids.length;
+  let status;
+  if(cfg.repeat==='once'){ const match=qMatcher(cfg.src), left=qPool().filter(match).filter(i=>!readSet.has(i.id)).length; if(!left){ status='منتهية'; state.finishedAt=new Date().toISOString(); } }
+  await qPersist(plan,state,{items:ids,status});
+  return {state,finished:status==='منتهية'};
+}
+
+/* ---------- الصفحة ---------- */
+async function renderQitaf(v){
+  v.innerHTML='<div class="empty"><div class="spin" style="margin:auto"></div></div>';
+  await qLoadLog();
+  if(st.owner&&!st.qplans.length){ await qCreateDefault(); }
+  v.innerHTML='';
+  const head=el('div','qhead');
+  const streak=qStreak(), todayN=(Q.log||[]).filter(r=>dayStr(r[0])===todayStr()).length;
+  head.innerHTML=`<div><h2 class="qt">🍃 قِطاف</h2><p class="qs">فوائدك تنتظر من يقطفها — اقرأ قليلًا كل يوم</p></div>
+    <div class="qkpi"><span class="kp" title="أيام متتالية"><b>${arDigits(streak)}</b>🔥 يوم</span><span class="kp" title="قُطف اليوم"><b>${arDigits(todayN)}</b>🌿 اليوم</span></div>`;
+  v.appendChild(head);
+  const tabs=el('div','seg qtabs');
+  [['today','قطاف اليوم'],['plans',st.owner?'الخطط':'الخطط'],['stats','الإحصاءات']].forEach(([k,l])=>{
+    if(k==='plans'&&!st.owner&&qPlans().length<2) return;
+    const b=el('button','chip'+(Q.tab===k?' on':''),l); b.type='button'; b.onclick=()=>{ Q.tab=k; renderQitaf($('#view')); }; tabs.appendChild(b); });
+  v.appendChild(tabs);
+  const body=el('div','qbody'); v.appendChild(body);
+  if(Q.tab==='plans') return qPlansView(body);
+  if(Q.tab==='stats') return qStatsView(body);
+  return qTodayView(body);
+}
+async function qCreateDefault(){
+  try{
+    await db.qsave({plan:{name:'قِطاف متنوّع',cfg:Q_DEFAULT_CFG(),status:'نشطة',vis:'لي'}});
+    st.qplans=await db.qplans();
+  }catch(e){}
+}
+function qPlanSummary(p){
+  const c=qCfg(p), s=c.src, parts=[];
+  if(s.books.length) parts.push('📖 '+s.books.slice(0,3).join('، ')+(s.books.length>3?' +'+arDigits(s.books.length-3):''));
+  if(s.authors.length) parts.push('✍ '+s.authors.slice(0,3).join('، ')+(s.authors.length>3?' +'+arDigits(s.authors.length-3):''));
+  if(s.cats.length) parts.push('🗂 '+s.cats.slice(0,3).join('، '));
+  if(s.tags.length) parts.push('# '+s.tags.slice(0,3).join('، '));
+  if(s.starred) parts.push('★ المميّزة');
+  return (parts.join(' · ')||'كل فوائدك')+' — '+arDigits(c.count)+' في الدفعة';
+}
+function qProgress(p){
+  const c=qCfg(p), match=qMatcher(c.src), matched=qPool().filter(match), read=new Set(qState(p).read||[]);
+  const r=matched.filter(i=>read.has(i.id)).length; return {read:r,total:matched.length,pct:matched.length?Math.round(r/matched.length*100):0};
+}
+async function qTodayView(body){
+  let act=qActivePlans();
+  if(!st.owner&&!act.length){ body.appendChild(el('div','empty','<div class="big">🍃</div><p>لا قِطاف متاح حاليًّا.</p>')); return; }
+  if(!act.length){
+    const all=qPlans();
+    body.appendChild(el('div','empty','<div class="big">🍃</div><p>'+(all.length?'كل خططك منتهية أو في المسودات. فعّل خطة أو أنشئ جديدة.':'لا خطط بعد.')+'</p>'));
+    const b=el('button','btn','＋ خطة جديدة'); b.onclick=()=>qEdit(null); body.appendChild(b); return;
+  }
+  if(!st.owner&&qPlans().filter(p=>p.status==='نشطة').length>1){
+    const sel=el('div','seg'); qPlans().filter(p=>p.status==='نشطة').forEach(p=>{ const b=el('button','chip'+(act[0].id===p.id?' on':''),esc(p.name)); b.type='button'; b.onclick=()=>{ Q.pick=p.id; lsSet('k_q_pick',p.id); renderQitaf($('#view')); }; sel.appendChild(b); }); body.appendChild(sel);
+  }
+  for(const plan of act) body.appendChild(await qPlanCard(plan));
+}
+async function qPlanCard(plan){
+  const box=el('section','qplan'), cfg=qCfg(plan);
+  const r=await qEnsureDeck(plan), state=r.state||{}, pr=qProgress(plan);
+  box.innerHTML=`<div class="qph"><div><h3>${esc(plan.name)}</h3><div class="qsum">${esc(qPlanSummary(plan))}</div></div>
+    <div class="qring" style="--p:${pr.pct}" title="${arDigits(pr.read)} من ${arDigits(pr.total)}"><b>${arDigits(pr.pct)}٪</b></div></div>
+    <div class="qbar"><i style="width:${pr.pct}%"></i></div><div class="qmeta">${r.finished?'':esc(state.label||'')}${pr.total?` · قُرئ ${arDigits(pr.read)} من ${arDigits(pr.total)}`:''}${state.cycles?` · الدورة ${arDigits((state.cycles||0)+1)}`:''}</div>`;
+  const deckBox=el('div','qdeck'); box.appendChild(deckBox);
+  if(r.empty){ deckBox.appendChild(el('div','empty','<p>لا فوائد تطابق هذه الخطة. عدّل مصدرها.</p>')); }
+  else if(r.finished){ deckBox.appendChild(qFinishCard(plan,true)); }
+  else if(r.doneToday){ deckBox.appendChild(qDoneCard(plan,state)); }
+  else {
+    const byId=new Map(st.items.map(i=>[i.id,i]));
+    (state.deck||[]).map(id=>byId.get(id)).filter(Boolean).forEach((it,k)=>deckBox.appendChild(qFactCard(plan,it,k)));
+    const bar=el('div','qact');
+    const n=(state.deck||[]).length;
+    const done=el('button','btn qdone','قرأتُ ✓ — اقطف '+arDigits(n)+(n>2?' فوائد':n===2?' فائدتين':' فائدة'));
+    done.onclick=async()=>{ done.disabled=true; const res=await qMarkRead(plan,state.deck.slice()); qCelebrate(box); setTimeout(()=>renderQitaf($('#view')),1700); if(res.finished) toast('🎉 أنهيتَ خطة «'+plan.name+'»!'); };
+    bar.appendChild(done);
+    box.appendChild(bar);
+  }
+  return box;
+}
+function qFactCard(plan,it,k){
+  const c=el('article','qcard'); c.style.animationDelay=(k*90)+'ms';
+  const cite=citation(it);
+  c.innerHTML=`<div class="qnum">${arDigits(k+1)}</div><p class="qtext">${esc(it.text)}</p>${it.gain?`<div class="gain"><b>من فوائد هذا الكلام:</b> ${esc(it.gain)}</div>`:''}${cite?`<div class="cite">${cite}</div>`:''}`;
+  const acts=el('div','cacts');
+  const mk=(l,fn)=>{ const b=el('button','sbtn',l); b.type='button'; b.onclick=fn; acts.appendChild(b); };
+  mk('عرض',()=>detail(it.id));
+  mk('🖼 صورة',()=>imageSheet([it]));
+  mk('نسخ',()=>copyCited(it));
+  mk('↻ غيرها',async()=>{                       // يُستبدل بأخرى من المصدر نفسه ولا يُحسب مقروءًا
+    const state=Object.assign({},qState(plan)), cfg=qCfg(plan), match=qMatcher(cfg.src), read=new Set(state.read||[]), have=new Set(state.deck||[]);
+    const cand=qPool().filter(match).filter(i=>!read.has(i.id)&&!have.has(i.id));
+    if(!cand.length) return toast('لا بدائل متاحة');
+    const pick=qOrder(cand,cfg,qCounts())[0]; state.deck=state.deck.map(id=>id===it.id?pick.id:id);
+    await qPersist(plan,state); renderQitaf($('#view')); });
+  c.appendChild(acts); return c;
+}
+function qDoneCard(plan,state){
+  const d=el('div','qdonecard');
+  d.innerHTML=`<div class="big">🌿</div><h3>${esc(Q_HYPE[Math.floor(Math.random()*Q_HYPE.length)])}</h3><p>قرأتَ ${arDigits(state.lastCount||0)} من الفوائد اليوم. عُد غدًا لدفعة جديدة، أو اقطف دفعة إضافية الآن.</p>`;
+  const b=el('button','btn ghost','＋ دفعة إضافية'); b.onclick=async()=>{ const s=Object.assign({},qState(plan),{extra:true}); await qPersist(plan,s); renderQitaf($('#view')); }; d.appendChild(b); return d;
+}
+function qFinishCard(plan){
+  const d=el('div','qdonecard');
+  d.innerHTML=`<div class="big">🏆</div><h3>أتممتَ «${esc(plan.name)}»</h3><p>قرأتَ كل فوائدها. اختر ما بعدها.</p>`;
+  const a=el('button','btn','↻ أعد الخطة من البداية'); a.onclick=async()=>{ const s=Object.assign({},qState(plan),{read:[],deck:[],doneDay:'',cycles:(qState(plan).cycles||0)+1}); await qPersist(plan,s,{status:'نشطة'}); renderQitaf($('#view')); };
+  const n=el('button','btn ghost','＋ خطة جديدة'); n.onclick=()=>qEdit(null); d.appendChild(a); d.appendChild(n); return d;
+}
+/** أوراق تتساقط احتفالًا بإتمام الدفعة. */
+function qCelebrate(host){
+  const f=el('div','qconf'); const em=['🍃','🌿','✨','🍂','⭐','🌱'];
+  for(let i=0;i<22;i++){ const s=el('span',null,em[i%em.length]); s.style.cssText=`left:${Math.random()*100}%;animation-delay:${Math.random()*.5}s;font-size:${16+Math.random()*16}px;--dx:${(Math.random()-.5)*120}px`; f.appendChild(s); }
+  host.appendChild(f); setTimeout(()=>f.remove(),2600);
+  const m=el('div','qpop',esc(Q_HYPE[Math.floor(Math.random()*Q_HYPE.length)])); host.appendChild(m); setTimeout(()=>m.remove(),1700);
+}
+
+/* ---------- الخطط ---------- */
+function qPlansView(body){
+  const top=el('div','otools'); const add=el('button','btn','＋ خطة جديدة'); add.onclick=()=>qEdit(null); top.appendChild(add); body.appendChild(top);
+  body.appendChild(el('p','hint','تعمل الخطط النشطة بالترتيب: تُعرض الأولى، وإذا انتهت (في «مرة واحدة») انتقل القِطاف إلى التالية. المسودات محفوظة ولا تُفعَّل تلقائيًا. ومن علّم «تعمل مع غيرها» تظهر كل يوم بجانبها.'));
+  const quick=el('div','seg'); quick.appendChild(el('span','flabel','ابدأ سريعًا:'));
+  [['📖 من كتاب',{src:{books:[]}}],['✍ من مؤلف',{src:{authors:[]}}],['🗂 من تصنيف',{src:{cats:[]}}],['🎲 منوّع',{}]].forEach(([l,o])=>{ const b=el('button','chip',l); b.type='button'; b.onclick=()=>qEdit(null,o); quick.appendChild(b); });
+  body.appendChild(quick);
+  const list=qPlans(); if(!list.length) body.appendChild(el('div','empty','<p>لا خطط بعد.</p>'));
+  list.forEach((p,idx)=>{
+    const pr=qProgress(p), badge={نشطة:'🟢 نشطة',مسودة:'📝 مسودة',منتهية:'🏁 منتهية'}[p.status];
+    const row=el('div','qrow'+(p.status!=='نشطة'?' off':''));
+    row.innerHTML=`<div class="qrh"><b>${esc(p.name)}</b><span class="badge">${badge}</span>${p.vis==='الزوار'?'<span class="badge">👥 للزوار</span>':''}${qCfg(p).parallel?'<span class="badge">⫴ متوازية</span>':''}</div>
+      <div class="qsum">${esc(qPlanSummary(p))}</div><div class="qbar"><i style="width:${pr.pct}%"></i></div><div class="qmeta">قُرئ ${arDigits(pr.read)} من ${arDigits(pr.total)}</div>`;
+    const acts=el('div','cacts'); const mk=(l,fn)=>{ const b=el('button','sbtn',l); b.type='button'; b.onclick=fn; acts.appendChild(b); };
+    if(p.status==='نشطة') mk('📝 إلى المسودات',()=>qSetStatus(p,'مسودة')); else mk('▶ تفعيل',()=>qSetStatus(p,'نشطة'));
+    if(idx>0) mk('↑',()=>qMove(idx,-1)); if(idx<list.length-1) mk('↓',()=>qMove(idx,1));
+    mk('تعديل',()=>qEdit(p)); mk('⧉ نسخ',()=>qDup(p)); mk('إعادة البدء',async()=>{ if(!confirm('سيُصفَّر ما قُرئ في هذه الخطة (سجل الإحصاءات يبقى). متابعة؟')) return; await qPersist(p,{rot:0,cycles:0,read:[],deck:[]}); renderQitaf($('#view')); });
+    mk('🗑',async()=>{ if(!confirm('حذف الخطة «'+p.name+'»؟ (سجل ما قرأتَه يبقى)')) return; await db.qdelete(p.id); st.qplans=await db.qplans(); renderQitaf($('#view')); });
+    row.appendChild(acts); body.appendChild(row);
+  });
+}
+async function qSetStatus(p,status){
+  busy(true,'جارٍ الحفظ…');
+  try{ await db.qsave({plan:{id:p.id,name:p.name,cfg:p.cfg,status,vis:p.vis}}); st.qplans=await db.qplans(); busy(false); renderQitaf($('#view')); toast(status==='نشطة'?'فُعّلت الخطة':'نُقلت إلى المسودات — لن يُنتقل إليها تلقائيًّا'); }
+  catch(e){ busy(false); toast(e.message); }
+}
+async function qMove(idx,d){
+  const ids=qPlans().map(p=>p.id); [ids[idx],ids[idx+d]]=[ids[idx+d],ids[idx]];
+  busy(true,'جارٍ الترتيب…'); try{ await db.qorder(ids); st.qplans=await db.qplans(); }catch(e){ toast(e.message); } busy(false); renderQitaf($('#view'));
+}
+async function qDup(p){
+  busy(true,'جارٍ النسخ…'); try{ await db.qsave({plan:{name:p.name+' (نسخة)',cfg:p.cfg,status:'مسودة',vis:p.vis}}); st.qplans=await db.qplans(); }catch(e){ toast(e.message); } busy(false); renderQitaf($('#view'));
+}
+/** يضيف حقلًا لاختيار عدة عناصر (شرائح قابلة للحذف + قائمة منسدلة). */
+function qMulti(host,label,getOpts,sel){
+  const w=el('div','qmp'); w.innerHTML=`<span class="flabel">${label}</span><div class="mpc"></div><div><input class="t" placeholder="اختر أو اكتب للبحث…" autocomplete="off"></div>`;
+  host.appendChild(w); const chips=w.querySelector('.mpc'), inp=w.querySelector('input');
+  const draw=()=>{ chips.innerHTML=''; sel.forEach((v,k)=>{ const c=el('button','chip on',esc(v)+' ✕'); c.type='button'; c.onclick=()=>{ sel.splice(k,1); draw(); }; chips.appendChild(c); }); };
+  draw();
+  attachSuggest(inp,()=>getOpts().filter(o=>!sel.some(s=>sameName(s,o.n))),false,{all:true,onPick:o=>{ sel.push(o.n); inp.value=''; draw(); }});
+  inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); const v=inp.value.trim(); if(v&&!sel.some(s=>sameName(s,v))){ sel.push(v); inp.value=''; draw(); } } });
+}
+function qEdit(plan,preset){
+  const isNew=!plan; preset=preset||{};
+  const P=plan?{id:plan.id,name:plan.name,status:plan.status,vis:plan.vis,cfg:JSON.parse(JSON.stringify(qCfg(plan)))}:
+    {name:preset.src&&preset.src.books?'قِطاف كتاب':preset.src&&preset.src.authors?'قِطاف مؤلف':preset.src&&preset.src.cats?'قِطاف تصنيف':'قِطاف متنوّع',status:'نشطة',vis:'لي',cfg:Object.assign(Q_DEFAULT_CFG(),{mix:preset.src&&(preset.src.books||preset.src.authors||preset.src.cats)?'sequential':'blend',order:preset.src&&preset.src.books?'seq':'least'})};
+  const c=P.cfg, s=c.src;
+  const u=(f)=>{ const m={}; st.items.forEach(i=>{ if(i[f]) m[i[f]]=(m[i[f]]||0)+1; }); return m; };
+  openSheet(`${shhd(isNew?'خطة قِطاف جديدة':'تعديل الخطة')}
+    <label class="fld"><span>اسم الخطة</span><input class="t" id="qe_name" value="${esc(P.name)}"></label>
+    <div class="qgrp"><b>١) من أين تأتي الفوائد؟</b><p class="hint" style="margin:2px 0 6px">اختر ما شئت (وبلا اختيار = كل فوائدك). يمكن اختيار أكثر من كتاب أو مؤلف أو تصنيف.</p><div id="qe_src"></div>
+      <label class="tgl"><input type="checkbox" id="qe_star" ${s.starred?'checked':''}> المميّزة ★ فقط</label>
+      <div class="seg" id="qe_comb"><span class="flabel">عند الجمع بين أنواع مختلفة:</span><button type="button" class="chip${s.combine!=='and'?' on':''}" data-v="or">أي منها (اتحاد)</button><button type="button" class="chip${s.combine==='and'?' on':''}" data-v="and">كلها معًا (تقاطع)</button></div></div>
+    <div class="qgrp"><b>٢) الدفعة</b>
+      <div class="grid2"><label class="fld"><span>عدد الفوائد في كل دفعة</span><input class="t" id="qe_n" type="number" min="1" max="30" value="${c.count}"></label>
+      <label class="fld"><span>الترتيب داخل المصدر</span><select class="t" id="qe_ord">${Q_ORDER.map(([k,l])=>`<option value="${k}" ${c.order===k?'selected':''}>${l}</option>`).join('')}</select></label></div>
+      <label class="fld"><span>التنويع بين المصادر المختارة</span><select class="t" id="qe_mix">${Q_MIX.map(([k,l])=>`<option value="${k}" ${c.mix===k?'selected':''}>${l}</option>`).join('')}</select></label>
+      <div class="grid2"><label class="fld"><span>الوتيرة</span><select class="t" id="qe_pace"><option value="one" ${c.pace==='one'?'selected':''}>دفعة واحدة كل يوم</option><option value="free" ${c.pace==='free'?'selected':''}>متى شئت (تتجدد فور «قرأتُ»)</option></select></label>
+      <label class="fld"><span>بعد إنهاء كل الفوائد</span><select class="t" id="qe_rep"><option value="cycle" ${c.repeat==='cycle'?'selected':''}>أعد الدورة من جديد</option><option value="once" ${c.repeat==='once'?'selected':''}>تنتهي الخطة وتنتقل للتالية</option></select></label></div></div>
+    <div class="qgrp"><b>٣) الحالة والظهور</b>
+      <div class="grid2"><label class="fld"><span>الحالة</span><select class="t" id="qe_st"><option value="نشطة" ${P.status==='نشطة'?'selected':''}>نشطة (تُعرض)</option><option value="مسودة" ${P.status==='مسودة'?'selected':''}>مسودة (محفوظة لا تُفعَّل تلقائيًّا)</option></select></label>
+      <label class="fld"><span>لمن تظهر؟</span><select class="t" id="qe_vis"><option value="لي" ${P.vis==='لي'?'selected':''}>لي وحدي</option><option value="الزوار" ${P.vis==='الزوار'?'selected':''}>لي وللزوار (دون ما حجبتَه عنهم)</option></select></label></div>
+      <label class="tgl"><input type="checkbox" id="qe_par" ${c.parallel?'checked':''}> تعمل مع غيرها كل يوم (لا تنتظر دورها)</label></div>
+    <div class="row2"><button class="btn" id="qe_save">${isNew?'إنشاء':'حفظ'}</button>${!isNew?'':''}</div>`);
+  const host=$('#qe_src'); const m=st.meta||{}, ub=u('ref'), us=u('speaker'), uc=u('cat');
+  const withN=(arr,map)=>arr.map(n=>({n,a:[],h:map[n]?arDigits(map[n])+' فائدة':''})).sort((a,b)=>(map[b.n]||0)-(map[a.n]||0));
+  qMulti(host,'📖 كتب',()=>withN(m.refs||[],ub),s.books);
+  qMulti(host,'✍ مؤلفون / قائلون',()=>peopleSource().map(p=>Object.assign({},p,{h:us[p.n]?arDigits(us[p.n])+' فائدة':''})).sort((a,b)=>(us[b.n]||0)-(us[a.n]||0)),s.authors);
+  qMulti(host,'🗂 تصنيفات',()=>withN(m.categories||[],uc),s.cats);
+  qMulti(host,'# وسوم',()=>(m.tags||[]).map(n=>({n,a:[]})),s.tags);
+  $('#qe_comb').onclick=e=>{ const b=e.target.closest('button[data-v]'); if(!b) return; s.combine=b.dataset.v; [...$('#qe_comb').querySelectorAll('button')].forEach(x=>x.classList.toggle('on',x===b)); };
+  $('#qe_save').onclick=async()=>{
+    const name=$('#qe_name').value.trim()||'قِطاف'; s.starred=$('#qe_star').checked;
+    c.count=Math.max(1,Math.min(30,Number($('#qe_n').value)||3)); c.order=$('#qe_ord').value; c.mix=$('#qe_mix').value; c.pace=$('#qe_pace').value; c.repeat=$('#qe_rep').value; c.parallel=$('#qe_par').checked;
+    const status=$('#qe_st').value, vis=$('#qe_vis').value;
+    busy(true,'جارٍ الحفظ…');
+    try{
+      const changedSrc=!isNew&&JSON.stringify(qCfg(plan).src)!==JSON.stringify(s);
+      const rec={id:P.id,name,cfg:c,status,vis}; if(changedSrc) rec.state={rot:0,read:[],deck:[],cycles:0};
+      await db.qsave({plan:rec}); st.qplans=await db.qplans(); busy(false); closeSheet(true); Q.tab='today'; if(st.tab!=='qitaf'){ st.tab='qitaf'; renderChrome(); } render();
+      toast(isNew?'أُنشئت الخطة':'حُفظت الخطة');
+    }catch(e){ busy(false); toast(e.message); }
+  };
+}
+
+/* ---------- الإحصاءات ---------- */
+function qStatGroups(field){
+  const counts=qCounts(), m=new Map();
+  qPool().forEach(i=>{ const keys=field==='speaker'?[i.speaker]:field==='ref'?[i.ref]:[i.cat]; keys.filter(Boolean).forEach(k=>{
+    const g=m.get(k)||{k,total:0,seen:0,reads:0,last:''}; g.total++; const c=counts.get(i.id); if(c){ g.seen++; g.reads+=c.n; if(c.last>g.last) g.last=c.last; } m.set(k,g); }); });
+  return [...m.values()];
+}
+function qStatsView(body){
+  const counts=qCounts(), pool=qPool(), seen=pool.filter(i=>counts.has(i.id)).length, total=pool.length, reads=(Q.log||[]).length;
+  const week=(Q.log||[]).filter(r=>(Date.now()-new Date(r[0]))<7*864e5).length;
+  const tiles=el('div','qtiles');
+  [['🌿',arDigits(reads),'مرّات قراءة'],['📚',arDigits(seen)+' / '+arDigits(total),'فوائد قُرئت'],['📈',arDigits(total?Math.round(seen/total*100):0)+'٪','من مكتبتك'],['🔥',arDigits(qStreak()),'أيام متتالية'],['🏅',arDigits(qBestStreak()),'أفضل تتابع'],['🗓',arDigits(week),'هذا الأسبوع']]
+    .forEach(([ic,n,l])=>tiles.appendChild(el('div','qtile',`<span>${ic}</span><b>${n}</b><small>${l}</small>`)));
+  body.appendChild(tiles);
+  // نشاط ١٤ يومًا
+  const days=[]; for(let k=13;k>=0;k--){ const d=new Date(); d.setDate(d.getDate()-k); days.push(dayStr(d)); }
+  const per={}; (Q.log||[]).forEach(r=>{ const d=dayStr(r[0]); per[d]=(per[d]||0)+1; }); const mx=Math.max(1,...days.map(d=>per[d]||0));
+  const ch=el('div','qchart'); days.forEach(d=>{ const n=per[d]||0; ch.appendChild(el('div','qcol',`<i style="height:${Math.round(n/mx*100)}%" title="${arDigits(n)}"></i><small>${arDigits(new Date(d+'T12:00:00').getDate())}</small>`)); });
+  body.appendChild(el('h4',null,'نشاطك في آخر ١٤ يومًا')); body.appendChild(ch);
+  // تفصيل بحسب كتاب/مؤلف/تصنيف
+  const kinds=[['ref','الكتب'],['speaker','المؤلفون والقائلون'],['cat','التصنيفات']], seg=el('div','seg');
+  if(!Q.stat) Q.stat={k:'ref',o:'least'};
+  kinds.forEach(([k,l])=>{ const b=el('button','chip'+(Q.stat.k===k?' on':''),l); b.type='button'; b.onclick=()=>{ Q.stat.k=k; renderQitaf($('#view')); }; seg.appendChild(b); });
+  const ord=el('select','t vsel'); ord.innerHTML=[['least','الأقل مراجعة أولًا'],['most','الأكثر مراجعة أولًا'],['size','الأكثر فوائد']].map(([k,l])=>`<option value="${k}" ${Q.stat.o===k?'selected':''}>${l}</option>`).join(''); ord.onchange=()=>{ Q.stat.o=ord.value; renderQitaf($('#view')); };
+  body.appendChild(el('h4',null,'تفصيل المراجعة')); body.appendChild(seg); body.appendChild(ord);
+  let G=qStatGroups(Q.stat.k);
+  const frac=g=>g.seen/g.total;
+  G.sort(Q.stat.o==='most'?(a,b)=>frac(b)-frac(a)||b.reads-a.reads:Q.stat.o==='size'?(a,b)=>b.total-a.total:(a,b)=>frac(a)-frac(b)||a.reads-b.reads||b.total-a.total);
+  if(!G.length) body.appendChild(el('p','hint','لا بيانات بعد.'));
+  const field=Q.stat.k;
+  G.slice(0,60).forEach(g=>{
+    const pct=Math.round(frac(g)*100);
+    const row=el('div','qrow'+(g.seen===0?' cold':''));
+    row.innerHTML=`<div class="qrh"><b>${esc(g.k)}</b><span class="badge">${arDigits(g.seen)} / ${arDigits(g.total)}</span>${g.seen===0?'<span class="badge verify">لم يُراجَع</span>':''}</div>
+      <div class="qbar"><i style="width:${pct}%"></i></div><div class="qmeta">${arDigits(g.reads)} قراءة${g.last?' · آخرها '+esc(hijri(g.last)):''}</div>`;
+    const acts=el('div','cacts'); const b=el('button','sbtn','🍃 اقطف منه'); b.type='button';
+    b.onclick=()=>{ if(!st.owner) return toast('الخطط يضعها صاحب المنصة'); qEdit(null,{src:field==='ref'?{books:[g.k]}:field==='speaker'?{authors:[g.k]}:{cats:[g.k]}}); setTimeout(()=>{},0); };
+    if(st.owner) acts.appendChild(b); const o=el('button','sbtn','عرض فوائده'); o.type='button'; o.onclick=()=>{ st.f=Object.assign({},NOFILTER); st.f[field]=g.k; st.tab='all'; st.limit=perPage(); renderChrome(); render(); window.scrollTo({top:0}); }; acts.appendChild(o);
+    row.appendChild(acts); body.appendChild(row);
+  });
+}
+
+/* ---------- بطاقة الصفحة الرئيسية ---------- */
+function qHomeCard(){
+  if(!st.qplans||(!st.qplans.length&&!st.owner)) return null;
+  const act=qActivePlans(); if(!act.length) return null;
+  const plan=act[0], state=qState(plan), deck=(state.deck||[]);
+  const done=state.doneDay===todayStr()&&!deck.length;
+  const pr=qProgress(plan), byId=new Map(st.items.map(i=>[i.id,i])), first=deck.map(id=>byId.get(id)).filter(Boolean)[0];
+  const c=el('button','qhome');
+  c.innerHTML=`<div class="qhi">🍃</div><div class="qhb"><b>قِطاف اليوم${done?' — أحسنت 🌿':''}</b><span>${esc(plan.name)} · ${done?'أتممتَ دفعة اليوم':(deck.length?arDigits(deck.length)+' فوائد بانتظارك':'ابدأ دفعتك')}</span>${first&&!done?`<em>${esc(first.text.length>90?first.text.slice(0,90)+'…':first.text)}</em>`:''}</div><div class="qring sm" style="--p:${pr.pct}"><b>${arDigits(pr.pct)}٪</b></div>`;
+  c.onclick=()=>{ st.tab='qitaf'; Q.tab='today'; renderChrome(); render(); window.scrollTo({top:0,behavior:'smooth'}); };
+  return c;
+}
 </script>
 </body>
 </html>
