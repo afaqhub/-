@@ -397,6 +397,10 @@ html[data-theme="dark"] .hero{background:radial-gradient(circle at 12% 0%,rgba(2
 @media (prefers-reduced-motion:reduce){.qdone,.qhi,.qcard{animation:none}}
 .badge.own{background:#efe6f6;color:#5b3f7a}
 .cite .own{color:#5b3f7a;font-weight:700}
+.bgchip{position:fixed;left:50%;bottom:18px;transform:translate(-50%,30px);opacity:0;pointer-events:none;z-index:60;background:var(--ink);color:var(--paper2);border-radius:999px;padding:8px 16px;font-size:.84rem;display:flex;gap:8px;align-items:center;box-shadow:var(--shadow);transition:.25s}
+.bgchip.on{opacity:.95;transform:translate(-50%,0)}
+.mini-spin{width:13px;height:13px;border-radius:50%;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;animation:kspin .8s linear infinite}
+.card.saving{opacity:.6}
 .flabel{font-size:.8rem;color:var(--muted);align-self:center}
 </style>
 </head>
@@ -601,6 +605,21 @@ function busy(on,msg){
   }
   l.classList.toggle('on',!!on);
 }
+/** عمل في الخلفية دون حجب الصفحة: يظهر شريط صغير «جارٍ الحفظ…»، وتُنفَّذ العمليات بالترتيب لئلا تتضارب. */
+let bgQ=Promise.resolve(), bgN=0, mutEpoch=0, syncT=null, bgLabel='';
+function bgUpdate(){ let c=$('#bgchip'); if(!c){ c=el('div','bgchip'); c.id='bgchip'; c.setAttribute('role','status'); document.body.appendChild(c); }
+  if(bgN>0){ c.innerHTML='<span class="mini-spin"></span><span>'+esc(bgLabel||'جارٍ الحفظ…')+(bgN>1?' ('+arDigits(bgN)+')':'')+'</span>'; c.classList.add('on'); } else c.classList.remove('on'); }
+function bgRun(label,fn,onFail){
+  bgN++; mutEpoch++; bgLabel=label; bgUpdate();
+  const p=bgQ.then(fn).then(()=>{},e=>{ try{ if(onFail) onFail(e); else toast((e&&e.message)||'تعذّر الحفظ'); }catch(x){} })
+    .then(()=>{ bgN--; bgUpdate(); if(bgN===0){ clearTimeout(syncT); syncT=setTimeout(silentSync,900); } });
+  bgQ=p; return p;
+}
+/** مزامنة صامتة بعد انتهاء العمل الخلفي: لا حجب، وتُهمَل نتيجتها إن جدّ تعديل محلي في أثنائها. */
+async function silentSync(){
+  if(bgN>0) return; const ep=mutEpoch, y=window.scrollY;
+  try{ const r=await db.boot('',st.owner); if(bgN>0||ep!==mutEpoch){ clearTimeout(syncT); syncT=setTimeout(silentSync,900); return; } handleBoot(r,st.owner); window.scrollTo(0,y); }catch(e){}
+}
 let pendingApi=0, barT=null;
 function barStart(){ pendingApi++; if(pendingApi===1){ clearTimeout(barT); barT=setTimeout(()=>{ if(pendingApi>0) $('#topbar').classList.add('on'); },600); } }
 function barEnd(){ pendingApi=Math.max(0,pendingApi-1); if(!pendingApi){ clearTimeout(barT); $('#topbar').classList.remove('on'); } }
@@ -777,13 +796,14 @@ function fatal(msg){
 }
 
 /** إعادة تحميل كل شيء بطلب واحد (بعد أي تعديل). */
-async function refresh(){
-  busy(true,'جارٍ التحميل…');
+async function refresh(opts){
+  const block=!!(opts&&opts.block), y=window.scrollY;
+  if(block) busy(true,'جارٍ التحميل…');
   try{
     const r=await db.boot('',st.owner);        // بلا رقم نسخة: نريد البيانات كاملة
-    busy(false); handleBoot(r,st.owner);
+    if(block) busy(false); handleBoot(r,st.owner); if(!block) window.scrollTo(0,y);
   }catch(e){
-    busy(false);
+    if(block) busy(false);
     if(!st.meta) st.meta={categories:[],speakers:[],refs:[],tags:[],types:[],mediums:st.mediums,people:[]};
     renderChrome();
     // انقطاع الاتصال وعندنا بيانات محمَّلة: أبقِ ما هو معروض ولا تُفرغ الشاشة
@@ -1090,11 +1110,11 @@ function card(i,featured){
   if(st.owner&&i.visibility==='خاصة') top.appendChild(el('span','badge priv','خاصة'));
   if(i.status==='مسودة') top.appendChild(el('span','badge draft','مسودة'));
   if(i.verify) top.appendChild(el('span','badge verify','⚠ تحتاج تحقق'));
-  if(i._pending) top.appendChild(el('span','badge wait','⏳ بانتظار الإرسال'));
+  if(i._pending) top.appendChild(el('span','badge wait',i._saving?'⏳ جارٍ الحفظ':'⏳ بانتظار الإرسال'));
   if(i.series&&st.tab!=='series') top.appendChild(el('span','badge','⛓ '+esc(i.series)));
   if(!st.sel){
     const star=el('button','star'+(i.starred?' on':''),'★');
-    star.onclick=async e=>{e.stopPropagation(); if(!st.owner)return; await db.setField(i.id,'starred',!i.starred); i.starred=!i.starred; render();};
+    star.onclick=e=>{ e.stopPropagation(); if(!st.owner) return; const v=!i.starred; i.starred=v; render(); bgRun('جارٍ الحفظ…',()=>db.setField(i.id,'starred',v),err=>{ i.starred=!v; render(); toast(err.message); }); };
     top.appendChild(star);
   }
   c.appendChild(top);
@@ -1112,6 +1132,7 @@ function card(i,featured){
   }
   if(st.sel){ if(featured) c.classList.add('full'); return c; }
   const acts=el('div','cacts');
+  if(i._saving){ c.classList.add('saving'); c.appendChild(el('div','cite','⏳ جارٍ الحفظ…')); return c; }
   if(i._pending){
     const rm=el('button','sbtn','حذف من الانتظار');
     rm.onclick=()=>{ st.queue=st.queue.filter(q=>q.tmp!==i.id); persistQueue(); render(); toast('حُذفت من قائمة الانتظار'); };
@@ -1121,7 +1142,7 @@ function card(i,featured){
   const im=el('button','sbtn','🖼 صورة'); im.onclick=()=>imageSheet([i]); acts.appendChild(im);
   if(st.owner){
     if(i.verify){
-      const ok=el('button','sbtn','✓ تم التحقق'); ok.onclick=async()=>{await db.setField(i.id,'verify',false);await refresh();toast('أُزيلت علامة التحقق')};
+      const ok=el('button','sbtn','✓ تم التحقق'); ok.onclick=()=>{ i.verify=false; render(); toast('أُزيلت علامة التحقق'); bgRun('جارٍ الحفظ…',()=>db.setField(i.id,'verify',false),err=>{ i.verify=true; render(); toast(err.message); }); };
       acts.appendChild(ok);
     }
     const ed=el('button','sbtn','تعديل'); ed.onclick=()=>editor(i); acts.appendChild(ed);
@@ -1134,14 +1155,21 @@ function card(i,featured){
   return c;
 }
 
+/** حذف إلى السلة فورًا في الواجهة، والخادم في الخلفية؛ مع تراجع. */
+function removeItem(i){
+  const idx=st.items.findIndex(x=>x.id===i.id); if(idx<0) return;
+  st.items.splice(idx,1); render(); renderChrome();
+  bgRun('جارٍ الحذف…',()=>db.remove(i.id),err=>{ st.items.splice(Math.min(idx,st.items.length),0,i); render(); toast('تعذّر الحذف: '+err.message); });
+  toast('نُقلت إلى سلة المحذوفات','↶ تراجع',()=>{ st.items.splice(Math.min(idx,st.items.length),0,i); render(); bgRun('جارٍ الاستعادة…',()=>db.restore(i.id),err=>{ toast(err.message); }); });
+}
 function moreSheet(i){
   openSheet(`${shhd('خيارات الفائدة')}<div class="menu" id="mn"></div>`);
   const A=[
     ['📋','نسخ موثّق',()=>copyCited(i)],
     ['🔗','مشاركة الرابط',()=>shareLink(i)],
     ['💬','واتساب',()=>shareWhatsApp(i)],
-    [i.visibility==='عامة'?'🔒':'🌐',i.visibility==='عامة'?'جعلها خاصة':'جعلها عامة',async()=>{await db.setField(i.id,'visibility',i.visibility==='عامة'?'خاصة':'عامة');await refresh();toast('تم تغيير الظهور')}],
-    ['🗑','حذف (إلى السلة)',async()=>{await db.remove(i.id);await refresh();toast('نُقلت إلى سلة المحذوفات','↶ تراجع',async()=>{await db.restore(i.id);await refresh()})}]
+    [i.visibility==='عامة'?'🔒':'🌐',i.visibility==='عامة'?'جعلها خاصة':'جعلها عامة',()=>{ const old=i.visibility, nv=old==='عامة'?'خاصة':'عامة'; i.visibility=nv; render(); toast('تم تغيير الظهور'); bgRun('جارٍ الحفظ…',()=>db.setField(i.id,'visibility',nv),err=>{ i.visibility=old; render(); toast(err.message); }); }],
+    ['🗑','حذف (إلى السلة)',()=>removeItem(i)]
   ];
   A.forEach(([ic,l,fn])=>{ const b=el('button','pbtn',`<span class="ic">${ic}</span><b>${esc(l)}</b>`); b.onclick=()=>{closeSheet();fn()}; $('#mn').appendChild(b); });
 }
@@ -1280,12 +1308,19 @@ function renderSelbar(){
   add('🗑 حذف',()=>bulkField('trash'));
   add('إلغاء',endSelect);
 }
+/** إجراء جماعي: يُطبَّق محليًّا فورًا ويُرسَل في الخلفية، ويُستعاد ما كان عند الفشل. */
+function bulkApply(ids,op,value){
+  const set=new Set(ids), before=st.items.map(x=>({x,vis:x.visibility,star:x.starred})), removed=op==='trash'?st.items.filter(x=>set.has(x.id)):[];
+  if(op==='trash') st.items=st.items.filter(x=>!set.has(x.id)); else st.items.forEach(x=>{ if(set.has(x.id)){ if(op==='visibility') x.visibility=value; else if(op==='starred') x.starred=!!value; } });
+  render(); renderChrome();
+  const word=op==='trash'?'جارٍ النقل إلى السلة…':'جارٍ التنفيذ…';
+  bgRun(word,()=>db.bulk({ids,op,value}),err=>{ if(op==='trash') st.items=st.items.concat(removed); before.forEach(b=>{ b.x.visibility=b.vis; b.x.starred=b.star; }); render(); renderChrome(); toast('تعذّر التنفيذ: '+err.message); });
+  toast(op==='trash'?'نُقلت إلى السلة: '+arDigits(ids.length)+' فائدة':'تم: '+arDigits(ids.length)+' فائدة');
+}
 async function bulkField(field,value){
   const ids=[...st.sel]; if(!ids.length) return toast('حدّد فائدة أولًا');
   if(field==='trash'&&!confirm('ستُنقل '+ids.length+' فائدة إلى السلة (يمكن استعادتها). متابعة؟')) return;
-  busy(true,'جارٍ التنفيذ…');
-  try{ await db.bulk({ids,op:field==='trash'?'trash':field,value}); busy(false); endSelect(); await refresh(); toast((field==='trash'?'نُقلت إلى السلة: ':'تم تعديل ')+ids.length+' فائدة'); }
-  catch(e){ busy(false); toast(e.message); }
+  bulkApply(ids,field==='trash'?'trash':field,value); endSelect();
 }
 /** نافذة الإجراءات الجماعية: على كل الفوائد أو ما يعرضه التصفية الحالية، بضغطة واحدة. */
 function bulkSheet(){
@@ -1307,9 +1342,7 @@ function bulkSheet(){
     const b=e.target.closest('button'); if(!b) return; const op=b.dataset.op, n=ids().length; if(!n) return toast('لا فوائد في هذا النطاق');
     const label={pub:'إظهار',priv:'إخفاء',trash:'نقل إلى السلة'}[op];
     if(!confirm(label+' '+arDigits(n)+' فائدة؟')) return;
-    busy(true,'جارٍ التنفيذ…');
-    try{ await db.bulk({ids:ids(),op:op==='trash'?'trash':'visibility',value:op==='pub'?'عامة':'خاصة'}); busy(false); closeSheet(); await refresh(); toast('تم: '+label+' '+arDigits(n)+' فائدة'); }
-    catch(er){ busy(false); toast(er.message); }
+    closeSheet(); bulkApply(ids(),op==='trash'?'trash':'visibility',op==='pub'?'عامة':'خاصة');
   };
 }
 
@@ -1619,21 +1652,24 @@ function editor(item){
     // منع التكرار
     const dup=st.items.find(x=>x.id!==obj.id && dupKey(x.text)===dupKey(obj.text));
     if(dup && !confirm('هذه الفائدة تشبه فائدة دوّنتها سابقًا بتاريخ '+hijri(dup.createdAt)+'. أحفظها على أي حال؟')) return;
-    busy(true,'جارٍ الحفظ…');
-    let r;
-    try{ if(obj.via&&$('#f_viabook').checked&&!(st.meta.refs||[]).includes(obj.via)){ try{ await db.addMeta('refs',obj.via); }catch(e){} } r=await saveItem(obj); }
-    catch(e){ busy(false); toast(e.message); return; }
+    // الحفظ في الخلفية: تُغلق النافذة فورًا وتظهر الفائدة «جارٍ الحفظ…» ويستطيع المستخدم المتابعة
+    const viaBook=obj.via&&$('#f_viabook').checked&&!(st.meta.refs||[]).includes(obj.via);
+    const prev=item?JSON.parse(JSON.stringify(item)):null, now=new Date().toISOString();
+    const tmp=Object.assign({},item||{},obj,{id:obj.id||('tmp-'+Date.now()),createdAt:obj.createdAt||(item&&item.createdAt)||now,_pending:true,_saving:true,tags:obj.tags});
+    if(item){ const k=st.items.findIndex(x=>x.id===item.id); if(k>=0) st.items[k]=tmp; } else st.items.unshift(tmp);
     remember(obj); try{localStorage.removeItem(DRAFT)}catch(e){}
     if(isNew && st.session){ st.session.n=(st.session.n||0)+1; saveSession(st.session); }
-    busy(false); closeSheet(); await refresh();
-    if(again){ again=false; editor(null); }
-    if(r.queued){
-      toast('لا اتصال — حُفظت في جهازك وستُرسل تلقائيًّا','↶ تراجع',
-        ()=>{ st.queue=st.queue.filter(q=>q.tmp!==r.id); persistQueue(); render(); });
-    }else{
-      toast(obj.status==='مسودة'?'حُفظت مسودة (تحتاج توثيقًا)':'تم الحفظ','↶ تراجع',
-        async()=>{ if(isNew){ try{await db.remove(r.id)}catch(e){} } await refresh(); });
-    }
+    const wantAgain=again; again=false; closeSheet(); render();
+    if(wantAgain) editor(null);
+    const dropTmp=()=>{ const k=st.items.findIndex(x=>x===tmp); if(k>=0){ if(prev) st.items[k]=prev; else st.items.splice(k,1); } };
+    bgRun('جارٍ حفظ الفائدة…',async()=>{
+      if(viaBook){ try{ await db.addMeta('refs',obj.via); }catch(e){} }
+      const r=await saveItem(obj);
+      if(r.queued) dropTmp();
+      else { let real=null; try{ real=await db.get(r.id||tmp.id,true); }catch(e){} const k=st.items.findIndex(x=>x===tmp); if(k>=0){ st.items[k]=real?Object.assign({},real):Object.assign({},tmp,{id:r.id||tmp.id,_pending:false,_saving:false,createdHijri:hijri(tmp.createdAt)}); render(); } }
+      if(r.queued){ render(); toast('لا اتصال — حُفظت في جهازك وستُرسل تلقائيًّا','↶ تراجع',()=>{ st.queue=st.queue.filter(q=>q.tmp!==r.id); persistQueue(); render(); }); }
+      else toast(obj.status==='مسودة'?'حُفظت مسودة (تحتاج توثيقًا)':'تم الحفظ','↶ تراجع',()=>{ if(isNew){ bgRun('جارٍ التراجع…',()=>db.remove(r.id)); st.items=st.items.filter(x=>x.id!==r.id); render(); } });
+    },err=>{ dropTmp(); render(); toast('تعذّر الحفظ: '+err.message); editor(prev?Object.assign({},prev,obj):Object.assign({},obj,{id:undefined})); });
   };
 }
 function autoTitle(t){ const s=t.replace(/\s+/g,' ').trim(); return s.length<=40?s:s.slice(0,40)+'…'; }
@@ -1967,9 +2003,9 @@ async function renderTrash(v){
     const c=el('div','card');
     c.appendChild(el('p','ctext',esc(i.text)));
     const acts=el('div','cacts');
-    const r=el('button','sbtn','استعادة'); r.onclick=async()=>{await db.restore(i.id);await refresh();toast('استُعيدت الفائدة')};
+    const r=el('button','sbtn','استعادة'); r.onclick=()=>{ c.remove(); toast('استُعيدت الفائدة'); bgRun('جارٍ الاستعادة…',()=>db.restore(i.id),err=>{ toast(err.message); render(); }); };
     const p=el('button','sbtn','حذف نهائي'); p.style.color='var(--danger)';
-    p.onclick=async()=>{if(confirm('حذف نهائي (ينتقل إلى ورقة الأرشيف). متأكد؟')){await db.purge(i.id);await refresh();toast('حُذفت نهائيًا')}};
+    p.onclick=()=>{ if(confirm('حذف نهائي (ينتقل إلى ورقة الأرشيف). متأكد؟')){ c.remove(); toast('حُذفت نهائيًا'); bgRun('جارٍ الحذف…',()=>db.purge(i.id),err=>{ toast(err.message); render(); }); } };
     acts.append(r,p); c.appendChild(acts); w.appendChild(c);
   });
   v.appendChild(w);
@@ -4163,6 +4199,7 @@ async function qMarkRead(plan,ids){
 
 /* ---------- الصفحة ---------- */
 async function renderQitaf(v){
+  if(st.tab!=='qitaf') return;
   v.innerHTML='<div class="empty"><div class="spin" style="margin:auto"></div></div>';
   await qLoadLog();
   if(st.owner&&!st.qplans.length){ await qCreateDefault(); }
