@@ -210,7 +210,7 @@ html[data-theme="dark"] .listsec{color:var(--gold)}
 .pbtn small{color:var(--muted);margin-inline-start:auto}
 
 /* ===== إضافات الإصدار 2 ===== */
-.hd .brand{overflow:hidden;text-overflow:ellipsis;min-width:0;flex:0 1 auto}
+.hd .brand{overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1 1 auto}
 .hd .modepill{flex:none}
 .iconbtn{flex:none}
 .search{min-width:0}
@@ -401,6 +401,19 @@ html[data-theme="dark"] .hero{background:radial-gradient(circle at 12% 0%,rgba(2
 .bgchip.on{opacity:.95;transform:translate(-50%,0)}
 .mini-spin{width:13px;height:13px;border-radius:50%;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;animation:kspin .8s linear infinite}
 .card.saving{opacity:.6}
+.ixrow{flex-wrap:wrap!important;row-gap:8px}
+.ixname{flex:1 1 100%!important;white-space:normal;line-height:1.7;font-weight:700}
+.ixname span{overflow:visible!important;text-overflow:clip!important}
+.ixrow .ixau{flex:1 1 130px}.ixrow .ixhide{flex:1 1 150px;max-width:none}
+@media(max-width:520px){
+  .brand{font-size:clamp(1.15rem,6.2vw,1.45rem)!important}
+  #modePill,#btnTheme{display:none}
+  .hd{gap:6px}
+  .iconbtn{width:36px;height:36px}
+}
+.seg:not(.exp) .chip.tx{display:none}
+.tplnew{background:var(--gold-soft);border-radius:14px;padding:10px 12px;margin:6px 0 10px}
+.emoj{display:flex;gap:4px;flex-wrap:wrap;margin:4px 0 8px}.emoj button{width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:var(--paper2);font-size:1.15rem}.emoj button.on{border-color:var(--gold);background:#fff}
 .flabel{font-size:.8rem;color:var(--muted);align-self:center}
 </style>
 </head>
@@ -928,6 +941,7 @@ function menuSheet(){
   const o=st.owner, inbox=(st.meta&&st.meta.inbox)||0;
   const item=(ic,label,fn,extra)=>({ic,label,fn,extra});
   const A=[
+    item('🌓','الوضع الليلي / النهاري',()=>$('#btnTheme').click(),true),
     item('أ','حجم الخط',()=>{const c=+(localStorage.getItem('k_fs')||16);const n=c>=20?15:c+1;localStorage.setItem('k_fs',n);document.documentElement.style.setProperty('--fs',n+'px');toast('حجم الخط: '+n)},'',true),
     item('🖨','كُنّاشة مطبوعة',()=>printSheet()),
     item('؟','دليل الكُنّاشة',()=>helpSheet())
@@ -946,7 +960,7 @@ function menuSheet(){
     B.push(item('⚙','لوحة التحكم والإعدادات',()=>goTab('admin')));
     B.push(item('🗑','سلة المحذوفات',()=>goTab('trash')));
   }
-  openSheet(`<div class="shhd"><h3>القائمة</h3><div class="sp"></div>
+  openSheet(`<div class="shhd"><h3>القائمة · ${st.owner?'المالك':'زائر'}</h3><div class="sp"></div>
     <button class="iconbtn" style="background:var(--gold-soft);color:var(--ink)" id="x">✕</button></div><div class="menu" id="mn"></div>`);
   const box=$('#mn');
   const add=(arr)=>arr.forEach(it=>{
@@ -1501,9 +1515,10 @@ function editor(item){
       <button type="button" class="chip" id="qh_try" style="margin-top:8px">أدرج المثال في الخانة لأجرّبه</button>
     </div>
     <div class="qlive" id="sc_live"></div>
-    <div class="seg" id="f_tpls" style="margin-top:8px" role="group" aria-label="قالب الفائدة">${fawTpls().map(x=>`<button type="button" class="chip${((i.own||'')===(x.core?'':x.n))?' on':''}" data-n="${esc(x.core?'':x.n)}">${esc((x.ic||'')+' '+x.n)}</button>`).join('')}</div>
+    <div class="seg" id="f_tpls" style="margin-top:8px" role="group" aria-label="قالب الفائدة"></div>
+    <div id="f_tplnew"></div>
     <p class="hint" id="f_tplhint" style="margin:0 0 6px"></p>
-    <label class="tgl" id="f_parawrap"><input type="checkbox" id="f_para" ${i.paraphrase?'checked':''}> منقولة <b>بتصرّف</b> في اللفظ <small style="color:var(--muted)">(وإن تركتَها فالفائدة <b>بالنص</b>)</small></label>
+    <label class="tgl" id="f_parawrap" title="الأصل أن الفائدة بالنص؛ علّمها فقط إن تصرّفتَ في لفظها"><input type="checkbox" id="f_para" ${i.paraphrase?'checked':''}> منقولة <b>بتصرّف</b> في اللفظ</label>
     <details class="more" ${(i.speaker||i.ref||S.ref||S.speaker)?'open':''}><summary>＋ التوثيق (القائل والمرجع والوسيط)</summary>
       <div class="seg" id="f_med">${st.mediums.map(x=>`<button type="button" class="chip${x===med?' on':''}" data-v="${esc(x)}">${esc((MEDIA_ICON[x]||'')+' '+x)}</button>`).join('')}</div>
       <div class="grid2">
@@ -1601,9 +1616,15 @@ function editor(item){
   attachSuggest($('#f_cat'),()=>{ const u=usage('cat'); return (M().categories||[]).slice().sort((a,b)=>(u[b]||0)-(u[a]||0)).map(c=>({n:c,a:[],h:u[c]?arDigits(u[c])+' فائدة':''})); },false,{all:true});
   attachSuggest($('#f_tags'),()=>st.meta.tags,true); attachSuggest($('#f_series'),()=>seriesNames());
   let ownKind=i.own||'';
+  const drawTplChips=()=>{
+    const L=fawTpls(), box=$('#f_tpls'); const open=box.classList.contains('exp');
+    box.innerHTML=L.map((x,k)=>{ const sel=(ownKind===(x.core?'':x.n)); return `<button type="button" class="chip${sel?' on':''}${(k>1&&!sel)?' tx':''}" data-n="${esc(x.core?'':x.n)}">${esc((x.ic||'')+' '+x.n)}</button>`; }).join('')
+      +(L.length>2?`<button type="button" class="chip" data-more="1">${open?'▴ أقل':'⋯ المزيد'}</button>`:'')+`<button type="button" class="chip" data-new="1">＋ قالب</button>`;
+  };
+  drawTplChips();
   const lab=id=>$('#'+id).closest('label'), TP=()=>fawTpls().find(x=>(x.core?'':x.n)===ownKind)||tplOf({own:ownKind});
   const paintOwn=()=>{
-    const tp=TP(), f=tp.f||''; [...$('#f_tpls').children].forEach(c=>c.classList.toggle('on',c.dataset.n===ownKind));
+    const tp=TP(), f=tp.f||'';
     const show=(el,on)=>{ if(el) el.style.display=on?'':'none'; };
     show(lab('f_speaker'),f.includes('s')); show(lab('f_ref'),f.includes('r')); show(lab('f_locus'),f.includes('r')); show(lab('f_via'),f.includes('v')); show(lab('f_vloc'),f.includes('v')); show($('#f_viabook').closest('label'),f.includes('v'));
     show($('#f_med'),f.includes('r')); show($('#f_linkw'),f.includes('r')&&(needLink(medium)||!!$('#f_link').value.trim()));
@@ -1611,7 +1632,10 @@ function editor(item){
     $('#f_parawrap').style.display=(f&&f.includes('r'))?'':'none';
     $('#f_tplhint').textContent=f===''&&ownKind?'هذه من عندك: لا تحتاج قائلًا ولا مرجعًا، ويظهر للزوار أنها «'+(ownKind==='من تأملاتي'?'من تأملات '+((cfg('اسم صاحب التأملات')||'').trim()||'صاحب الكُنّاشة'):ownKind)+'».':'';
   };
-  $('#f_tpls').onclick=e=>{ const b=e.target.closest('button'); if(!b) return; ownKind=b.dataset.n; paintOwn(); };
+  $('#f_tpls').onclick=e=>{ const b=e.target.closest('button'); if(!b) return;
+    if(b.dataset.more){ $('#f_tpls').classList.toggle('exp'); drawTplChips(); return; }
+    if(b.dataset.new){ tplForm($('#f_tplnew'),name=>{ ownKind=name; $('#f_tpls').classList.add('exp'); drawTplChips(); paintOwn(); }); return; }
+    ownKind=b.dataset.n; drawTplChips(); paintOwn(); };
   paintOwn();
   $('#qh_btn').onclick=()=>{ const b=$('#qh_box'); b.hidden=!b.hidden; $('#qh_btn').setAttribute('aria-expanded',String(!b.hidden)); };
   $('#qh_try').onclick=()=>{ const t=$('#f_text'); t.value='العلم نور يقذفه الله في القلب @ابن_القيم [مفتاح دار السعادة 1/120] #تربية !'; t.dispatchEvent(new Event('input')); t.focus(); };
@@ -1670,6 +1694,38 @@ function editor(item){
       if(r.queued){ render(); toast('لا اتصال — حُفظت في جهازك وستُرسل تلقائيًّا','↶ تراجع',()=>{ st.queue=st.queue.filter(q=>q.tmp!==r.id); persistQueue(); render(); }); }
       else toast(obj.status==='مسودة'?'حُفظت مسودة (تحتاج توثيقًا)':'تم الحفظ','↶ تراجع',()=>{ if(isNew){ bgRun('جارٍ التراجع…',()=>db.remove(r.id)); st.items=st.items.filter(x=>x.id!==r.id); render(); } });
     },err=>{ dropTmp(); render(); toast('تعذّر الحفظ: '+err.message); editor(prev?Object.assign({},prev,obj):Object.assign({},obj,{id:undefined})); });
+  };
+}
+const TPL_EMOJI=['💭','✍','💡','🧭','📌','❓','🗣','🎓','📝','🌿','⭐','❤'];
+const tplDesc=f=>!f?'من عندك (بلا قائل ولا كتاب)':[f.includes('s')?'قائل':'',f.includes('r')?'كتاب':'',f.includes('v')?'وسيط':''].filter(Boolean).join(' + ');
+/** يحفظ قائمة قوالب الفوائد (فورًا محليًّا، والخادم في الخلفية). */
+function saveTplList(list){
+  const clean=list.filter(x=>String(x.n).trim()).map(x=>({n:String(x.n).trim().slice(0,30),ic:String(x.ic||'').trim().slice(0,4),f:String(x.f||'').replace(/[^srv]/g,''),core:x.core?1:0}));
+  const def=JSON.stringify(TPL_DEFAULT.map(x=>({n:x.n,ic:x.ic,f:x.f,core:x.core?1:0})));
+  const val=JSON.stringify(clean)===def?'':JSON.stringify(clean);
+  st.cfg=Object.assign({},st.cfg,{'قوالب الفوائد':val});
+  bgRun('جارٍ حفظ القوالب…',()=>db.saveSettings({'قوالب الفوائد':val}),err=>toast(err.message));
+}
+/** نموذج إنشاء قالب بسيط داخل مكانه: اسم + رمز + ثلاثة أسئلة. */
+function tplForm(host,onAdd){
+  if(host.firstChild){ host.innerHTML=''; return; }
+  let ic=TPL_EMOJI[0];
+  host.innerHTML=`<div class="tplnew"><b>قالب جديد</b>
+    <label class="fld" style="margin:6px 0"><span>اسمه (مثل: ملحوظة من درس)</span><input class="t" id="tn_name" maxlength="30"></label>
+    <div class="emoj">${TPL_EMOJI.map((e,k)=>`<button type="button" data-e="${e}" class="${k?'':'on'}">${e}</button>`).join('')}</div>
+    <label class="tgl"><input type="checkbox" id="tn_s"> لها <b>قائل</b> (من قالها؟)</label>
+    <label class="tgl"><input type="checkbox" id="tn_r"> لها <b>كتاب أو مصدر</b></label>
+    <label class="tgl"><input type="checkbox" id="tn_v"> نقلتُها <b>من كتاب آخر</b> (وسيط)</label>
+    <p class="hint" style="margin:2px 0 6px">وإن لم تحدّد شيئًا فهي «من عندك» بلا قائل ولا كتاب.</p>
+    <div class="row2"><button type="button" class="btn" id="tn_ok">إضافة</button><button type="button" class="btn ghost" id="tn_x">إلغاء</button></div></div>`;
+  const q=id=>host.querySelector('#'+id); q('tn_name').focus();
+  host.querySelector('.emoj').onclick=e=>{ const b=e.target.closest('button'); if(!b) return; ic=b.dataset.e; [...host.querySelectorAll('.emoj button')].forEach(x=>x.classList.toggle('on',x===b)); };
+  q('tn_x').onclick=()=>{ host.innerHTML=''; };
+  q('tn_ok').onclick=()=>{
+    const n=q('tn_name').value.trim(); if(!n) return toast('اكتب اسم القالب');
+    if(fawTpls().some(x=>norm(x.n)===norm(n))) return toast('يوجد قالب بهذا الاسم');
+    let f=(q('tn_s').checked?'s':'')+(q('tn_r').checked?'r':'')+(q('tn_v').checked?'v':''); if(f.includes('v')&&!f.includes('r')) f=f.replace('v','rv');
+    saveTplList(fawTpls().concat([{n,ic,f,core:0}])); host.innerHTML=''; toast('أُضيف القالب «'+n+'»'); onAdd&&onAdd(n);
   };
 }
 function autoTitle(t){ const s=t.replace(/\s+/g,' ').trim(); return s.length<=40?s:s.slice(0,40)+'…'; }
@@ -1747,20 +1803,22 @@ async function renderAdmin(v){
     <details class="more" open><summary>الأساسيات</summary>
     <label class="fld"><span>اسم المنصة</span><input class="t" id="s_name" value="${esc(s['اسم المنصة']||'')}"></label>
     <label class="fld"><span>وصف قصير</span><input class="t" id="s_desc" value="${esc(s['الوصف']||'')}"></label>
-    <div class="grid2">
+    <label class="fld"><span>الظهور الافتراضي للفائدة الجديدة</span><select class="t" id="s_vis">
+      <option ${s['الظهور الافتراضي']==='خاصة'?'selected':''}>خاصة</option><option ${s['الظهور الافتراضي']==='عامة'?'selected':''}>عامة</option></select></label>
+    <details class="more"><summary>المزيد من الأساسيات</summary>
       <label class="fld"><span>صانع المنصة (اختياري — يظهر في أسفل الصفحة)</span><input class="t" id="s_by" value="${esc(s['صانع المنصة']||'')}"></label>
-      <label class="fld"><span>الظهور الافتراضي للفائدة الجديدة</span><select class="t" id="s_vis">
-        <option ${s['الظهور الافتراضي']==='خاصة'?'selected':''}>خاصة</option><option ${s['الظهور الافتراضي']==='عامة'?'selected':''}>عامة</option></select></label>
       <label class="fld"><span>عدد الفوائد في الصفحة</span><input class="t" id="s_per" type="number" min="5" max="100" value="${esc(s['عدد الفوائد في الصفحة']||20)}"></label>
       <label class="fld"><span>أنواع الفوائد (افصل بفاصلة)</span><input class="t" id="s_types" value="${esc(s['أنواع الفوائد']||'')}"></label>
-    </div>
-    ${tg('s_showby','إظهار اسم الصانع',s['إظهار الصانع']!=='لا')}
+      ${tg('s_showby','إظهار اسم الصانع',s['إظهار الصانع']!=='لا')}
     </details>
-    <details class="more"><summary>قوالب الفوائد (أضف قوالبك أو احذف ما لا تريد)</summary>
-      <p class="hint">القالب يحدّد ما تُدوَّن به الفائدة: «منقولة» تطلب قائلًا ومرجعًا ووسيطًا، و«من تأملاتي» لا تطلب شيئًا، و«سمعتُها من شخص» تطلب قائلًا فقط… أنشئ ما يناسبك، مثل: «ملحوظة من درس»، «قاعدة استنبطتُها»، «حكمة منقولة بلا قائل».</p>
+    </details>
+    <details class="more"><summary>قوالب الفوائد</summary>
+      <p class="hint">القالب يحدّد ما تُدوَّن به الفائدة. تضيف قوالبك أيضًا من نافذة «فائدة جديدة» نفسها بزر «＋ قالب».</p>
       <div id="tpl_list"></div>
-      <div class="row2"><button type="button" class="btn ghost" id="tpl_add">＋ قالب جديد</button><button type="button" class="btn ghost" id="tpl_rs">↺ القوالب الافتراضية</button></div>
+      <div id="tpl_newhost"></div>
+      <div class="row2"><button type="button" class="btn ghost" id="tpl_add">＋ قالب جديد</button><button type="button" class="btn ghost" id="tpl_rs">↺ الافتراضية</button></div>
     </details>
+
     <details class="more"><summary>ما يظهر للزوار</summary>
     <p class="hint">الزائر لا يرى إلا الفوائد «العامة المنشورة»، وهذه الخيارات تحجب بعض بياناتها عنه. التصفية في الخادم فلا تُكشف بأدوات المطوّر. ولحجب شخص بعينه اضغط «تفاصيل» بجانب اسمه في «القائلون والوسطاء» أدناه.</p>
     ${tg('s_sp','إظهار القائل',s['إخفاء القائل']!=='نعم')}
@@ -1785,22 +1843,15 @@ async function renderAdmin(v){
     </details>
     <button class="btn" id="s_save">حفظ الإعدادات</button>`);
   v.appendChild(sb);
-  // محرر قوالب الفوائد
+  // قوالب الفوائد (بسيط: شرائح قابلة للحذف + إضافة)
   let tpls=fawTpls().map(x=>Object.assign({},x));
   const drawTpls=()=>{ const L=$('#tpl_list'); L.innerHTML='';
-    tpls.forEach((x,k)=>{
-      const row=el('div','qrow'); row.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap';
-      row.innerHTML=`<input class="t" style="width:54px;text-align:center" maxlength="4" value="${esc(x.ic||'')}" data-k="ic" aria-label="الرمز" placeholder="💭"><input class="t" style="flex:1 1 140px" maxlength="30" value="${esc(x.n)}" data-k="n" aria-label="اسم القالب">
-        <label class="tgl" style="margin:0"><input type="checkbox" data-f="s" ${x.f.includes('s')?'checked':''}> قائل</label><label class="tgl" style="margin:0"><input type="checkbox" data-f="r" ${x.f.includes('r')?'checked':''}> مرجع</label><label class="tgl" style="margin:0"><input type="checkbox" data-f="v" ${x.f.includes('v')?'checked':''}> وسيط</label>`;
-      row.querySelectorAll('input[data-k]').forEach(inp=>inp.oninput=()=>{ x[inp.dataset.k]=inp.value; });
-      row.querySelectorAll('input[data-f]').forEach(cb=>cb.onchange=()=>{ x.f=['s','r','v'].filter(c=>row.querySelector('input[data-f="'+c+'"]').checked).join(''); });
-      const mk=(l,fn)=>{ const b=el('button','sbtn',l); b.type='button'; b.onclick=fn; row.appendChild(b); };
-      if(k>0) mk('↑',()=>{ [tpls[k-1],tpls[k]]=[tpls[k],tpls[k-1]]; drawTpls(); });
-      if(!x.core) mk('✕',()=>{ tpls.splice(k,1); drawTpls(); }); else row.appendChild(el('span','badge','الأصلي'));
-      L.appendChild(row); });
-  };
+    tpls.forEach((x,k)=>{ const row=el('div','qrow'); row.style.cssText='display:flex;gap:8px;align-items:center;justify-content:space-between;padding:8px 12px';
+      row.innerHTML=`<span><b>${esc((x.ic||'')+' '+x.n)}</b> <small style="color:var(--muted)">— ${esc(x.core?'الأصلي: قائل + كتاب + وسيط':tplDesc(x.f))}</small></span>`;
+      if(!x.core){ const d=el('button','sbtn','✕'); d.type='button'; d.setAttribute('aria-label','حذف القالب'); d.onclick=()=>{ tpls.splice(k,1); drawTpls(); }; row.appendChild(d); }
+      L.appendChild(row); }); };
   drawTpls();
-  $('#tpl_add').onclick=()=>{ tpls.push({n:'قالب جديد',ic:'📝',f:'',core:0}); drawTpls(); const ins=$('#tpl_list').lastChild.querySelector('input[data-k="n"]'); ins.focus(); ins.select(); };
+  $('#tpl_add').onclick=()=>{ const h=$('#tpl_newhost'); tplForm(h,name=>{ tpls=fawTpls().map(x=>Object.assign({},x)); drawTpls(); }); };
   $('#tpl_rs').onclick=()=>{ if(!confirm('إعادة القوالب الافتراضية؟ (الفوائد التي استعملت قوالب أخرى تحتفظ بأسمائها)')) return; tpls=TPL_DEFAULT.map(x=>Object.assign({},x)); drawTpls(); };
   const tplJson=()=>{ const a=tpls.filter(x=>String(x.n).trim()).map(x=>({n:String(x.n).trim(),ic:String(x.ic||'').trim(),f:x.f||'',core:x.core?1:0})); return JSON.stringify(a)===JSON.stringify(TPL_DEFAULT.map(x=>({n:x.n,ic:x.ic,f:x.f,core:x.core?1:0})))?'':JSON.stringify(a); };
   $('#s_save').onclick=async()=>{
