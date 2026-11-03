@@ -4,6 +4,7 @@
 'use strict';
 const fs = require('fs'), vm = require('vm'), path = require('path'), http = require('http'), crypto = require('crypto');
 
+const STATS={ranges:0,cells:0,lastRow:0,getSheet:0,props:0,cache:0};
 class Range {
   constructor(sh, r, c, nr, nc){
     if (!(r>=1 && c>=1 && nr>=1 && nc>=1)) throw new Error('Range coordinates invalid: '+[r,c,nr,nc]);
@@ -11,8 +12,8 @@ class Range {
       throw new Error('The coordinates of the range are outside the dimensions of the sheet: '+sh.name+' '+[r,c,nr,nc]+' max '+sh.maxRows+'x'+sh.maxCols);
     Object.assign(this,{sh,r,c,nr,nc});
   }
-  getValues(){ const o=[]; for(let i=0;i<this.nr;i++){ const row=[]; for(let j=0;j<this.nc;j++) row.push(this.sh.get(this.r+i,this.c+j)); o.push(row);} return o; }
-  getValue(){ return this.sh.get(this.r,this.c); }
+  getValues(){ STATS.ranges++; STATS.cells+=this.nr*this.nc; const o=[]; for(let i=0;i<this.nr;i++){ const row=[]; for(let j=0;j<this.nc;j++) row.push(this.sh.get(this.r+i,this.c+j)); o.push(row);} return o; }
+  getValue(){ STATS.ranges++; STATS.cells++; return this.sh.get(this.r,this.c); }
   setValues(v){
     if (v.length!==this.nr || v.some(x=>x.length!==this.nc)) throw new Error('The number of rows/columns in the data does not match the range ('+this.nr+'x'+this.nc+' vs '+v.length+'x'+(v[0]&&v[0].length)+')');
     for(let i=0;i<this.nr;i++) for(let j=0;j<this.nc;j++) this.sh.set(this.r+i,this.c+j,v[i][j]); return this; }
@@ -34,8 +35,9 @@ class Sheet {
     this.rows[r-1][c-1]=v;
   }
   getRange(r,c,nr,nc){ return new Range(this,r,c,nr||1,nc||1); }
-  getLastRow(){ for(let i=this.rows.length-1;i>=0;i--) if((this.rows[i]||[]).some(v=>v!==''&&v!==undefined)) return i+1; return 0; }
+  getLastRow(){ STATS.lastRow++; for(let i=this.rows.length-1;i>=0;i--) if((this.rows[i]||[]).some(v=>v!==''&&v!==undefined)) return i+1; return 0; }
   getLastColumn(){ let m=0; this.rows.forEach(r=>(r||[]).forEach((v,j)=>{ if(v!==''&&v!==undefined&&j+1>m) m=j+1; })); return m; }
+  getName(){ return this.name; }
   getMaxRows(){return this.maxRows;} getMaxColumns(){return this.maxCols;}
   appendRow(vals){ if(vals.length>this.maxCols) throw new Error('appendRow: too many columns '+vals.length+'>'+this.maxCols+' in '+this.name);
     const r=this.getLastRow()+1; if(r>this.maxRows) this.maxRows=r; vals.forEach((v,j)=>this.set(r,j+1,v)); }
@@ -45,15 +47,21 @@ class Sheet {
   setFrozenRows(){} setColumnWidth(){}
 }
 function build(){
-  const sheets = {}; const props = {}; const mails = []; const logs = [];
-  const ss = { getSheetByName:n=>sheets[n]||null, insertSheet:n=>{ if(sheets[n]) throw new Error('exists '+n); return sheets[n]=new Sheet(n); } };
+  const sheets = {}; const props = {}; const cacheStore = {}; const mails = []; const logs = [];
+  const ss = { getSheetByName:n=>{ STATS.getSheet++; return sheets[n]||null; }, insertSheet:n=>{ if(sheets[n]) throw new Error('exists '+n); return sheets[n]=new Sheet(n); } };
   const ctx = {
     console, JSON, Math, Date, Intl, Object, Array, String, Number, RegExp, Error, isNaN, parseInt, parseFloat,
     SpreadsheetApp:{ getActiveSpreadsheet:()=>ss },
     PropertiesService:{ getScriptProperties:()=>({
-      getProperty:k=>Object.prototype.hasOwnProperty.call(props,k)?props[k]:null,
+      getProperty:k=>{ STATS.props++; return Object.prototype.hasOwnProperty.call(props,k)?props[k]:null; },
       setProperty:(k,v)=>{props[k]=String(v);}, deleteProperty:k=>{delete props[k];},
       getProperties:()=>Object.assign({},props) }) },
+    CacheService:{ getScriptCache:()=>({
+      get:k=>{ STATS.cache++; const e=cacheStore[k]; return e&&e.exp>Date.now()?e.v:null; },
+      getAll:ks=>{ STATS.cache++; const o={}; ks.forEach(k=>{ const e=cacheStore[k]; if(e&&e.exp>Date.now()) o[k]=e.v; }); return o; },
+      put:(k,v,t)=>{ STATS.cache++; if(Buffer.byteLength(String(v),'utf8')>100*1024) throw new Error('Argument too large: value'); cacheStore[k]={v:String(v),exp:Date.now()+(t||600)*1000}; },
+      putAll:(m,t)=>{ STATS.cache++; Object.keys(m).forEach(k=>{ if(Buffer.byteLength(String(m[k]),'utf8')>100*1024) throw new Error('Argument too large: value'); cacheStore[k]={v:String(m[k]),exp:Date.now()+(t||600)*1000}; }); },
+      remove:k=>{ delete cacheStore[k]; }, removeAll:ks=>{ ks.forEach(k=>delete cacheStore[k]); } }) },
     LockService:{ getScriptLock:()=>({ waitLock(){}, releaseLock(){} }) },
     Utilities:{ getUuid:()=>crypto.randomUUID(), sleep(){},
       computeDigest:(alg,s)=>Array.from(crypto.createHash('sha256').update(String(s),'utf8').digest()).map(b=>b>127?b-256:b),
@@ -65,7 +73,7 @@ function build(){
   };
   vm.createContext(ctx);
   vm.runInContext(fs.readFileSync(path.join(__dirname,'..','Code.gs'),'utf8'), ctx, {filename:'Code.gs'});
-  return { ctx, sheets, props, mails, logs,
+  return { ctx, sheets, props, mails, logs, stats:STATS, cacheStore,
     call(fn,args,token){ const out = ctx.doPost({postData:{contents:JSON.stringify({fn,args:args||{},token:token||''})}}); return JSON.parse(out.getContent()); } };
 }
 function serve(port){

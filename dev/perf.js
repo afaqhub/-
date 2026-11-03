@@ -1,0 +1,23 @@
+/* يقيس عدد نداءات خدمات جوجل (أوراق/خصائص/ذاكرة) لكل طلب — مؤشّر للسرعة الحقيقية (كل نداء ≈ عشرات المللي ثانية). */
+const {build}=require('./gas-mock.js'); const seed=require('./e2e/seed.js');
+const env=build(); const {tok}=seed(env);
+const N=Number(process.argv[2])||600;
+const items=[]; for(let i=0;i<N;i++) items.push({text:'فائدة رقم '+i+' '+'نص طويل '.repeat(20),speaker:'قائل '+(i%40),ref:'كتاب '+(i%25),locus:'ص '+i,via:i%3?'':'وسيط '+(i%5),cat:'تصنيف '+(i%8),visibility:'عامة',createdAt:'2024-0'+(1+i%9)+'-1'+(i%9)});
+for(let k=0;k<N;k+=100) env.call('importBatch',{items:items.slice(k,k+100),options:{}},tok);
+const S=env.stats, snap=()=>JSON.stringify(S);
+const measure=(label,fn)=>{ Object.keys(S).forEach(k=>S[k]=0); const t=process.hrtime.bigint(); const r=fn(); const ms=Number(process.hrtime.bigint()-t)/1e6; const total=S.ranges+S.lastRow+S.getSheet+S.props+S.cache; console.log(label.padEnd(26),'نداءات:',String(total).padStart(4),'(نطاقات',S.ranges+', خلايا',S.cells+', آخر صف',S.lastRow+', ورقة',S.getSheet+', خصائص',S.props+', ذاكرة',S.cache+')',ms.toFixed(0)+'ms CPU'); return r; };
+const b=measure('boot مالك (كامل)',()=>env.call('boot',{compact:true},tok));
+const ver=b.data.ver;
+measure('boot مالك (ذاكرة مؤقتة)',()=>env.call('boot',{},tok));
+measure('boot زائر (كامل)',()=>env.call('boot',{}));
+measure('boot زائر (ذاكرة مؤقتة)',()=>env.call('boot',{}));
+measure('boot مالك (same)',()=>env.call('boot',{ver,owner:true},tok));
+measure('boot زائر (same)',()=>env.call('boot',{ver}));
+const id=b.data.items[0].id;
+measure('setField',()=>env.call('setField',{id,field:'starred',value:true},tok));
+measure('save جديدة',()=>env.call('save',{item:{text:'جديدة',speaker:'قائل 1',ref:'كتاب 1'}},tok));
+measure('remove',()=>env.call('remove',{id},tok));
+measure('people',()=>env.call('people',{},tok));
+measure('refs',()=>env.call('refs',{},tok));
+measure('qplans',()=>env.call('qplans',{},tok));
+console.log('حجم رد boot (KB):',(JSON.stringify(b).length/1024).toFixed(0),'· فوائد:',b.data.items.length);

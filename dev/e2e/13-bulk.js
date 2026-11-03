@@ -13,7 +13,7 @@ const {start,newPage,shot}=require('./harness.js'); const seed=require('./seed.j
   await page.click('#btnMenu'); await page.click('.menu .pbtn:has-text("إجراءات جماعية")'); await page.click('[data-op="priv"]'); await page.waitForTimeout(1500);
   c=await cnt(); ok(c.pub===0,'إخفاء الكل');
   // نطاق التصفية
-  await page.evaluate(()=>{ st.f.cat=st.items[0].cat; renderChrome(); render(); });
+  await page.evaluate(()=>{ st.f.cat=st.items.find(i=>i.cat).cat; renderChrome(); render(); });
   const inCat=await page.evaluate(()=>filtered().length);
   await page.click('#btnMenu'); await page.click('.menu .pbtn:has-text("إجراءات جماعية")'); await page.click('#bk_scope [data-s="view"]'); await page.click('[data-op="pub"]'); await page.waitForTimeout(1500);
   c=await cnt(); ok(c.pub===inCat,'إظهار ما في التصفية فقط ('+c.pub+'/'+inCat+')');

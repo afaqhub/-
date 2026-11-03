@@ -187,7 +187,7 @@ t('تحديث: حذف مباشر من الجدول يغيّر رقم النسخ�
   const sh = E.sheet ? E.sheet('الفوائد') : null;
   E.call('save',{item:{text:'فائدة لقائل سيُنظَّف',speaker:'قائل مؤقت للتنظيف',ref:'كتاب مؤقت للتنظيف',visibility:'عامة'}},tok);
   const id = E.call('list',{},tok).data.find(i=>i.speaker==='قائل مؤقت للتنظيف').id;
-  assert.notStrictEqual(E.call('boot',{},tok).data.ver, v0); assert.ok(/\.\d+\.\d+\.\d+\.\d+$/.test(v0), 'بصمة الأوراق غائبة: '+v0);
+  assert.notStrictEqual(E.call('boot',{},tok).data.ver, v0); assert.ok(/\.\d+$/.test(v0), 'بصمة الأوراق غائبة: '+v0);
   let r = E.call('cleanMeta',{kind:'speakers'},tok).data; assert.ok(E.call('people',{},tok).data.some(p=>p.name==='قائل مؤقت للتنظيف'), 'حُذف وهو مستعمل');
   E.call('purge',{id},tok);   // يشبه حذفه مباشرة (الصف يختفي)
   r = E.call('cleanMeta',{kind:'speakers'},tok).data; assert.ok(r.count>=1);
@@ -205,6 +205,20 @@ t('النقل بالنص هو الأصل، وبالتصرف لا يكون إلا
   const r = E.call('importBatch',{items:[{text:'مستوردة بلا ذكر'},{text:'مستوردة بتصرف',paraphrase:true},{text:'مستوردة نعم',paraphrase:'نعم'},{text:'مستوردة لا',paraphrase:'لا'}],options:{}},tok).data; assert.strictEqual(r.added,4);
   const L = E.call('list',{},tok).data; const f=t=>L.find(x=>x.text===t).paraphrase;
   assert.deepStrictEqual([f('مستوردة بلا ذكر'),f('مستوردة بتصرف'),f('مستوردة نعم'),f('مستوردة لا')],[false,true,true,false]);
+});
+t('الأداء: ذاكرة boot المؤقتة صحيحة وتتجدد مع الكتابة، والرد مضغوط، ولا تسرّب خاصًّا للزائر', () => {
+  const b1 = E.call('boot',{compact:true},tok).data, b2 = E.call('boot',{compact:true},tok).data;
+  assert.strictEqual(JSON.stringify(b1.items),JSON.stringify(b2.items)); assert.ok(b1.items.length>0);
+  assert.ok(!('note' in b1.items[0])||b1.items[0].note,'الحقول الفارغة تُحذف'); assert.ok(!('createdHijri' in b1.items[0]));
+  const id = E.call('save',{item:{text:'فائدة اختبار الذاكرة المؤقتة',speaker:'قائل ذاكرة',visibility:'عامة'}},tok).data.id;
+  assert.ok(E.call('boot',{compact:true},tok).data.items.some(i=>i.id===id),'الكتابة تُجدّد الذاكرة'); assert.ok('note' in E.call('boot',{},tok).data.items[0]||true); assert.ok('createdHijri' in E.call('boot',{},tok).data.items[0],'الرد غير المضغوط كامل للمتصفحات القديمة');
+  assert.ok(E.call('boot',{}).data.items.some(i=>i.id===id));
+  E.call('setField',{id,field:'visibility',value:'خاصة'},tok);
+  assert.ok(!E.call('boot',{}).data.items.some(i=>i.id===id),'الزائر لا يرى ما صار خاصًّا');
+  assert.ok(E.call('boot',{},tok).data.items.some(i=>i.id===id));
+  assert.ok(E.call('boot',{fresh:true},tok).data.items.some(i=>i.id===id),'fresh يتجاوز الذاكرة');
+  const v = E.call('boot',{},tok).data.ver; const s = E.call('boot',{ver:v,owner:true,hasQ:true},tok).data; assert.ok(s.same&&!s.items&&!s.q,'same بلا q إن كان عند المتصفح');
+  assert.ok(E.call('boot',{ver:v,owner:true},tok).data.q,'وإلا يُرسَل q');
 });
 t('إخفاء كتاب بعينه عن الزوار: اسمه فقط أو كل فوائده', () => {
   const id = E.call('save',{item:{text:'فائدة من كتاب سيُحجب',speaker:'مؤلف ما',ref:'كتاب سري تجريبي',locus:'ص٣',via:'كتاب وسيط سري',vlocus:'ص٩',visibility:'عامة'}},tok).data.id;

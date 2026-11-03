@@ -77,9 +77,11 @@ var IMG_CHUNK = 45000;     // حجم القطعة عند حفظ صور القو�
 /** شغّلها مرة واحدة. آمنة للتكرار: لا تمسّ ما كُتب، وتُكمل الناقص فقط. */
 function setup(){
   _SC = {};
+  var _pp = PropertiesService.getScriptProperties(), _all = _pp.getProperties();
+  Object.keys(_all).forEach(function(k){ if (k.indexOf('H_') === 0) _pp.deleteProperty(k); }); _P = null;   // أعد فحص كل العناوين
   getSheet_(SH.F, COLS);
   var c = getSheet_(SH.C, HEAD_C);
-  if (c.getLastRow() < 2) DEFAULT_CATEGORIES.forEach(function(n,i){ appendText_(c,[n,'','','',i+1,'مفعّل']); });
+  if (lr_(c) < 2) DEFAULT_CATEGORIES.forEach(function(n,i){ appendText_(c,[n,'','','',i+1,'مفعّل']); });
   getSheet_(SH.S, HEAD_S);
   getSheet_(SH.R, HEAD_R);
   var t = getSheet_(SH.T, HEAD_T);
@@ -121,13 +123,56 @@ function tempPassword_(){
 /* ===================== الأوراق ===================== */
 var _SC = {};
 
+/* ===================== الأداء: ذاكرة الطلب الواحد وذاكرة الخادم المؤقتة ===================== */
+var SCHEMA_ = '2026-11-03';   // ارفعه كلما غيّرتَ أعمدة الأوراق (COLS وHEAD_*) ليُفحص العنوان مرة واحدة فقط ثم يُتخطّى
+var _P = null, _M = {}, _RO = false, _LR = [];
+var READ_FNS = {boot:1, list:1, listPublic:1, getPublic:1, metaPublic:1, settings:1, meta:1, people:1, refs:1, qplans:1, get:1, trash:1, qlog:1, templates:1, metaCounts:1, exportAll:1};
+function pAll_(){ if (!_P) _P = PropertiesService.getScriptProperties().getProperties(); return _P; }
+function pget_(k){ var p = pAll_(); return Object.prototype.hasOwnProperty.call(p, k) ? p[k] : null; }
+function pset_(k, v){ PropertiesService.getScriptProperties().setProperty(k, String(v)); if (_P) _P[k] = String(v); }
+/** في طلبات القراءة فقط: يُقرأ الجدول مرة واحدة ويُعاد استعمال النتيجة داخل الطلب. */
+function memo_(k, fn){ if (!_RO) return fn(); if (!(k in _M)) _M[k] = fn(); return _M[k]; }
+/** قيم ورقة (بلا العنوان) بعرض nc عمودًا — تُقرأ مرة واحدة في طلب القراءة. */
+function sheetVals_(sh, nc){
+  return memo_('v|' + sh.getName() + '|' + nc, function(){ var n = lr_(sh); return n < 2 ? [] : sh.getRange(2,1,n-1,nc).getValues(); });
+}
+function lr_(sh){
+  if (!_RO) return sh.getLastRow();
+  for (var i = 0; i < _LR.length; i++) if (_LR[i][0] === sh) return _LR[i][1];
+  var v = sh.getLastRow(); _LR.push([sh, v]); return v;
+}
+/** ذاكرة جوجل المؤقتة: قيم أكبر من ١٠٠KB تُقطَّع إلى أجزاء. تفشل بصمت إن لم تتوفر. */
+function cachePut_(key, str, ttl){
+  try {
+    var c = CacheService.getScriptCache(), CH = 30000, n = Math.ceil(str.length / CH), m = {};
+    for (var i = 0; i < n; i++) m[key + '#' + i] = str.substr(i * CH, CH);
+    m[key] = String(n); c.putAll(m, ttl || 1800);
+  } catch (e) {}
+}
+function cacheGet_(key){
+  try {
+    var c = CacheService.getScriptCache(), n = Number(c.get(key) || 0); if (!n) return null;
+    var ks = []; for (var i = 0; i < n; i++) ks.push(key + '#' + i);
+    var all = c.getAll(ks), s = '';
+    for (var j = 0; j < n; j++) { var part = all[key + '#' + j]; if (part == null) return null; s += part; }
+    return s;
+  } catch (e) { return null; }
+}
+/** يحذف الحقول الفارغة من الفائدة لتصغير الرد (المتصفح يعيد الافتراضيات). */
+function compact_(o){
+  var c = {};
+  for (var k in o) { var v = o[k]; if (k === '_row' || k === 'createdHijri') continue;
+    if (v === '' || v === false || v === 0 || (Array.isArray(v) && !v.length)) continue; c[k] = v; }
+  c.id = o.id; return c;
+}
+
 /** يُرجع الورقة جاهزة: يُنشئها إن لم توجد، ويُكمل أعمدتها وعناوينها دون المساس بالبيانات. */
 function getSheet_(name, heads){
   if (_SC[name]) return _SC[name];
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sh = ss.getSheetByName(name);
   if (!sh) sh = ss.insertSheet(name);
-  ensureHeaders_(sh, heads);
+  if (pget_('H_' + name) !== SCHEMA_) { ensureHeaders_(sh, heads); pset_('H_' + name, SCHEMA_); }   // فحص العناوين مرة واحدة لا في كل طلب
   _SC[name] = sh;
   return sh;
 }
@@ -135,7 +180,7 @@ function getSheet_(name, heads){
 function ensureHeaders_(sh, heads){
   var n = heads.length;
   if (sh.getMaxColumns() < n) sh.insertColumnsAfter(sh.getMaxColumns(), n - sh.getMaxColumns());
-  var fresh = sh.getLastRow() === 0;
+  var fresh = lr_(sh) === 0;
   var have = fresh ? [] : sh.getRange(1,1,1,n).getValues()[0].map(String);
   var touched = fresh;
   for (var i=0;i<n;i++){
@@ -164,11 +209,11 @@ function writeRows_(sh, startRow, rows, width){
   r.setValues(rows);
 }
 /** بديل appendRow يضمن أن الصف المضاف نصّي. */
-function appendText_(sh, vals){ writeRows_(sh, sh.getLastRow() + 1, [vals], vals.length); }
+function appendText_(sh, vals){ writeRows_(sh, lr_(sh) + 1, [vals], vals.length); }
 
 function ensureSettings_(t){
   var have = {};
-  if (t.getLastRow() > 1) t.getRange(2,1,t.getLastRow()-1,1).getValues().forEach(function(r){ have[String(r[0])] = 1; });
+  if (lr_(t) > 1) t.getRange(2,1,lr_(t)-1,1).getValues().forEach(function(r){ have[String(r[0])] = 1; });
   DEFAULT_SETTINGS.forEach(function(d){ if (!have[d[0]]) appendText_(t,[d[0], d[1]]); });
 }
 
@@ -216,14 +261,11 @@ function withLock_(ms, fn){
 /** رقم نسخة البيانات: يتغيّر مع كل كتابة. إن جاء المتصفح بالرقم نفسه فلا حاجة لقراءة الجدول أصلًا. */
 /** رقم النسخة: يُرفع مع كل كتابة من المنصة، ويُضاف إليه عدد صفوف أوراق الفوائد والقائلين والمراجع ليلتقط حذفك أو إضافتك المباشرة في جدول جوجل. */
 function ver_(){
-  var v = PropertiesService.getScriptProperties().getProperty('VER') || '0', fp = '';
-  try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    [SH.F, SH.S, SH.R, SH.C].forEach(function(n){ var sh = ss.getSheetByName(n); fp += '.' + (sh ? sh.getLastRow() : 0); });
-  } catch (e) {}
+  var v = pget_('VER') || '0', fp = '';
+  try { fp = '.' + lr_(fsheet_()); } catch (e) {}
   return v + fp;
 }
-function bump_(){ PropertiesService.getScriptProperties().setProperty('VER', Date.now().toString(36) + Math.floor(Math.random()*1296).toString(36)); }
+function bump_(){ pset_('VER', Date.now().toString(36) + Math.floor(Math.random()*1296).toString(36)); }
 
 /* ===================== كلمة المرور ===================== */
 /** (اختياري) كلمة مرور ابتدائية من اختيارك — اكتبها مكان النجوم ثم شغّل الدالة. */
@@ -279,12 +321,13 @@ var OWNER = {
 var ALLOWED_BEFORE_CHANGE = { checkToken:1, changePassword:1, logout:1 };
 
 function doPost(e){
-  _SC = {}; _ALL = null;
+  _SC = {}; _ALL = null; _P = null; _M = {}; _LR = [];
   var req;
   try { req = JSON.parse(e.postData.contents); }
   catch (err) { return out_({ok:false, error:'طلب غير صالح'}); }
 
   var fn = String(req.fn || '');
+  _RO = !!READ_FNS[fn];
   var args = req.args || {};
   var token = req.token || '';
 
@@ -305,7 +348,7 @@ function doPost(e){
 }
 
 /* ===================== الجلسات ===================== */
-function mustChange_(){ return PropertiesService.getScriptProperties().getProperty('MUSTCHANGE') === '1'; }
+function mustChange_(){ return pget_('MUSTCHANGE') === '1'; }
 
 function api_login(a){
   var p = PropertiesService.getScriptProperties();
@@ -342,11 +385,20 @@ function api_boot(a, token){
   var owner = validToken_(token), must = owner && mustChange_(), ver = ver_();
   var out = {owner:owner, mustChange:must, ver:ver};
   if (must) return out;
+  if (a.ver && String(a.ver) === ver && !!a.owner === owner) {           // لم يتغيّر شيء: ردّ صغير جدًّا
+    out.same = true; if (!a.hasQ) out.q = api_qplans({}, token); return out;
+  }
+  var key = 'BO_' + (owner ? 'o' : 'g') + (a.compact ? 'c' : 'f') + '_' + ver;   // compact: المتصفح الجديد فقط يفهم الرد المضغوط                      // نسخة جاهزة في ذاكرة جوجل المؤقتة لهذا الرقم
+  if (!a.fresh) {
+    var hit = cacheGet_(key);
+    if (hit) { try { var d = JSON.parse(hit); out.settings = d.s; out.meta = d.m; out.items = d.i; out.q = d.q; return out; } catch (e) {} }
+  }
   out.q = api_qplans({}, token);
-  if (a.ver && String(a.ver) === ver && !!a.owner === owner) { out.same = true; return out; }
   out.settings = owner ? api_settingsOwner() : api_settings();
   out.meta = owner ? api_meta() : api_metaPublic();
   out.items = owner ? api_list() : api_listPublic();
+  if (a.compact) out.items = out.items.map(compact_);
+  cachePut_(key, JSON.stringify({s:out.settings, m:out.meta, i:out.items, q:out.q}));
   return out;
 }
 
@@ -359,10 +411,9 @@ function purgeTokens_(){
 
 function validToken_(tok){
   if (!tok) return false;
-  var p = PropertiesService.getScriptProperties();
-  var exp = p.getProperty('TOK_'+tok);
+  var exp = pget_('TOK_'+tok);
   if (!exp) return false;
-  if (Number(exp) < Date.now()) { p.deleteProperty('TOK_'+tok); return false; }
+  if (Number(exp) < Date.now()) { PropertiesService.getScriptProperties().deleteProperty('TOK_'+tok); if (_P) delete _P['TOK_'+tok]; return false; }
   return true;
 }
 
@@ -388,8 +439,7 @@ function api_changePassword(a){
 /* ===================== الإعدادات ===================== */
 function settingsAll_(){
   var sh = getSheet_(SH.T, HEAD_T), o = {};
-  if (sh.getLastRow() > 1)
-    sh.getRange(2,1,sh.getLastRow()-1,2).getValues().forEach(function(r){ if (r[0]) o[String(r[0])] = String(r[1]); });
+  sheetVals_(sh, 2).forEach(function(r){ if (r[0]) o[String(r[0])] = String(r[1]); });
   return o;
 }
 
@@ -416,7 +466,7 @@ function api_saveSettings(a){
     var sh = getSheet_(SH.T, HEAD_T), obj = a.settings || {};
     var known = {}; DEFAULT_SETTINGS.forEach(function(d){ known[d[0]] = 1; });
     var p = PropertiesService.getScriptProperties();
-    var existing = sh.getLastRow() > 1 ? sh.getRange(2,1,sh.getLastRow()-1,1).getValues().map(function(r){return String(r[0])}) : [];
+    var existing = lr_(sh) > 1 ? sh.getRange(2,1,lr_(sh)-1,1).getValues().map(function(r){return String(r[0])}) : [];
     Object.keys(obj).forEach(function(k){
       var v = clip_(obj[k], 2000);
       if (PRIV_KEYS[k]) { p.setProperty(PRIV_KEYS[k], v); return; }
@@ -431,9 +481,8 @@ function api_saveSettings(a){
 
 /* ===================== الأشخاص (القائلون والوسطاء) ===================== */
 function peopleRows_(){
-  var sh = getSheet_(SH.S, HEAD_S), last = sh.getLastRow();
-  if (last < 2) return [];
-  return sh.getRange(2,1,last-1,HEAD_S.length).getValues().map(function(r,i){
+  var sh = getSheet_(SH.S, HEAD_S);
+  return sheetVals_(sh, HEAD_S.length).map(function(r,i){
     return {name:String(r[0]||''), aliases:splitList_(r[1]), death:String(r[2]||''), bio:String(r[3]||''),
             hide:String(r[4]||''), rep:String(r[5]||''), dua:String(r[6]||''), _row:i+2};
   }).filter(function(p){ return p.name; });
@@ -509,7 +558,7 @@ function registerPeople_(names, idx){
   });
   if (!add.length) return;
   var sh = getSheet_(SH.S, HEAD_S);
-  writeRows_(sh, sh.getLastRow() + 1, add, HEAD_S.length);
+  writeRows_(sh, lr_(sh) + 1, add, HEAD_S.length);
   add.forEach(function(r){ idx.by[norm_(r[0])] = {name:r[0], aliases:[], hide:'', rep:'', dua:''}; });
 }
 
@@ -518,7 +567,7 @@ var _ALL = null;
 /** تُقرأ الورقة مرة واحدة في الطلب الواحد مهما تعدّدت الدوال التي تحتاجها. */
 function readAll_(){
   if (_ALL) return _ALL.slice();
-  var sh = fsheet_(), last = sh.getLastRow();
+  var sh = fsheet_(), last = lr_(sh);
   if (last < 2) return (_ALL = []).slice();
   var vals = sh.getRange(2,1,last-1,COLS.length).getValues();
   _ALL = vals.map(function(r,i){ return rowToObj_(r, i+2); }).filter(function(o){ return o.id; });
@@ -567,7 +616,7 @@ function pub_(o){
 function own_(o){ o = JSON.parse(JSON.stringify(o)); delete o._row; return o; }
 
 function findRow_(id){
-  var sh = fsheet_(), last = sh.getLastRow();
+  var sh = fsheet_(), last = lr_(sh);
   if (last < 2) return 0;
   var ids = sh.getRange(2,1,last-1,1).getValues();
   for (var i=0;i<ids.length;i++) if (String(ids[i][0]) === id) return i+2;
@@ -624,8 +673,8 @@ function publicItems_(){
 /** كتاب ← مؤلفه (من فهرس المراجع)، ليشمل الإخفاءُ مؤلفَ الكتاب لا القائل وحده. */
 /** إخفاء الكتب عن الزوار: العنوان ← '' | 'المرجع' (يُحذف اسم الكتاب وتبقى الفائدة) | 'كل شيء' (تُحجب فوائده). */
 function refHides_(){
-  var m = {}, rs = getSheet_(SH.R, HEAD_R);
-  if (rs.getLastRow() > 1) rs.getRange(2,1,rs.getLastRow()-1,5).getValues().forEach(function(r){
+  var m = {};
+  sheetVals_(getSheet_(SH.R, HEAD_R), HEAD_R.length).forEach(function(r){
     var h = String(r[4]||''); if (r[0] && (h === 'المرجع' || h === 'كل شيء')) m[norm_(r[0])] = h;
   });
   return m;
@@ -635,8 +684,8 @@ function bookHide_(text, m){
   return t ? (m[t] || '') : '';
 }
 function refAuthors_(pidx){
-  var m = {}, rs = getSheet_(SH.R, HEAD_R);
-  if (rs.getLastRow() > 1) rs.getRange(2,1,rs.getLastRow()-1,2).getValues().forEach(function(r){
+  var m = {};
+  sheetVals_(getSheet_(SH.R, HEAD_R), HEAD_R.length).forEach(function(r){
     var t = norm_(String(r[0]||'')), a = String(r[1]||'').trim();
     if (t && a) m[t] = pidx.by[norm_(a)] || {name:a, hide:'', aliases:[]};
   });
@@ -695,8 +744,7 @@ function api_get(a){
 
 /** المراجع مع مؤلفيها: [{t:العنوان, a:المؤلف}] لقوائم المحرر المترابطة. */
 function refsFull_(){
-  var rs = getSheet_(SH.R, HEAD_R);
-  return rs.getLastRow() > 1 ? rs.getRange(2,1,rs.getLastRow()-1,5).getValues().filter(function(r){ return r[0]; }).map(function(r){ return {t:String(r[0]), a:String(r[1]||''), h:String(r[4]||'')}; }) : [];
+  return sheetVals_(getSheet_(SH.R, HEAD_R), HEAD_R.length).filter(function(r){ return r[0]; }).map(function(r){ return {t:String(r[0]), a:String(r[1]||''), h:String(r[4]||'')}; });
 }
 
 function api_meta(){
@@ -722,9 +770,8 @@ function api_meta(){
 }
 
 function listCol_(sh, col, statusCol, statusVal){
-  if (!sh || sh.getLastRow() < 2) return [];
-  var n = sh.getLastColumn();
-  return sh.getRange(2,1,sh.getLastRow()-1,n).getValues()
+  if (!sh || lr_(sh) < 2) return [];
+  return sheetVals_(sh, Math.max(col, statusCol || 0))
     .filter(function(r){ return r[col-1] && (!statusCol || !r[statusCol-1] || r[statusCol-1]===statusVal); })
     .map(function(r){ return String(r[col-1]); });
 }
@@ -764,8 +811,8 @@ function sanitize_(src, idx){
 
 /** عناوين الكتب في فهرس المراجع (مفتاح مُنقّى) — الوسيط الذي يطابق أحدها كتابٌ لا شخص. */
 function bookSet_(){
-  var m = {}, rs = getSheet_(SH.R, HEAD_R);
-  listCol_(rs, 1).forEach(function(t){ m[norm_(t)] = 1; });
+  var m = {};
+  sheetVals_(getSheet_(SH.R, HEAD_R), HEAD_R.length).forEach(function(r){ if (r[0]) m[norm_(String(r[0]))] = 1; });
   return m;
 }
 function isBook_(name, m){
@@ -890,14 +937,14 @@ function api_purge(a){
 
 function api_emptyTrash(){
   return withLock_(60000, function(){
-    var sh = fsheet_(), last = sh.getLastRow();
+    var sh = fsheet_(), last = lr_(sh);
     if (last < 2) return {count:0};
     var vals = sh.getRange(2,1,last-1,COLS.length).getValues();
     var del = [];
     vals.forEach(function(r,i){ if (String(r[13]) === 'محذوفة') del.push(i); });
     if (!del.length) return {count:0};
     var arch = getSheet_(SH.A, COLS);
-    writeRows_(arch, arch.getLastRow() + 1, del.map(function(i){ return vals[i]; }), COLS.length);
+    writeRows_(arch, lr_(arch) + 1, del.map(function(i){ return vals[i]; }), COLS.length);
     for (var k=del.length-1;k>=0;k--) sh.deleteRow(del[k]+2);   // من الأسفل لئلا تتزحزح الصفوف
     return {count:del.length};
   });
@@ -910,7 +957,7 @@ function api_emptyTrash(){
  */
 function api_bulk(a){
   return withLock_(60000, function(){
-    var sh = fsheet_(), last = sh.getLastRow();
+    var sh = fsheet_(), last = lr_(sh);
     if (last < 2) return {count:0};
     var n = last - 1, ids = sh.getRange(2,1,n,1).getValues(), want = null, op = String(a.op || '');
     if (['visibility','starred','trash'].indexOf(op) < 0) throw new Error('إجراء غير مسموح');
@@ -937,7 +984,7 @@ function api_refs(){ return refsFull_(); }
 function api_saveRef(a){
   return withLock_(30000, function(){
     var t = clip_(a.title, 300); if (!t) throw new Error('العنوان فارغ');
-    var rs = getSheet_(SH.R, HEAD_R), last = rs.getLastRow(), k = norm_(t), row = 0, cur = ['','','','',''];
+    var rs = getSheet_(SH.R, HEAD_R), last = lr_(rs), k = norm_(t), row = 0, cur = ['','','','',''];
     if (last > 1) rs.getRange(2,1,last-1,HEAD_R.length).getValues().some(function(r,i){ if (norm_(String(r[0])) === k) { row = i+2; cur = r.map(String); return true; } return false; });
     if (a.author !== undefined) cur[1] = clip_(a.author, 100);
     if (a.kind !== undefined) cur[2] = clip_(a.kind, 40);
@@ -958,8 +1005,8 @@ function qSheet_(create){
   return getSheet_(SH.Q, HEAD_Q);
 }
 function qRows_(sh){
-  if (!sh || sh.getLastRow() < 2) return [];
-  return sh.getRange(2,1,sh.getLastRow()-1,HEAD_Q.length).getValues().map(function(r,i){
+  if (!sh) return [];
+  return sheetVals_(sh, HEAD_Q.length).map(function(r,i){
     var cfg = {}, state = {};
     try { cfg = JSON.parse(String(r[2]||'{}')); } catch (e) {}
     try { state = JSON.parse(String(r[6]||'{}')); } catch (e) {}
@@ -1031,7 +1078,7 @@ function api_qstate(a){
 function api_qread(a){
   return withLock_(30000, function(){
     var g = getSheet_(SH.G, HEAD_G), now = new Date().toISOString(), ids = (a.items || []).slice(0, 100), plan = String(a.plan || '');
-    if (ids.length) writeRows_(g, g.getLastRow() + 1, ids.map(function(id){ return [now, String(id), plan]; }), HEAD_G.length);
+    if (ids.length) writeRows_(g, lr_(g) + 1, ids.map(function(id){ return [now, String(id), plan]; }), HEAD_G.length);
     var sh = qSheet_(false);
     if (sh && plan) {
       var r = qRows_(sh).filter(function(p){ return p.id === plan; })[0];
@@ -1045,15 +1092,15 @@ function api_qread(a){
 }
 function api_qlog(){
   var g = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SH.G);
-  if (!g || g.getLastRow() < 2) return [];
-  var n = g.getLastRow() - 1, from = Math.max(2, g.getLastRow() - 40000 + 1);
-  return g.getRange(from,1,g.getLastRow()-from+1,3).getValues().map(function(r){ return [toIso_(r[0]), String(r[1]), String(r[2])]; });
+  if (!g || lr_(g) < 2) return [];
+  var n = lr_(g) - 1, from = Math.max(2, lr_(g) - 40000 + 1);
+  return g.getRange(from,1,lr_(g)-from+1,3).getValues().map(function(r){ return [toIso_(r[0]), String(r[1]), String(r[2])]; });
 }
 
 /** يُنقل كل ما في الكُنّاشة إلى السلة (لخيار «استبدال الكل» عند الاستيراد) — يمكن استعادته. */
 function api_trashAll(){
   return withLock_(60000, function(){
-    var sh = fsheet_(), last = sh.getLastRow();
+    var sh = fsheet_(), last = lr_(sh);
     if (last < 2) return {count:0};
     var st = sh.getRange(2,14,last-1,1).getValues(), pv = sh.getRange(2,20,last-1,1).getValues(), n = 0;
     for (var i=0;i<st.length;i++){
@@ -1113,7 +1160,7 @@ function applyMeta_(kind, from, to, merge, inLock){
   if (!from || !to) throw new Error('القيمة فارغة');
   if (from === to) return {changed:0};
   var run = function(){
-    var sh = fsheet_(), last = sh.getLastRow(), changed = 0;
+    var sh = fsheet_(), last = lr_(sh), changed = 0;
     if (last >= 2) {
       K.cols.forEach(function(col){
         var rng = sh.getRange(2, col, last-1, 1), vals = rng.getValues(), dirty = false;
@@ -1131,8 +1178,8 @@ function applyMeta_(kind, from, to, merge, inLock){
     }
     if (K.sheet) {
       var ms = getSheet_(K.sheet, K.heads);
-      if (ms.getLastRow() >= 2) {
-        var names = ms.getRange(2,1,ms.getLastRow()-1,1).getValues().map(function(r){ return String(r[0]); });
+      if (lr_(ms) >= 2) {
+        var names = ms.getRange(2,1,lr_(ms)-1,1).getValues().map(function(r){ return String(r[0]); });
         var iFrom = names.indexOf(from), iTo = names.indexOf(to);
         if (iFrom >= 0) {
           if (iTo >= 0) {
@@ -1183,9 +1230,9 @@ function api_cleanMeta(a){
       if (o.speaker) mark(o.speaker);
       if (o.via) mark(o.via);
     });
-    var rs = getSheet_(SH.R, HEAD_R), rv = rs.getLastRow() > 1 ? rs.getRange(2,1,rs.getLastRow()-1,HEAD_R.length).getValues() : [];
+    var rs = getSheet_(SH.R, HEAD_R), rv = lr_(rs) > 1 ? rs.getRange(2,1,lr_(rs)-1,HEAD_R.length).getValues() : [];
     rv.forEach(function(r){ if (books[norm_(r[0])] && r[1]) mark(r[1]); });          // مؤلف كتاب مستعمل
-    var sh = kind === 'refs' ? rs : getSheet_(SH.S, HEAD_S), del = [], vals = kind === 'refs' ? rv : (sh.getLastRow() > 1 ? sh.getRange(2,1,sh.getLastRow()-1,HEAD_S.length).getValues() : []);
+    var sh = kind === 'refs' ? rs : getSheet_(SH.S, HEAD_S), del = [], vals = kind === 'refs' ? rv : (lr_(sh) > 1 ? sh.getRange(2,1,lr_(sh)-1,HEAD_S.length).getValues() : []);
     vals.forEach(function(r,i){
       var key = norm_(r[0]); if (!key) return;
       if (kind === 'refs') { if (!books[key] && !r[4]) del.push(i+2); }                  // غير مستعمل وغير مُخفى
@@ -1260,9 +1307,9 @@ function api_reading(){
 function api_exportAll(){
   var cats = [], refs = [];
   var cs = getSheet_(SH.C, HEAD_C), rs = getSheet_(SH.R, HEAD_R);
-  if (cs.getLastRow() > 1) cats = cs.getRange(2,1,cs.getLastRow()-1,HEAD_C.length).getValues().filter(function(r){ return r[0]; })
+  if (lr_(cs) > 1) cats = cs.getRange(2,1,lr_(cs)-1,HEAD_C.length).getValues().filter(function(r){ return r[0]; })
     .map(function(r){ return {name:String(r[0]), parent:String(r[1]), color:String(r[2]), icon:String(r[3]), order:String(r[4]), status:String(r[5])}; });
-  if (rs.getLastRow() > 1) refs = rs.getRange(2,1,rs.getLastRow()-1,HEAD_R.length).getValues().filter(function(r){ return r[0]; })
+  if (lr_(rs) > 1) refs = rs.getRange(2,1,lr_(rs)-1,HEAD_R.length).getValues().filter(function(r){ return r[0]; })
     .map(function(r){ return {title:String(r[0]), author:String(r[1]), kind:String(r[2]), edition:String(r[3]), hide:String(r[4]||'')}; });
   return { format:'kunnasha', version:2,
            items: readAll_().filter(function(o){ return o.status !== 'محذوفة'; }).map(own_),
@@ -1322,15 +1369,15 @@ function api_importBatch(a){
     });
 
     if (rows.length) {
-      writeRows_(sh, sh.getLastRow() + 1, rows, COLS.length);
+      writeRows_(sh, lr_(sh) + 1, rows, COLS.length);
       PropertiesService.getScriptProperties().setProperty('COUNTER', String(n));
       registerPeople_(names, idx);
       var rsh = getSheet_(SH.R, HEAD_R), csh = getSheet_(SH.C, HEAD_C);
       var haveR = listCol_(rsh,1).map(norm_), haveC = listCol_(csh,1).map(norm_);
       var addR = Object.keys(refs).filter(function(x){ return haveR.indexOf(norm_(x)) < 0; }).map(function(x){ return [x,'','','','']; });
       var addC = Object.keys(cats).filter(function(x){ return haveC.indexOf(norm_(x)) < 0; }).map(function(x){ return [x,'','','',9999,'مفعّل']; });
-      if (addR.length) writeRows_(rsh, rsh.getLastRow()+1, addR, HEAD_R.length);
-      if (addC.length) writeRows_(csh, csh.getLastRow()+1, addC, HEAD_C.length);
+      if (addR.length) writeRows_(rsh, lr_(rsh)+1, addR, HEAD_R.length);
+      if (addC.length) writeRows_(csh, lr_(csh)+1, addC, HEAD_C.length);
     }
     return {added:added, skipped:skipped, bad:bad};
   });
@@ -1351,7 +1398,7 @@ function api_importMeta(a){
       idx.by[norm_(name)] = {name:name, aliases:al}; cnt.people++;
     });
     var rsh = getSheet_(SH.R, HEAD_R), haveR = listCol_(rsh,1).map(norm_);
-    var rrows = rsh.getLastRow() > 1 ? rsh.getRange(2,1,rsh.getLastRow()-1,HEAD_R.length).getValues() : [];
+    var rrows = lr_(rsh) > 1 ? rsh.getRange(2,1,lr_(rsh)-1,HEAD_R.length).getValues() : [];
     (a.refs || []).slice(0,5000).forEach(function(r){
       var t = clip_(r && r.title, 300); if (!t) return;
       var at = haveR.indexOf(norm_(t));
@@ -1371,7 +1418,7 @@ function api_importMeta(a){
     if (a.settings) {
       var ts = getSheet_(SH.T, HEAD_T), known = {};
       DEFAULT_SETTINGS.forEach(function(d){ if (d[2]) known[d[0]] = 1; });
-      var ex = ts.getLastRow() > 1 ? ts.getRange(2,1,ts.getLastRow()-1,1).getValues().map(function(r){ return String(r[0]); }) : [];
+      var ex = lr_(ts) > 1 ? ts.getRange(2,1,lr_(ts)-1,1).getValues().map(function(r){ return String(r[0]); }) : [];
       Object.keys(a.settings).forEach(function(k){
         if (!known[k]) return;
         var i = ex.indexOf(k), v = clip_(a.settings[k], 2000);
@@ -1384,9 +1431,7 @@ function api_importMeta(a){
 
 /* ===================== الرسائل (طلبات المنصة والملاحظات) ===================== */
 function countNewMessages_(){
-  var sh = getSheet_(SH.M, HEAD_M), last = sh.getLastRow();
-  if (last < 2) return 0;
-  return sh.getRange(2,9,last-1,1).getValues().filter(function(r){ return String(r[0]) === 'جديد'; }).length;
+  return sheetVals_(getSheet_(SH.M, HEAD_M), HEAD_M.length).filter(function(r){ return String(r[8]) === 'جديد'; }).length;
 }
 
 var MSG_KINDS = ['طلب منصة','سؤال','اقتراح','ملاحظة','تواصل'];
@@ -1403,7 +1448,7 @@ function api_contact(a){
     var p = PropertiesService.getScriptProperties(), dk = 'MSGDAY_' + dayKey_();
     var today = Number(p.getProperty(dk)||0);
     if (today >= 60) throw new Error('بلغت المنصة حدّها اليومي من الرسائل — حاول غدًا');
-    var sh = getSheet_(SH.M, HEAD_M), last = sh.getLastRow(), mine = 0;
+    var sh = getSheet_(SH.M, HEAD_M), last = lr_(sh), mine = 0;
     var todayStr = new Date().toISOString().slice(0,10);
     if (last > 1 && contact) {
       var from = Math.max(2, last-300);
@@ -1429,7 +1474,7 @@ function maybeAutoReply_(kind, contact, sh){
   if (!/^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+$/.test(contact)) return '';
   var dk = 'AUTODAY_' + dayKey_(), sent = Number(p.getProperty(dk)||0);
   if (sent >= 15) return '';
-  var last = sh.getLastRow();
+  var last = lr_(sh);
   if (last > 1) {
     var dup = sh.getRange(2,1,last-1,HEAD_M.length).getValues().some(function(r){
       return String(r[4]).toLowerCase() === contact.toLowerCase() && String(r[9]) === 'نعم';
@@ -1448,7 +1493,7 @@ function maybeAutoReply_(kind, contact, sh){
 }
 
 function api_messages(){
-  var sh = getSheet_(SH.M, HEAD_M), last = sh.getLastRow();
+  var sh = getSheet_(SH.M, HEAD_M), last = lr_(sh);
   if (last < 2) return [];
   return sh.getRange(2,1,last-1,HEAD_M.length).getValues().map(function(r){
     return {id:String(r[0]), at:toIso_(r[1]), kind:String(r[2]), name:String(r[3]), contact:String(r[4]),
@@ -1457,7 +1502,7 @@ function api_messages(){
 }
 
 function findMsgRow_(id){
-  var sh = getSheet_(SH.M, HEAD_M), last = sh.getLastRow();
+  var sh = getSheet_(SH.M, HEAD_M), last = lr_(sh);
   if (last < 2) return 0;
   var ids = sh.getRange(2,1,last-1,1).getValues();
   for (var i=0;i<ids.length;i++) if (String(ids[i][0]) === id) return i+2;
@@ -1497,7 +1542,7 @@ function cleanTplCfg_(c){
 }
 
 function tplRows_(){
-  var sh = getSheet_(SH.P, HEAD_P), last = sh.getLastRow();
+  var sh = getSheet_(SH.P, HEAD_P), last = lr_(sh);
   return last < 2 ? [] : sh.getRange(2,1,last-1,HEAD_P.length).getValues().map(function(r,i){
     return {id:String(r[0]), name:String(r[1]), cfg:String(r[2]), part:Number(r[3])||0, data:String(r[4]||''), row:i+2};
   }).filter(function(r){ return r.id; });
@@ -1537,7 +1582,7 @@ function api_saveTemplate(a){
     var data = img ? img : keepData;
     var out = [[id, name, JSON.stringify(cfg), 0, '']];
     for (var i=0, p=1; i<data.length; i+=IMG_CHUNK, p++) out.push([id, name, '', p, data.slice(i, i+IMG_CHUNK)]);
-    writeRows_(sh, sh.getLastRow() + 1, out, HEAD_P.length);
+    writeRows_(sh, lr_(sh) + 1, out, HEAD_P.length);
     return {id:id};
   });
 }

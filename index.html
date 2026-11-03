@@ -11,7 +11,8 @@
 <meta name="description" content="كُنّاشة رقمية للفوائد العلمية">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@400;600;700&family=Reem+Kufi:wght@400;600&family=Aref+Ruqaa:wght@400;700&family=Tajawal:wght@500;700&family=Noto+Naskh+Arabic:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet"></noscript>
 <style>
 :root{
   --paper:#f6f1e6; --paper2:#fffdf8; --ink:#1d2b36; --muted:#6b7b85;
@@ -507,8 +508,9 @@ async function api(fn,args,otherUrl){
   return j.data;
 }
 
+let pplC=null, refsC=null;      // قوائم الأشخاص والكتب تُجلب مرة وتُعاد من الذاكرة حتى تُعدَّل
 const db = {
-  async boot(ver,owner){ return await api('boot',{ver:ver||'',owner:!!owner}); },
+  async boot(ver,owner,o){ o=o||{}; return await api('boot',{ver:ver||'',owner:!!owner,hasQ:o.hasQ!==false,fresh:!!o.fresh,compact:true}); },
   async settings(){ return await api(st.owner?'settingsOwner':'settings'); },
   async meta(){ return await api(st.owner?'meta':'metaPublic'); },
   async list(owner){ return await api(owner?'list':'listPublic'); },
@@ -531,8 +533,8 @@ const db = {
   async emptyTrash(){ return await api('emptyTrash'); },
   async changePassword(oldPw,newPw){ return await api('changePassword',{old:oldPw,neu:newPw}); },
   async exportAll(){ return await api('exportAll'); },
-  async people(){ return await api('people'); },
-  async savePerson(name,data){ return await api('savePerson',{name,data}); },
+  async people(){ return pplC||(pplC=api('people').catch(e=>{ pplC=null; throw e; })); },
+  async savePerson(name,data){ pplC=null; return await api('savePerson',{name,data}); },
   async importBatch(items,options){ return await api('importBatch',{items,options}); },
   async importMeta(payload){ return await api('importMeta',payload); },
   async trashAll(){ return await api('trashAll'); },
@@ -545,8 +547,8 @@ const db = {
   async qstate(a){ return await api('qstate',a); },
   async qread(a){ return await api('qread',a); },
   async qlog(){ return await api('qlog'); },
-  async refs(){ return await api('refs'); },
-  async saveRef(a){ return await api('saveRef',a); },
+  async refs(){ return refsC||(refsC=api('refs').catch(e=>{ refsC=null; throw e; })); },
+  async saveRef(a){ refsC=null; pplC=null; return await api('saveRef',a); },
   async messages(){ return await api('messages'); },
   async setMessageStatus(id,status){ return await api('setMessageStatus',{id,status}); },
   async deleteMessage(id){ return await api('deleteMessage',{id}); },
@@ -580,15 +582,16 @@ function norm(s){ return (s||'')
   .replace(/[أإآٱ]/g,'ا').replace(/ة/g,'ه').replace(/[ىئ]/g,'ي').replace(/ؤ/g,'و')
   .replace(/\s+/g,' ').trim().toLowerCase(); }
 function dupKey(t){ return norm(t).replace(/[^ء-غف-يa-z0-9 ]/g,'').replace(/\s+/g,' ').trim().slice(0,70); }
+let _hf=null,_hp=null,_gf=null;
 function hijri(iso){
   if(!iso) return '';
-  try{ return new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura',{day:'numeric',month:'long',year:'numeric'}).format(new Date(iso)).replace(/\s*هـ\s*$/,'')+' هـ'; }
+  try{ return (_hf||(_hf=new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura',{day:'numeric',month:'long',year:'numeric'}))).format(new Date(iso)).replace(/\s*هـ\s*$/,'')+' هـ'; }
   catch(e){ return ''; }
 }
 const HMONTHS=['محرّم','صفر','ربيع الأول','ربيع الآخر','جمادى الأولى','جمادى الآخرة','رجب','شعبان','رمضان','شوال','ذو القعدة','ذو الحجة'];
 /** أجزاء التاريخ الهجري (أم القرى) لتاريخ ميلادي */
 function hijriParts(d){
-  try{ const p=new Intl.DateTimeFormat('en-u-ca-islamic-umalqura-nu-latn',{day:'numeric',month:'numeric',year:'numeric'}).formatToParts(d); const g=t=>+p.find(x=>x.type===t).value; return {y:g('year'),m:g('month'),d:g('day')}; }
+  try{ const p=(_hp||(_hp=new Intl.DateTimeFormat('en-u-ca-islamic-umalqura-nu-latn',{day:'numeric',month:'numeric',year:'numeric'}))).formatToParts(d); const g=t=>+p.find(x=>x.type===t).value; return {y:g('year'),m:g('month'),d:g('day')}; }
   catch(e){ return null; }
 }
 /** التاريخ الميلادي (ظهر ذلك اليوم) لتاريخ هجري؛ يبحث حول التقدير الجدولي ليطابق أم القرى تمامًا */
@@ -602,7 +605,7 @@ function hijriToDate(y,m,d){
   }
   return at;
 }
-function greg(iso){ if(!iso) return ''; try{return new Intl.DateTimeFormat('ar',{day:'numeric',month:'long',year:'numeric'}).format(new Date(iso))}catch(e){return ''} }
+function greg(iso){ if(!iso) return ''; try{return (_gf||(_gf=new Intl.DateTimeFormat('ar',{day:'numeric',month:'long',year:'numeric'}))).format(new Date(iso))}catch(e){return ''} }
 function toast(msg,actionLabel,action){
   const t=$('#toast'); t.innerHTML='';
   const b=el('div',null,esc(msg));
@@ -625,13 +628,13 @@ function bgUpdate(){ let c=$('#bgchip'); if(!c){ c=el('div','bgchip'); c.id='bgc
 function bgRun(label,fn,onFail){
   bgN++; mutEpoch++; bgLabel=label; bgUpdate();
   const p=bgQ.then(fn).then(()=>{},e=>{ try{ if(onFail) onFail(e); else toast((e&&e.message)||'تعذّر الحفظ'); }catch(x){} })
-    .then(()=>{ bgN--; bgUpdate(); if(bgN===0){ clearTimeout(syncT); syncT=setTimeout(silentSync,900); } });
+    .then(()=>{ bgN--; bgUpdate(); if(bgN===0){ clearTimeout(syncT); syncT=setTimeout(silentSync,6000); } });
   bgQ=p; return p;
 }
 /** مزامنة صامتة بعد انتهاء العمل الخلفي: لا حجب، وتُهمَل نتيجتها إن جدّ تعديل محلي في أثنائها. */
 async function silentSync(){
   if(bgN>0) return; const ep=mutEpoch, y=window.scrollY;
-  try{ const r=await db.boot('',st.owner); if(bgN>0||ep!==mutEpoch){ clearTimeout(syncT); syncT=setTimeout(silentSync,900); return; } handleBoot(r,st.owner); window.scrollTo(0,y); }catch(e){}
+  try{ const r=await db.boot('',st.owner); if(bgN>0||ep!==mutEpoch){ clearTimeout(syncT); syncT=setTimeout(silentSync,6000); return; } handleBoot(r,st.owner); window.scrollTo(0,y); }catch(e){}
 }
 let pendingApi=0, barT=null;
 function barStart(){ pendingApi++; if(pendingApi===1){ clearTimeout(barT); barT=setTimeout(()=>{ if(pendingApi>0) $('#topbar').classList.add('on'); },600); } }
@@ -704,13 +707,17 @@ const cacheKey=role=>srv()+'|'+role;
 const cacheGet=role=>IDB.get(cacheKey(role));
 function cacheSet(role,d){ return IDB.set(cacheKey(role),{ver:d.ver,settings:d.settings,meta:d.meta,items:d.items,q:d.q,at:Date.now()}); }
 
+const ITEM_DEF={text:'',title:'',type:'',speaker:'',ref:'',locus:'',via:'',vlocus:'',link:'',cat:'',note:'',visibility:'خاصة',status:'منشورة',starred:false,related:'',createdHijri:'',createdAt:'',updatedAt:'',prevStatus:'',rstage:'',rnext:'',series:'',sorder:0,anchor:'',medium:'',pubNo:'',pubDate:'',verify:false,gain:'',paraphrase:false,own:''};
+function fillItem(o){ const r=Object.assign({},ITEM_DEF,o); if(!r.tags) r.tags=[]; if(!r.hide) r.hide=[]; return r; }
 function applyData(d){
-  st.cfg=d.settings||st.cfg; st.meta=d.meta; st.items=d.items; st.ver=d.ver; st.qplans=d.q||[];
+  st.cfg=d.settings||st.cfg; st.meta=d.meta; st.ver=d.ver; st.qplans=d.q||[];
+  st.items=(d.items||[]).map(fillItem);     // الخادم يحذف الحقول الفارغة لتصغير الرد؛ تُعاد هنا
   st.mediums=[...new Set(ALL_MEDIUMS.concat(d.meta.mediums||[]))];
   applySettings();
 }
 /** يُطبّق ردّ الخادم. يعيد 'must' إن لزم تغيير كلمة المرور، و'same' إن لم يتغيّر شيء، و'fresh' إن وصلت بيانات جديدة. */
 function handleBoot(r,presumedOwner){
+  if(!r.same){ pplC=null; refsC=null; }
   st.owner=!!r.owner; st.mustChange=!!r.mustChange;
   if(presumedOwner && !r.owner){ IDB.del(cacheKey('o')); setTok(''); }        // انتهت صلاحية الرمز: ارجع زائرًا
   if(r.mustChange){ renderChrome0(); forceChangeSheet(); return 'must'; }
@@ -724,7 +731,7 @@ async function bootLoad(){
   st.fromCache=false;
   if(cached){ st.owner=presumed; applyData(cached); st.fromCache=true; renderChrome(); render(); }
   else busy(true,'جارٍ الاتصال بالخادم…');
-  try{ const r=await db.boot(cached&&cached.ver,presumed); busy(false); return handleBoot(r,presumed); }
+  try{ const r=await db.boot(cached&&cached.ver,presumed,{hasQ:!!(cached&&Array.isArray(cached.q))}); busy(false); return handleBoot(r,presumed); }
   catch(e){ busy(false); if(cached && isNetworkError(e)){ toast('لا اتصال — تعرض آخر نسخة محفوظة في جهازك'); return 'offline'; } throw e; }
 }
 
@@ -831,7 +838,7 @@ async function hardRefresh(){
   b.classList.add('spinning');
   try{
     await IDB.del(cacheKey(st.owner?'o':'g'));
-    const r=await db.boot('',st.owner); handleBoot(r,st.owner);
+    const r=await db.boot('',st.owner,{fresh:true}); handleBoot(r,st.owner);
     Q.log=null; try{ tplImgCache&&Object.keys(tplImgCache).forEach(k=>delete tplImgCache[k]); }catch(e){}
     if(st.tab==='qitaf') render();
     toast('حُدّثت البيانات — '+arDigits(st.items.length)+' فائدة');
@@ -846,7 +853,7 @@ function seriesNames(){ return [...new Set(st.items.map(i=>i.series).filter(Bool
 
 /* ---------- 5) الواجهة العامة ---------- */
 function bindChrome(){
-  $('#q').addEventListener('input',e=>{st.q=e.target.value;st.limit=perPage();$('#qclear').style.display=e.target.value?'block':'none';render()});
+  let qT=null; $('#q').addEventListener('input',e=>{ st.q=e.target.value; st.limit=perPage(); $('#qclear').style.display=e.target.value?'block':'none'; clearTimeout(qT); qT=setTimeout(render,160); });
   $('#qclear').onclick=()=>{$('#q').value='';st.q='';$('#qclear').style.display='none';render()};
   $('#btnFilters').onclick=()=>$('#filters').classList.toggle('open');
   $('#btnTheme').onclick=()=>{const d=document.documentElement.dataset.theme==='dark';document.documentElement.dataset.theme=d?'light':'dark';localStorage.setItem('k_theme',d?'light':'dark')};
@@ -1019,7 +1026,7 @@ function filtered(){
   a=sortItems(a);
   const q=norm(st.q);
   if(q){ const w=q.split(' ').filter(Boolean);
-    a=a.filter(i=>{ const hay=norm([i.title,i.text,i.speaker,i.via,i.vlocus,i.ref,i.locus,i.cat,i.series,i.anchor,i.note,(i.tags||[]).join(' ')].join(' '));
+    a=a.filter(i=>{ const hay=i._h||(i._h=norm([i.title,i.text,i.speaker,i.via,i.vlocus,i.ref,i.locus,i.cat,i.series,i.anchor,i.note,(i.tags||[]).join(' ')].join(' ')));
       return w.every(x=>hay.includes(x)); }); }
   return a;
 }
@@ -3559,7 +3566,14 @@ function palette(T,img,cfgC,W,H){
               :{ink:'#1d2b36',muted:'rgba(29,43,54,.75)',accent:'#8a6a35',fill:'rgba(255,255,255,.55)',badge:'circle',orn:'none',frame:'none'};
 }
 
-const fontsReady=(()=>{ let p=null; return ()=>p||(p=Promise.all([document.fonts.load('700 40px Amiri','ابتث'),document.fonts.load('400 40px Amiri','ابتث'),document.fonts.load('600 28px Cairo','ابتث'),document.fonts.load('400 30px "Reem Kufi"','ابتث'),document.fonts.load('400 30px "Aref Ruqaa"','ابتث'),document.fonts.load('400 30px "Noto Naskh Arabic"','ابتث'),document.fonts.load('700 30px "Noto Naskh Arabic"','ابتث'),document.fonts.load('500 30px Tajawal','ابتث'),document.fonts.load('700 30px Tajawal','ابتث')]).catch(()=>{})); })();
+/** خطوط الصور (كوفي، رقعة، تجوال، نسخ) لا تُحمَّل إلا عند أول استعمال لها: لا تبطئ فتح المنصة. */
+const IMG_FONTS_URL='https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@400;600&family=Aref+Ruqaa:wght@400;700&family=Tajawal:wght@500;700&family=Noto+Naskh+Arabic:wght@400;700&display=swap';
+let imgFontsP=null;
+function loadImgFonts(){
+  if(!imgFontsP) imgFontsP=new Promise(res=>{ const l=document.createElement('link'); l.rel='stylesheet'; l.href=IMG_FONTS_URL; l.onload=()=>res(); l.onerror=()=>res(); document.head.appendChild(l); setTimeout(res,8000); });
+  return imgFontsP;
+}
+const fontsReady=(()=>{ let p=null; return ()=>p||(p=loadImgFonts().then(()=>Promise.all([document.fonts.load('700 40px Amiri','ابتث'),document.fonts.load('400 40px Amiri','ابتث'),document.fonts.load('600 28px Cairo','ابتث'),document.fonts.load('400 30px "Reem Kufi"','ابتث'),document.fonts.load('400 30px "Aref Ruqaa"','ابتث'),document.fonts.load('400 30px "Noto Naskh Arabic"','ابتث'),document.fonts.load('700 30px "Noto Naskh Arabic"','ابتث'),document.fonts.load('500 30px Tajawal','ابتث'),document.fonts.load('700 30px Tajawal','ابتث')])).catch(()=>{})); })();
 const tplImgCache={};
 async function getTplImg(id){
   if(tplImgCache[id]) return tplImgCache[id];
@@ -4251,6 +4265,7 @@ async function qMarkRead(plan,ids){
 /* ---------- الصفحة ---------- */
 async function renderQitaf(v){
   if(st.tab!=='qitaf') return;
+  loadImgFonts();
   v.innerHTML='<div class="empty"><div class="spin" style="margin:auto"></div></div>';
   await qLoadLog();
   if(st.owner&&!st.qplans.length){ await qCreateDefault(); }
