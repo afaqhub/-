@@ -52,7 +52,7 @@ DROWS = 300
 
 wb = Workbook()
 sheets = {}
-for nm in (DASH, DATA, CAT, SUR, HOL, TEA, SET, LST, GUIDE):
+for nm in (DASH, DATA, CAT, SUR, TEA, SET, LST, GUIDE):
     sheets[nm] = wb.active if not sheets else wb.create_sheet(nm)
 sheets[DASH].title = DASH
 for w in wb.worksheets: w.sheet_view.rightToLeft = True; w.sheet_view.showGridLines = False
@@ -127,36 +127,6 @@ ws.column_dimensions['A'].width = 32; ws.column_dimensions['C'].width = 60
 note(ws, 'C1', 'أضِف الاسم الجديد في آخر القائمة، فيظهر في كل القوائم المنسدلة (المدرس والمنفذ).')
 ws.freeze_panes = 'A2'
 name('Teachers', f"OFFSET({T}!$A$2,0,0,MAX(1,COUNTA({T}!$A$2:$A$300)),1)")
-
-# ------------------------------------------------------------------ holidays
-ws = sheets[HOL]
-for i, h in enumerate(['من تاريخ', 'إلى تاريخ (اختياري)', 'السبب', 'إلى (تلقائي)'], 1): ws.cell(1, i, h)
-hdr(ws, 1, 1, 3); hdr(ws, 1, 4, 4, MUTED)
-ws['F1'] = 'أيام الإجازة (تلقائي)'; hdr(ws, 1, 6, 7, MUTED, 11)
-ws.cell(2, 1, dt.datetime(2026, 11, 22)); ws.cell(2, 2, dt.datetime(2026, 11, 26)); ws.cell(2, 3, 'إجازة (مثال، عدّلها)')
-for r in range(2, 202):
-    for c in (1, 2, 3, 4):
-        x = ws.cell(r, c); x.font = f(); x.alignment = ctr
-        if c != 3: x.number_format = DF
-        x.protection = Protection(locked=c == 4)
-    ws.cell(r, 4).value = f'=IF(A{r}="","",IF(B{r}="",A{r},MAX(A{r},B{r})))'; ws.cell(r, 4).font = f(False, 12, MUTED)
-ws.conditional_formatting.add('A2:D201', FormulaRule(formula=['$A2<>""'], border=box, fill=fill(SAND)))
-ws.conditional_formatting.add('A2:C201', FormulaRule(formula=['$A2=""'], fill=fill(INPUT)))
-ws['F2'] = '=IF(A2="",0,A2)'; ws['G2'] = 1
-for r in range(3, 802):
-    p = r - 1
-    ws.cell(r, 6).value = (f'=IF(F{p}=0,0,IF(F{p}<INDEX($D$2:$D$201,G{p}),F{p}+1,'
-                           f'IF(INDEX($A$2:$A$201,G{p}+1)="",0,INDEX($A$2:$A$201,G{p}+1))))')
-    ws.cell(r, 7).value = f'=IF(F{p}=0,G{p},IF(F{p}<INDEX($D$2:$D$201,G{p}),G{p},G{p}+1))'
-for r in range(2, 802):
-    ws.cell(r, 6).number_format = DFZ; ws.cell(r, 6).font = f(False, 11, MUTED); ws.cell(r, 7).font = f(False, 9, 'C8C8C8')
-for col, w in zip('ABCDEFG', (15, 17, 34, 14, 2, 14, 5)): ws.column_dimensions[col].width = w
-note(ws, 'I1', 'اكتب كل إجازة في صف («إلى» فارغ = يوم واحد)، متتالية دون صفوف فارغة بينها.'); ws.column_dimensions['I'].width = 60
-note(ws, 'I2', 'تُستبعد من الحصص المتوقعة ومن تعبئة التواريخ، ولا يقبل الملف تاريخ حصة فيها.')
-dv = DataValidation(type='date', operator='between', formula1='36526', formula2='73415', allow_blank=True, showErrorMessage=True, error='أدخل تاريخًا صحيحًا')
-dv.add('A2:B201'); ws.add_data_validation(dv)
-ws.freeze_panes = 'A2'; protect(ws)
-name('HOL_From', f"{H}!$A$2:$A$201"); name('HOL_To', f"{H}!$D$2:$D$201"); name('HOL_Days', f"{H}!$F$2:$F$801"); name('DB_Holidays', f"{H}!$A$1:$D$201")
 
 # ------------------------------------------------------------------ catalog
 ws = sheets[CAT]
@@ -243,7 +213,7 @@ for r in range(2, DROWS + 2):
     mask = '&'.join(f'IF(COUNTIF(J{r}:L{r},"{d}")>0,"0","1")' for d in MON_SUN)
     ws.cell(r, 23).value = f'=IF(A{r}="","",{mask})'
     ws.cell(r, 24).value = (f'=IF(OR(A{r}="",NOT(ISNUMBER(U{r})),W{r}="1111111"),"",IF(U{r}>TODAY(),0,'
-                            f'NETWORKDAYS.INTL(U{r},MIN(TODAY(),IF(ISNUMBER(V{r}),V{r},TODAY())),W{r},HOL_Days)))')
+                            f'NETWORKDAYS.INTL(U{r},MIN(TODAY(),IF(ISNUMBER(V{r}),V{r},TODAY())),W{r})))')
     ws.cell(r, 25).value = (f'=IF(OR(A{r}="",NOT(ISNUMBER(U{r})),NOT(ISNUMBER(V{r}))),"",IF(TODAY()<U{r},"لم يبدأ",'
                             f'IF(TODAY()>V{r},"انتهت المدة",(INT((TODAY()-U{r})/7)+1)&" / "&ROUNDUP((V{r}-U{r}+1)/7,0))))')
 for col, w in zip([CL(i) for i in range(1, 26)], (22, 9, 18, 9, 10, 13, 13, 9, 9, 10, 10, 10, 13, 13, 8, 15, 13, 10, 9, 6, 12, 12, 9, 9, 11)):
@@ -306,7 +276,7 @@ def top(ws, title_text, warn_rng, week_rng, width_cols):
     ws['A1'].font = f(True, 13, 'FFFFFF'); ws['A1'].alignment = ctr
     ws['C1'] = title_text; ws.merge_cells('C1:D1')
     for x in (ws['C1'], ws['D1']): x.fill = fill(INK); x.border = goldline
-    ws['C1'].font = f(True, 22, 'FFFFFF'); ws['C1'].alignment = Alignment(horizontal='right', vertical='center', indent=1)
+    ws['C1'].font = f(True, 18, 'FFFFFF'); ws['C1'].alignment = Alignment(horizontal='right', vertical='center', indent=1)
     a = warn_rng.split(':')[0]; ws[a] = WARN_F; ws.merge_cells(warn_rng)
     for row in ws[warn_rng]:
         for x in row: x.fill = fill(INK); x.border = goldline
@@ -315,19 +285,17 @@ def top(ws, title_text, warn_rng, week_rng, width_cols):
     for row in ws[week_rng]:
         for x in row: x.fill = fill(INK); x.border = goldline
     ws[b].font = f(True, 14, GOLD_L); ws[b].alignment = ctr
-    ws.row_dimensions[1].height = 42
+    ws.row_dimensions[1].height = 30
 
 def date_dv(ws, rng, s_cell, e_cell, first):
     fo = (f'=AND(ISNUMBER({first}),WEEKDAY({first},1)<=5,OR({s_cell}="",{first}>={s_cell}),'
-          f'OR({e_cell}="",{first}<={e_cell}),COUNTIFS(HOL_From,"<="&{first},HOL_To,">="&{first})=0)')
+          f'OR({e_cell}="",{first}<={e_cell}))')
     dv = DataValidation(type='custom', formula1=fo, allow_blank=True, showErrorMessage=True, errorTitle='تاريخ غير مقبول',
-                        error='يجب أن يكون التاريخ من الأحد إلى الخميس، وداخل فترة الفصل، وليس في إجازة.',
-                        showInputMessage=True, promptTitle='تاريخ التنفيذ', prompt='اكتب تاريخ الحصة، مثل 2026/10/25')
+                        error='يجب أن يكون التاريخ من الأحد إلى الخميس، وداخل فترة الفصل.')
     dv.add(rng); ws.add_data_validation(dv)
 def exec_dv(ws, rng):
     dv = DataValidation(type='list', formula1='=Teachers', allow_blank=True, showErrorMessage=True, errorTitle='اسم غير موجود',
-                        error='اختر الاسم من القائمة (لإضافة مدرس: ورقة أسماء المدرسين).',
-                        showInputMessage=True, promptTitle='المنفذ', prompt='من درّس الحصة؟ (قد يكون بديلًا عن مدرس الفصل)')
+                        error='اختر الاسم من القائمة (لإضافة مدرس: ورقة أسماء المدرسين).')
     dv.add(rng); ws.add_data_validation(dv)
 def finish(ws, land, titles, freeze):
     ws.freeze_panes = freeze; protect(ws)
@@ -364,10 +332,10 @@ def make_lessons(ws, nm=None, rec=None):
         ('I5:J5', f'=IF(COUNTIFS({Ar},"الفقه*",{Cr},"مراجعة",{Hr},"نعم")>0,"نعم","لا")'),
     ], s_val(MINT))
     ws['E5'].number_format = DF; ws['D5'].alignment = Alignment(horizontal='right', vertical='center', wrap_text=True, indent=1)
-    ws.row_dimensions[2].height = 24; ws.row_dimensions[3].height = 28; ws.row_dimensions[4].height = 24; ws.row_dimensions[5].height = 38
-    ws.row_dimensions[6].height = 8
+    ws.row_dimensions[2].height = 18; ws.row_dimensions[3].height = 22; ws.row_dimensions[4].height = 18; ws.row_dimensions[5].height = 26
+    ws.row_dimensions[6].height = 4
     for i, h in enumerate(['الكتاب', 'الأسبوع', 'الحصة', 'الموضوع', 'الصفحة', 'تاريخ التنفيذ', 'المنفذ', 'سُلّمت أوراق المراجعة؟'], 1): ws.cell(7, i, h)
-    hdr(ws, 7, 1, 8, INK, 13); ws.row_dimensions[7].height = 34
+    hdr(ws, 7, 1, 8, INK, 12); ws.row_dimensions[7].height = 24
     for x in ws[7]:
         if x.column <= 8: x.border = Border(left=thin, right=thin, top=thin, bottom=Side(style='medium', color=GOLD))
     for r in range(R0, R1 + 1):
@@ -377,7 +345,7 @@ def make_lessons(ws, nm=None, rec=None):
         for c in range(1, 9):
             x = ws.cell(r, c); x.font = f(c == 4 and False, 13); x.alignment = rgt if c == 4 else ctr; x.protection = Protection(locked=c < 6)
         ws.cell(r, 5).font = f(True, 13, '1F6FA8', u='single')
-        ws.cell(r, 6).number_format = DF; ws.row_dimensions[r].height = 30
+        ws.cell(r, 6).number_format = DF; ws.row_dimensions[r].height = 24
     if rec:
         for r, (d_, who) in rec.items():
             if d_: ws.cell(r, 6, d_)
@@ -405,7 +373,7 @@ Q0, Q1 = 5, 44; S0, S1 = 11, 70
 QA, QZ = CL(Q0), CL(Q1)
 def make_quran(ws, nm=None, students=None):
     ws.sheet_view.rightToLeft = True; ws.sheet_view.showGridLines = False
-    for k, v in dict(A=5, B=15, C=30, D=11).items(): ws.column_dimensions[k].width = v
+    for k, v in dict(A=4, B=13, C=24, D=9).items(): ws.column_dimensions[k].width = v
     for c in range(Q0, Q1 + 1): ws.column_dimensions[CL(c)].width = 11.5
     top(ws, 'كشف تقييم التلاوة', 'E1:K1', 'L1:O1', 15)
     put(ws, [('A2:B2', 'رقم الفصل'), ('C2', 'المدرس'), ('D2:E2', 'الجزء (البلس)'), ('F2:G2', 'عدد الطلاب'),
@@ -430,8 +398,8 @@ def make_quran(ws, nm=None, students=None):
         ('N5:O5', f'=COUNTIF({Av},"<"&CFG_Pass)'),
     ], s_val(MINT))
     ws['D5'].number_format = DF
-    ws.row_dimensions[2].height = 24; ws.row_dimensions[3].height = 28; ws.row_dimensions[4].height = 24; ws.row_dimensions[5].height = 38
-    ws.row_dimensions[6].height = 8
+    ws.row_dimensions[2].height = 18; ws.row_dimensions[3].height = 22; ws.row_dimensions[4].height = 18; ws.row_dimensions[5].height = 26
+    ws.row_dimensions[6].height = 4
     ws.merge_cells('A7:C9')
     ws['A7'] = 'الصق الأرقام الأكاديمية والأسماء في العمودين B و C.\nالدرجة من 10 (تقبل الكسور)، أو اختر «غائب».\nالفارغ و«غائب» لا يدخلان في المعدل.'
     ws['A7'].font = f(False, 12, '5A5A5A'); ws['A7'].alignment = Alignment(wrap_text=True, vertical='center', horizontal='right', indent=1)
@@ -439,9 +407,9 @@ def make_quran(ws, nm=None, students=None):
         for x in row: x.fill = fill(SAND); x.border = box
     for r, t_ in ((7, 'المقطع'), (8, 'تاريخ التنفيذ'), (9, 'المنفذ')):
         x = ws.cell(r, 4, t_); x.font = f(True, 12, 'FFFFFF'); x.fill = fill(PRI); x.alignment = ctr; x.border = box
-    ws.row_dimensions[7].height = 52; ws.row_dimensions[8].height = 24; ws.row_dimensions[9].height = 24
+    ws.row_dimensions[7].height = 40; ws.row_dimensions[8].height = 20; ws.row_dimensions[9].height = 20
     for i, h in enumerate(['م', 'الرقم الأكاديمي', 'الاسم (Cadet Name)', 'المعدل /100'], 1): ws.cell(10, i, h)
-    hdr(ws, 10, 1, 4); ws.row_dimensions[10].height = 32
+    hdr(ws, 10, 1, 4, INK, 12); ws.row_dimensions[10].height = 22
     for c in range(Q0, Q1 + 1):
         col = CL(c); k = c - Q0 + 1
         ws.cell(7, c).value = f'=IFERROR(INDEX(LST_Segments,{k})&"","")'
@@ -459,15 +427,14 @@ def make_quran(ws, nm=None, students=None):
             x = ws.cell(r, c); x.font = f(c == 4, 13 if c != 4 else 14, INK if c == 4 else '1F1F1F')
             x.alignment = ctr if c != 3 else Alignment(horizontal='left', vertical='center', indent=1)
             x.protection = Protection(locked=c in (1, 4))
-        ws.cell(r, 2).number_format = '@'; ws.row_dimensions[r].height = 24
+        ws.cell(r, 2).number_format = '@'; ws.row_dimensions[r].height = 21
     if students:
         for i, (sid, sn, grades) in enumerate(students):
             r = S0 + i; ws.cell(r, 2, sid); ws.cell(r, 3, sn)
             for j, g in enumerate(grades):
                 if g is not None: ws.cell(r, Q0 + j, g)
     date_dv(ws, f'{QA}8:{QZ}8', '$H$3', '$J$3', f'{QA}8'); exec_dv(ws, f'{QA}9:{QZ}9')
-    dvg = DataValidation(type='list', formula1='=LST_Absent', allow_blank=True, showErrorMessage=False,
-                         showInputMessage=True, promptTitle='الدرجة', prompt='اكتب الدرجة من 10، أو اختر «غائب» (لا يؤثر في المعدل).')
+    dvg = DataValidation(type='list', formula1='=LST_Absent', allow_blank=True, showErrorMessage=False)
     dvg.add(f'{QA}{S0}:{QZ}{S1}'); ws.add_data_validation(dvg)
     dvs_ = DataValidation(type='list', formula1='=LST_SegList', allow_blank=True); dvs_.add(f'{QA}7:{QZ}7'); ws.add_data_validation(dvs_)
     c = ws.conditional_formatting; G = f'{QA}{S0}:{QZ}{S1}'
@@ -489,7 +456,7 @@ def make_quran(ws, nm=None, students=None):
     c.add('J5:K5', FormulaRule(formula=['AND(ISNUMBER($J$5),$J$5>0)'], fill=fill(WARN), font=Font(name=FONT, bold=True, color=WARN_T)))
     c.add('N5:O5', FormulaRule(formula=['AND(ISNUMBER($N$5),$N$5>0)'], fill=fill(WARN), font=Font(name=FONT, bold=True, color=WARN_T)))
     c.add('H5:I5', FormulaRule(formula=['$H$5="بديل"'], fill=fill(ALERT)))
-    finish(ws, True, '7:10', f'{QA}{S0}')
+    finish(ws, True, '7:10', f'{QA}1')
 
 # ------------------------------------------------------------------ class sheets
 t1 = wb.create_sheet(TPL_L); make_lessons(t1, TPL_L); t1.sheet_properties.tabColor = MUTED
@@ -598,10 +565,9 @@ ws.auto_filter.ref = f'A6:S{LAST}'
 ws.freeze_panes = 'C7'; ws.sheet_properties.tabColor = INK; protect(ws, filt=True)
 ws.sheet_properties.pageSetUpPr = PageSetupProperties(fitToPage=True)
 ws.page_setup.orientation = 'landscape'; ws.page_setup.fitToHeight = 0; ws.page_setup.fitToWidth = 1; ws.print_title_rows = '6:6'
-for w_, c_ in ((DATA, GOLD), (CAT, GOLD), (SUR, GOLD), (HOL, GOLD), (TEA, GOLD), (SET, GOLD), (LST, MUTED), (GUIDE, PRI)):
+for w_, c_ in ((DATA, GOLD), (CAT, GOLD), (SUR, GOLD), (TEA, GOLD), (SET, GOLD), (LST, MUTED), (GUIDE, PRI)):
     sheets[w_].sheet_properties.tabColor = c_
-for n_, s_ in (('SYS_Dash', DASH), ('SYS_Data', DATA), ('SYS_Catalog', CAT), ('SYS_Surah', SUR), ('SYS_Holidays', HOL),
-               ('SYS_Teachers', TEA), ('SYS_Lists', LST), ('SYS_Guide', GUIDE), ('SYS_Settings', SET)):
+for n_, s_ in (('SYS_Dash', DASH), ('SYS_Data', DATA), ('SYS_Catalog', CAT), ('SYS_Surah', SUR), ('SYS_Teachers', TEA), ('SYS_Lists', LST), ('SYS_Guide', GUIDE), ('SYS_Settings', SET)):
     name(n_, f"'{s_}'!$A$1")
 
 # ------------------------------------------------------------------ guide
@@ -622,7 +588,7 @@ G = [
  ('٤) المناهج', 2),
  ('الدروس وأرقام الصفحات في «فهرس الدروس». ملفات الـPDF في مجلد PDF_Lessons بجوار هذا الملف، واسم الملف = الصفحات + .pdf', 0),
  ('٥) التواريخ', 2),
- ('يُقبل تاريخ الحصة من الأحد إلى الخميس فقط، داخل فترة الفصل، وليس في إجازة (ورقة «الإجازات»). أرقام الأسابيع من «الإعدادات».', 0),
+ ('يُقبل تاريخ الحصة من الأحد إلى الخميس فقط، وداخل فترة الفصل. أرقام الأسابيع من «الإعدادات».', 0),
  ('٦) الألوان', 2),
  ('ذهبي فاتح = خانة إدخال. أخضر = منفذ. برتقالي = نقص أو تخطٍّ. أصفر = ملاحظة (تاريخ أقدم من سابقه، أو آخر حصة بديل). أزرق مائل = تاريخ عبّأته الأداة تقديريًا.', 0),
  ('٧) ملاحظات', 2),
