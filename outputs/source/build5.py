@@ -185,13 +185,15 @@ ws = sheets[DATA]
 cols = ['رقم الفصل (= اسم الورقة)', 'النوع', 'المدرس', 'رقم الدورة', 'الجزء (البلس)', 'بداية الفصل (تاريخ)', 'نهاية الفصل (تاريخ)',
         'أو: من أسبوع', 'إلى أسبوع', 'يوم الحصة 1', 'يوم الحصة 2', 'يوم الحصة 3', 'اختبار العقيدة', 'اختبار الفقه', 'عدد الطلاب',
         'الفصل التالي (اختياري)', 'تاريخ الانتقال', 'الحالة',
-        'الورقة', 'ترتيب', 'البداية', 'النهاية', 'أيام', 'حصص متوقعة', 'الأسبوع']
+        'الورقة', 'ترتيب العرض', 'البداية', 'النهاية', 'أيام', 'حصص متوقعة', 'الأسبوع', 'الفصل السابق CC (اختياري)',
+        'السابق', 'له ورقة', 'آخر درس', 'تاريخه', 'المنفذ', 'التقدم', 'متخطاة', 'بديل', 'منفذ حتى اليوم', 'المعدل', 'دون الحد',
+        'مراجعة ع', 'مراجعة ف', 'تنبيه', 'يمين العرض', 'يسار العرض', 'نشط']
 for i, h in enumerate(cols, 1): ws.cell(1, i, h)
-hdr(ws, 1, 1, 18); hdr(ws, 1, 19, 25, MUTED, 11)
+hdr(ws, 1, 1, 18); hdr(ws, 1, 19, 25, MUTED, 11); hdr(ws, 1, 26, 26); hdr(ws, 1, 27, 43, MUTED, 11)
 ws.row_dimensions[1].height = 40
 seed = [
  ('AGE-CG-01', TY_L, 'عامر الهاجري', 143, 'P31', dt.datetime(2025, 9, 14), dt.datetime(2026, 5, 31), None, None, 'الأحد', 'الاثنين', None, dt.datetime(2026, 1, 11), dt.datetime(2026, 5, 17), 12, None, None, ST_ARC),
- ('SMS 163', TY_L, 'جهاد جمال', 144, 'P37', dt.datetime(2026, 9, 20), dt.datetime(2027, 1, 31), None, None, 'الأربعاء', 'الخميس', None, dt.datetime(2026, 11, 15), dt.datetime(2027, 1, 31), 13, None, None, ST_ACT),
+ ('SMS 163', TY_L, 'جهاد جمال', 144, 'P37', dt.datetime(2026, 9, 20), dt.datetime(2027, 1, 31), None, None, 'الأربعاء', 'الخميس', None, dt.datetime(2026, 11, 15), dt.datetime(2027, 1, 31), 13, None, None, ST_ACT, None, None, None, None, None, None, None, 'CC-25-1'),
  ('FLOP 049', TY_L, 'جهاد جمال', 144, 'P37', None, None, 4, 22, 'الأحد', 'الثلاثاء', None, dt.datetime(2026, 11, 15), dt.datetime(2027, 1, 31), 13, None, None, ST_ACT),
  ('FLOP-CG-02', TY_L, 'عامر الهاجري', 144, 'P37', dt.datetime(2026, 9, 20), dt.datetime(2027, 1, 31), None, None, 'الأحد', 'الاثنين', None, dt.datetime(2026, 11, 15), dt.datetime(2027, 1, 31), 12, None, None, ST_ACT),
  ('CC-25-5', TY_Q, 'جهاد جمال', 145, 'P40', dt.datetime(2026, 10, 18), dt.datetime(2026, 12, 24), None, None, 'الأحد', 'الثلاثاء', None, None, None, None, 'SMS 170', dt.datetime(2026, 12, 27), ST_ACT),
@@ -200,14 +202,49 @@ for i, row in enumerate(seed, 2):
     for c, v in enumerate(row, 1): ws.cell(i, c, v)
 MON_SUN = ['الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت', 'الأحد']
 for r in range(2, DROWS + 2):
-    for c in range(1, 26):
+    for c in range(1, 44):
         x = ws.cell(r, c); x.font = f(c in (1, 18), 13); x.alignment = ctr
-        if c >= 19: x.font = f(c == 19, 12, MUTED if c != 19 else '1F1F1F')
-    for c in (6, 7, 13, 14, 17, 21, 22): ws.cell(r, c).number_format = DF
+        if c >= 19 and c != 26: x.font = f(c == 19, 12, MUTED if c != 19 else '1F1F1F')
+    for c in (6, 7, 13, 14, 17, 21, 22, 30): ws.cell(r, c).number_format = DF
     act = f'OR(R{r}="",R{r}="{ST_ACT}")'
     ws.cell(r, 19).value = (f'=IF(A{r}="","",IF(ISERROR(INDIRECT("\'"&A{r}&"\'!A1")),IF({act},"ناقصة","—"),'
                             f'IF({act},"✓",R{r})))')
-    ws.cell(r, 20).value = f'=IF(AND(A{r}<>"",{act}),MAX(T$1:T{r-1})+1,"")'
+    isQ = f'$B{r}="{TY_Q}"'
+    N_ = DROWS + 1
+    prevQ = (f'AND(AA{r}<>"",COUNTIFS($A$2:$A${N_},AA{r},$B$2:$B${N_},"{TY_Q}",$R$2:$R${N_},"{ST_ACT}")'
+             f'+COUNTIFS($A$2:$A${N_},AA{r},$B$2:$B${N_},"{TY_Q}",$R$2:$R${N_},"")>0)')
+    ws.cell(r, 20).value = f'=IF(AND(A{r}<>"",{act},OR({isQ},NOT({prevQ}))),MAX(T$1:T{r-1})+1,"")'
+    def IND(lc, qc): return f'IF({isQ},INDIRECT("\'"&$A{r}&"\'!{qc}"),INDIRECT("\'"&$A{r}&"\'!{lc}"))'
+    def INQ(qc): return f'INDIRECT("\'"&$A{r}&"\'!{qc}")'
+    helpers = {
+        27: f'=IF(A{r}="","",IF(Z{r}<>"",Z{r},IFERROR(INDEX($A$2:$A${N_},MATCH(A{r},$P$2:$P${N_},0)),"")))',
+        28: f'=IF(A{r}="",FALSE,NOT(ISERROR(INDIRECT("\'"&A{r}&"\'!A1"))))',
+        29: f'=IF(NOT(AB{r}),"",{IND("D5", "C5")})',
+        30: f'=IF(NOT(AB{r}),"",{IND("E5", "D5")})',
+        31: f'=IF(NOT(AB{r}),"",{IND("G5", "F5")})',
+        32: f'=IF(NOT(AB{r}),"",{IND("A5", "A5")})',
+        33: f'=IF(NOT(AB{r}),0,N({IND("B5", "J5")}))',
+        34: f'=IF(NOT(AB{r}),"",{IND("F5", "H5")})',
+        35: f'=IF(NOT(AB{r}),0,IF({isQ},COUNTIF({INQ("E8:AR8")},"<="&TODAY()),COUNTIF({INQ("F8:F67")},"<="&TODAY())))',
+        36: f'=IF(OR(NOT(AB{r}),NOT({isQ})),"",{INQ("L5")})',
+        37: f'=IF(OR(NOT(AB{r}),NOT({isQ})),"",{INQ("N5")})',
+        38: f'=IF(OR(NOT(AB{r}),{isQ}),"",{INQ("H5")})',
+        39: f'=IF(OR(NOT(AB{r}),{isQ}),"",{INQ("I5")})',
+        41: f'=IF(T{r}="","",IF({isQ},A{r},AA{r}))',
+        42: f'=IF(T{r}="","",IF({isQ},P{r},A{r}))',
+        43: f'=AND(A{r}<>"",{act})',
+    }
+    helpers[40] = (f'=IF(OR(A{r}="",NOT({act})),"",IF(NOT(AB{r}),"⚠ ورقة ناقصة: "&A{r},TRIM('
+                   f'IF(AND(ISNUMBER(U{r}),U{r}>TODAY()),"لم يبدأ  ","")'
+                   f'&IF(AND(P{r}<>"",ISNUMBER(Q{r})),IF(Q{r}<=TODAY(),"⚠ حان انتقاله إلى "&P{r}&"  ",""),"")'
+                   f'&IF(AG{r}>0,"⚠ متخطاة "&AG{r}&"  ","")'
+                   f'&IF(AND(ISNUMBER(X{r}),X{r}-AI{r}>=CFG_Behind),"⚠ متأخر "&(X{r}-AI{r})&" حصة  ","")'
+                   f'&IF(AH{r}="بديل","(آخر حصة بديل)  ","")'
+                   f'&IF(AND(ISNUMBER(AD{r}),TODAY()-AD{r}>CFG_Stale,OR(NOT(ISNUMBER(V{r})),TODAY()<=V{r})),"⚠ لا حصة منذ "&(TODAY()-AD{r})&" يومًا  ","")'
+                   f'&IF(AND(NOT({isQ}),ISNUMBER(M{r})),IF(AND(M{r}>=TODAY(),M{r}-TODAY()<=CFG_ReviewDays,AL{r}<>"نعم"),"⚠ مراجعة العقيدة  ",""),"")'
+                   f'&IF(AND(NOT({isQ}),ISNUMBER(N{r})),IF(AND(N{r}>=TODAY(),N{r}-TODAY()<=CFG_ReviewDays,AM{r}<>"نعم"),"⚠ مراجعة الفقه  ",""),"")'
+                   f')))')
+    for c_, v_ in helpers.items(): ws.cell(r, c_).value = v_
     ws.cell(r, 21).value = f'=IF(A{r}="","",IF(ISNUMBER(F{r}),F{r},IF(AND(ISNUMBER(H{r}),ISNUMBER(CFG_Week1)),CFG_Week1+(H{r}-1)*7,"")))'
     ws.cell(r, 22).value = f'=IF(A{r}="","",IF(ISNUMBER(G{r}),G{r},IF(AND(ISNUMBER(I{r}),ISNUMBER(CFG_Week1)),CFG_Week1+(I{r}-1)*7+4,"")))'
     mask = '&'.join(f'IF(COUNTIF(J{r}:L{r},"{d}")>0,"0","1")' for d in MON_SUN)
@@ -216,7 +253,8 @@ for r in range(2, DROWS + 2):
                             f'NETWORKDAYS.INTL(U{r},MIN(TODAY(),IF(ISNUMBER(V{r}),V{r},TODAY())),W{r})))')
     ws.cell(r, 25).value = (f'=IF(OR(A{r}="",NOT(ISNUMBER(U{r})),NOT(ISNUMBER(V{r}))),"",IF(TODAY()<U{r},"لم يبدأ",'
                             f'IF(TODAY()>V{r},"انتهت المدة",(INT((TODAY()-U{r})/7)+1)&" / "&ROUNDUP((V{r}-U{r}+1)/7,0))))')
-for col, w in zip([CL(i) for i in range(1, 26)], (22, 9, 18, 9, 10, 13, 13, 9, 9, 10, 10, 10, 13, 13, 8, 15, 13, 10, 9, 6, 12, 12, 9, 9, 11)):
+for col, w in zip([CL(i) for i in range(1, 44)], (22, 10, 18, 10, 11, 15, 15, 10, 10, 11, 11, 11, 15, 15, 9, 17, 15, 11, 9, 8, 13, 13, 10, 10, 12, 17,
+                                                  13, 8, 30, 13, 15, 10, 8, 8, 9, 8, 8, 8, 8, 40, 13, 13, 7)):
     ws.column_dimensions[col].width = w
 ws.freeze_panes = 'B2'
 for t_, fo, rg in [('list', '=Teachers', 'C'), ('list', '=LST_Type', 'B'), ('list', '=LST_Status', 'R')]:
@@ -231,8 +269,10 @@ for rg in (f'F2:G{DROWS+1}', f'M2:N{DROWS+1}', f'Q2:Q{DROWS+1}'): dv.add(rg)
 ws.add_data_validation(dv)
 dv = DataValidation(type='whole', operator='between', formula1='1', formula2='60', allow_blank=True, showErrorMessage=True, error='رقم أسبوع من 1 إلى 60')
 dv.add(f'H2:I{DROWS+1}'); ws.add_data_validation(dv)
+dv = DataValidation(type='custom', formula1='=TRUE', allow_blank=True); dv.add(f'Z2:Z{DROWS+1}')
 N = DROWS + 1; cf = ws.conditional_formatting
 cf.add(f'A2:R{N}', FormulaRule(formula=['$A2<>""'], border=box))
+cf.add(f'Z2:Z{N}', FormulaRule(formula=['$A2<>""'], border=box, fill=fill(SAND)))
 cf.add(f'A2:R{N}', FormulaRule(formula=[f'OR($R2="{ST_ARC}",$R2="{ST_DEL}",$R2="{ST_FIN}")'], fill=fill(MUTED_L), font=Font(name=FONT, color=MUTED), stopIfTrue=True))
 cf.add(f'A2:A{N}', FormulaRule(formula=[f'AND($A2<>"",COUNTIF($A$2:$A${N},$A2)>1)'], fill=fill(WARN), font=Font(name=FONT, bold=True, color=WARN_T)))
 cf.add(f'B2:B{N}', FormulaRule(formula=[f'$B2="{TY_Q}"'], fill=fill(DONE)))
@@ -240,11 +280,12 @@ cf.add(f'A2:R{N}', FormulaRule(formula=['$A2=""'], fill=fill('FFFCF3')))
 cf.add(f'S2:S{N}', FormulaRule(formula=['$S2="ناقصة"'], fill=fill(WARN), font=Font(name=FONT, bold=True, color=WARN_T)))
 cf.add(f'S2:S{N}', FormulaRule(formula=['$S2="✓"'], font=Font(name=FONT, bold=True, color=DONE_T)))
 cf.add(f'F2:I{N}', FormulaRule(formula=['AND($A2<>"",NOT(ISNUMBER($U2)))'], fill=fill(ALERT)))
-note(ws, 'AA1', 'أضِف الفصل في أول صف فارغ. فصول CC نوعها «قرآن»، ويمكن تحديد «الفصل التالي» وتاريخ الانتقال.')
-note(ws, 'AA2', 'الفترة: اكتب التاريخين، أو رقمي الأسبوعين (من الإعدادات). الأعمدة الرمادية تلقائية.')
-note(ws, 'AA3', 'الحالة: «نشط» يظهر في الصفحة الأساسية. «منتهٍ» يختفي منها وتبقى ورقته. «للأرشفة» و«للحذف» تنفّذهما أداة الإدارة.')
-ws.column_dimensions['AA'].width = 90
-name('DB_Classes', f"{D}!$A$1:$Y${DROWS+1}")
+note(ws, 'AS1', 'أضِف الفصل في أول صف فارغ. فصول CC نوعها «قرآن»، ويمكن تحديد «الفصل التالي» وتاريخ الانتقال.')
+note(ws, 'AS2', 'الفترة: اكتب التاريخين، أو رقمي الأسبوعين (من الإعدادات). الأعمدة الرمادية تلقائية.')
+note(ws, 'AS3', 'الحالة: «نشط» يظهر في الصفحة الأساسية. «منتهٍ» يختفي منها وتبقى ورقته. «للأرشفة» و«للحذف» تنفّذهما أداة الإدارة.')
+ws.column_dimensions['AS'].width = 90
+note(ws, 'AS4', '«الفصل السابق CC»: لفصل تخصص جاء من فصل CC (تكتبه الأداة تلقائيًا)، فيظهران متجاورين في الصفحة الأساسية حتى بعد أرشفة فصل CC.')
+name('DB_Classes', f"{D}!$A$1:$AQ${DROWS+1}")
 
 # ------------------------------------------------------------------ class sheets common
 def lk(c, text=False):
@@ -308,7 +349,7 @@ def finish(ws, land, titles, freeze):
 R0, R1 = 8, 67
 def make_lessons(ws, nm=None, rec=None):
     ws.sheet_view.rightToLeft = True; ws.sheet_view.showGridLines = False
-    for k, v in dict(A=17, B=8, C=9, D=60, E=13, F=14, G=20, H=15, I=15, J=15).items(): ws.column_dimensions[k].width = v
+    for k, v in dict(A=18, B=9, C=10, D=66, E=13, F=15, G=20, H=16, I=15, J=15).items(): ws.column_dimensions[k].width = v
     top(ws, 'سجل متابعة الدروس', 'E1:G1', 'H1:J1', 10)
     put(ws, [('A2', 'رقم الفصل'), ('B2:C2', 'الدورة'), ('D2', 'المدرس'), ('E2', 'الجزء'), ('F2', 'الطلاب'),
              ('G2', 'اختبار العقيدة'), ('H2', 'اختبار الفقه'), ('I2', 'بداية الفصل'), ('J2', 'نهاية الفصل')], s_lab(PRI))
@@ -345,7 +386,9 @@ def make_lessons(ws, nm=None, rec=None):
         for c in range(1, 9):
             x = ws.cell(r, c); x.font = f(c == 4 and False, 13); x.alignment = rgt if c == 4 else ctr; x.protection = Protection(locked=c < 6)
         ws.cell(r, 5).font = f(True, 13, '1F6FA8', u='single')
-        ws.cell(r, 6).number_format = DF; ws.row_dimensions[r].height = 24
+        ws.cell(r, 6).number_format = DF
+        _t = str(sheets[CAT].cell(cr, 4).value or '')
+        ws.row_dimensions[r].height = 40 if ('\n' in _t or len(_t) > 62) else 24
     if rec:
         for r, (d_, who) in rec.items():
             if d_: ws.cell(r, 6, d_)
@@ -373,8 +416,8 @@ Q0, Q1 = 5, 44; S0, S1 = 11, 70
 QA, QZ = CL(Q0), CL(Q1)
 def make_quran(ws, nm=None, students=None):
     ws.sheet_view.rightToLeft = True; ws.sheet_view.showGridLines = False
-    for k, v in dict(A=4, B=13, C=24, D=9).items(): ws.column_dimensions[k].width = v
-    for c in range(Q0, Q1 + 1): ws.column_dimensions[CL(c)].width = 11.5
+    for k, v in dict(A=4, B=14, C=26, D=10).items(): ws.column_dimensions[k].width = v
+    for c in range(Q0, Q1 + 1): ws.column_dimensions[CL(c)].width = 13
     top(ws, 'كشف تقييم التلاوة', 'E1:K1', 'L1:O1', 15)
     put(ws, [('A2:B2', 'رقم الفصل'), ('C2', 'المدرس'), ('D2:E2', 'الجزء (البلس)'), ('F2:G2', 'عدد الطلاب'),
              ('H2:I2', 'بداية الفصل'), ('J2:K2', 'نهاية الفصل'), ('L2:M2', 'الفصل التالي'), ('N2:O2', 'تاريخ الانتقال')], s_lab(PRI))
@@ -478,97 +521,186 @@ wq = wb.create_sheet('CC-25-5'); make_quran(wq, 'CC-25-5', studs); wq.sheet_prop
 for j, d_ in enumerate([dt.datetime(2026, 10, 18), dt.datetime(2026, 10, 20), dt.datetime(2026, 10, 25), dt.datetime(2026, 10, 27)]):
     wq.cell(8, Q0 + j, d_); wq.cell(9, Q0 + j, 'جهاد جمال' if j != 2 else 'عامر الهاجري')
 
-# ------------------------------------------------------------------ dashboard
+# ------------------------------------------------------------------ dashboard (paired CC | specialisation)
 ws = sheets[DASH]
-title(ws, 'A1:S1', 'متابعة تنفيذ الدروس', 24, 46)
-cards = [('B', 'C', 'الفصول النشطة', f'=MAX({D}!$T:$T)'), ('E', 'F', 'فصول القرآن', f'=COUNTIF($C$7:$C$306,"{TY_Q}")'),
-         ('H', 'I', 'الأسبوع التدريبي', '=IF(CFG_WeekNow="","—",CFG_WeekNow)'), ('L', 'L', 'أوراق ناقصة', '=COUNTIF($S$7:$S$306,"ناقصة")'),
-         ('N', 'O', 'فصول عليها تنبيه', '=COUNTIF($M$7:$M$306,"*⚠*")')]
+ws.sheet_view.zoomScale = 90
+title(ws, 'A1:Q1', 'متابعة تنفيذ الدروس', 22, 36)
+cards = [('C', 'D', 'الفصول النشطة', f'=COUNTIF({D}!$AQ$2:$AQ${DROWS+1},TRUE)'),
+         ('E', 'F', 'فصول القرآن', f'=COUNTIFS({D}!$AQ$2:$AQ${DROWS+1},TRUE,{D}!$B$2:$B${DROWS+1},"{TY_Q}")'),
+         ('I', 'J', 'الأسبوع التدريبي', '=IF(CFG_WeekNow="","—",CFG_WeekNow)'),
+         ('K', 'L', 'أوراق ناقصة', f'=COUNTIFS({D}!$AQ$2:$AQ${DROWS+1},TRUE,{D}!$AB$2:$AB${DROWS+1},FALSE)'),
+         ('O', 'P', 'عليها تنبيه', '=COUNTIF($Q$8:$Q$157,"*⚠*")')]
 for la, va, t_, fo in cards:
-    if la == 'L':
-        ws['K3'] = t_; ws['L3'] = fo; la, va = 'K', 'L'
-    else:
-        ws[f'{la}3'] = t_; ws[f'{va}3'] = fo
+    ws[f'{la}3'] = t_; ws[f'{va}3'] = fo
     lx, vx = ws[f'{la}3'], ws[f'{va}3']
-    lx.font = f(True, 13, 'FFFFFF'); lx.fill = fill(PRI); lx.alignment = ctr; lx.border = box
-    vx.font = f(True, 20, INK); vx.fill = fill(GOLD_L); vx.alignment = ctr; vx.border = box
-ws.row_dimensions[2].height = 8; ws.row_dimensions[3].height = 36
-note(ws, 'A4', 'اضغط اسم الفصل للدخول إلى ورقته. ويمكن التصفية من أسهم العناوين (النوع، البلس، المدرس...).', '6B6B6B', 12)
-ws.merge_cells('A4:S4'); ws.row_dimensions[4].height = 20; ws.row_dimensions[5].height = 6
-dh = ['#', 'الفصل', 'النوع', 'البلس', 'المدرس', 'الدورة', 'آخر درس / مقطع منفذ', 'تاريخه', 'بواسطة', 'المنفذ',
-      'الأسبوع', 'المعدل', 'تنبيه', 'اختبار العقيدة', 'اختبار الفقه', 'الطلاب', 'دون الحد', 'الفصل التالي', 'الورقة']
-for i, h in enumerate(dh, 1): ws.cell(6, i, h)
-hdr(ws, 6, 1, 19, INK, 13); ws.row_dimensions[6].height = 36
-for x in ws[6]: x.border = Border(left=thin, right=thin, top=thin, bottom=Side(style='medium', color=GOLD))
-for col, w in zip([CL(i) for i in range(1, 20)], (5, 15, 8, 8, 16, 7, 44, 14, 15, 9, 10, 8, 42, 14, 14, 7, 8, 12, 7)):
-    ws.column_dimensions[col].width = w
-def V(r, c): return f'VLOOKUP($B{r},{D}!$A:$Y,{c},FALSE)'
-FIRST, LAST = 7, 306
+    lx.font = f(True, 12, 'FFFFFF'); lx.fill = fill(PRI); lx.alignment = ctr; lx.border = box
+    vx.font = f(True, 18, INK); vx.fill = fill(GOLD_L); vx.alignment = ctr; vx.border = box
+ws.row_dimensions[2].height = 4; ws.row_dimensions[3].height = 30
+note(ws, 'A4', 'اضغط اسم الفصل للدخول إلى ورقته. فصل CC وفصل التخصص الذي ينتقل إليه في صف واحد. الباهت = منتهٍ أو مؤرشف أو لم يُنشأ بعد.', '6B6B6B', 11)
+ws.merge_cells('A4:Q4'); ws.row_dimensions[4].height = 18; ws.row_dimensions[5].height = 4
+# group header
+for rng, txt, colr in (('A6:B6', '', INK), ('C6:H6', 'فصل القرآن (CC)', GOLD), ('I6:P6', 'فصل التخصص (العقيدة والفقه)', PRI), ('Q6:Q6', '', INK)):
+    a = rng.split(':')[0]
+    if rng.split(':')[0] != rng.split(':')[1]: ws.merge_cells(rng)
+    ws[a] = txt
+    for row in ws[rng]:
+        for x in row: x.fill = fill(colr); x.border = box
+    ws[a].font = f(True, 14, 'FFFFFF'); ws[a].alignment = ctr
+ws.row_dimensions[6].height = 22
+dh = ['#', 'البلس', 'الفصل', 'المدرس', 'آخر مقطع منفذ', 'تاريخه', 'المعدل', 'دون الحد',
+      'الفصل', 'المدرس', 'آخر درس منفذ', 'تاريخه', 'المنفذ', 'الأسبوع', 'اختبار العقيدة', 'اختبار الفقه', 'تنبيهات']
+for i, h in enumerate(dh, 1): ws.cell(7, i, h)
+hdr(ws, 7, 1, 17, INK, 12); ws.row_dimensions[7].height = 26
+for x in ws[7]: x.border = Border(left=thin, right=thin, top=thin, bottom=Side(style='medium', color=GOLD))
+widths = (5, 8, 15, 14, 24, 14, 8, 8, 15, 14, 30, 14, 9, 10, 14, 14, 34, 3, 3)
+for col, w in zip([CL(i) for i in range(1, 20)], widths): ws.column_dimensions[col].width = w
+ws.column_dimensions['R'].hidden = True; ws.column_dimensions['S'].hidden = True
+FIRST, LAST = 8, 157
+def LK(nm, col, text=False):
+    v = f'INDEX({D}!${col}$1:${col}${DROWS+1},MATCH({nm},{D}!$A$1:$A${DROWS+1},0))'
+    return f'IFERROR({v}&"","")' if text else f'IFERROR(IF({v}="","",{v}),"")'
+def LINK(nm, missing_note):
+    inData = f'NOT(ISNA(MATCH({nm},{D}!$A$1:$A${DROWS+1},0)))'
+    return (f'=IF({nm}="","",IF(IFERROR(INDEX({D}!$AB$1:$AB${DROWS+1},MATCH({nm},{D}!$A$1:$A${DROWS+1},0)),FALSE),'
+            f'HYPERLINK("#\'"&{nm}&"\'!A1",{nm}),{nm}&IF({inData},""," ({missing_note})")))')
 for r in range(FIRST, LAST + 1):
-    def IND(cell): return f'INDIRECT("\'"&$B{r}&"\'!{cell}")'
-    def PICK(lc, qc): return f'IF($C{r}="{TY_Q}",{IND(qc)},{IND(lc)})'
-    ok = f'$S{r}="✓"'
-    done = f'IF($C{r}="{TY_Q}",COUNTIF({IND(f"{QA}8:{QZ}8")},"<="&TODAY()),COUNTIF({IND("F8:F67")},"<="&TODAY()))'
-    exp, en, nx, tr, st = V(r, 24), V(r, 22), V(r, 16), V(r, 17), V(r, 21)
+    n = f'ROW()-{FIRST-1}'
+    L_, R_ = f'$R{r}', f'$S{r}'
     vals = {
-        1: f'=IF(ROW()-{FIRST-1}<=MAX({D}!$T:$T),ROW()-{FIRST-1},"")',
-        2: f'=IF($A{r}="","",HYPERLINK("#\'"&INDEX({D}!$A:$A,MATCH($A{r},{D}!$T:$T,0))&"\'!A1",INDEX({D}!$A:$A,MATCH($A{r},{D}!$T:$T,0))))',
-        3: f'=IF($B{r}="","",IF({V(r,2)}="","{TY_L}",{V(r,2)}&""))',
-        4: f'=IF($B{r}="","",{V(r,5)}&"")',
-        5: f'=IF($B{r}="","",{V(r,3)}&"")',
-        6: f'=IF($B{r}="","",IF({V(r,4)}="","",{V(r,4)}))',
-        7: f'=IF($B{r}="","",IF(NOT({ok}),"—",{PICK("D5", "C5")}))',
-        8: f'=IF($B{r}="","",IF(NOT({ok}),"",{PICK("E5", "D5")}))',
-        9: f'=IF($B{r}="","",IF(NOT({ok}),"",{PICK("G5", "F5")}))',
-        10: f'=IF($B{r}="","",IF(NOT({ok}),"",{PICK("A5", "A5")}))',
-        11: f'=IF($B{r}="","",{V(r,25)}&"")',
-        12: f'=IF($B{r}="","",IF(OR(NOT({ok}),$C{r}<>"{TY_Q}"),"",{IND("L5")}))',
-        14: f'=IF($B{r}="","",IF({V(r,13)}="","",{V(r,13)}))',
-        15: f'=IF($B{r}="","",IF({V(r,14)}="","",{V(r,14)}))',
-        16: f'=IF($B{r}="","",IF(NOT({ok}),"",IF($C{r}="{TY_Q}",{IND("F3")},IF({V(r,15)}="","",{V(r,15)}))))',
-        17: f'=IF($B{r}="","",IF(OR(NOT({ok}),$C{r}<>"{TY_Q}"),"",{IND("N5")}))',
-        18: f'=IF($B{r}="","",{nx}&"")',
-        19: f'=IF($B{r}="","",IF(ISERROR(INDIRECT("\'"&$B{r}&"\'!A1")),"ناقصة","✓"))',
+        1: f'=IF({n}<=MAX({D}!$T$1:$T${DROWS+1}),{n},"")',
+        18: f'=IF($A{r}="","",INDEX({D}!$AO$1:$AO${DROWS+1},MATCH($A{r},{D}!$T$1:$T${DROWS+1},0))&"")',
+        19: f'=IF($A{r}="","",INDEX({D}!$AP$1:$AP${DROWS+1},MATCH($A{r},{D}!$T$1:$T${DROWS+1},0))&"")',
+        2: f'=IF($A{r}="","",INDEX({D}!$E$1:$E${DROWS+1},MATCH($A{r},{D}!$T$1:$T${DROWS+1},0))&"")',
+        3: LINK(L_, 'مؤرشف'), 4: '=' + LK(L_, 'C', True), 5: '=' + LK(L_, 'AC', True), 6: '=' + LK(L_, 'AD'),
+        7: '=' + LK(L_, 'AJ'), 8: '=' + LK(L_, 'AK'),
+        9: LINK(R_, 'لم يُنشأ'), 10: '=' + LK(R_, 'C', True), 11: '=' + LK(R_, 'AC', True), 12: '=' + LK(R_, 'AD'),
+        13: '=' + LK(R_, 'AF', True), 14: '=' + LK(R_, 'Y', True), 15: '=' + LK(R_, 'M'), 16: '=' + LK(R_, 'N'),
+        17: f'=IF($A{r}="","",TRIM({LK(L_, "AN", True)}&"  "&{LK(R_, "AN", True)}))',
     }
-    vals[13] = ('=IF($B{r}="","",IF(NOT({ok}),"⚠ ورقة ناقصة. سمِّها: "&$B{r},TRIM('
-                'IF(AND(ISNUMBER({st}),{st}>TODAY()),"لم يبدأ بعد  ","")'
-                '&IF(AND({nx}<>"",ISNUMBER({tr})),IF({tr}<=TODAY(),"⚠ حان انتقاله إلى "&{nx}&"  ",""),"")'
-                '&IF({skip}>0,"⚠ متخطاة: "&{skip}&"  ","")'
-                '&IF(AND(ISNUMBER({exp}),{exp}-{done}>=CFG_Behind),"⚠ متأخر "&({exp}-{done})&" حصة  ","")'
-                '&IF({sub}="بديل","(آخر حصة بديل)  ","")'
-                '&IF(AND(ISNUMBER($H{r}),TODAY()-$H{r}>CFG_Stale,OR(NOT(ISNUMBER({en})),TODAY()<={en})),"⚠ لا حصة منذ "&(TODAY()-$H{r})&" يومًا  ","")'
-                '&IF(AND($C{r}<>"{TQ}",ISNUMBER($N{r})),IF(AND($N{r}>=TODAY(),$N{r}-TODAY()<=CFG_ReviewDays,{ih5}<>"نعم"),"⚠ سلِّم مراجعة العقيدة  ",""),"")'
-                '&IF(AND($C{r}<>"{TQ}",ISNUMBER($O{r})),IF(AND($O{r}>=TODAY(),$O{r}-TODAY()<=CFG_ReviewDays,{ii5}<>"نعم"),"⚠ سلِّم مراجعة الفقه  ",""),"")'
-                ')))').format(r=r, ok=ok, st=st, nx=nx, tr=tr, en=en, exp=exp, done=done, TQ=TY_Q,
-                              skip=PICK('B5', 'J5'), sub=PICK('F5', 'H5'), ih5=IND('H5'), ii5=IND('I5'))
     for c, v in vals.items(): ws.cell(r, c).value = v
-    for c in range(1, 20):
-        x = ws.cell(r, c); x.font = f(False, 13); x.alignment = rgt if c in (7, 13) else ctr
-    ws.cell(r, 2).font = f(True, 13, '1F6FA8', u='single')
-    for c in (8, 14, 15): ws.cell(r, c).number_format = DF
-    ws.row_dimensions[r].height = 26
-cfd = ws.conditional_formatting; A_ = f'{FIRST}:'
+    for c in range(1, 18):
+        x = ws.cell(r, c); x.font = f(False, 12); x.alignment = rgt if c in (5, 11, 17) else ctr
+    for c in (3, 9): ws.cell(r, c).font = f(True, 13, '1F6FA8', u='single')
+    for c in (6, 12, 15, 16): ws.cell(r, c).number_format = DF
+    ws.row_dimensions[r].height = 30
+cfd = ws.conditional_formatting
 rng = lambda a, b: f'{a}{FIRST}:{b}{LAST}'
-cfd.add(rng('A', 'S'), FormulaRule(formula=[f'$B{FIRST}<>""'], border=box))
-cfd.add(rng('M', 'M'), FormulaRule(formula=[f'ISNUMBER(SEARCH("⚠",$M{FIRST}))'], fill=fill(WARN), font=Font(name=FONT, color=WARN_T, bold=True)))
-cfd.add(rng('M', 'M'), FormulaRule(formula=[f'AND($M{FIRST}<>"",NOT(ISNUMBER(SEARCH("⚠",$M{FIRST}))))'], fill=fill(ALERT)))
-cfd.add(rng('S', 'S'), FormulaRule(formula=[f'$S{FIRST}="ناقصة"'], fill=fill(WARN), font=Font(name=FONT, bold=True, color=WARN_T)))
-cfd.add(rng('S', 'S'), FormulaRule(formula=[f'$S{FIRST}="✓"'], font=Font(name=FONT, bold=True, color=DONE_T)))
-cfd.add(rng('C', 'C'), FormulaRule(formula=[f'$C{FIRST}="{TY_Q}"'], fill=fill(GOLD_L), font=Font(name=FONT, bold=True, color=INK)))
-cfd.add(rng('L', 'L'), FormulaRule(formula=[f'AND(ISNUMBER($L{FIRST}),$L{FIRST}<CFG_Pass)'], fill=fill(WARN), font=Font(name=FONT, bold=True, color=WARN_T)))
-cfd.add(rng('Q', 'Q'), FormulaRule(formula=[f'AND(ISNUMBER($Q{FIRST}),$Q{FIRST}>0)'], fill=fill(WARN), font=Font(name=FONT, bold=True, color=WARN_T)))
-for col in ('N', 'O'):
-    cfd.add(rng(col, col), FormulaRule(formula=[f'AND(ISNUMBER({col}{FIRST}),{col}{FIRST}<TODAY())'], fill=fill(MUTED_L), font=Font(name=FONT, color=MUTED)))
+inactive = lambda nmcol: f'AND(${nmcol}{FIRST}<>"",COUNTIFS({D}!$A$1:$A${DROWS+1},${nmcol}{FIRST},{D}!$AQ$1:$AQ${DROWS+1},TRUE)=0)'
+cfd.add(rng('C', 'H'), FormulaRule(formula=[inactive('R')], fill=fill(MUTED_L), font=Font(name=FONT, italic=True, color='A0A0A0'), stopIfTrue=True))
+cfd.add(rng('I', 'P'), FormulaRule(formula=[inactive('S')], fill=fill(MUTED_L), font=Font(name=FONT, italic=True, color='A0A0A0'), stopIfTrue=True))
+cfd.add(rng('Q', 'Q'), FormulaRule(formula=[f'ISNUMBER(SEARCH("⚠",$Q{FIRST}))'], fill=fill(WARN), font=Font(name=FONT, color=WARN_T, bold=True)))
+cfd.add(rng('Q', 'Q'), FormulaRule(formula=[f'AND($Q{FIRST}<>"",NOT(ISNUMBER(SEARCH("⚠",$Q{FIRST}))))'], fill=fill(ALERT)))
+cfd.add(rng('G', 'G'), FormulaRule(formula=[f'AND(ISNUMBER($G{FIRST}),$G{FIRST}<CFG_Pass)'], fill=fill(WARN), font=Font(name=FONT, bold=True, color=WARN_T)))
+cfd.add(rng('H', 'H'), FormulaRule(formula=[f'AND(ISNUMBER($H{FIRST}),$H{FIRST}>0)'], fill=fill(WARN), font=Font(name=FONT, bold=True, color=WARN_T)))
+for col in ('O', 'P'):
+    cfd.add(rng(col, col), FormulaRule(formula=[f'AND(ISNUMBER({col}{FIRST}),{col}{FIRST}<TODAY())'], font=Font(name=FONT, color=MUTED)))
     cfd.add(rng(col, col), FormulaRule(formula=[f'AND(ISNUMBER({col}{FIRST}),{col}{FIRST}-TODAY()<=CFG_ReviewDays,{col}{FIRST}>=TODAY())'], fill=fill(ALERT), font=Font(name=FONT, bold=True)))
-cfd.add(rng('A', 'S'), FormulaRule(formula=[f'AND($B{FIRST}<>"",MOD(ROW(),2)=1)'], fill=fill('FBF8F1')))
-ws.auto_filter.ref = f'A6:S{LAST}'
-ws.freeze_panes = 'C7'; ws.sheet_properties.tabColor = INK; protect(ws, filt=True)
+cfd.add(rng('C', 'H'), FormulaRule(formula=[f'$R{FIRST}<>""'], fill=fill('FDF8EC'), border=box))
+cfd.add(rng('I', 'P'), FormulaRule(formula=[f'$S{FIRST}<>""'], fill=fill('F3F9F6'), border=box))
+cfd.add(rng('A', 'Q'), FormulaRule(formula=[f'$A{FIRST}<>""'], border=box))
+ws.auto_filter.ref = f'A7:Q{LAST}'
+ws.freeze_panes = 'C8'; ws.sheet_properties.tabColor = INK; protect(ws, filt=True)
 ws.sheet_properties.pageSetUpPr = PageSetupProperties(fitToPage=True)
-ws.page_setup.orientation = 'landscape'; ws.page_setup.fitToHeight = 0; ws.page_setup.fitToWidth = 1; ws.print_title_rows = '6:6'
+ws.page_setup.orientation = 'landscape'; ws.page_setup.fitToHeight = 0; ws.page_setup.fitToWidth = 1; ws.print_title_rows = '6:7'
 for w_, c_ in ((DATA, GOLD), (CAT, GOLD), (SUR, GOLD), (TEA, GOLD), (SET, GOLD), (LST, MUTED), (GUIDE, PRI)):
     sheets[w_].sheet_properties.tabColor = c_
 for n_, s_ in (('SYS_Dash', DASH), ('SYS_Data', DATA), ('SYS_Catalog', CAT), ('SYS_Surah', SUR), ('SYS_Teachers', TEA), ('SYS_Lists', LST), ('SYS_Guide', GUIDE), ('SYS_Settings', SET)):
     name(n_, f"'{s_}'!$A$1")
+
+# ------------------------------------------------------------------ plan-B helper sheets (formulas only)
+EXP, SUG = 'تصدير الدرجات', 'التواريخ المقترحة'
+name('LST_Classes', f"{D}!$A$2:$A${DROWS+1}")
+# ---- export scores
+ws = wb.create_sheet(EXP); sheets[EXP] = ws
+ws.sheet_view.rightToLeft = True; ws.sheet_view.showGridLines = False
+title(ws, 'B1:K1', 'تصدير درجات القرآن (بدون أداة الإدارة)', 20, 36)
+for col, w in zip('ABCDEFGHIJKLM', (2, 22, 16, 18, 8, 8, 2, 16, 30, 9, 16, 5, 5)): ws.column_dimensions[col].width = w
+ws['B2'] = 'تشغيل الحساب'; ws['C2'] = 'لا'; ws['C2'].fill = fill(INPUT); ws['C2'].border = box; ws['C2'].protection = Protection(locked=False); ws['B2'].font = f(True, 13, INK); ws['C2'].font = f(True, 14, WARN_T); ws['C2'].alignment = ctr
+note(ws, 'D2', 'اجعلها «نعم» عند التصدير فقط، ثم أعدها «لا» حتى لا يثقل الملف على المدرسين.', WARN_T, 12)
+dv = DataValidation(type='list', formula1='"نعم,لا"', allow_blank=False); dv.add('C2'); ws.add_data_validation(dv)
+ws['B3'] = 'البلس (اتركه فارغًا لكل فصول القرآن)'; ws['C3'].fill = fill(INPUT); ws['C3'].border = box; ws['C3'].protection = Protection(locked=False)
+ws['B3'].font = f(True, 13, INK); ws['C3'].font = f(True, 14, INK); ws['C3'].alignment = ctr
+note(ws, 'B4', 'أو اكتب أسماء فصول محددة في العمود B أدناه (إن وُجدت أُهمل البلس). ثم انسخ الجدول الأخضر والصقه «قيمًا» في ملف جديد.', '6B6B6B', 12)
+ws.merge_cells('B4:K4'); ws.row_dimensions[4].height = 34
+ws['B6'] = 'فصول محددة (اختياري)'; ws['D6'] = 'الفصول المختارة'; ws['E6'] = 'الطلاب'; ws['F6'] = 'تراكمي'
+for c, h in zip('HIJK', ('Academic No', 'Cadet Name', 'Score', 'Class')): ws[f'{c}6'] = h
+hdr(ws, 6, 2, 2, GOLD); hdr(ws, 6, 4, 6, MUTED, 11); hdr(ws, 6, 8, 11, PRI)
+for r in range(7, 37):
+    x = ws.cell(r, 2); x.fill = fill(INPUT); x.border = box; x.protection = Protection(locked=False); x.font = f(); x.alignment = ctr
+DQ = f'(({D}!$B$2:$B${DROWS+1}="{TY_Q}")*({D}!$A$2:$A${DROWS+1}<>"")*((({D}!$E$2:$E${DROWS+1}=$C$3)+($C$3=""))>0))'
+for r in range(7, 57):
+    k = r - 6
+    ws.cell(r, 4).value = (f'=IF($C$2<>"نعم","",IF(COUNTA($B$7:$B$36)>0,IFERROR(INDEX($B$7:$B$36,_xlfn.AGGREGATE(15,6,(ROW($B$7:$B$36)-6)/($B$7:$B$36<>""),{k})),""),'
+                           f'IFERROR(INDEX({D}!$A:$A,_xlfn.AGGREGATE(15,6,ROW({D}!$A$2:$A${DROWS+1})/{DQ},{k})),"")))')
+    ws.cell(r, 5).value = f'=IF(D{r}="",0,IFERROR(COUNTA(INDIRECT("\'"&D{r}&"\'!B11:B70")),0))'
+    ws.cell(r, 6).value = f'=SUM($E$7:E{r})'
+    for c in (4, 5, 6): ws.cell(r, c).font = f(c == 4, 12, '1F1F1F' if c == 4 else MUTED); ws.cell(r, c).alignment = ctr
+ws.conditional_formatting.add('D7:F56', FormulaRule(formula=['$D7<>""'], border=box, fill=fill(SAND)))
+for r in range(7, 607):
+    j = r - 6
+    ws.cell(r, 12).value = f'=IF({j}>MAX($F$7:$F$56),"",COUNTIF($F$7:$F$56,"<"&{j})+1)'
+    cls = f'INDEX($D$7:$D$56,$L{r})'
+    rngB = f'INDIRECT("\'"&{cls}&"\'!B11:B70")'
+    ws.cell(r, 13).value = (f'=IF($L{r}="","",_xlfn.AGGREGATE(15,6,ROW({rngB})/({rngB}<>""),{j}-IF($L{r}=1,0,INDEX($F$7:$F$56,$L{r}-1))))')
+    for c, col in ((8, 'B'), (9, 'C')):
+        ws.cell(r, c).value = f'=IF($M{r}="","",INDEX(INDIRECT("\'"&{cls}&"\'!{col}:{col}"),$M{r})&"")'
+    ws.cell(r, 10).value = f'=IF($M{r}="","",IF(INDEX(INDIRECT("\'"&{cls}&"\'!D:D"),$M{r})="","",INDEX(INDIRECT("\'"&{cls}&"\'!D:D"),$M{r})))'
+    ws.cell(r, 11).value = f'=IF($M{r}="","",{cls}&"")'
+    for c in range(8, 12): ws.cell(r, c).font = f(False, 12); ws.cell(r, c).alignment = ctr
+    for c in (12, 13): ws.cell(r, c).font = f(False, 9, 'C8C8C8')
+ws.conditional_formatting.add('H7:K606', FormulaRule(formula=['$H7<>""'], border=box, fill=fill('F3F9F6')))
+ws['H5'] = '=IF(MAX($F$7:$F$56)=0,"لا يوجد طلاب","عدد الطلاب: "&MAX($F$7:$F$56))'; ws['H5'].font = f(True, 13, PRI)
+ws.freeze_panes = 'A7'; protect(ws)
+name('SYS_Export', f"'{EXP}'!$A$1")
+
+# ---- suggested dates
+ws = wb.create_sheet(SUG); sheets[SUG] = ws
+ws.sheet_view.rightToLeft = True; ws.sheet_view.showGridLines = False
+title(ws, 'B1:H1', 'التواريخ المقترحة (بدون أداة الإدارة)', 20, 36)
+for col, w in zip('ABCDEFGHI', (2, 6, 44, 15, 15, 18, 18, 9, 14)): ws.column_dimensions[col].width = w
+labels = [(3, 'الفصل', None), (4, 'التعبئة حتى', None), (5, 'النوع', f'=IFERROR(VLOOKUP($D$3,{D}!$A:$Y,2,FALSE)&"","")'),
+          (6, 'مدرس الفصل', f'=IFERROR(VLOOKUP($D$3,{D}!$A:$Y,3,FALSE)&"","")'),
+          (7, 'بداية الفصل', f'=IFERROR(IF(VLOOKUP($D$3,{D}!$A:$Y,21,FALSE)="","",VLOOKUP($D$3,{D}!$A:$Y,21,FALSE)),"")'),
+          (8, 'نهاية الفصل', f'=IFERROR(IF(VLOOKUP($D$3,{D}!$A:$Y,22,FALSE)="","",VLOOKUP($D$3,{D}!$A:$Y,22,FALSE)),"")'),
+          (9, 'أيام الحصص (رمز)', f'=IFERROR(IF(OR(VLOOKUP($D$3,{D}!$A:$Y,23,FALSE)="",VLOOKUP($D$3,{D}!$A:$Y,23,FALSE)="1111111"),"0000110",VLOOKUP($D$3,{D}!$A:$Y,23,FALSE)),"0000110")'),
+          (10, 'آخر تاريخ مسموح', '=IF(NOT(ISNUMBER($D$7)),"",IF($D$4="حتى نهاية الفصل",IF(ISNUMBER($D$8),$D$8,TODAY()),MIN(TODAY(),IF(ISNUMBER($D$8),$D$8,TODAY()))))')]
+for r, lab, fo in labels:
+    ws.cell(r, 3, lab).font = f(True, 13, INK); ws.cell(r, 3).alignment = rgt; ws.cell(r, 3).fill = fill(SAND); ws.cell(r, 3).border = box
+    x = ws.cell(r, 4); x.border = box; x.alignment = ctr; x.font = f(True, 13, INK)
+    if fo: x.value = fo; x.fill = fill(MINT)
+    else: x.fill = fill(INPUT); x.protection = Protection(locked=False)
+    if r in (7, 8, 10): x.number_format = DF
+ws['D4'] = 'حتى اليوم'
+dv = DataValidation(type='list', formula1='=LST_Classes', allow_blank=True); dv.add('D3'); ws.add_data_validation(dv)
+dv = DataValidation(type='list', formula1='"حتى اليوم,حتى نهاية الفصل"', allow_blank=False); dv.add('D4'); ws.add_data_validation(dv)
+note(ws, 'F3', 'اختر الفصل، فيقترح الجدول تاريخًا لكل حصة فارغة (من الأحد إلى الخميس، في أيام حصص الفصل، بعد الحصة السابقة، وداخل الفترة) ولا يغيّر المسجّل.', '6B6B6B', 12)
+ws.merge_cells('F3:H6')
+note(ws, 'F7', 'التطبيق: انسخ عمود «التاريخ المقترح» ثم في ورقة الفصل: لصق خاص ← قيم. للمناهج الصقه في F8 (والمنفذ في G8). للقرآن الصقه في E8 مع «تبديل الصفوف والأعمدة» (والمنفذ في E9).', WARN_T, 12)
+ws.merge_cells('F7:H10')
+for i, h in enumerate(['#', 'الدرس / المقطع', 'التاريخ الحالي', 'التاريخ المقترح', 'المنفذ الحالي', 'المنفذ المقترح', 'جديد؟'], 2): ws.cell(12, i, h)
+hdr(ws, 12, 2, 8, PRI, 12)
+ws['I12'] = '=IF(ISNUMBER($D$7),$D$7-1,"")'; ws['I12'].font = f(False, 9, 'C8C8C8'); ws['I12'].number_format = DF
+isQ = '$D$5="قرآن"'
+for r in range(13, 73):
+    i = r - 12
+    def addr(lrow, lcol, qrow): return f'ADDRESS(IF({isQ},{qrow},{lrow}),IF({isQ},{4 + i},{lcol}),4,1,$D$3)'
+    ws.cell(r, 2).value = f'=IF(C{r}="","",{i})'
+    ws.cell(r, 3).value = f'=IF($D$3="","",IFERROR(INDIRECT({addr(7 + i, 4, 7)})&"",""))'
+    ws.cell(r, 4).value = f'=IF(C{r}="","",IFERROR(IF(INDIRECT({addr(7 + i, 6, 8)})="","",INDIRECT({addr(7 + i, 6, 8)})),""))'
+    ws.cell(r, 5).value = (f'=IF(OR(C{r}="",NOT(ISNUMBER($D$10))),"",IF(ISNUMBER(D{r}),D{r},IF(ISNUMBER(I{r-1}),'
+                           f'IF(WORKDAY.INTL(I{r-1},1,$D$9)<=$D$10,WORKDAY.INTL(I{r-1},1,$D$9),""),"")))')
+    ws.cell(r, 6).value = f'=IF(C{r}="","",IFERROR(INDIRECT({addr(7 + i, 7, 9)})&"",""))'
+    ws.cell(r, 7).value = f'=IF(C{r}="","",IF(F{r}<>"",F{r},IF(ISNUMBER(E{r}),$D$6,"")))'
+    ws.cell(r, 8).value = f'=IF(AND(C{r}<>"",NOT(ISNUMBER(D{r})),ISNUMBER(E{r})),"✓","")'
+    ws.cell(r, 9).value = f'=IF(ISNUMBER(D{r}),D{r},IF(ISNUMBER(E{r}),E{r},I{r-1}))'
+    for c in range(2, 10):
+        x = ws.cell(r, c); x.font = f(c == 5, 12, INK if c == 5 else '1F1F1F'); x.alignment = rgt if c == 3 else ctr
+    for c in (4, 5, 9): ws.cell(r, c).number_format = DF
+    ws.cell(r, 9).font = f(False, 9, 'C8C8C8')
+ws.conditional_formatting.add('B13:H72', FormulaRule(formula=['$H13="✓"'], fill=fill(ALERT), border=box))
+ws.conditional_formatting.add('B13:H72', FormulaRule(formula=['$C13<>""'], border=box))
+ws.freeze_panes = 'A13'; protect(ws)
+name('SYS_Suggest', f"'{SUG}'!$A$1")
 
 # ------------------------------------------------------------------ guide
 ws = sheets[GUIDE]
@@ -591,7 +723,10 @@ G = [
  ('يُقبل تاريخ الحصة من الأحد إلى الخميس فقط، وداخل فترة الفصل. أرقام الأسابيع من «الإعدادات».', 0),
  ('٦) الألوان', 2),
  ('ذهبي فاتح = خانة إدخال. أخضر = منفذ. برتقالي = نقص أو تخطٍّ. أصفر = ملاحظة (تاريخ أقدم من سابقه، أو آخر حصة بديل). أزرق مائل = تاريخ عبّأته الأداة تقديريًا.', 0),
- ('٧) ملاحظات', 2),
+ ('٧) أوراق الإدارة', 2),
+ ('المدرسون يرون الصفحة الأساسية وأوراق الفصول فقط. أوراق الإدارة مخفية وبنية الملف محمية (بلا كلمة مرور). لإظهارها: من أداة الإدارة «إظهار أوراق الإدارة»، أو يدويًا: مراجعة ← حماية المصنف (لإلغائها) ← كليك يمين على أي تبويب ← إظهار.', 0),
+ ('بدون أداة الإدارة: ورقة «تصدير الدرجات» تجمع درجات فصول بلس معيّن بالمعادلات، وورقة «التواريخ المقترحة» تقترح تواريخ الحصص الفارغة لفصل تختاره. انظر دليل الخطة البديلة.', 0),
+ ('٨) ملاحظات', 2),
  ('الأوراق محمية بلا كلمة مرور (مراجعة ← إلغاء حماية الورقة). لا تغيّر أسماء الأوراق الثابتة ولا ورقة «القوائم».', 0),
  ('نفّذ العمليات التي تغيّر الملف (إنشاء، أرشفة، نقل طلاب، تعبئة) بعد إيقاف المشاركة. التصدير والفحص يعملان والملف مشارك.', 0),
 ]
@@ -603,6 +738,13 @@ for i, (t_, lvl) in enumerate(G, 2):
 ws.column_dimensions['A'].width = 150
 protect(ws)
 
+from openpyxl.workbook.protection import WorkbookProtection
+system = [DATA, CAT, SUR, TEA, SET, EXP, SUG, GUIDE, LST, TPL_L, TPL_Q]
+classes = [w for w in wb.worksheets if w.title not in system + [DASH]]
+wb._sheets = [sheets[DASH]] + classes + [wb[n] for n in system]
+for n in system: wb[n].sheet_state = 'hidden'
+wb.active = 0
+wb.security = WorkbookProtection(lockStructure=True)
 wb.calculation.fullCalcOnLoad = True
 wb.save(OUT)
 print('saved', OUT)

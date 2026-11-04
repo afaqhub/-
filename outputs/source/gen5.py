@@ -1,7 +1,7 @@
 import re, sys
 sys.path.insert(0, '.')
-from texts4 import TEXTS
-body = open('body4.bas', encoding='utf8').read()
+from texts5 import TEXTS
+body = open('body5.bas', encoding='utf8').read()
 used = set(re.findall(r'T\("(\w+)"\)', body)) | {f'help{i}' for i in range(1, 15)}
 missing = used - set(TEXTS); assert not missing, missing
 def crlf(s): return s.replace('\r\n', '\n').replace('\n', '\r\n').encode('ascii')

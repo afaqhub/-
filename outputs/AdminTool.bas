@@ -1,6 +1,6 @@
 Attribute VB_Name = "PlanAdmin"
 '=========================================================================
-' Teaching Plan - Admin Tool  (version 4.0)
+' Teaching Plan - Admin Tool  (version 5.0)
 '
 ' HOW TO INSTALL (one time):
 '   1. Create a new empty Excel file and save it as  AdminTool.xlsm
@@ -15,7 +15,7 @@ Attribute VB_Name = "PlanAdmin"
 '=========================================================================
 Option Explicit
 
-Private Const APP_VER As String = "4.0"
+Private Const APP_VER As String = "5.0"
 
 ' ---- teachers file: columns of the class table (named range DB_Classes)
 Private Const C_NAME As Long = 1
@@ -34,6 +34,7 @@ Private Const C_NEXT As Long = 16
 Private Const C_TRANS As Long = 17
 Private Const C_STATUS As Long = 18
 Private Const C_LASTIN As Long = 18
+Private Const C_PREV As Long = 26          ' previous CC class (input)
 Private Const C_START As Long = 21        ' effective start (formula)
 Private Const C_END As Long = 22          ' effective end (formula)
 
@@ -65,8 +66,8 @@ Private Const SH_REPORT As String = "Report"
 Private Const SH_LOG As String = "Log"
 Private Const SH_LISTS As String = "Lists"
 Private Const SH_HELP As String = "Help"
-Private Const LR0 As Long = 43         ' first data row of the class list on Panel
-Private Const LC As Long = 2           ' first column of lists (B)
+Private Const LR0 As Long = 6          ' first data row of the class list on Panel
+Private Const LC As Long = 9           ' first column of the Panel class list (I)
 Private Const O_CLS As Long = 1
 Private Const O_TEA As Long = 2
 Private Const O_TYP As Long = 3
@@ -341,12 +342,14 @@ Private Function OpenTarget(ByVal forWrite As Boolean, ByRef wasOpen As Boolean)
             If Not wasOpen Then wb.Close SaveChanges:=False
             Exit Function
         End If
+        UnlockBook wb
     End If
     Set OpenTarget = wb
 End Function
 
 Private Sub CloseBook(wb As Workbook, ByVal wasOpen As Boolean, ByVal doSave As Boolean)
     If wb Is Nothing Then Exit Sub
+    If HasName(wb, "DB_Classes") Then LockBook wb
     If doSave Then wb.Save
     If Not wasOpen Then wb.Close SaveChanges:=False
 End Sub
@@ -368,6 +371,23 @@ Private Sub WriteLog(ByVal action As String, ByVal details As String)
     ws.Cells(r, 3).Value = action
     ws.Cells(r, 4).Value = Left$(Replace(details, vbLf, "  |  "), 30000)
     ws.Range(ws.Cells(r, 2), ws.Cells(r, 4)).Borders.Color = cLine()
+End Sub
+
+Private Sub UnlockBook(wb As Workbook)
+    On Error Resume Next
+    wb.Unprotect
+    On Error GoTo 0
+End Sub
+
+Private Sub LockBook(wb As Workbook)
+    On Error Resume Next
+    wb.Protect Structure:=True, Windows:=False
+    On Error GoTo 0
+End Sub
+
+Private Sub ClearClassRow(d As Range, ByVal r As Long)
+    ClearClassRow d, r
+    d.Cells(r, C_PREV).ClearContents
 End Sub
 
 Private Function DB(wb As Workbook) As Range
@@ -674,9 +694,10 @@ Private Sub ListHeader(ws As Worksheet, ByVal r As Long, ByVal title As String, 
     ws.Rows(r).RowHeight = 30
 End Sub
 
-Private Sub PrepareTable(ws As Worksheet, ByVal r0 As Long, ByVal nCols As Long, ByVal markCol As Boolean)
+Private Sub PrepareTable(ws As Worksheet, ByVal r0 As Long, ByVal nCols As Long, ByVal markCol As Boolean, _
+                         Optional ByVal firstCol As Long = 2)
     Dim rg As Range
-    Set rg = ws.Range(ws.Cells(r0, 2), ws.Cells(r0 + MAXLIST, 1 + nCols))
+    Set rg = ws.Range(ws.Cells(r0, firstCol), ws.Cells(r0 + MAXLIST, firstCol + nCols - 1))
     rg.Clear
     rg.Interior.Color = cSand()
     rg.Font.Name = FontAr()
@@ -685,7 +706,7 @@ Private Sub PrepareTable(ws As Worksheet, ByVal r0 As Long, ByVal nCols As Long,
     rg.HorizontalAlignment = xlCenter
     rg.VerticalAlignment = xlCenter
     If markCol Then
-        With ws.Range(ws.Cells(r0, 2), ws.Cells(r0 + MAXLIST, 2))
+        With ws.Range(ws.Cells(r0, firstCol), ws.Cells(r0 + MAXLIST, firstCol))
             .Validation.Delete
             .Validation.Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="='" & SH_LISTS & "'!$D$2"
             .Font.Bold = True
@@ -695,13 +716,13 @@ Private Sub PrepareTable(ws As Worksheet, ByVal r0 As Long, ByVal nCols As Long,
     End If
 End Sub
 
-Private Sub StyleRow(ws As Worksheet, ByVal r As Long, ByVal nCols As Long, ByVal markCol As Boolean)
-    With ws.Range(ws.Cells(r, 2), ws.Cells(r, 1 + nCols))
+Private Sub StyleRow(ws As Worksheet, ByVal r As Long, ByVal nCols As Long, ByVal markCol As Boolean, _
+                     Optional ByVal firstCol As Long = 2)
+    With ws.Range(ws.Cells(r, firstCol), ws.Cells(r, firstCol + nCols - 1))
         .Interior.Color = IIf((r Mod 2) = 0, cCard(), RGB(247, 242, 232))
         .Borders.Color = cLine()
     End With
-    If markCol Then ws.Cells(r, 2).Interior.Color = cInput()
-    ws.Rows(r).RowHeight = 24
+    If markCol Then ws.Cells(r, firstCol).Interior.Color = cInput()
 End Sub
 
 Private Sub BuildLists()
@@ -723,86 +744,309 @@ Private Sub BuildLists()
     ws.Range("F2:F500").NumberFormat = "@"
 End Sub
 
-Private Sub BuildPanel()
-    Dim ws As Worksheet
-    Set ws = GetSheet(SH_PANEL)
-    ResetSheet ws, True
-    TitleBlock ws, T("title"), T("subtitle")
-
-    ws.Range("B4").Value = T("lblFile")
-    ws.Range("B5").Value = T("lblFolder")
-    With ws.Range("B4:B5")
+Private Sub SectionBar(ws As Worksheet, ByVal r As Long, ByVal caption As String)
+    With ws.Range(ws.Cells(r, 2), ws.Cells(r, 7))
+        .Merge
+        .Value = caption
         .Font.Bold = True
+        .Font.Size = 15
         .Font.Color = cInk()
+        .Interior.Color = cGoldL()
         .HorizontalAlignment = xlRight
+        .VerticalAlignment = xlCenter
         .IndentLevel = 1
+        .Borders(xlEdgeBottom).Color = cGold()
+        .Borders(xlEdgeBottom).Weight = xlMedium
+    End With
+    ws.Rows(r).RowHeight = 26
+End Sub
+
+' a card = big button over two rows + a one-line caption under it (slot 0..2 across columns B:G)
+Private Sub Card(ws As Worksheet, ByVal r As Long, ByVal slot As Long, ByVal cap As String, ByVal macro As String, _
+                 ByVal subTxt As String, ByVal clr As Long)
+    Dim c1 As Long, rg As Range, shp As Shape
+    c1 = 2 + slot * 2
+    Set rg = ws.Range(ws.Cells(r, c1), ws.Cells(r + 1, c1 + 1))
+    rg.Interior.Color = cCard()
+    Set shp = ws.Shapes.AddShape(5, rg.Left + 5, rg.Top + 4, rg.Width - 10, rg.Height - 6)
+    shp.Name = "btn_" & macro
+    shp.Fill.ForeColor.RGB = clr
+    shp.Line.Visible = -1
+    shp.Line.ForeColor.RGB = cGold()
+    shp.Line.Weight = 1.25
+    On Error Resume Next
+    shp.Adjustments.Item(1) = 0.25
+    shp.Shadow.Visible = -1
+    shp.Shadow.OffsetX = 1
+    shp.Shadow.OffsetY = 2
+    shp.Shadow.Transparency = 0.75
+    On Error GoTo 0
+    With shp.TextFrame2
+        .TextRange.Text = cap
+        .TextRange.Font.Name = FontAr()
+        .TextRange.Font.Size = 16
+        .TextRange.Font.Bold = -1
+        .TextRange.Font.Fill.ForeColor.RGB = RGB(255, 255, 255)
+        .TextRange.ParagraphFormat.Alignment = 2
+        .VerticalAnchor = 3
+        .WordWrap = -1
+        .MarginLeft = 2
+        .MarginRight = 2
+    End With
+    On Error Resume Next
+    shp.TextFrame2.TextRange.Font.NameComplexScript = FontAr()
+    shp.TextFrame2.TextRange.ParagraphFormat.TextDirection = 2
+    On Error GoTo 0
+    shp.OnAction = macro
+    shp.Placement = 2
+    CardCaption ws, r + 2, c1, subTxt
+End Sub
+
+Private Sub CardCaption(ws As Worksheet, ByVal r As Long, ByVal c1 As Long, ByVal subTxt As String)
+    With ws.Range(ws.Cells(r, c1), ws.Cells(r, c1 + 1))
+        .Merge
+        .Value = subTxt
+        .WrapText = True
+        .Font.Size = 11
+        .Font.Color = RGB(95, 95, 95)
+        .HorizontalAlignment = xlCenter
+        .VerticalAlignment = xlTop
+        .Interior.Color = cCard()
+        .Borders(xlEdgeBottom).Color = cLine()
+    End With
+End Sub
+
+' an option card = label row + dropdown row + caption row
+Private Sub OptionCard(ws As Worksheet, ByVal r As Long, ByVal slot As Long, ByVal lbl As String, ByVal nm As String, _
+                       ByVal listRef As String, ByVal subTxt As String)
+    Dim c1 As Long
+    c1 = 2 + slot * 2
+    With ws.Range(ws.Cells(r, c1), ws.Cells(r, c1 + 1))
+        .Merge
+        .Value = lbl
+        .Font.Bold = True
+        .Font.Size = 13
+        .Font.Color = cInk()
+        .HorizontalAlignment = xlCenter
+        .VerticalAlignment = xlCenter
         .Interior.Color = cCard()
     End With
-    ws.Range("C4:H4").Merge
-    ws.Range("C5:H5").Merge
-    With ws.Range("C4:H5")
+    With ws.Range(ws.Cells(r + 1, c1), ws.Cells(r + 1, c1 + 1))
+        .Merge
+        .Interior.Color = cInput()
+        .Borders.Color = cGold()
+        .HorizontalAlignment = xlCenter
+        .VerticalAlignment = xlCenter
+        .Font.Bold = True
+        .Font.Size = 14
+        .Font.Color = cInk()
+    End With
+    With ws.Cells(r + 1, c1)
+        .Validation.Delete
+        .Validation.Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="=" & listRef
+    End With
+    ThisWorkbook.Names.Add Name:=nm, RefersTo:="='" & ws.Name & "'!" & ws.Cells(r + 1, c1).Address
+    CardCaption ws, r + 2, c1, subTxt
+End Sub
+
+Private Sub CardRows(ws As Worksheet, ByVal r As Long)
+    ws.Rows(r).RowHeight = 24
+    ws.Rows(r + 1).RowHeight = 24
+    ws.Rows(r + 2).RowHeight = 30
+End Sub
+
+Private Sub BuildPanel()
+    Dim ws As Worksheet, i As Long
+    Set ws = GetSheet(SH_PANEL)
+    ResetSheet ws, True
+    ActiveWindow.Zoom = 90
+    For i = 2 To 7
+        ws.Columns(i).ColumnWidth = 15
+    Next i
+    ws.Columns("H").ColumnWidth = 3
+    ws.Columns("I").ColumnWidth = 7
+    ws.Columns("J").ColumnWidth = 15
+    ws.Columns("K").ColumnWidth = 16
+    ws.Columns("L").ColumnWidth = 9
+    ws.Columns("M").ColumnWidth = 9
+    ws.Columns("N").ColumnWidth = 11
+    ws.Columns("O").ColumnWidth = 8
+    ws.Columns("P").ColumnWidth = 2
+
+    With ws.Range("B1:O1")
+        .Merge
+        .Value = T("title")
+        .Font.Size = 24
+        .Font.Bold = True
+        .Font.Color = RGB(255, 255, 255)
+        .Interior.Color = cInk()
+        .HorizontalAlignment = xlRight
+        .VerticalAlignment = xlCenter
+        .IndentLevel = 1
+        .Borders(xlEdgeBottom).Color = cGold()
+        .Borders(xlEdgeBottom).Weight = xlThick
+    End With
+    ws.Rows(1).RowHeight = 46
+    ws.Range("B2").Value = T("lblFile")
+    ws.Range("I2").Value = T("lblFolder")
+    ws.Range("C2:G2").Merge
+    ws.Range("J2:O2").Merge
+    With ws.Range("B2,I2")
+        .Font.Bold = True
+        .Font.Color = cInk()
+        .HorizontalAlignment = xlCenter
+        .Interior.Color = cGoldL()
+    End With
+    With ws.Range("C2:G2,J2:O2")
         .Interior.Color = cCard()
         .Borders.Color = cLine()
         .HorizontalAlignment = xlRight
         .IndentLevel = 1
+        .ShrinkToFit = True
     End With
-    ws.Range("C4").Font.Bold = True
-    ws.Range("C4").Font.Color = cInk()
-    ws.Range("C5").Font.Size = 12
-    ws.Range("C5").Font.Color = RGB(110, 110, 110)
-    ws.Rows(4).RowHeight = 28
-    ws.Rows(5).RowHeight = 24
-    ThisWorkbook.Names.Add Name:="CFG_File", RefersTo:="='" & SH_PANEL & "'!$C$4"
-    ThisWorkbook.Names.Add Name:="CFG_Folder", RefersTo:="='" & SH_PANEL & "'!$C$5"
+    ws.Range("C2").Font.Bold = True
+    ws.Range("C2").Font.Color = cInk()
+    ws.Range("J2").Font.Size = 11
+    ws.Range("J2").Font.Color = RGB(110, 110, 110)
+    ws.Rows(2).RowHeight = 26
+    ws.Rows(3).RowHeight = 6
+    ThisWorkbook.Names.Add Name:="CFG_File", RefersTo:="='" & SH_PANEL & "'!$C$2"
+    ThisWorkbook.Names.Add Name:="CFG_Folder", RefersTo:="='" & SH_PANEL & "'!$J$2"
 
-    SectionRow ws, 7, T("sec1")
-    ButtonRow ws, 8, T("bLink"), "BtnLinkFile", T("dLink"), cInk()
-    ButtonRow ws, 9, T("bRefresh"), "BtnRefresh", T("dRefresh"), cInk()
+    SectionBar ws, 4, T("sec1")
+    CardRows ws, 5
+    Card ws, 5, 0, T("bLink"), "BtnLinkFile", T("cLink"), cInk()
+    Card ws, 5, 1, T("bRefresh"), "BtnRefresh", T("cRefresh"), cInk()
+    Card ws, 5, 2, T("bHealth"), "BtnHealth", T("cHealth"), cSlate()
 
-    SectionRow ws, 11, T("sec2")
-    ButtonRow ws, 12, T("bCreate"), "BtnCreateSheets", T("dCreate"), cPri(), 62
-    ButtonRow ws, 13, T("bTrans"), "BtnTransitions", T("dTrans"), cPri(), 62
-    OptionRow ws, 14, T("oAfter"), "CFG_AfterTrans", "'" & SH_LISTS & "'!$G$2:$G$3", T("dAfter")
-    ButtonRow ws, 15, T("bArchive"), "BtnArchive", T("dArchive"), cGold(), 62
-    ButtonRow ws, 16, T("bDelete"), "BtnDelete", T("dDelete"), cTerra()
-    ButtonRow ws, 17, T("bHealth"), "BtnHealth", T("dHealth"), cSlate(), 62
+    SectionBar ws, 8, T("sec2")
+    CardRows ws, 9
+    Card ws, 9, 0, T("bCreate"), "BtnCreateSheets", T("cCreate"), cPri()
+    Card ws, 9, 1, T("bTrans"), "BtnTransitions", T("cTrans"), cPri()
+    OptionCard ws, 9, 2, T("oAfter"), "CFG_AfterTrans", "'" & SH_LISTS & "'!$G$2:$G$3", T("cAfter")
+    CardRows ws, 12
+    Card ws, 12, 0, T("bArchive"), "BtnArchive", T("cArchive"), cGold()
+    Card ws, 12, 1, T("bDelete"), "BtnDelete", T("cDelete"), cTerra()
+    Card ws, 12, 2, T("bGoRestore"), "BtnGoRestore", T("cGoRestore"), cGold()
+    CardRows ws, 15
+    Card ws, 15, 0, T("bShowAdmin"), "BtnShowAdmin", T("cShowAdmin"), cSlate()
+    Card ws, 15, 1, T("bHideAdmin"), "BtnHideAdmin", T("cHideAdmin"), cSlate()
+    Card ws, 15, 2, T("bFollow"), "BtnFollowUp", T("cFollow"), cPri()
 
-    SectionRow ws, 19, T("sec3")
-    OptionRow ws, 20, T("oUntil"), "CFG_FillUntil", "'" & SH_LISTS & "'!$A$2:$A$3", T("dUntil")
-    OptionRow ws, 21, T("oExec"), "CFG_FillExec", "'" & SH_LISTS & "'!$B$2:$B$3", T("dExec")
-    ButtonRow ws, 22, T("bFill"), "BtnFillDates", T("dFill"), cPri(), 78
+    SectionBar ws, 18, T("sec3")
+    CardRows ws, 19
+    OptionCard ws, 19, 0, T("oUntil"), "CFG_FillUntil", "'" & SH_LISTS & "'!$A$2:$A$3", T("cUntil")
+    OptionCard ws, 19, 1, T("oExec"), "CFG_FillExec", "'" & SH_LISTS & "'!$B$2:$B$3", T("cExec")
+    Card ws, 19, 2, T("bFill"), "BtnFillDates", T("cFill"), cPri()
 
-    SectionRow ws, 24, T("sec4")
-    OptionRow ws, 25, T("oPulse"), "CFG_Pulse", "'" & SH_LISTS & "'!$C$2:$C$200", T("dPulse")
-    ButtonRow ws, 26, T("bSelPulse"), "BtnSelectPulse", T("dSelPulse"), cInk()
-    ButtonRow ws, 27, T("bSelAll"), "BtnSelectAll", T("dSelAll"), cSlate(), 40
-    ButtonRow ws, 28, T("bClear"), "BtnClearSel", T("dClear"), cSlate(), 40
-    ButtonRow ws, 29, T("bExport"), "BtnExport", T("dExport"), cPri(), 62
-    ButtonRow ws, 30, T("bGoTrans"), "BtnGoTransfers", T("dGoTrans"), cGold(), 62
+    SectionBar ws, 22, T("sec4")
+    CardRows ws, 23
+    OptionCard ws, 23, 0, T("oPulse"), "CFG_Pulse", "'" & SH_LISTS & "'!$C$2:$C$200", T("cPulse")
+    Card ws, 23, 1, T("bSelPulse"), "BtnSelectPulse", T("cSelPulse"), cInk()
+    Card ws, 23, 2, T("bSelAll"), "BtnSelectAll", T("cSelAll"), cSlate()
+    CardRows ws, 26
+    Card ws, 26, 0, T("bClear"), "BtnClearSel", T("cClear"), cSlate()
+    Card ws, 26, 1, T("bExport"), "BtnExport", T("cExport"), cPri()
+    Card ws, 26, 2, T("bGoTrans"), "BtnGoTransfers", T("cGoTrans"), cGold()
 
-    SectionRow ws, 32, T("sec5")
-    ButtonRow ws, 33, T("bGoRestore"), "BtnGoRestore", T("dGoRestore"), cGold(), 62
-    ButtonRow ws, 34, T("bFollow"), "BtnFollowUp", T("dFollow"), cPri()
-    ButtonRow ws, 35, T("bImport"), "BtnImportOld", T("dImport"), cSlate(), 62
-
-    With ws.Range("B37:H37")
+    SectionBar ws, 29, T("sec5")
+    CardRows ws, 30
+    Card ws, 30, 0, T("bImport"), "BtnImportOld", T("cImport"), cSlate()
+    Card ws, 30, 1, T("bHelp"), "BtnGoHelp", T("cHelp"), cInk()
+    CardCaption ws, 32, 6, ""
+    ws.Range(ws.Cells(30, 6), ws.Cells(31, 7)).Interior.Color = cCard()
+    With ws.Range(ws.Cells(30, 6), ws.Cells(31, 7))
         .Merge
         .Value = T("note")
         .WrapText = True
-        .Font.Size = 13
+        .Font.Size = 11
         .Font.Italic = True
         .Font.Color = RGB(100, 100, 100)
-        .HorizontalAlignment = xlRight
-        .IndentLevel = 1
+        .HorizontalAlignment = xlCenter
+        .VerticalAlignment = xlCenter
     End With
-    ws.Rows(37).RowHeight = 36
-    ws.Range("B38").Value = T("lblVer") & " " & APP_VER
-    ws.Range("B38").Font.Size = 11
-    ws.Range("B38").Font.Color = RGB(150, 150, 150)
+    ws.Range("B33").Value = T("lblVer") & " " & APP_VER
+    ws.Range("B33").Font.Size = 10
+    ws.Range("B33").Font.Color = RGB(150, 150, 150)
 
-    ListHeader ws, LR0 - 1, T("listTitle"), Array(T("hSel"), T("hClass"), T("hTeacher"), T("hType"), T("hPart"), T("hStatus"), T("hSheet"))
-    PrepareTable ws, LR0, 7, True
-    ws.Range("B4").Select
+    ' class list on the right
+    With ws.Range(ws.Cells(LR0 - 2, LC), ws.Cells(LR0 - 2, LC + 6))
+        .Merge
+        .Value = T("listTitle")
+        .Font.Bold = True
+        .Font.Size = 15
+        .Font.Color = cInk()
+        .Interior.Color = cGoldL()
+        .HorizontalAlignment = xlRight
+        .VerticalAlignment = xlCenter
+        .IndentLevel = 1
+        .Borders(xlEdgeBottom).Color = cGold()
+        .Borders(xlEdgeBottom).Weight = xlMedium
+    End With
+    ws.Cells(LR0 - 1, LC).Value = T("hSel")
+    ws.Cells(LR0 - 1, LC + O_CLS).Value = T("hClass")
+    ws.Cells(LR0 - 1, LC + O_TEA).Value = T("hTeacher")
+    ws.Cells(LR0 - 1, LC + O_TYP).Value = T("hType")
+    ws.Cells(LR0 - 1, LC + O_PRT).Value = T("hPart")
+    ws.Cells(LR0 - 1, LC + O_STA).Value = T("hStatus")
+    ws.Cells(LR0 - 1, LC + O_SHT).Value = T("hSheet")
+    StyleHeader ws.Range(ws.Cells(LR0 - 1, LC), ws.Cells(LR0 - 1, LC + 6))
+    PrepareTable ws, LR0, 7, True, LC
+    ws.Range("A1").Select
+End Sub
+
+Public Sub BtnGoHelp()
+    ThisWorkbook.Worksheets(SH_HELP).Activate
+End Sub
+
+'=========================================================================
+' BUTTONS: show / hide the admin sheets inside the teachers' file
+'=========================================================================
+Public Sub BtnShowAdmin()
+    SetAdminVisible True
+End Sub
+
+Public Sub BtnHideAdmin()
+    SetAdminVisible False
+End Sub
+
+Private Sub SetAdminVisible(ByVal makeVisible As Boolean)
+    Dim wb As Workbook, wasOpen As Boolean, n As Object, ws As Worksheet, dash As Worksheet, cnt As Long
+    On Error GoTo EH
+    BeginWork
+    Set wb = OpenTarget(True, wasOpen)
+    If wb Is Nothing Then
+        EndWork
+        Exit Sub
+    End If
+    Set dash = wb.Names("SYS_Dash").RefersToRange.Worksheet
+    dash.Visible = xlSheetVisible
+    For Each n In wb.Names
+        If Left$(n.Name, 4) = "SYS_" Or Left$(n.Name, 4) = "TPL_" Then
+            Set ws = Nothing
+            On Error Resume Next
+            Set ws = n.RefersToRange.Worksheet
+            On Error GoTo EH
+            If Not ws Is Nothing Then
+                If Not ws Is dash Then
+                    If makeVisible Then
+                        ws.Visible = xlSheetVisible
+                    Else
+                        ws.Visible = xlSheetHidden
+                    End If
+                    cnt = cnt + 1
+                End If
+            End If
+        End If
+    Next n
+    dash.Activate
+    CloseBook wb, wasOpen, True
+    EndWork
+    WriteLog IIf(makeVisible, T("bShowAdmin"), T("bHideAdmin")), CStr(cnt)
+    MsgBox IIf(makeVisible, T("mShown"), T("mHidden")), vbInformation
+    Exit Sub
+EH:
+    ShowError
 End Sub
 
 Private Sub BuildTransfers()
@@ -965,14 +1209,14 @@ Public Sub BtnRefresh()
     End If
     Set d = DB(wb)
     qLbl = LV(wb, "LST_Type", 2)
-    PrepareTable ws, LR0, 7, True
+    PrepareTable ws, LR0, 7, True, LC
     Set pul = CreateObject("Scripting.Dictionary")
     pul.CompareMode = 1
     For r = 2 To d.Rows.Count
         nm = Txt(d.Cells(r, C_NAME).Value)
         If Len(nm) > 0 And n < MAXLIST Then
             i = LR0 + n
-            StyleRow ws, i, 7, True
+            StyleRow ws, i, 7, True, LC
             If sel.Exists(nm) Then ws.Cells(i, LC).Value = CK()
             ws.Cells(i, LC + O_CLS).Value = nm
             ws.Cells(i, LC + O_CLS).Font.Bold = True
@@ -1014,11 +1258,12 @@ EH:
 End Sub
 
 Private Function MarkedIn(ByVal shName As String, ByVal r0 As Long, ByVal keyCol As Long) As Collection
-    Dim c As New Collection, ws As Worksheet, r As Long
+    Dim c As New Collection, ws As Worksheet, r As Long, mc As Long
     Set ws = ThisWorkbook.Worksheets(shName)
+    mc = IIf(shName = SH_PANEL, LC, 2)
     r = r0
     Do While Len(Txt(ws.Cells(r, keyCol).Value)) > 0
-        If Txt(ws.Cells(r, 2).Value) = CK() Then c.Add Txt(ws.Cells(r, keyCol).Value)
+        If Txt(ws.Cells(r, mc).Value) = CK() Then c.Add Txt(ws.Cells(r, keyCol).Value)
         r = r + 1
     Loop
     Set MarkedIn = c
@@ -1030,15 +1275,16 @@ End Function
 
 Private Function MarkByValue(ByVal shName As String, ByVal r0 As Long, ByVal keyCol As Long, ByVal valCol As Long, _
                              ByVal v As String) As Long
-    Dim ws As Worksheet, r As Long, n As Long
+    Dim ws As Worksheet, r As Long, n As Long, mc As Long
     Set ws = ThisWorkbook.Worksheets(shName)
+    mc = IIf(shName = SH_PANEL, LC, 2)
     r = r0
     Do While Len(Txt(ws.Cells(r, keyCol).Value)) > 0
         If SameText(Txt(ws.Cells(r, valCol).Value), v) Then
-            ws.Cells(r, 2).Value = CK()
+            ws.Cells(r, mc).Value = CK()
             n = n + 1
         Else
-            ws.Cells(r, 2).ClearContents
+            ws.Cells(r, mc).ClearContents
         End If
         r = r + 1
     Loop
@@ -1074,11 +1320,22 @@ End Sub
 '=========================================================================
 ' class creation helpers
 '=========================================================================
+Private Function LastVisibleSheet(wb As Workbook) As Worksheet
+    Dim i As Long
+    For i = wb.Worksheets.Count To 1 Step -1
+        If wb.Worksheets(i).Visible = xlSheetVisible Then
+            Set LastVisibleSheet = wb.Worksheets(i)
+            Exit Function
+        End If
+    Next i
+    Set LastVisibleSheet = wb.Worksheets(1)
+End Function
+
 Private Sub CopyTemplate(wb As Workbook, ByVal tplName As String, ByVal newName As String)
     Dim tpl As Worksheet, ws As Worksheet
     Set tpl = wb.Names(tplName).RefersToRange.Worksheet
-    tpl.Copy After:=wb.Worksheets(wb.Worksheets.Count)
-    Set ws = wb.Worksheets(wb.Worksheets.Count)
+    tpl.Copy After:=LastVisibleSheet(wb)
+    Set ws = wb.ActiveSheet
     ws.Name = newName
     ws.Visible = xlSheetVisible
     If tplName = "TPL_Quran" Then
@@ -1125,6 +1382,7 @@ Private Function EnsureNextRow(d As Range, ByVal r As Long, ByVal tL As String, 
         d.Cells(rr, c).Value = d.Cells(r, c).Value
     Next c
     d.Cells(rr, C_STATUS).Value = sAct
+    d.Cells(rr, C_PREV).Value = d.Cells(r, C_NAME).Value
     added = True
     EnsureNextRow = rr
 End Function
@@ -1335,11 +1593,12 @@ Private Sub BuildIndexHeader(ws As Worksheet, d As Range)
     Next c
     ws.Cells(3, C_LASTIN + 2).Value = T("ixDate")
     ws.Cells(3, C_LASTIN + 3).Value = T("ixRestored")
-    StyleHeader ws.Range(ws.Cells(3, 1), ws.Cells(3, C_LASTIN + 3))
+    ws.Cells(3, C_LASTIN + 4).Value = d.Cells(1, C_PREV).Value
+    StyleHeader ws.Range(ws.Cells(3, 1), ws.Cells(3, C_LASTIN + 4))
     ws.Rows(3).RowHeight = 40
     ws.Columns(1).ColumnWidth = 18
     ws.Columns(2).ColumnWidth = 16
-    ws.Range(ws.Columns(3), ws.Columns(C_LASTIN + 3)).ColumnWidth = 12
+    ws.Range(ws.Columns(3), ws.Columns(C_LASTIN + 4)).ColumnWidth = 12
     ws.Activate
     ActiveWindow.FreezePanes = False
     ws.Range("C4").Select
@@ -1402,7 +1661,8 @@ Private Sub AddIndexRow(arc As Workbook, d As Range, ByVal r As Long, ByVal shNa
     ws.Cells(i, 2).Value = Txt(d.Cells(r, C_NAME).Value)
     ws.Cells(i, C_LASTIN + 2).Value = Date
     ws.Cells(i, C_LASTIN + 2).NumberFormat = "yyyy/mm/dd"
-    With ws.Range(ws.Cells(i, 1), ws.Cells(i, C_LASTIN + 3))
+    ws.Cells(i, C_LASTIN + 4).Value = d.Cells(r, C_PREV).Value
+    With ws.Range(ws.Cells(i, 1), ws.Cells(i, C_LASTIN + 4))
         .Borders.Color = cLine()
         .HorizontalAlignment = xlCenter
         .Interior.Color = IIf((i Mod 2) = 0, cCard(), RGB(247, 242, 232))
@@ -1439,7 +1699,7 @@ Private Function ArchiveRows(wb As Workbook, d As Range, lst As Collection, rows
         If Not src Is Nothing Then shName = CopyToArchive(src, arc, nm)
         AddIndexRow arc, d, r, shName
         If Not src Is Nothing Then src.Delete
-        d.Worksheet.Range(d.Cells(r, 1), d.Cells(r, C_LASTIN)).ClearContents
+        ClearClassRow d, r
         ArchiveRows = ArchiveRows + 1
     Next i
     BreakExternal arc
@@ -1536,7 +1796,7 @@ Public Sub BtnDelete()
         Set src = FindSheet(wb, CStr(lst(i)))
         If Not src Is Nothing Then src.Delete
         r = rowsC(i)
-        d.Worksheet.Range(d.Cells(r, 1), d.Cells(r, C_LASTIN)).ClearContents
+        ClearClassRow d, r
         n = n + 1
     Next i
     wb.Worksheets(1).Activate
@@ -1696,6 +1956,7 @@ Public Sub BtnRestore()
                 Next c
                 d.Cells(rr, C_NAME).Value = nm
                 d.Cells(rr, C_STATUS).Value = sAct
+                d.Cells(rr, C_PREV).Value = ix.Cells(ixr, C_LASTIN + 4).Value
                 isQ = SameText(Txt(d.Cells(rr, C_TYPE).Value), tQ)
                 Set dst = EnsureSheet(wb, d, rr, tQ)
                 Set src = FindSheet(arc, arcName)
@@ -2562,6 +2823,7 @@ Public Sub BtnFollowUp()
         Exit Sub
     End If
     Application.Calculate
+    UnlockBook wb
     Set dash = wb.Names("SYS_Dash").RefersToRange.Worksheet
     dash.Copy
     Set outWb = ActiveWorkbook
