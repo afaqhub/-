@@ -237,6 +237,36 @@ async function seeDemoThrough(page) {
         }
       }
       out.probs = probs.slice(0, 5);
+      // بنك «أول صوت»
+      const F = Bustan.games.firstsound, fp = [];
+      if (F.WORDS.length < 40) fp.push('count');
+      F.WORDS.forEach((w) => { if (!Bustan.pics.has(w[0])) fp.push('pic:' + w[0]); if (/^ال/.test(w[1])) fp.push('al:' + w[1]); });
+      'بمسفلتجحخدرزشصطعغكنهوي'.split('').forEach((L) => { if (F.WORDS.filter((w) => w[1][0] === L).length < 2) fp.push('few:' + L); });
+      for (let lv = 1; lv <= 3; lv++) for (let n = 0; n < 300; n++) {
+        const r = F._makeLetterRound(lv, []);
+        if (r.letters.some((L) => 'ثذظضق'.includes(L))) fp.push('deferred@' + lv);
+        if (new Set(r.letters).size !== 3 || r.letters[r.correct] !== r.word[0]) fp.push('letters@' + lv);
+        if (lv === 1 && r.letters.some((L) => !'بمسفل'.includes(L))) fp.push('lv1set');
+      }
+      for (let n = 0; n < 200; n++) { const r = F._makeLetterRound(4, []); if (!'ثذظضق'.includes(r.word[0]) || new Set(r.letters).size !== 3) fp.push('lv4'); }
+      for (let n = 0; n < 100; n++) { const r = F._makeRhymeRound([]); if (new Set(r.keys).size !== 3) fp.push('rhyme'); }
+      out.fs = [...new Set(fp)].slice(0, 6);
+      // بنك «جسر الروابط»
+      const Br = Bustan.games.bridge, bp = [];
+      [0, 1, 2, 3].forEach((c) => { if (Br.BANK.filter((s) => s[0] === c).length < 8) bp.push('few' + c); });
+      Br.BANK.forEach((s) => { [s[2], s[4], s[5]].forEach((k) => { if (!Bustan.pics.has(k)) bp.push('pic:' + k); }); if (!Br.PHRASE[s[4]] || !Br.PHRASE[s[5]]) bp.push('phrase:' + s[4] + '/' + s[5]); if (/[A-Za-z0-9]/.test(s[1] + s[3])) bp.push('latin'); if (new Set([s[2], s[4], s[5]]).size !== 3) bp.push('dup'); });
+      out.br = [...new Set(bp)].slice(0, 6);
+      // الأنماط والمرآة
+      const pp = [];
+      for (let lv = 1; lv <= 5; lv++) for (let n = 0; n < 200; n++) {
+        const pt = Bustan.games.pattern._makePattern(lv);
+        if (pt.gaps.length !== (lv === 5 ? 2 : 1)) pp.push('gaps' + lv);
+        const m = Bustan.games.mirror._makeRound(lv, 340, 500, 72);
+        if (m.cells.filter((x) => x >= 0).length < 3 || m.c * m.r !== m.cells.length) pp.push('mirror' + lv);
+        if (m.size < 72) pp.push('cell' + lv);
+        if ((lv === 4) !== (m.axis === 'h')) pp.push('axis' + lv);
+      }
+      out.pp = [...new Set(pp)];
       return out;
     });
     ok(r.up, 'التكيّف: ٣ جولات سلسة ← صعود');
@@ -248,6 +278,9 @@ async function seeDemoThrough(page) {
     ok(r.importBad && r.importFuture && r.importOk, 'التخزين: رفض النسخ التالفة والأحدث، وقبول الصحيحة');
     ok(r.soundDefaultOff && r.limitDefault2, 'الافتراضات: الصوت مفعّل وحدّ «وحدي» = ٢');
     ok(r.probs.length === 0, 'بناء جولات القطار (٢٥٠٠ جولة) يطابق قواعد المستويات' + (r.probs.length ? ' — ' + r.probs.join(',') : ''));
+    ok(r.fs.length === 0, 'بنك «أول صوت»: ≥٤٠ كلمة مرسومة، حرفان لكل حرف سهل، والحروف المؤجلة في المستوى ٤ فقط' + (r.fs.length ? ' — ' + r.fs.join(',') : ''));
+    ok(r.br.length === 0, 'بنك «جسر الروابط»: ٨ جمل لكل رابط وكل صورها موجودة' + (r.br.length ? ' — ' + r.br.join(',') : ''));
+    ok(r.pp.length === 0, 'بناء الأنماط والمرايا يطابق المستويات وحدّ اللمس' + (r.pp.length ? ' — ' + r.pp.join(',') : ''));
     await page.__ctx.close();
   }
 
@@ -268,8 +301,8 @@ async function seeDemoThrough(page) {
       dir: document.documentElement.dir, lang: document.documentElement.lang,
       digits: !/[0-9]/.test(document.body.innerText)
     }));
-    ok(info.zones === 2 && info.tiles === 5, `${name}: منطقتان و٥ ألعاب`);
-    ok(info.sleeping === 4, `${name}: الألعاب غير المنجزة (٤) نائمة`);
+    ok(info.zones === 3 && info.tiles === 7, `${name}: ثلاث مناطق و٧ ألعاب`);
+    ok(info.sleeping === 0, `${name}: كل الألعاب متاحة (لا أيقونات نائمة)`);
     const fontOk = await page.evaluate(async () => {
       const r = await Promise.all(['400', '700', '800'].map((w) => document.fonts.load(w + ' 20px Tajawal', 'بستان')));
       return r.every((a) => a.length > 0 && a[0].status === 'loaded');
@@ -455,6 +488,91 @@ async function seeDemoThrough(page) {
       ok(page.__log.errors.length === 0, 'لا أخطاء console');
       await page.__ctx.close();
     }
+  }
+
+  /* ───── الألعاب الأربع الجديدة: جلسة كاملة آلياً ───── */
+  if (!QUICK) {
+    const NAMES = { mirror: 'مرآة الأشكال', pattern: 'صانعة الأنماط', firstsound: 'أول صوت', bridge: 'جسر الروابط' };
+    for (const vpName of ['جوال-عمودي', 'آيباد-أفقي', 'جوال-أفقي', 'آيباد-عمودي']) {
+      for (const g of Object.keys(NAMES)) {
+        section(`جلسة كاملة آلياً — ${NAMES[g]} — ${vpName}`);
+        const vp = VIEWPORTS[vpName];
+        const page = await newPage(browser, vp, base);
+        await open(page, base, '?ts=6');
+        await page.tap(`.tile[data-game=${g}]`);
+        await page.waitForSelector('.game-screen');
+        const total = await page.evaluate(() => document.querySelectorAll('.bulb').length);
+        ok(total === (g === 'mirror' || g === 'pattern' ? 10 : 8), 'عدد المصابيح ' + total);
+        let checked = false, sawHand = false; const t0 = Date.now();
+        while (Date.now() - t0 < 240000) {
+          if (await page.evaluate(() => !!document.querySelector('.end-screen'))) break;
+          if (!sawHand) sawHand = await page.evaluate(() => !!document.querySelector('.kit-hand'));
+          const did = await page.evaluate((g) => Bustan.games[g]._solveStep(), g);
+          if (did && !checked && (await lit(page)) >= 1) { checked = true; await page.waitForTimeout(700); await checkScreen(page, vp, NAMES[g]); await shot(page, g + '-' + vpName); }
+          await page.waitForTimeout(110);
+        }
+        ok(sawHand, 'العرض التوضيحي الأول أظهر اليد');
+        const st = await page.evaluate((g) => ({ end: !!document.querySelector('.end-screen'), lit: document.querySelectorAll('.bulb.lit').length, gm: Bustan.storage.game(g), btns: document.querySelectorAll('.end-screen button').length }), g);
+        ok(st.end && st.lit === total, `اكتملت الجلسة وأُضيئت المصابيح كلها (${Math.round((Date.now() - t0) / 1000)} ث)`);
+        ok(st.gm.rounds === total && st.gm.sessions === 1 && st.btns === 1, 'سُجّلت الجلسة، والختام بزر واحد');
+        ok(page.__log.errors.length === 0, 'لا أخطاء console' + (page.__log.errors.length ? ' — ' + page.__log.errors[0] : ''));
+        ok(page.__log.external.length === 0, 'لا طلبات خارجية');
+        await page.__ctx.close();
+      }
+    }
+
+    section('سلّم المساعدة في ألعاب الاختيار (صانعة الأنماط)');
+    {
+      const page = await newPage(browser, VIEWPORTS['جوال-عمودي'], base);
+      await open(page, base, '?ts=3');
+      await page.evaluate(() => Bustan.storage.markDemoSeen('pattern'));
+      await page.tap('.tile[data-game=pattern]');
+      await page.waitForSelector('.g-tray .g-choice', { timeout: 15000 });
+      await page.waitForTimeout(900);
+      // ننقر خياراً خاطئاً ثلاث مرات
+      const pickWrong = () => page.evaluate(() => { const bs = [...document.querySelectorAll('.g-tray .g-choice')]; const bad = bs.find((b) => b !== Bustan.games.pattern.__ans()); bad.click(); });
+      await page.evaluate(() => { const P = Bustan.games.pattern; P.__ans = () => { let a = null; const bs = [...document.querySelectorAll('.g-tray .g-choice')]; const orig = HTMLElement.prototype.click; HTMLElement.prototype.click = function () { a = this; }; P._solveStep(); HTMLElement.prototype.click = orig; return a; }; });
+      await pickWrong(); await page.waitForTimeout(500); await pickWrong(); await page.waitForTimeout(400);
+      ok(await page.evaluate(() => !!document.querySelector('.g-tray .pulse-hint')), 'بعد إخفاقين: ينبض الخيار الصحيح');
+      await shot(page, 'pattern-hint');
+      await pickWrong();
+      await page.waitForSelector('.kit-hand', { timeout: 4000 });
+      ok(true, 'بعد الثالث: اليد الكرتونية تُظهر الحل');
+      await page.waitForFunction(() => document.querySelectorAll('.bulb.lit').length >= 1, null, { timeout: 30000 });
+      ok(true, 'تُكمَل الجولة بنجاح دون لوم');
+      const txt = await page.evaluate(() => document.body.innerText);
+      ok(!/خطأ|حاولي|خسرت/.test(txt), 'لا نص فشل');
+      ok(page.__log.errors.length === 0, 'لا أخطاء console' + (page.__log.errors.length ? ' — ' + page.__log.errors[0] : ''));
+      await page.__ctx.close();
+    }
+  }
+
+  /* ───── القسم الإبداعي ───── */
+  section('القسم الإبداعي: ورشة الأشكال ولوحة التلوين');
+  for (const vpName of Object.keys(VIEWPORTS)) {
+    const vp = VIEWPORTS[vpName];
+    const page = await newPage(browser, vp, base);
+    await open(page, base);
+    await page.tap('.tile[data-game=workshop]');
+    await page.waitForSelector('.free-screen .ws-shape'); await page.waitForTimeout(700);
+    for (let i = 0; i < 5; i++) { await page.tap(`.ws-shape >> nth=${i}`); await page.tap('.ws-color'); }
+    await page.waitForTimeout(500);
+    ok((await page.evaluate(() => document.querySelectorAll('.ws-piece').length)) === 5, `${vpName}: الورشة تضيف القطع`);
+    await checkScreen(page, vp, vpName + ' / الورشة');
+    await shot(page, 'workshop-' + vpName);
+    ok((await page.evaluate(() => document.querySelectorAll('.bulb').length)) === 0, `${vpName}: لعب حرّ بلا مصابيح`);
+    await page.tap('.ws-broom'); await page.waitForTimeout(900);
+    ok((await page.evaluate(() => document.querySelectorAll('.ws-piece').length)) === 0, `${vpName}: المكنسة تنظّف اللوحة`);
+    await page.tap('.home-btn'); await page.waitForSelector('.home .tile'); await page.waitForTimeout(400);
+    await page.tap('.tile[data-game=coloring]');
+    await page.waitForSelector('.cl-svg .rg'); await page.waitForTimeout(600);
+    await page.tap('.cl-color >> nth=2');
+    await page.dispatchEvent('.cl-svg .rg >> nth=0', 'pointerdown');
+    ok((await page.evaluate(() => document.querySelector('.cl-svg .rg').getAttribute('fill'))) !== '#FFFFFF', `${vpName}: التلوين يعمل`);
+    await checkScreen(page, vp, vpName + ' / التلوين');
+    await shot(page, 'coloring-' + vpName);
+    ok(page.__log.errors.length === 0, `${vpName}: لا أخطاء console` + (page.__log.errors.length ? ' — ' + page.__log.errors[0] : ''));
+    await page.__ctx.close();
   }
 
   /* ───── ١٢) حدّ «وحدي» اليومي ───── */

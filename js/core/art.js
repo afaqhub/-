@@ -443,6 +443,18 @@
     }
   };
 
+  GAME_ICONS.workshop = function () {
+    return '<rect x="10" y="50" width="38" height="38" rx="6" fill="#3D8BFD" fill-opacity=".8" stroke="#3D8BFD" stroke-width="4"/>' +
+      '<polygon points="50,10 74,50 26,50" fill="#F2658E" fill-opacity=".8" stroke="#F2658E" stroke-width="4" stroke-linejoin="round"/>' +
+      '<circle cx="72" cy="70" r="19" fill="#FFC83D" fill-opacity=".8" stroke="#FFC83D" stroke-width="4"/>' +
+      '<polygon points="80,14 94,28 80,42 66,28" fill="#2DBE7E" fill-opacity=".8" stroke="#2DBE7E" stroke-width="4" stroke-linejoin="round"/>';
+  };
+  GAME_ICONS.coloring = function () {
+    return '<path d="M50 10C24 10 8 28 8 50C8 76 30 90 48 90C58 90 58 80 54 74C50 66 56 60 66 62C82 64 92 56 92 44C92 24 74 10 50 10Z" fill="#FAFCFF" stroke="' + INK + '" stroke-width="4"/>' +
+      '<circle cx="30" cy="42" r="8" fill="#F2658E"/><circle cx="48" cy="28" r="8" fill="#FFC83D"/><circle cx="70" cy="34" r="8" fill="#2DBE7E"/><circle cx="30" cy="64" r="8" fill="#3D8BFD"/>' +
+      '<path d="M60 96L92 60" stroke="#8A5A33" stroke-width="7" stroke-linecap="round"/><path d="M86 54l10 10l-4-16Z" fill="#8E5CF0" stroke="#8E5CF0" stroke-width="4" stroke-linejoin="round"/>';
+  };
+
   function gameIcon(id, sleeping) {
     var fn = GAME_ICONS[id] || GAME_ICONS.train;
     return svg('0 0 100 100', '<g class="icon-art">' + fn() + '</g>', 'game-icon' + (sleeping ? ' is-sleeping' : ''));
@@ -452,6 +464,9 @@
   function zoneBadge(zone) {
     if (zone === 'solo') {
       return svg('0 0 100 100', '<g transform="translate(6 6) scale(.88)">' + ANIMALS.bear() + '</g>', 'zone-badge');
+    }
+    if (zone === 'create') {
+      return svg('0 0 100 100', '<path d="M50 6q7 34 44 44q-37 10-44 44q-7-34-44-44q37-10 44-44z" fill="#FFD34E" stroke="#E2A21B" stroke-width="4" stroke-linejoin="round"/><circle cx="80" cy="18" r="7" fill="#F2658E"/><circle cx="18" cy="80" r="6" fill="#5CC8FF"/>', 'zone-badge');
     }
     return svg('0 0 120 100',
       '<g transform="translate(2 2) scale(.86)">' + ANIMALS.rabbit() + '</g>' +

@@ -203,7 +203,9 @@
       var t = e.target && e.target.closest ? e.target.closest('textarea,input') : null;
       if (!t) e.preventDefault();
     });
-    document.addEventListener('pointerdown', function () { if (B.audio) B.audio.unlock(); }, true);
+    ['pointerdown', 'touchend', 'click'].forEach(function (ev) {
+      document.addEventListener(ev, function () { if (B.audio) B.audio.unlock(); }, true);
+    });
   }
 
   B.UI = {

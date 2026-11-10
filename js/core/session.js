@@ -21,8 +21,12 @@
     { id: 'mirror', zone: 'solo', rounds: 10 },
     { id: 'pattern', zone: 'solo', rounds: 10 },
     { id: 'firstsound', zone: 'together', rounds: 8 },
-    { id: 'bridge', zone: 'together', rounds: 8 }
+    { id: 'bridge', zone: 'together', rounds: 8 },
+    // القسم الإبداعي: لعب حرّ بلا جولات ولا مصابيح
+    { id: 'workshop', zone: 'create', free: true },
+    { id: 'coloring', zone: 'create', free: true }
   ];
+  B.free = B.free || {};
   B.games = B.games || {};
 
   var active = null;
@@ -32,10 +36,30 @@
     return null;
   }
 
+  /* لعب حرّ: مسرح وزر الرئيسية فقط */
+  function startFree(it, origin) {
+    var mod = B.free[it.id];
+    if (!mod || active) return;
+    if (B.audio) B.audio.play('whoosh');
+    var cur = UI.curtain('#8E5CF0', origin.x, origin.y);
+    cur.cover.then(function () {
+      var stage = h('div', { class: 'stage' });
+      var ctx = { gameId: it.id, zone: it.zone, stage: stage, alive: true, free: true };
+      ctx.homeBtn = UI.iconButton('home-btn', B.art.house(), B.S.buttons.home, function () { exit(ctx, mod); });
+      ctx.hud = h('div', { class: 'hud' }, ctx.homeBtn);
+      ctx.root = h('div', { class: 'screen game-screen free-screen game-' + it.id, 'data-game': it.id }, stage, ctx.hud);
+      active = ctx;
+      UI.go(ctx.root, { instant: true });
+      try { mod.open(ctx); } catch (e) { console.error(e); }
+      cur.reveal();
+    });
+  }
+
   function start(id, origin) {
     var game = B.games[id], it = item(id);
-    if (!game || !it || active) return;
     origin = origin || {};
+    if (it && it.free) { startFree(it, origin); return; }
+    if (!game || !it || active) return;
     var color = it.zone === 'solo' ? '#19B394' : '#F2658E';
     if (B.audio) B.audio.play('whoosh');
     var cur = UI.curtain(color, origin.x, origin.y);

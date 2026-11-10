@@ -476,7 +476,7 @@
     st.phase = 'question';
     st.wrong++; st.fails++; st.errors++;
     setSpeed(0, QBRAKE);
-    if (B.audio) B.audio.play('hmm');
+    if (B.audio) B.audio.play('wrong');
     var bub = null;
     if (p && p.el) {
       bub = h('div', { class: 'q-bubble', style: { width: st.G.bw * 0.62 + 'px', left: '50%', marginLeft: -st.G.bw * 0.31 + 'px', top: -st.G.bw * 0.78 + 'px' }, html: art.bubbleQ() });
@@ -507,7 +507,7 @@
     st.armed = false;
     setSpeed(0, BRAKE);
     if (auto) pressVisual();
-    if (B.audio) B.audio.play('brake');
+    if (B.audio) { B.audio.play('brake'); if (!auto) B.audio.play('right'); }
     board(p);
   }
 

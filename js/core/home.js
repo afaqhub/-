@@ -22,7 +22,7 @@
 
   function tile(it, locked) {
     var S = B.S;
-    var built = !!B.games[it.id];
+    var built = !!(B.games[it.id] || B.free[it.id]);
     var sleeping = !built || locked;
     var el = h('button', {
       class: 'tile' + (sleeping ? ' is-sleeping' : ''), type: 'button', 'data-game': it.id,
@@ -97,7 +97,7 @@
       h('div', { class: 'home-hills mid', html: art.sceneTile('mid', vp.W, Math.round(vp.H * 0.3)) })
     );
 
-    var zones = h('main', { class: 'zones' }, zone('solo', locked), zone('together', false));
+    var zones = h('main', { class: 'zones' }, zone('solo', locked), zone('together', false), zone('create', false));
     var el = h('div', { class: 'screen home' }, sky, zones, logo);
 
     // ظهور متتابع بحركة زنبركية (بعد الإدراج في الصفحة)
@@ -111,6 +111,7 @@
       }
       UI.anim(el.querySelectorAll('.zone-head')[0], [{ opacity: 0, transform: 'translateY(-10px)' }, { opacity: 1, transform: 'none' }], { dur: 420 });
       UI.anim(el.querySelectorAll('.zone-head')[1], [{ opacity: 0, transform: 'translateY(-10px)' }, { opacity: 1, transform: 'none' }], { dur: 420, delay: 200 });
+      UI.anim(el.querySelectorAll('.zone-head')[2], [{ opacity: 0, transform: 'translateY(-10px)' }, { opacity: 1, transform: 'none' }], { dur: 420, delay: 400 });
     });
     return el;
   }

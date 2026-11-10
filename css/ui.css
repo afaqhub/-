@@ -113,7 +113,20 @@
 @media (orientation: landscape) {
   .zones { flex-direction: row; align-items: center; gap: 18px; top: calc(var(--tap) * .6 + 24px + var(--safe-t)); }
   .zone-solo { flex: 3 1 0; }
-  .zone-together { flex: 2 1 0; }
+  .zone-together, .zone-create { flex: 2 1 0; }
+  .zones .tile { max-width: min(210px, 34vh); }
+  .zones .zone { padding: 10px 10px 14px; }
+  .zones .tiles { gap: 8px; }
+}
+@media (orientation: portrait) {
+  /* ثلاث مناطق فوق بعضها: نضغط الهوامش ليتسع الجميع بلا تمرير */
+  .zones { gap: 14px; }
+  .zones .zone { padding: 8px 12px 12px; border-radius: 30px; }
+  .zones .zone-head { margin-bottom: 6px; }
+  .zones .zone-badge { width: 50px; height: 42px; border-radius: 18px; }
+  .zones .zone-name { font-size: 27px; }
+  .zones .tile { max-width: min(210px, 13vh); gap: 6px; }
+  .zones .tile-name { font-size: clamp(16px, 2.3vh, 24px); }
 }
 
 .zone {

@@ -35,7 +35,7 @@
     }
 
     /* الإحصاءات */
-    var rows = B.catalog.map(function (c) {
+    var rows = B.catalog.filter(function (c) { return !c.free; }).map(function (c) {
       var g = st.game(c.id), built = !!B.games[c.id];
       return h('div', { class: 'p-row' },
         h('div', { class: 'p-game', text: S.games[c.id] }),
@@ -81,6 +81,18 @@
     }
     openBtn.addEventListener('click', function () { st.openSoloToday(); refreshOpen(); });
     refreshOpen();
+
+    /* رابط الأسبوع (جسر الروابط): ٠ = حسب المستوى */
+    var weekBtns = [P.weeklyAuto].concat(P.connectors).map(function (label, i) {
+      var b = h('button', { class: 'p-btn p-week', type: 'button', 'data-week': i, text: label });
+      b.addEventListener('click', function () { st.data().settings.weeklyConnector = i; st.save(); refreshWeek(); });
+      return b;
+    });
+    function refreshWeek() {
+      var w = st.data().settings.weeklyConnector | 0;
+      weekBtns.forEach(function (b, i) { b.classList.toggle('off', i !== w); });
+    }
+    refreshWeek();
 
     /* الصوت */
     var soundBtn = h('button', { class: 'p-btn', type: 'button', 'data-act': 'sound' });
@@ -159,6 +171,7 @@
         h('div', { class: 'p-line', text: P.todaySessions + ': ' + UI.num(st.soloSessionsToday()) }),
         openBtn
       ),
+      h('section', { class: 'p-sec' }, h('h3', { text: P.weekly }), h('div', { class: 'p-wrap' }, weekBtns)),
       h('section', { class: 'p-sec' }, h('h3', { text: P.sound }), soundBtn, h('div', { class: 'p-line muted', text: P.soundNote })),
       h('section', { class: 'p-sec' },
         h('h3', { text: P.backup }),

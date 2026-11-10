@@ -19,9 +19,9 @@
     try {
       ctx = new AC();
       master = ctx.createGain();
-      master.gain.value = 0.55;
+      master.gain.value = 4.2; // شدة واضحة مسموعة، والضاغط يمنع الذروات
       var comp = ctx.createDynamicsCompressor(); // يحدّ الذروات
-      comp.threshold.value = -24; comp.ratio.value = 8;
+      comp.threshold.value = -12; comp.ratio.value = 6;
       master.connect(comp); comp.connect(ctx.destination);
       // ضجيج أبيض قصير يُستعمل لأصوات القطار
       noiseBuf = ctx.createBuffer(1, ctx.sampleRate * 0.6, ctx.sampleRate);
@@ -86,8 +86,20 @@
       tone(c, 523, t, 0.22, 0.045, 'triangle'); tone(c, 659, t, 0.22, 0.04, 'triangle');
       tone(c, 523, t + 0.28, 0.3, 0.045, 'triangle'); tone(c, 659, t + 0.28, 0.3, 0.04, 'triangle');
     },
-    // تساؤل لطيف (النقر على غير الهدف): نغمة واحدة مرتفعة الطرف، ليست صوت خطأ
-    hmm: function (c, t) { tone(c, 440, t, 0.14, 0.04, 'sine', 560); },
+    // صواب: رنّة صاعدة لامعة
+    right: function (c, t) { tone(c, N.e5, t, 0.12, 0.06, 'triangle'); tone(c, N.a5, t + 0.09, 0.14, 0.06, 'triangle'); tone(c, N.e6, t + 0.18, 0.3, 0.05, 'sine'); },
+    // خطأ: نغمتان هابطتان واضحتان (بلا حدّة ولا إزعاج)
+    wrong: function (c, t) { tone(c, 330, t, 0.18, 0.07, 'triangle', 290); tone(c, 220, t + 0.17, 0.3, 0.07, 'triangle', 185); },
+    // وضع قطعة
+    place: function (c, t) { tone(c, 300, t, 0.07, 0.06, 'triangle', 520); },
+    // اختيار لون أو قطعة
+    pick: function (c, t) { tone(c, 880, t, 0.06, 0.04, 'sine'); },
+    // رفرفة فراشة
+    flutter: function (c, t) { for (var i = 0; i < 6; i++) noise(c, t + i * 0.09, 0.06, 0.03, 3000 + i * 300, 1500, 1.5); },
+    // إضاءة فانوس (نغمة حسب الترتيب)
+    lantern: function (c, t, i) { tone(c, SCALE[(i || 0) % SCALE.length], t, 0.25, 0.05, 'sine'); },
+    // كنس اللوحة
+    sweep: function (c, t) { noise(c, t, 0.5, 0.05, 3000, 600, 0.6); },
     // مصباح يُضاء: النغمة ترتفع مع كل مصباح
     chime: function (c, t, i) {
       var f = SCALE[(i || 0) % SCALE.length];
@@ -107,7 +119,12 @@
   B.audio = {
     unlock: function () {
       var c = ensure();
-      if (c && c.state === 'suspended') { try { c.resume(); } catch (e) {} }
+      if (!c) return;
+      if (c.state !== 'running') { try { c.resume(); } catch (e) {} }
+      if (!this._primed) { // iOS: تشغيل عيّنة صامتة داخل اللمسة يفتح الصوت
+        this._primed = true;
+        try { var s = c.createBufferSource(); s.buffer = c.createBuffer(1, 1, 22050); s.connect(c.destination); s.start(0); } catch (e) {}
+      }
     },
     play: function (name, arg) {
       if (!enabled()) return;
