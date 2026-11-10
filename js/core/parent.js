@@ -158,6 +158,11 @@
       return b;
     });
 
+    var demoBtn = h('button', { class: 'p-btn', type: 'button', text: P.replayDemo, 'data-act': 'replay-demo' });
+    demoBtn.addEventListener('click', function () {
+      st.data().demoSeen = {}; st.save(); say(P.replayDemoDone);
+    });
+
     var closeBtn = h('button', { class: 'p-close', type: 'button', 'aria-label': S.buttons.close, text: '✕' });
     closeBtn.addEventListener('click', function () { close(); B.home.show(); });
 
@@ -178,7 +183,7 @@
         h('div', { class: 'p-wrap' }, copyBtn, fileBtn),
         ta, h('div', { class: 'p-wrap' }, restoreBtn, restoreFileBtn), picker
       ),
-      h('section', { class: 'p-sec' }, resetBtns),
+      h('section', { class: 'p-sec' }, demoBtn, resetBtns),
       msg
     );
 

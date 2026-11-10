@@ -460,21 +460,21 @@ async function seeDemoThrough(page) {
       await page.__ctx.close();
     }
 
-    /* ───── ١٠) إعادة العرض بالأيقونة أثناء الجلسة ───── */
-    section('إعادة العرض التوضيحي بالأيقونة');
+    /* ───── ١٠) لا زر إعادة عرض في الشريط العلوي؛ والوالد يعيده من ركنه ───── */
+    section('إعادة العرض التوضيحي من ركن الوالدين');
     {
       const page = await newPage(browser, VIEWPORTS['جوال-عمودي'], base);
       await open(page, base, '?ts=6');
       await page.evaluate(() => Bustan.storage.markDemoSeen('train'));
       await startTrain(page);
       await waitPlay(page);
-      await page.tap('.replay-btn');
-      await page.waitForFunction(() => Bustan.games.train._probe().demo === true, null, { timeout: 10000, polling: 50 });
-      ok(true, 'الضغط على أيقونة اليد يعيد العرض التوضيحي');
-      await seeDemoThrough(page);
-      ok((await lit(page)) === 0, 'العرض لا يُضيء مصباحاً ولا يُحتسب جولة');
-      const rounds = await page.evaluate(() => Bustan.storage.game('train').rounds);
-      ok(rounds === 0, 'ولا يُسجَّل في التقدم');
+      ok((await page.evaluate(() => document.querySelectorAll('.game-screen .hud-btn').length)) === 1, 'الشريط العلوي فيه زر الرئيسية فقط (لا سهم إعادة)');
+      await page.tap('.home-btn'); await page.waitForSelector('.home .tile');
+      const box = await page.locator('.logo-corner').boundingBox();
+      await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2); await page.mouse.down(); await page.waitForTimeout(3300); await page.mouse.up();
+      await page.waitForSelector('.parent-overlay');
+      await page.click('[data-act=replay-demo]');
+      ok((await page.evaluate(() => !Bustan.storage.demoSeen('train'))), 'ركن الوالدين يعيد العرض التوضيحي');
       await page.__ctx.close();
     }
 

@@ -251,18 +251,17 @@
   }
 
   /* ───────── أشياء ومناظر ───────── */
+  /* كفّ دب لطيف يضغط (بدل يد بإصبع): نقطة اللمس في منتصف الأعلى، والذراع تمتد للأسفل */
   function hand() {
-    // يد كرتونية بإصبع سبابة ممدود (تُرسم مشيرة لأعلى وتُقلب في CSS لتشير إلى الزر)
-    var shapes = '<rect x="35" y="2" width="18" height="54" rx="9"/>' +            // السبابة
-      '<rect x="14" y="42" width="60" height="50" rx="20"/>' +                      // الراحة
-      '<rect x="54" y="36" width="14" height="24" rx="7"/>' +                       // أصابع مثنية
-      '<rect x="66" y="44" width="12" height="22" rx="6"/>' +
-      '<rect x="4" y="52" width="16" height="30" rx="8" transform="rotate(-28 12 67)"/>'; // الإبهام
+    var BR = '#B67B4D', PAD = '#F3C9A0', arm = '<rect x="26" y="46" width="36" height="50" rx="18"/>',
+      head = '<circle cx="44" cy="32" r="28"/>';
     return svg('0 0 88 96',
-      '<g fill="' + INK + '" stroke="' + INK + '" stroke-width="7" stroke-linejoin="round">' + shapes + '</g>' +
-      '<g fill="#FFDFC4">' + shapes + '</g>' +
-      '<path d="M50 60q6-2 12 0M62 66q5-2 10 0" stroke="#E7B894" stroke-width="2.5" fill="none" stroke-linecap="round"/>' +
-      '<rect x="20" y="82" width="48" height="12" rx="4" fill="#F2658E"/>', 'hand-svg'); // كمّ وردي
+      '<g fill="' + INK + '" stroke="' + INK + '" stroke-width="7" stroke-linejoin="round">' + arm + head + '</g>' +
+      '<g fill="' + BR + '">' + arm + head + '</g>' +
+      '<ellipse cx="44" cy="38" rx="15" ry="12.5" fill="' + PAD + '"/>' +
+      '<circle cx="23" cy="24" r="6.5" fill="' + PAD + '"/><circle cx="36" cy="13" r="6.5" fill="' + PAD + '"/>' +
+      '<circle cx="52" cy="13" r="6.5" fill="' + PAD + '"/><circle cx="65" cy="24" r="6.5" fill="' + PAD + '"/>' +
+      '<rect x="26" y="78" width="36" height="8" fill="#F2658E"/>', 'hand-svg');
   }
 
   function house() {

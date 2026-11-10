@@ -24,7 +24,7 @@
     for (var c = 1; c <= n; c++) {
       if (n % c) continue;
       var r = n / c;
-      var size = axis === 'v' ? Math.min(Wa / (2 * c), Ha / r) : Math.min(Wa / c, Ha / (2 * r));
+      var size = axis === 'v' ? Math.min(Wa / (2 * c + 0.42), Ha / r) : Math.min(Wa / c, Ha / (2 * r + 0.42)); // 0.42: جسم الفراشة
       if (c === 1 && axis === 'v' && n > 3) continue; // عمود واحد لا يُظهر الانعكاس جيداً
       if (r === 1 && axis === 'h' && n > 8) continue;
       if (!best || size > best.size) best = { c: c, r: r, size: size };
@@ -76,8 +76,8 @@
   function area(ctx) {
     var vp = UI.vp(), cs = getComputedStyle(ctx.stage);
     var short = vp.H < 500; // جوال أفقي: الألوان إلى الجانب لا في الأسفل
-    var Wa = ctx.stage.clientWidth - 52 - (short ? vp.tap + 70 : 0);
-    var Ha = ctx.stage.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - (short ? 0 : vp.tap + 44) - 50;
+    var Wa = ctx.stage.clientWidth - 70 - (short ? vp.tap + 70 : 0);
+    var Ha = ctx.stage.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - (short ? 0 : vp.tap + 44) - 70;
     return { Wa: Wa, Ha: Ha, tap: vp.tap };
   }
 
@@ -86,28 +86,47 @@
     var errors = 0, fails = 0, selected = -1, busy = false, filled = {}, done, finished = new Promise(function (res) { done = res; });
     st.board.innerHTML = ''; st.tray.innerHTML = '';
     var vert = R.axis === 'v';
-    var grid = h('div', { class: 'mr-grid ' + (vert ? 'v' : 'hz'), style: { gridTemplateColumns: 'repeat(' + (vert ? 2 * R.c : R.c) + ',' + R.size + 'px)', gridAutoRows: R.size + 'px' } });
-    var targets = {}; // فهرس الخانة في النصف -> زر الهدف
-    // نرتب الخانات صفاً صفاً. i = البعد عن خط الثنية.
+    // فراشة: جناح مصدر عليه بقع ملوّنة، وجناح مقابل فيه دوائر متقطعة تنتظر التلوين، وبينهما جسم الفراشة
+    var body = Math.round(R.size * 0.42), S = R.size + 'px';
+    var grid = h('div', { class: 'mr-grid ' + (vert ? 'v' : 'hz'), style: vert
+      ? { gridTemplateColumns: 'repeat(' + R.c + ',' + S + ') ' + body + 'px repeat(' + R.c + ',' + S + ')', gridAutoRows: S }
+      : { gridTemplateColumns: 'repeat(' + R.c + ',' + S + ')', gridTemplateRows: 'repeat(' + R.r + ',' + S + ') ' + body + 'px repeat(' + R.r + ',' + S + ')' } });
+    var targets = {}; // فهرس الخانة في النصف -> زر الهدف (للخانات الملوّنة في المصدر فقط)
     var totalC = vert ? 2 * R.c : R.c, totalR = vert ? R.r : 2 * R.r;
+    function at(el, col, row, cs, rs) { el.style.gridColumn = col + (cs ? ' / span ' + cs : ''); el.style.gridRow = row + (rs ? ' / span ' + rs : ''); return el; }
+    // الجناحان (خلف الخانات)، المصدر أوضح لوناً
+    if (vert) {
+      grid.appendChild(at(h('div', { class: 'mr-wing tgtw' }), 1, 1, R.c, R.r));
+      grid.appendChild(at(h('div', { class: 'mr-wing srcw' }), R.c + 2, 1, R.c, R.r));
+      grid.appendChild(at(h('div', { class: 'mr-body v' }), R.c + 1, 1, 1, R.r));
+    } else {
+      grid.appendChild(at(h('div', { class: 'mr-wing srcw' }), 1, 1, R.c, R.r));
+      grid.appendChild(at(h('div', { class: 'mr-wing tgtw' }), 1, R.r + 2, R.c, R.r));
+      grid.appendChild(at(h('div', { class: 'mr-body hz' }), 1, R.r + 1, R.c, 1));
+    }
     for (var y = 0; y < totalR; y++) {
       for (var x = 0; x < totalC; x++) {
         var src, i, j;
         if (vert) { src = x >= R.c; i = src ? x - R.c : R.c - 1 - x; j = y; }
         else { src = y < R.r; i = x; j = src ? R.r - 1 - y : y - R.r; }
-        var k = vert ? j * R.c + i : j * R.c + i;
-        var tok = R.cells[k];
+        var k = j * R.c + i, tok = R.cells[k];
+        var col = vert ? (x < R.c ? x + 1 : x + 2) : x + 1;
+        var row = vert ? y + 1 : (y < R.r ? y + 1 : y + 2);
+        var cell;
         if (src) {
-          grid.appendChild(h('div', { class: 'mr-cell src', html: tok >= 0 ? tokenHtml(R.tokens[tok]) : '' }));
+          cell = h('div', { class: 'mr-cell src', html: tok >= 0 ? tokenHtml(R.tokens[tok]) : '' });
+        } else if (tok >= 0) {
+          // دائرة متقطعة تنتظر لونها؛ في المستوى ١ تحمل ظلاً باهتاً من اللون المطلوب
+          cell = h('button', { class: 'mr-cell tgt', type: 'button', 'data-k': k });
+          if (R.guided) cell.style.setProperty('--ghost', R.tokens[tok].color);
+          (function (kk, bb) { UI.bindPress(bb, function () { tapCell(kk); }); })(k, cell);
+          targets[k] = cell;
         } else {
-          var b = h('button', { class: 'mr-cell tgt', type: 'button', 'data-k': k });
-          (function (kk, bb) { UI.bindPress(bb, function () { tapCell(kk); }); })(k, b);
-          targets[k] = b;
-          grid.appendChild(b);
+          cell = h('div', { class: 'mr-cell none' });
         }
+        grid.appendChild(at(cell, col, row));
       }
     }
-    grid.appendChild(h('span', { class: 'mr-fold' }));
     st.board.appendChild(grid);
     UI.anim(grid, [{ opacity: 0, transform: 'scale(.85)' }, { opacity: 1, transform: 'none' }], { dur: 480, easing: UI.SPRING, fill: 'backwards' });
 

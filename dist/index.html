@@ -123,7 +123,8 @@ textarea, input { -webkit-user-select: text; user-select: text; }
 .hud-btn svg { width: 54%; height: 54%; }
 .hud-btn.pressed, .hud-btn:active { transform: translateY(5px); box-shadow: 0 1px 0 var(--lilac-deep), 0 3px 8px rgba(31, 42, 90, .2); }
 .hud-btn:disabled { opacity: .35; pointer-events: none; }
-.is-demo .replay-btn { opacity: .35; pointer-events: none; }
+.hud-spacer { width: var(--tap); height: 1px; flex: none; }
+@media (max-width: 560px) { .hud-spacer { order: 2; } }
 
 /* ───────── مصابيح الجلسة ───────── */
 .bulbs {
@@ -614,17 +615,26 @@ textarea, input { -webkit-user-select: text; user-select: text; }
 .bf-wing.l { transform-origin: 100% 50%; } .bf-wing.r { transform-origin: 0 50%; }
 @keyframes wingFlap { from { transform: scaleX(1); } to { transform: scaleX(.55); } }
 .mr-board { position: relative; display: grid; place-items: center; }
-.mr-grid { position: relative; display: grid; gap: 0; direction: ltr; padding: 10px; border-radius: 22px; background: #FAFCFF; box-shadow: 0 10px 0 #B9A6F0, 0 22px 28px rgba(107, 60, 201, .25); }
-.mr-cell { position: relative; border: 2px dashed #D9D2EC; background: transparent; display: grid; place-items: center; padding: 8%; border-radius: 14%; }
-.mr-cell.src { border-style: solid; border-color: #EEE9FA; }
-.mr-cell.tgt { background: rgba(142, 92, 240, .06); }
-.mr-cell.tgt.next { animation: gapPulse 1.1s ease-in-out infinite; border: 4px solid var(--sun); background: rgba(255, 211, 78, .25); }
-.mr-cell.done { border-style: solid; border-color: #EEE9FA; background: transparent; }
-.mr-fill { display: block; width: 100%; height: 100%; border-radius: 22%; box-shadow: inset 0 -5px 0 rgba(0, 0, 0, .12), inset 0 4px 0 rgba(255, 255, 255, .3); }
+/* فراشة: جناحان وجسم، والبقع دوائر */
+.mr-grid { position: relative; display: grid; gap: 0; direction: ltr; padding: 14px; }
+.mr-wing { z-index: 0; margin: -8px; border-radius: 38%; }
+.mr-wing.srcw { background: linear-gradient(160deg, #FFE9F4, #FFD0E6); box-shadow: inset 0 0 0 5px #F2658E, 0 8px 0 #C23C69; }
+.mr-wing.tgtw { background: linear-gradient(160deg, #F1EBFF, #E2D7FF); box-shadow: inset 0 0 0 5px #B79BFF, 0 8px 0 #8E5CF0; }
+.mr-body { position: relative; z-index: 1; border-radius: 999px; background: #1F2A5A; margin: -4px 0; }
+.mr-body.v { margin: -14px 6px; }
+.mr-body.v::before { content: ''; position: absolute; left: 50%; top: -12px; width: 160%; aspect-ratio: 1; border-radius: 50%; background: #1F2A5A; transform: translateX(-50%); }
+.mr-body.v::after { content: ''; position: absolute; left: 50%; top: -30px; width: 150%; height: 24px; transform: translateX(-50%); border-top: 4px solid #1F2A5A; border-radius: 50% 50% 0 0; }
+.mr-body.hz { margin: 6px -14px; }
+.mr-cell { position: relative; z-index: 1; display: grid; place-items: center; padding: 9%; border: 0; background: transparent; border-radius: 50%; }
+.mr-cell.src { }
+.mr-cell.none { }
+.mr-cell.tgt { border: 4px dashed #8E5CF0; background: rgba(255, 255, 255, .55); margin: 6%; padding: 4%; }
+.mr-cell.tgt::before { content: ''; position: absolute; inset: 14%; border-radius: 50%; background: var(--ghost, transparent); opacity: .3; }
+.mr-cell.tgt.next { animation: gapPulse 1.1s ease-in-out infinite; border-color: var(--sun-deep); background: rgba(255, 211, 78, .35); }
+.mr-cell.tgt.done { border: 0; background: transparent; margin: 0; padding: 9%; }
+.mr-cell.tgt.done::before { display: none; }
+.mr-fill { display: block; width: 100%; height: 100%; border-radius: 50%; box-shadow: inset 0 -6px 0 rgba(0, 0, 0, .14), inset 0 5px 0 rgba(255, 255, 255, .35); }
 .mr-shape { width: 100%; height: 100%; }
-/* خط المنتصف كثنية قماش مخيطة */
-.mr-fold { position: absolute; pointer-events: none; background: repeating-linear-gradient(180deg, #8E5CF0 0 10px, transparent 10px 18px); width: 4px; top: 4px; bottom: 4px; left: 50%; margin-left: -2px; border-radius: 2px; }
-.mr-grid.hz .mr-fold { width: auto; height: 4px; left: 4px; right: 4px; top: 50%; bottom: auto; margin: -2px 0 0; background: repeating-linear-gradient(90deg, #8E5CF0 0 10px, transparent 10px 18px); }
 .g-choice.swatch { padding: calc(var(--cs) * .16); }
 @media (max-height: 500px) { .mirror-stage { flex-direction: row; } .mirror-stage .g-tray { flex-direction: column; min-height: 0; --cs: var(--tap); gap: 10px; padding: 0 8px; align-self: center; } }
 .mr-butterfly { position: absolute; width: clamp(140px, 40vmin, 260px); z-index: 5; }
@@ -719,6 +729,8 @@ textarea, input { -webkit-user-select: text; user-select: text; }
       restorePlaceholder: 'ألصق هنا ما نسخته سابقاً',
       restored: 'تمت الاستعادة',
       restoreFail: 'تعذّرت قراءة النسخة',
+      replayDemo: 'إعادة العرض التوضيحي لكل الألعاب',
+      replayDemoDone: 'سيُعرض الشرح عند فتح كل لعبة',
       resetGame: 'إعادة ضبط اللعبة',
       resetConfirm: 'اضغط مرة أخرى للتأكيد',
       resetDone: 'أُعيد ضبط اللعبة',
@@ -1420,18 +1432,17 @@ textarea, input { -webkit-user-select: text; user-select: text; }
   }
 
   /* ───────── أشياء ومناظر ───────── */
+  /* كفّ دب لطيف يضغط (بدل يد بإصبع): نقطة اللمس في منتصف الأعلى، والذراع تمتد للأسفل */
   function hand() {
-    // يد كرتونية بإصبع سبابة ممدود (تُرسم مشيرة لأعلى وتُقلب في CSS لتشير إلى الزر)
-    var shapes = '<rect x="35" y="2" width="18" height="54" rx="9"/>' +            // السبابة
-      '<rect x="14" y="42" width="60" height="50" rx="20"/>' +                      // الراحة
-      '<rect x="54" y="36" width="14" height="24" rx="7"/>' +                       // أصابع مثنية
-      '<rect x="66" y="44" width="12" height="22" rx="6"/>' +
-      '<rect x="4" y="52" width="16" height="30" rx="8" transform="rotate(-28 12 67)"/>'; // الإبهام
+    var BR = '#B67B4D', PAD = '#F3C9A0', arm = '<rect x="26" y="46" width="36" height="50" rx="18"/>',
+      head = '<circle cx="44" cy="32" r="28"/>';
     return svg('0 0 88 96',
-      '<g fill="' + INK + '" stroke="' + INK + '" stroke-width="7" stroke-linejoin="round">' + shapes + '</g>' +
-      '<g fill="#FFDFC4">' + shapes + '</g>' +
-      '<path d="M50 60q6-2 12 0M62 66q5-2 10 0" stroke="#E7B894" stroke-width="2.5" fill="none" stroke-linecap="round"/>' +
-      '<rect x="20" y="82" width="48" height="12" rx="4" fill="#F2658E"/>', 'hand-svg'); // كمّ وردي
+      '<g fill="' + INK + '" stroke="' + INK + '" stroke-width="7" stroke-linejoin="round">' + arm + head + '</g>' +
+      '<g fill="' + BR + '">' + arm + head + '</g>' +
+      '<ellipse cx="44" cy="38" rx="15" ry="12.5" fill="' + PAD + '"/>' +
+      '<circle cx="23" cy="24" r="6.5" fill="' + PAD + '"/><circle cx="36" cy="13" r="6.5" fill="' + PAD + '"/>' +
+      '<circle cx="52" cy="13" r="6.5" fill="' + PAD + '"/><circle cx="65" cy="24" r="6.5" fill="' + PAD + '"/>' +
+      '<rect x="26" y="78" width="36" height="8" fill="#F2658E"/>', 'hand-svg');
   }
 
   function house() {
@@ -2301,8 +2312,8 @@ textarea, input { -webkit-user-select: text; user-select: text; }
       roundIndex: 0
     };
     ctx.homeBtn = UI.iconButton('home-btn', B.art.house(), S.buttons.home, function () { exit(ctx, game); });
-    ctx.replayBtn = UI.iconButton('replay-btn', B.art.replayIcon(), S.buttons.replay, function () { requestDemo(ctx, game); });
-    ctx.hud = h('div', { class: 'hud' }, ctx.homeBtn, bulbs.el, ctx.replayBtn);
+    // شريط الأعلى: زر الرئيسية فقط والمصابيح (مساحة فارغة تعادل الزر لتبقى المصابيح في الوسط)
+    ctx.hud = h('div', { class: 'hud' }, ctx.homeBtn, bulbs.el, h('span', { class: 'hud-spacer' }));
     ctx.root = h('div', { class: 'screen game-screen game-' + it.id, 'data-game': it.id, 'data-zone': it.zone }, stage, ctx.hud);
 
     // انتظار وحركة آمنان: لا يكملان بعد الخروج من اللعبة
@@ -2349,7 +2360,6 @@ textarea, input { -webkit-user-select: text; user-select: text; }
       }
       B.storage.recordSession(id);
       ctx.ending = true;
-      ctx.replayBtn.disabled = true;
       await ctx.sleep(500);
       await game.outro(ctx);
       showEnd(ctx, game);
@@ -2680,6 +2690,11 @@ textarea, input { -webkit-user-select: text; user-select: text; }
       return b;
     });
 
+    var demoBtn = h('button', { class: 'p-btn', type: 'button', text: P.replayDemo, 'data-act': 'replay-demo' });
+    demoBtn.addEventListener('click', function () {
+      st.data().demoSeen = {}; st.save(); say(P.replayDemoDone);
+    });
+
     var closeBtn = h('button', { class: 'p-close', type: 'button', 'aria-label': S.buttons.close, text: '✕' });
     closeBtn.addEventListener('click', function () { close(); B.home.show(); });
 
@@ -2700,7 +2715,7 @@ textarea, input { -webkit-user-select: text; user-select: text; }
         h('div', { class: 'p-wrap' }, copyBtn, fileBtn),
         ta, h('div', { class: 'p-wrap' }, restoreBtn, restoreFileBtn), picker
       ),
-      h('section', { class: 'p-sec' }, resetBtns),
+      h('section', { class: 'p-sec' }, demoBtn, resetBtns),
       msg
     );
 
@@ -3369,11 +3384,11 @@ textarea, input { -webkit-user-select: text; user-select: text; }
     if (st.el.hand) return;
     var g = st.G, btn = st.el.btn;
     var hs = g.D * 1.0 / 96;
-    // اليد مقلوبة: طرف الإصبع في الأسفل (٤٩،٩٢ من صندوقها) ويلمس أعلى الزر
+    // الكفّ مقلوب: نقطة اللمس في الأسفل (٤٤،٩٤ من صندوقها) وتلمس أعلى الزر
     var bx = g.W / 2, tipY = btn.offsetTop + g.D * 0.3;
     var hand = h('div', {
       class: 'hand',
-      style: { width: 88 * hs + 'px', height: 96 * hs + 'px', left: bx - 49 * hs + 'px', top: tipY - 92 * hs + 'px' }
+      style: { width: 88 * hs + 'px', height: 96 * hs + 'px', left: bx - 44 * hs + 'px', top: tipY - 94 * hs + 'px' }
     }, h('div', { class: 'hand-in', html: art.hand() }));
     st.el.overlay.appendChild(hand);
     st.el.hand = hand;
@@ -3599,7 +3614,7 @@ textarea, input { -webkit-user-select: text; user-select: text; }
     for (var c = 1; c <= n; c++) {
       if (n % c) continue;
       var r = n / c;
-      var size = axis === 'v' ? Math.min(Wa / (2 * c), Ha / r) : Math.min(Wa / c, Ha / (2 * r));
+      var size = axis === 'v' ? Math.min(Wa / (2 * c + 0.42), Ha / r) : Math.min(Wa / c, Ha / (2 * r + 0.42)); // 0.42: جسم الفراشة
       if (c === 1 && axis === 'v' && n > 3) continue; // عمود واحد لا يُظهر الانعكاس جيداً
       if (r === 1 && axis === 'h' && n > 8) continue;
       if (!best || size > best.size) best = { c: c, r: r, size: size };
@@ -3651,8 +3666,8 @@ textarea, input { -webkit-user-select: text; user-select: text; }
   function area(ctx) {
     var vp = UI.vp(), cs = getComputedStyle(ctx.stage);
     var short = vp.H < 500; // جوال أفقي: الألوان إلى الجانب لا في الأسفل
-    var Wa = ctx.stage.clientWidth - 52 - (short ? vp.tap + 70 : 0);
-    var Ha = ctx.stage.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - (short ? 0 : vp.tap + 44) - 50;
+    var Wa = ctx.stage.clientWidth - 70 - (short ? vp.tap + 70 : 0);
+    var Ha = ctx.stage.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - (short ? 0 : vp.tap + 44) - 70;
     return { Wa: Wa, Ha: Ha, tap: vp.tap };
   }
 
@@ -3661,28 +3676,47 @@ textarea, input { -webkit-user-select: text; user-select: text; }
     var errors = 0, fails = 0, selected = -1, busy = false, filled = {}, done, finished = new Promise(function (res) { done = res; });
     st.board.innerHTML = ''; st.tray.innerHTML = '';
     var vert = R.axis === 'v';
-    var grid = h('div', { class: 'mr-grid ' + (vert ? 'v' : 'hz'), style: { gridTemplateColumns: 'repeat(' + (vert ? 2 * R.c : R.c) + ',' + R.size + 'px)', gridAutoRows: R.size + 'px' } });
-    var targets = {}; // فهرس الخانة في النصف -> زر الهدف
-    // نرتب الخانات صفاً صفاً. i = البعد عن خط الثنية.
+    // فراشة: جناح مصدر عليه بقع ملوّنة، وجناح مقابل فيه دوائر متقطعة تنتظر التلوين، وبينهما جسم الفراشة
+    var body = Math.round(R.size * 0.42), S = R.size + 'px';
+    var grid = h('div', { class: 'mr-grid ' + (vert ? 'v' : 'hz'), style: vert
+      ? { gridTemplateColumns: 'repeat(' + R.c + ',' + S + ') ' + body + 'px repeat(' + R.c + ',' + S + ')', gridAutoRows: S }
+      : { gridTemplateColumns: 'repeat(' + R.c + ',' + S + ')', gridTemplateRows: 'repeat(' + R.r + ',' + S + ') ' + body + 'px repeat(' + R.r + ',' + S + ')' } });
+    var targets = {}; // فهرس الخانة في النصف -> زر الهدف (للخانات الملوّنة في المصدر فقط)
     var totalC = vert ? 2 * R.c : R.c, totalR = vert ? R.r : 2 * R.r;
+    function at(el, col, row, cs, rs) { el.style.gridColumn = col + (cs ? ' / span ' + cs : ''); el.style.gridRow = row + (rs ? ' / span ' + rs : ''); return el; }
+    // الجناحان (خلف الخانات)، المصدر أوضح لوناً
+    if (vert) {
+      grid.appendChild(at(h('div', { class: 'mr-wing tgtw' }), 1, 1, R.c, R.r));
+      grid.appendChild(at(h('div', { class: 'mr-wing srcw' }), R.c + 2, 1, R.c, R.r));
+      grid.appendChild(at(h('div', { class: 'mr-body v' }), R.c + 1, 1, 1, R.r));
+    } else {
+      grid.appendChild(at(h('div', { class: 'mr-wing srcw' }), 1, 1, R.c, R.r));
+      grid.appendChild(at(h('div', { class: 'mr-wing tgtw' }), 1, R.r + 2, R.c, R.r));
+      grid.appendChild(at(h('div', { class: 'mr-body hz' }), 1, R.r + 1, R.c, 1));
+    }
     for (var y = 0; y < totalR; y++) {
       for (var x = 0; x < totalC; x++) {
         var src, i, j;
         if (vert) { src = x >= R.c; i = src ? x - R.c : R.c - 1 - x; j = y; }
         else { src = y < R.r; i = x; j = src ? R.r - 1 - y : y - R.r; }
-        var k = vert ? j * R.c + i : j * R.c + i;
-        var tok = R.cells[k];
+        var k = j * R.c + i, tok = R.cells[k];
+        var col = vert ? (x < R.c ? x + 1 : x + 2) : x + 1;
+        var row = vert ? y + 1 : (y < R.r ? y + 1 : y + 2);
+        var cell;
         if (src) {
-          grid.appendChild(h('div', { class: 'mr-cell src', html: tok >= 0 ? tokenHtml(R.tokens[tok]) : '' }));
+          cell = h('div', { class: 'mr-cell src', html: tok >= 0 ? tokenHtml(R.tokens[tok]) : '' });
+        } else if (tok >= 0) {
+          // دائرة متقطعة تنتظر لونها؛ في المستوى ١ تحمل ظلاً باهتاً من اللون المطلوب
+          cell = h('button', { class: 'mr-cell tgt', type: 'button', 'data-k': k });
+          if (R.guided) cell.style.setProperty('--ghost', R.tokens[tok].color);
+          (function (kk, bb) { UI.bindPress(bb, function () { tapCell(kk); }); })(k, cell);
+          targets[k] = cell;
         } else {
-          var b = h('button', { class: 'mr-cell tgt', type: 'button', 'data-k': k });
-          (function (kk, bb) { UI.bindPress(bb, function () { tapCell(kk); }); })(k, b);
-          targets[k] = b;
-          grid.appendChild(b);
+          cell = h('div', { class: 'mr-cell none' });
         }
+        grid.appendChild(at(cell, col, row));
       }
     }
-    grid.appendChild(h('span', { class: 'mr-fold' }));
     st.board.appendChild(grid);
     UI.anim(grid, [{ opacity: 0, transform: 'scale(.85)' }, { opacity: 1, transform: 'none' }], { dur: 480, easing: UI.SPRING, fill: 'backwards' });
 

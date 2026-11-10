@@ -82,8 +82,8 @@
       roundIndex: 0
     };
     ctx.homeBtn = UI.iconButton('home-btn', B.art.house(), S.buttons.home, function () { exit(ctx, game); });
-    ctx.replayBtn = UI.iconButton('replay-btn', B.art.replayIcon(), S.buttons.replay, function () { requestDemo(ctx, game); });
-    ctx.hud = h('div', { class: 'hud' }, ctx.homeBtn, bulbs.el, ctx.replayBtn);
+    // شريط الأعلى: زر الرئيسية فقط والمصابيح (مساحة فارغة تعادل الزر لتبقى المصابيح في الوسط)
+    ctx.hud = h('div', { class: 'hud' }, ctx.homeBtn, bulbs.el, h('span', { class: 'hud-spacer' }));
     ctx.root = h('div', { class: 'screen game-screen game-' + it.id, 'data-game': it.id, 'data-zone': it.zone }, stage, ctx.hud);
 
     // انتظار وحركة آمنان: لا يكملان بعد الخروج من اللعبة
@@ -130,7 +130,6 @@
       }
       B.storage.recordSession(id);
       ctx.ending = true;
-      ctx.replayBtn.disabled = true;
       await ctx.sleep(500);
       await game.outro(ctx);
       showEnd(ctx, game);

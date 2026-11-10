@@ -52,6 +52,8 @@
       restorePlaceholder: 'ألصق هنا ما نسخته سابقاً',
       restored: 'تمت الاستعادة',
       restoreFail: 'تعذّرت قراءة النسخة',
+      replayDemo: 'إعادة العرض التوضيحي لكل الألعاب',
+      replayDemoDone: 'سيُعرض الشرح عند فتح كل لعبة',
       resetGame: 'إعادة ضبط اللعبة',
       resetConfirm: 'اضغط مرة أخرى للتأكيد',
       resetDone: 'أُعيد ضبط اللعبة',

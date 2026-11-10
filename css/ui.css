@@ -22,7 +22,8 @@
 .hud-btn svg { width: 54%; height: 54%; }
 .hud-btn.pressed, .hud-btn:active { transform: translateY(5px); box-shadow: 0 1px 0 var(--lilac-deep), 0 3px 8px rgba(31, 42, 90, .2); }
 .hud-btn:disabled { opacity: .35; pointer-events: none; }
-.is-demo .replay-btn { opacity: .35; pointer-events: none; }
+.hud-spacer { width: var(--tap); height: 1px; flex: none; }
+@media (max-width: 560px) { .hud-spacer { order: 2; } }
 
 /* ───────── مصابيح الجلسة ───────── */
 .bulbs {

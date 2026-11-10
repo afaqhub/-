@@ -637,11 +637,11 @@
     if (st.el.hand) return;
     var g = st.G, btn = st.el.btn;
     var hs = g.D * 1.0 / 96;
-    // اليد مقلوبة: طرف الإصبع في الأسفل (٤٩،٩٢ من صندوقها) ويلمس أعلى الزر
+    // الكفّ مقلوب: نقطة اللمس في الأسفل (٤٤،٩٤ من صندوقها) وتلمس أعلى الزر
     var bx = g.W / 2, tipY = btn.offsetTop + g.D * 0.3;
     var hand = h('div', {
       class: 'hand',
-      style: { width: 88 * hs + 'px', height: 96 * hs + 'px', left: bx - 49 * hs + 'px', top: tipY - 92 * hs + 'px' }
+      style: { width: 88 * hs + 'px', height: 96 * hs + 'px', left: bx - 44 * hs + 'px', top: tipY - 94 * hs + 'px' }
     }, h('div', { class: 'hand-in', html: art.hand() }));
     st.el.overlay.appendChild(hand);
     st.el.hand = hand;
