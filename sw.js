@@ -3,7 +3,7 @@
    لا يعيد تحميل الصفحة تلقائياً (كي لا تُفاجأ الطفلة)؛ يظهر التحديث عند الفتح التالي. */
 'use strict';
 
-const VERSION = '2.0.0';
+const VERSION = '2.1.0';
 const CACHE = 'bustan-v' + VERSION;
 
 const FILES = [
@@ -62,16 +62,22 @@ self.addEventListener('fetch', (e) => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return; // لا نمسّ أي طلب خارجي
-  e.respondWith(
-    caches.match(req, { ignoreSearch: true }).then((hit) => {
-      if (hit) return hit;
-      return fetch(req).then((res) => {
-        if (res && res.ok) {
-          const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put(req, copy));
-        }
+  const isPage = req.mode === 'navigate' || /\.(html|js|css)$/.test(url.pathname) || url.pathname.endsWith('/');
+  if (isPage) {
+    // الصفحة والسكربتات: الشبكة أولاً ليصل التحديث فوراً، ثم الذاكرة دون إنترنت
+    e.respondWith(
+      fetch(req).then((res) => {
+        if (res && res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); }
         return res;
-      }).catch(() => (req.mode === 'navigate' ? caches.match('./index.html') : Response.error()));
-    })
+      }).catch(() => caches.match(req, { ignoreSearch: true }).then((hit) => hit || caches.match('./index.html')))
+    );
+    return;
+  }
+  // الخطوط والأيقونات: الذاكرة أولاً
+  e.respondWith(
+    caches.match(req, { ignoreSearch: true }).then((hit) => hit || fetch(req).then((res) => {
+      if (res && res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); }
+      return res;
+    }).catch(() => Response.error()))
   );
 });

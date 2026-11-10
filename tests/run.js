@@ -206,8 +206,10 @@ async function seeDemoThrough(page) {
       s = st(1, 0, 1); s = Bustan.adaptive.step(s, 4); out.floor1 = s.level === 1;
       // التخزين: ترحيل من بيانات بلا إصدار
       const m = Bustan.storage.migrate({ games: { train: { level: 4 } } });
-      out.migrate = m.schemaVersion === 1 && m.games.train.level === 4 && !!m.games.mirror && m.settings.soloLimit === 2;
-      out.migrateBad = Bustan.storage.migrate('x').schemaVersion === 1;
+      out.migrate = m.schemaVersion === 2 && m.games.train.level === 4 && !!m.games.mirror && m.settings.soloLimit === 2;
+      out.migrateBad = Bustan.storage.migrate('x').schemaVersion === 2;
+      const old = Bustan.storage.migrate({ schemaVersion: 1, settings: { soundOn: false, soloLimit: 2 }, games: {} });
+      out.oldSoundOn = old.settings.soundOn === true && old.schemaVersion === 2;
       const exp = Bustan.storage.exportJSON();
       out.importBad = Bustan.storage.importJSON('{not json') === false && Bustan.storage.importJSON('{"games":5}') === false;
       out.importFuture = Bustan.storage.importJSON(JSON.stringify({ schemaVersion: 99, games: {} })) === false;
@@ -275,6 +277,7 @@ async function seeDemoThrough(page) {
     ok(r.noDownIfBroken, 'التكيّف: لا هبوط إن قطعتهما جولة سلسة');
     ok(r.cap5 && r.floor1, 'التكيّف: لا تجاوز للمستويين ١ و٥');
     ok(r.migrate && r.migrateBad, 'التخزين: ترحيل البيانات القديمة والتالفة');
+    ok(r.oldSoundOn, 'الترحيل ١←٢: من حُفظ عنده «الصوت مطفأ» القديم يصير مفعّلاً');
     ok(r.importBad && r.importFuture && r.importOk, 'التخزين: رفض النسخ التالفة والأحدث، وقبول الصحيحة');
     ok(r.soundDefaultOff && r.limitDefault2, 'الافتراضات: الصوت مفعّل وحدّ «وحدي» = ٢');
     ok(r.probs.length === 0, 'بناء جولات القطار (٢٥٠٠ جولة) يطابق قواعد المستويات' + (r.probs.length ? ' — ' + r.probs.join(',') : ''));

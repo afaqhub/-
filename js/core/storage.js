@@ -5,7 +5,7 @@
   var B = (window.Bustan = window.Bustan || {});
 
   var KEY = 'bustan.progress';
-  var SCHEMA = 1;
+  var SCHEMA = 2;
   var GAME_IDS = ['train', 'mirror', 'pattern', 'firstsound', 'bridge'];
   var MAX_DAYS = 60;
 
@@ -33,7 +33,9 @@
   /* جدول الترحيل: المفتاح هو الإصدار القديم، والدالة تُرقّي بمقدار واحد.
      عند رفع SCHEMA أضف دالة هنا ولا تغيّر القديمة. */
   var MIGRATIONS = {
-    0: function (d) { d.schemaVersion = 1; return d; }
+    0: function (d) { d.schemaVersion = 1; return d; },
+    // ١ → ٢: كان الصوت مطفأً افتراضياً، وصار مفعّلاً؛ نفعّله لمن حُفظ عنده الافتراضي القديم
+    1: function (d) { if (d.settings) d.settings.soundOn = true; d.schemaVersion = 2; return d; }
   };
 
   function isObj(x) { return x && typeof x === 'object' && !Array.isArray(x); }

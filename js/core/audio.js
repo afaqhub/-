@@ -116,6 +116,20 @@
     }
   };
 
+  /* iOS يُسكت WebAudio حين يكون مفتاح الكتم الجانبي مفعّلاً، إلا إذا كانت الصفحة
+     تشغّل عنصر صوت. نشغّل مقطعاً صامتاً (٠ شدة) متكرراً داخل اللمسة الأولى فتنتقل جلسة الصوت إلى «تشغيل». */
+  var keep = null;
+  function keepAlive() {
+    if (keep) return;
+    try {
+      keep = document.createElement('audio');
+      keep.setAttribute('playsinline', '');
+      keep.loop = true; keep.volume = 0.01;
+      keep.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==';
+      var p = keep.play(); if (p && p.catch) p.catch(function () { keep = null; });
+    } catch (e) { keep = null; }
+  }
+
   B.audio = {
     unlock: function () {
       var c = ensure();
@@ -123,15 +137,20 @@
       if (c.state !== 'running') { try { c.resume(); } catch (e) {} }
       if (!this._primed) { // iOS: تشغيل عيّنة صامتة داخل اللمسة يفتح الصوت
         this._primed = true;
+        keepAlive();
         try { var s = c.createBufferSource(); s.buffer = c.createBuffer(1, 1, 22050); s.connect(c.destination); s.start(0); } catch (e) {}
       }
     },
     play: function (name, arg) {
       if (!enabled()) return;
       var c = ensure();
-      if (!c || c.state !== 'running') return;
+      if (!c) return;
       var fn = SOUNDS[name];
-      if (fn) { try { fn(c, c.currentTime + 0.005, arg); } catch (e) {} }
+      if (!fn) return;
+      function go() { try { fn(c, c.currentTime + 0.005, arg); } catch (e) {} }
+      if (c.state === 'running') { go(); return; }
+      // السياق موقوف (iOS/متصفحات): نستأنفه ثم نشغّل الصوت
+      try { c.resume().then(function () { if (c.state === 'running') go(); }, function () {}); } catch (e) {}
     }
   };
 })();
