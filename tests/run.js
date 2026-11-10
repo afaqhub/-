@@ -212,7 +212,7 @@ async function seeDemoThrough(page) {
       out.importBad = Bustan.storage.importJSON('{not json') === false && Bustan.storage.importJSON('{"games":5}') === false;
       out.importFuture = Bustan.storage.importJSON(JSON.stringify({ schemaVersion: 99, games: {} })) === false;
       out.importOk = Bustan.storage.importJSON(exp) === true;
-      out.soundDefaultOff = Bustan.storage.defaults().settings.soundOn === false;
+      out.soundDefaultOff = Bustan.storage.defaults().settings.soundOn === true;
       out.limitDefault2 = Bustan.storage.defaults().settings.soloLimit === 2;
       // بناء الجولات: ٥٠٠ جولة لكل مستوى
       const T = Bustan.games.train, probs = [];
@@ -246,7 +246,7 @@ async function seeDemoThrough(page) {
     ok(r.cap5 && r.floor1, 'التكيّف: لا تجاوز للمستويين ١ و٥');
     ok(r.migrate && r.migrateBad, 'التخزين: ترحيل البيانات القديمة والتالفة');
     ok(r.importBad && r.importFuture && r.importOk, 'التخزين: رفض النسخ التالفة والأحدث، وقبول الصحيحة');
-    ok(r.soundDefaultOff && r.limitDefault2, 'الافتراضات: الصوت مطفأ وحدّ «وحدي» = ٢');
+    ok(r.soundDefaultOff && r.limitDefault2, 'الافتراضات: الصوت مفعّل وحدّ «وحدي» = ٢');
     ok(r.probs.length === 0, 'بناء جولات القطار (٢٥٠٠ جولة) يطابق قواعد المستويات' + (r.probs.length ? ' — ' + r.probs.join(',') : ''));
     await page.__ctx.close();
   }
@@ -505,7 +505,7 @@ async function seeDemoThrough(page) {
     ok((await page.evaluate(() => Bustan.storage.data().settings.soloLimit)) === 3, 'زيادة حدّ «وحدي»');
     // الصوت
     await page.click('[data-act=sound]');
-    ok((await page.evaluate(() => Bustan.storage.data().settings.soundOn)) === true, 'مفتاح الصوت يعمل (كان مطفأً)');
+    ok((await page.evaluate(() => Bustan.storage.data().settings.soundOn)) === false, 'مفتاح الصوت يعمل (كان مفعّلاً فصار مطفأً)');
     await page.click('[data-act=sound]');
     // نسخ
     await page.click('[data-act=copy]');

@@ -339,6 +339,7 @@
       if (tok !== st.token) return;
     }
     renderCard(st.round, false);
+    if (B.audio) B.audio.play('card');
     var sr = ctx.stage.getBoundingClientRect(), cr = c.getBoundingClientRect();
     var cx = cr.left + cr.width / 2 - sr.left, cy = cr.top + cr.height / 2 - sr.top;
     var bigW = Math.min(g.W * 0.5, 230 * g.us) * (st.round.targets.length === 2 ? 0.9 : 1);
@@ -399,6 +400,11 @@
 
     if (st.active && st.phase === 'play') watchPlatform();
 
+    // تشو تشو خفيف يتناسب إيقاعه مع السرعة
+    if (st.v > 0.12 && UI.ts === 1) {
+      st.chugT = (st.chugT || 0) + dt;
+      if (st.chugT > 0.5 / (st.v / SPEED)) { st.chugT = 0; if (B.audio) B.audio.play('chug', Math.min(1, st.v / SPEED)); }
+    }
     // دخان المدخنة
     if (st.v > 0.12) {
       st.smokeT += dt;
@@ -470,6 +476,7 @@
     st.phase = 'question';
     st.wrong++; st.fails++; st.errors++;
     setSpeed(0, QBRAKE);
+    if (B.audio) B.audio.play('hmm');
     var bub = null;
     if (p && p.el) {
       bub = h('div', { class: 'q-bubble', style: { width: st.G.bw * 0.62 + 'px', left: '50%', marginLeft: -st.G.bw * 0.31 + 'px', top: -st.G.bw * 0.78 + 'px' }, html: art.bubbleQ() });
@@ -500,6 +507,7 @@
     st.armed = false;
     setSpeed(0, BRAKE);
     if (auto) pressVisual();
+    if (B.audio) B.audio.play('brake');
     board(p);
   }
 
@@ -545,6 +553,7 @@
     seatAnimal(idx, name, false);
     fly.remove();
     sparkles(wx, wy, 5);
+    if (B.audio) B.audio.play('sparkle');
     // العربة ترتجّ بلطف عند الاستقبال
     UI.anim(car.el, [{ transform: 'translateY(0) scale(1,1)' }, { transform: 'translateY(4px) scale(1.04,.94)' }, { transform: 'translateY(0) scale(1,1)' }], { dur: 420, easing: UI.SPRING, fill: 'none' });
     var r = car.el.getBoundingClientRect(), sr = ctx.stage.getBoundingClientRect();
@@ -555,7 +564,7 @@
     st.stops++;
     st.fails = st.missed = st.wrong = st.idle = 0;
     if (st.stops >= st.need) finishRound(tok);
-    else { st.phase = 'play'; setSpeed(SPEED, LAUNCH); }
+    else { st.phase = 'play'; setSpeed(SPEED, LAUNCH); if (B.audio) B.audio.play('toot'); }
   }
 
   async function finishRound(tok) {
@@ -568,7 +577,7 @@
     UI.burst(st.el.overlay, g.W / 2, g.trainTop, { n: 26, spread: 170, dur: 1500 });
     for (var k = 0; k < 5; k++) setTimeout(puff.bind(null, true), (k * 140) / UI.ts);
     sparkles(g.W / 2, g.trainTop + 10, 8);
-    if (B.audio) B.audio.play('chime');
+    if (B.audio) { B.audio.play('cheer'); B.audio.play('toot'); }
     await ctx.sleep(1500);
     if (tok !== st.token) return;
     // الركاب يودّعون: ينكمشون بلطف ثم تفرغ العربات
@@ -756,6 +765,8 @@
 
     outro: async function (ctx) {
       setSpeed(0, 1.8);
+      if (B.audio) B.audio.play('brake');
+      setTimeout(function () { if (B.audio) B.audio.play('lullaby'); }, 1800 / UI.ts);
       UI.anim(st.el.dusk, [{ opacity: 0 }, { opacity: 1 }], { dur: 2000 });
       await ctx.sleep(2300);
     },

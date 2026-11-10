@@ -22,7 +22,7 @@
     return {
       schemaVersion: SCHEMA,
       created: Date.now(),
-      settings: { soundOn: false, soloLimit: 2, weeklyConnector: 0 },
+      settings: { soundOn: true, soloLimit: 2, weeklyConnector: 0 },
       games: games,
       days: {},          // 'YYYY-MM-DD' -> { sessions:{id:n}, rounds:{id:n} }
       lock: { soloOpenDate: '' }, // تاريخ اليوم الذي فتح فيه الوالد «وحدي» رغم الحد

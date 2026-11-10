@@ -173,7 +173,7 @@
         var b = list[i];
         if (!b) return Promise.resolve();
         b.classList.add('lit');
-        if (B.audio) B.audio.play('chime');
+        if (B.audio) B.audio.play('chime', i);
         return anim(b, [{ transform: 'scale(1)' }, { transform: 'scale(1.55)' }, { transform: 'scale(1)' }], { dur: 560, easing: SPRING, fill: 'none' });
       },
       litCount: function () { return list.filter(function (x) { return x.classList.contains('lit'); }).length; }

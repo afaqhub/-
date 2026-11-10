@@ -37,6 +37,7 @@
     if (!game || !it || active) return;
     origin = origin || {};
     var color = it.zone === 'solo' ? '#19B394' : '#F2658E';
+    if (B.audio) B.audio.play('whoosh');
     var cur = UI.curtain(color, origin.x, origin.y);
     cur.cover.then(function () {
       var ctx = build(it, game);
