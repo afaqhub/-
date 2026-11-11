@@ -73,7 +73,7 @@ async function newPage(browser, vp, base, opts = {}) {
 async function open(page, base, query = '') {
   await page.goto(base + 'index.html' + query);
   await page.waitForSelector('.tile', { timeout: 8000 });
-  await page.waitForTimeout(900);
+  await page.waitForTimeout(1900); // حتى تنتهي حركة ظهور الأيقونات (١٣ أيقونة متتابعة)
 }
 const tap = (page) => page.dispatchEvent('.stop-btn', 'pointerdown');
 const probe = (page) => page.evaluate(() => Bustan.games.train._probe());
