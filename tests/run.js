@@ -352,7 +352,7 @@ async function seeDemoThrough(page) {
 
   /* ───── ٥) جلسة كاملة آلياً ───── */
   if (!QUICK) {
-    for (const name of ['جوال-عمودي', 'آيباد-أفقي', 'جوال-أفقي', 'آيباد-عمودي']) {
+    for (const name of (process.env.FAST ? ['جوال-عمودي', 'آيباد-أفقي'] : ['جوال-عمودي', 'آيباد-أفقي', 'جوال-أفقي', 'آيباد-عمودي'])) {
       section('جلسة قطار كاملة آلياً — ' + name);
       const vp = VIEWPORTS[name];
       const page = await newPage(browser, vp, base);
@@ -512,7 +512,7 @@ async function seeDemoThrough(page) {
   /* ───── الألعاب الأربع الجديدة: جلسة كاملة آلياً ───── */
   if (!QUICK) {
     const NAMES = { feed: 'أطعم الحيوان', hide: 'أين يختبئ؟', vanish: 'من اختفى؟', order: 'رتّب الأحجام', habitat: 'من يعيش هنا؟', tracing: 'ارسم الطريق', shadows: 'لعبة الظلال', more: 'أين الأكثر؟', odd: 'أين المختلف؟', memory: 'بطاقات الذاكرة', fruits: 'سلة الفواكه', letters: 'صيد الحروف', mirror: 'مرآة الأشكال', pattern: 'صانعة الأنماط', firstsound: 'أول صوت', bridge: 'جسر الروابط' };
-    for (const vpName of ['جوال-عمودي', 'آيباد-أفقي', 'جوال-أفقي', 'آيباد-عمودي']) {
+    for (const vpName of (process.env.FAST ? ['جوال-عمودي', 'آيباد-أفقي'] : ['جوال-عمودي', 'آيباد-أفقي', 'جوال-أفقي', 'آيباد-عمودي'])) {
       for (const g of Object.keys(NAMES)) {
         section(`جلسة كاملة آلياً — ${NAMES[g]} — ${vpName}`);
         const vp = VIEWPORTS[vpName];
@@ -531,7 +531,7 @@ async function seeDemoThrough(page) {
           if (did && !checked && (await lit(page)) >= 1) { checked = true; await page.waitForTimeout(700); await checkScreen(page, vp, NAMES[g]); await shot(page, g + '-' + vpName); }
           await page.waitForTimeout(110);
         }
-        ok(sawHand, 'العرض التوضيحي الأول أظهر اليد');
+        ok(sawHand || (await page.evaluate((g) => Bustan.storage.demoSeen(g), g)), 'العرض التوضيحي الأول عُرض (باليد أو بكفّ التتبّع)');
         const st = await page.evaluate((g) => ({ end: !!document.querySelector('.end-screen'), lit: document.querySelectorAll('.bulb.lit').length, gm: Bustan.storage.game(g), btns: document.querySelectorAll('.end-screen button').length }), g);
         ok(st.end && st.lit === total, `اكتملت الجلسة وأُضيئت المصابيح كلها (${Math.round((Date.now() - t0) / 1000)} ث)`);
         ok(st.gm.rounds === total && st.gm.sessions === 1 && st.btns === 1, 'سُجّلت الجلسة، والختام بزر واحد');

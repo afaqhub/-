@@ -6490,7 +6490,8 @@ html.night::after { content: ''; position: fixed; inset: 0; z-index: 900; pointe
   var LIVES = { sea: ['fish', 'whale', 'turtle'], forest: ['bear', 'fox', 'owl'], farm: ['lamb', 'hen', 'cat'], sky: ['bird', 'butterfly', 'bee'], desert: ['camel'] };
   mini('habitat', 'hb-stage', 'frog', async function (ctx, st, level, demo, alive, setCur) {
     var n = level <= 2 ? 2 : 3, keys = Object.keys(LIVES);
-    var home = kit.pick(keys), who; do { who = kit.pick(LIVES[home]); } while (who === st.last); st.last = who;
+    var home = kit.pick(keys), who, cand = LIVES[home].filter(function (x) { return x !== st.last; });
+    who = kit.pick(cand.length ? cand : LIVES[home]); st.last = who; // (الصحراء فيها حيوان واحد: لا نكرّر الحلقة بلا نهاية)
     var opts = [home]; kit.shuffle(keys).forEach(function (k) { if (opts.length < n && opts.indexOf(k) < 0) opts.push(k); });
     opts = kit.shuffle(opts);
     st.top.innerHTML = '';
