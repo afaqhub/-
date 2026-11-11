@@ -1,5 +1,5 @@
 /* ركن الوالدين (مبسّط في المرحلة ١): إحصاءات، حدّ «وحدي»، الصوت، النسخ الاحتياطي، إعادة الضبط.
-   لا يظهر له أثر للطفلة: لا زر ولا إشارة؛ يُفتح بضغطة مطولة ٣ ثوانٍ على زاوية الشعار.
+   لا يظهر له أثر للطفل: لا زر ولا إشارة؛ يُفتح بضغطة مطولة ٣ ثوانٍ على زاوية الشعار.
    النصوص كلها عربية؛ ولا يُعرض نص JSON أبداً (النسخ عبر الحافظة أو ملف). */
 (function () {
   'use strict';
@@ -158,6 +158,19 @@
       return b;
     });
 
+    var fb = null;
+    if (B.S.feedbackEmail) {
+      var F = B.S.feedback;
+      var fta = h('textarea', { class: 'p-ta', rows: 3, placeholder: F.text });
+      var fct = h('input', { class: 'p-ta', type: 'text', placeholder: F.contact, style: { minHeight: '44px' } });
+      var fsend = h('button', { class: 'p-btn', type: 'button', text: F.send });
+      fsend.addEventListener('click', function () {
+        if (!fta.value.trim()) return;
+        window.location.href = 'mailto:' + B.S.feedbackEmail + '?subject=' + encodeURIComponent(F.subject) +
+          '&body=' + encodeURIComponent(fta.value + (fct.value.trim() ? '\n\n' + fct.value.trim() : ''));
+      });
+      fb = h('section', { class: 'p-sec' }, h('h3', { text: F.title }), h('div', { class: 'p-line muted', text: F.note }), fta, fct, fsend);
+    }
     var demoBtn = h('button', { class: 'p-btn', type: 'button', text: P.replayDemo, 'data-act': 'replay-demo' });
     demoBtn.addEventListener('click', function () {
       st.data().demoSeen = {}; st.save(); say(P.replayDemoDone);
@@ -184,6 +197,7 @@
         ta, h('div', { class: 'p-wrap' }, restoreBtn, restoreFileBtn), picker
       ),
       h('section', { class: 'p-sec' }, demoBtn, resetBtns),
+      fb,
       msg
     );
 

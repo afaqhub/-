@@ -569,7 +569,7 @@
   async function finishRound(tok) {
     var ctx = st.ctx, g = st.G;
     st.phase = 'cheer';
-    // علامة «تمّ» فوراً مكان الشكل المطلوب، فلا تظن الطفلة أنه ما زال مطلوباً
+    // علامة «تمّ» فوراً مكان الشكل المطلوب، فلا تظن الطفل أنه ما زال مطلوباً
     var cd = st.el.card;
     cd.classList.remove('two', 'inverted');
     cd.innerHTML = '<span class="card-sym">' + art.check() + '</span>';

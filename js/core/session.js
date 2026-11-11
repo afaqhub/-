@@ -9,7 +9,7 @@
      outro(ctx)       → Promise  خروج هادئ من المشهد قبل الختام
      endArt(ctx)      → Element  رسمة الشاشة الختامية
      destroy()                   تنظيف (مؤقتات، rAF)
-   ملاحظة: ctx.sleep وctx.anim لا ينتهيان إذا غادرت الطفلة اللعبة (لا أخطاء متأخرة). */
+   ملاحظة: ctx.sleep وctx.anim لا ينتهيان إذا غادرت الطفل اللعبة (لا أخطاء متأخرة). */
 (function () {
   'use strict';
   var B = (window.Bustan = window.Bustan || {});
