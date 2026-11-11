@@ -325,6 +325,7 @@ textarea, input { -webkit-user-select: text; user-select: text; }
 .zones { bottom: calc(52px + var(--safe-b)) !important; }
 .adm-dot { position: absolute; z-index: 7; left: calc(6px + var(--safe-l)); bottom: calc(4px + var(--safe-b)); width: 36px; height: 36px; display: grid; place-items: center;
   font-size: 28px; line-height: 1; color: rgba(31, 42, 90, .22); cursor: pointer; }
+.p-card { min-height: 0; } .p-body { min-height: 0; overscroll-behavior: contain; }
 
 </style>
 <style>
@@ -2398,7 +2399,7 @@ textarea, input { -webkit-user-select: text; user-select: text; }
       if (e.touches.length > 1) e.preventDefault();
     }, { passive: false });
     document.addEventListener('touchmove', function (e) {
-      if (!e.target.closest || !e.target.closest('.scrollable')) e.preventDefault();
+      if (!e.target.closest || !e.target.closest('.scrollable, .parent-overlay')) e.preventDefault();
     }, { passive: false });
     document.addEventListener('dblclick', function (e) { e.preventDefault(); });
     document.addEventListener('contextmenu', function (e) { e.preventDefault(); });
@@ -3189,7 +3190,7 @@ textarea, input { -webkit-user-select: text; user-select: text; }
     fbOverlay = h('div', { class: 'parent-overlay', role: 'dialog' },
       h('div', { class: 'p-card' },
         h('header', { class: 'p-head' }, h('h2', { text: F.title }), close),
-        h('div', { class: 'p-body' }, h('div', { class: 'p-line', text: F.note }), ta, ct, send)));
+        h('div', { class: 'p-body scrollable' }, h('div', { class: 'p-line', text: F.note }), ta, ct, send)));
     document.body.appendChild(fbOverlay);
   }
   B.feedback = { open: openFeedback };
@@ -3205,7 +3206,7 @@ textarea, input { -webkit-user-select: text; user-select: text; }
   function openAdmin() {
     if (adOverlay) return;
     var A = B.S.admin, S = B.S;
-    var body = h('div', { class: 'p-body' });
+    var body = h('div', { class: 'p-body scrollable' });
     var close = h('button', { class: 'p-close', type: 'button', text: '✕', 'aria-label': S.buttons.close });
     close.addEventListener('click', function () { adOverlay.remove(); adOverlay = null; });
     adOverlay = h('div', { class: 'parent-overlay', role: 'dialog' }, h('div', { class: 'p-card' }, h('header', { class: 'p-head' }, h('h2', { text: A.title }), close), body));

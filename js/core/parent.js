@@ -228,7 +228,7 @@
     fbOverlay = h('div', { class: 'parent-overlay', role: 'dialog' },
       h('div', { class: 'p-card' },
         h('header', { class: 'p-head' }, h('h2', { text: F.title }), close),
-        h('div', { class: 'p-body' }, h('div', { class: 'p-line', text: F.note }), ta, ct, send)));
+        h('div', { class: 'p-body scrollable' }, h('div', { class: 'p-line', text: F.note }), ta, ct, send)));
     document.body.appendChild(fbOverlay);
   }
   B.feedback = { open: openFeedback };
@@ -244,7 +244,7 @@
   function openAdmin() {
     if (adOverlay) return;
     var A = B.S.admin, S = B.S;
-    var body = h('div', { class: 'p-body' });
+    var body = h('div', { class: 'p-body scrollable' });
     var close = h('button', { class: 'p-close', type: 'button', text: '✕', 'aria-label': S.buttons.close });
     close.addEventListener('click', function () { adOverlay.remove(); adOverlay = null; });
     adOverlay = h('div', { class: 'parent-overlay', role: 'dialog' }, h('div', { class: 'p-card' }, h('header', { class: 'p-head' }, h('h2', { text: A.title }), close), body));

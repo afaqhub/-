@@ -195,7 +195,7 @@
       if (e.touches.length > 1) e.preventDefault();
     }, { passive: false });
     document.addEventListener('touchmove', function (e) {
-      if (!e.target.closest || !e.target.closest('.scrollable')) e.preventDefault();
+      if (!e.target.closest || !e.target.closest('.scrollable, .parent-overlay')) e.preventDefault();
     }, { passive: false });
     document.addEventListener('dblclick', function (e) { e.preventDefault(); });
     document.addEventListener('contextmenu', function (e) { e.preventDefault(); });
