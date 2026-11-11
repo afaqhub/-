@@ -163,7 +163,7 @@ async function seeDemoThrough(page) {
       const s = fs.readFileSync(f, 'utf8');
       if (/speechSynthesis|SpeechSynthesis|new Audio\(|<audio|XMLHttpRequest|serviceWorker.*postMessage/.test(s)) bad.push(f + ' (api ممنوع)');
       if (!/(sw|stats)\.js$/.test(f) && /\bfetch\(/.test(s)) bad.push(f + ' (fetch)');
-      const urls = (s.match(/https?:\/\/[^\s"'`)]+/g) || []).filter((u) => !/w3\.org/.test(u));
+      const urls = (s.match(/https?:\/\/[^\s"'`)]+/g) || []).filter((u) => !/w3\.org|bustan-676eb-default-rtdb\.firebaseio\.com/.test(u));
       if (urls.length) bad.push(f + ' (روابط: ' + urls.join(',') + ')');
     });
     ok(bad.length === 0, 'لا TTS ولا شبكة ولا روابط خارجية في المصدر' + (bad.length ? ' — ' + bad.join(' | ') : ''));

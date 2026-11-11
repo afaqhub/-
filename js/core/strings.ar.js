@@ -101,7 +101,7 @@
 
     /* بريد الاقتراحات مشفّر (base64) كي لا يظهر نصاً صريحاً لمن يفحص الصفحة */
     /* رابط قاعدة Firebase Realtime Database لعدّاد الإحصاءات (مثل اسم-default-rtdb.firebaseio.com مسبوقاً بالبروتوكول). فارغ = لا إحصاءات */
-    statsDb: '',
+    statsDb: 'https://bustan-676eb-default-rtdb.firebaseio.com',
     admin: { dot: 'إدارة', title: 'لوحة الإدارة', pass: 'كلمة السر', enter: 'دخول', bad: 'كلمة السر غير صحيحة', refresh: 'تحديث', off: 'لم تُضبط قاعدة الإحصاءات بعد', fail: 'تعذّر جلب الأرقام', visitors: 'الأجهزة التي زارت', players: 'الأجهزة التي لعبت', opens: 'مرات فتح التطبيق', games: 'الألعاب', started: 'بدأت', finished: 'اكتملت' },
     feedbackMail: 'dHJpZmxlbWFuZ28xNDQ0QGdtYWlsLmNvbQ==',
     feedback: {
