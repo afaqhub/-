@@ -256,17 +256,18 @@ async function seeDemoThrough(page) {
       // بنك «جسر الروابط»
       const Br = Bustan.games.bridge, bp = [];
       [0, 1, 2, 3].forEach((c) => { if (Br.BANK.filter((s) => s[0] === c).length < 8) bp.push('few' + c); });
-      Br.BANK.forEach((s) => { [s[2], s[4], s[5]].forEach((k) => { if (!Bustan.pics.has(k)) bp.push('pic:' + k); }); if (!Br.PHRASE[s[4]] || !Br.PHRASE[s[5]]) bp.push('phrase:' + s[4] + '/' + s[5]); if (/[A-Za-z0-9]/.test(s[1] + s[3])) bp.push('latin'); if (new Set([s[2], s[4], s[5]]).size !== 3) bp.push('dup'); });
+      Br.BANK.forEach((s) => { [s[2], s[4], s[5]].forEach((k) => { if (!Bustan.pics.has(k)) bp.push('pic:' + k); }); if (!Br.PHRASE[s[4]] || !Br.PHRASE[s[5]]) bp.push('phrase:' + s[4] + '/' + s[5]); if (/[A-Za-z0-9]/.test(s[1].replace('{c}', '') + s[3]) || !s[1].includes('{c}') || !Array.isArray(s[6]) || s[6].some((k) => !Bustan.pics.has(k))) bp.push('sentence'); if (new Set([s[2], s[4], s[5]]).size !== 3) bp.push('dup'); });
       out.br = [...new Set(bp)].slice(0, 6);
       // الأنماط والمرآة
       const pp = [];
       for (let lv = 1; lv <= 5; lv++) for (let n = 0; n < 200; n++) {
         const pt = Bustan.games.pattern._makePattern(lv);
-        if (pt.gaps.length !== (lv === 5 ? 2 : 1)) pp.push('gaps' + lv);
+        if (pt.gaps.length !== 1 || (lv !== 3 && pt.gaps[0] !== pt.seq.length - 1) || pt.choices !== (lv === 1 ? 2 : 3)) pp.push('gaps' + lv);
         const m = Bustan.games.mirror._makeRound(lv, 340, 500, 72);
-        if (m.cells.filter((x) => x >= 0).length < 3 || m.c * m.r !== m.cells.length) pp.push('mirror' + lv);
+        if (m.cells.filter((x) => x >= 0).length < 2 || m.c * m.r !== m.cells.length) pp.push('mirror' + lv);
         if (m.size < 72) pp.push('cell' + lv);
-        if ((lv === 4) !== (m.axis === 'h')) pp.push('axis' + lv);
+        if (m.axis !== 'v' || m.copy !== (lv <= 3)) pp.push('copy' + lv);
+        const mp = Bustan.games.more._pair(lv); if (mp[0] >= mp[1] || mp[0] < 1) pp.push('more' + lv);
       }
       out.pp = [...new Set(pp)];
       const np = [];
@@ -318,7 +319,7 @@ async function seeDemoThrough(page) {
       dir: document.documentElement.dir, lang: document.documentElement.lang,
       digits: !/[0-9]/.test(document.body.innerText)
     }));
-    ok(info.zones === 3 && info.tiles === 10, `${name}: ثلاث مناطق و١٠ ألعاب`);
+    ok(info.zones === 3 && info.tiles === 13, `${name}: ثلاث مناطق و١٣ لعبة`);
     ok(info.sleeping === 0, `${name}: كل الألعاب متاحة (لا أيقونات نائمة)`);
     const fontOk = await page.evaluate(async () => {
       const r = await Promise.all(['400', '700', '800'].map((w) => document.fonts.load(w + ' 20px Tajawal', 'بستان')));
@@ -509,7 +510,7 @@ async function seeDemoThrough(page) {
 
   /* ───── الألعاب الأربع الجديدة: جلسة كاملة آلياً ───── */
   if (!QUICK) {
-    const NAMES = { memory: 'بطاقات الذاكرة', fruits: 'سلة الفواكه', letters: 'صيد الحروف', mirror: 'مرآة الأشكال', pattern: 'صانعة الأنماط', firstsound: 'أول صوت', bridge: 'جسر الروابط' };
+    const NAMES = { shadows: 'لعبة الظلال', more: 'أين الأكثر؟', odd: 'أين المختلف؟', memory: 'بطاقات الذاكرة', fruits: 'سلة الفواكه', letters: 'صيد الحروف', mirror: 'مرآة الأشكال', pattern: 'صانعة الأنماط', firstsound: 'أول صوت', bridge: 'جسر الروابط' };
     for (const vpName of ['جوال-عمودي', 'آيباد-أفقي', 'جوال-أفقي', 'آيباد-عمودي']) {
       for (const g of Object.keys(NAMES)) {
         section(`جلسة كاملة آلياً — ${NAMES[g]} — ${vpName}`);
@@ -524,7 +525,7 @@ async function seeDemoThrough(page) {
         while (Date.now() - t0 < 240000) {
           if (await page.evaluate(() => !!document.querySelector('.end-screen'))) break;
           if (!sawHand) sawHand = await page.evaluate(() => !!document.querySelector('.kit-hand'));
-          const did = await page.evaluate((g) => Bustan.games[g]._solveStep(), g);
+          const did = await page.evaluate((g) => { const go = document.querySelector('.guide-go'); if (go) { go.click(); return false; } return Bustan.games[g]._solveStep(); }, g);
           if (did && !checked && (await lit(page)) >= 1) { checked = true; await page.waitForTimeout(700); await checkScreen(page, vp, NAMES[g]); await shot(page, g + '-' + vpName); }
           await page.waitForTimeout(110);
         }

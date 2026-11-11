@@ -81,6 +81,8 @@
     stage.classList.add('g-stage', 'fs-stage');
     stage.appendChild(h('div', { class: 'fs-sun', html: art.sun() }));
     stage.appendChild(h('div', { class: 'fs-grass', html: art.sceneTile('fore', Math.max(600, UI.vp().W), 120) }));
+    st.guide = h('div', { class: 'g-guide' });
+    stage.appendChild(st.guide);
     st.card = h('div', { class: 'fs-card' });
     st.word = h('div', { class: 'fs-word' });
     st.tray = h('div', { class: 'g-tray' });
@@ -103,6 +105,7 @@
     var pic = h('div', { class: 'fs-pic', html: B.pics.draw(r.key) });
     st.card.appendChild(pic);
     st.word.textContent = r.word; // بخط صغير رمادي للوالد
+    st.guide.textContent = B.S.guides.fsLetter;
     UI.anim(pic, [{ opacity: 0, transform: 'scale(.6)' }, { opacity: 1, transform: 'none' }], { dur: 500, easing: UI.SPRING, fill: 'backwards' });
     if (B.audio) B.audio.play('card');
     await ctx.sleep(700);
@@ -134,6 +137,7 @@
     st.card.innerHTML = ''; st.tray.innerHTML = '';
     st.card.className = 'fs-card rhyme';
     st.word.textContent = r.keys.map(wordOf).join(' · ');
+    st.guide.textContent = B.S.guides.fsRhyme;
     var sel = [], done = false, resolve, busy = false;
     var p = new Promise(function (res) { resolve = res; });
     var btns = r.keys.map(function (k, i) {

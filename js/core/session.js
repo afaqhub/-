@@ -23,6 +23,9 @@
     { id: 'fruits', zone: 'solo', rounds: 10 },
     { id: 'letters', zone: 'solo', rounds: 10 },
     { id: 'memory', zone: 'solo', rounds: 10 },
+    { id: 'shadows', zone: 'solo', rounds: 10 },
+    { id: 'more', zone: 'solo', rounds: 10 },
+    { id: 'odd', zone: 'solo', rounds: 10 },
     { id: 'firstsound', zone: 'together', rounds: 8 },
     { id: 'bridge', zone: 'together', rounds: 8 },
     // القسم الإبداعي: لعب حرّ بلا جولات ولا مصابيح
@@ -123,6 +126,7 @@
     try {
       game.mount(ctx);
       await ctx.sleep(500);
+      if (B.S.guides[id]) await showGuide(ctx, B.S.guides[id]);
       if (!B.storage.demoSeen(id)) {
         await runDemo(ctx, game);
         B.storage.markDemoSeen(id);
@@ -153,6 +157,24 @@
     } catch (e) {
       console.error(e);
     }
+  }
+
+  /* بطاقة شرح لوليّ الأمر (ألعاب «معك»): خطوات قصيرة وزر بدء */
+  function showGuide(ctx, g) {
+    return new Promise(function (res) {
+      var go = h('button', { class: 'guide-go', type: 'button', text: B.S.guides.go });
+      var card = h('div', { class: 'guide-card' },
+        h('h2', { text: g.title }),
+        h('ol', { class: 'guide-steps' }, g.steps.map(function (t, i) { return h('li', {}, h('b', { text: UI.num(i + 1) }), h('span', { text: t })); })),
+        go);
+      var layer = h('div', { class: 'guide-layer' }, card);
+      ctx.root.appendChild(layer);
+      UI.anim(card, [{ opacity: 0, transform: 'translateY(20px) scale(.95)' }, { opacity: 1, transform: 'none' }], { dur: 400, easing: UI.SPRING, fill: 'none' });
+      go.addEventListener('click', function () {
+        if (B.audio) B.audio.play('tap');
+        UI.anim(layer, [{ opacity: 1 }, { opacity: 0 }], { dur: 250 }).then(function () { layer.remove(); if (ctx.alive) res(); });
+      });
+    });
   }
 
   function requestDemo(ctx, game) {

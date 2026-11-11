@@ -15,34 +15,24 @@
   }
 
   /* يبني نمطاً: seq العناصر، gaps مواضع الخانات الناقصة، pool عناصر الاختيار */
+  /* سهّلناها لابن الرابعة: تناوب بسيط، والخانة الناقصة هي الأخيرة دائماً (ما التالي؟).
+     ١) أ ب أ ب أ ؟ بخيارين  ٢) نفسه بثلاثة خيارات  ٣) سلسلة أطول والخانة قبل الأخيرة
+     ٤) أ أ ب أ أ ؟ / أ ب ب أ ب ؟  ٥) ثلاثة عناصر أ ب ج أ ب ؟ */
   function makePattern(level) {
-    var u, seq = [], gaps, pool, i;
-    if (level === 1) {
-      u = distinct(3); for (i = 0; i < 6; i++) seq.push(u[i % 2]);
-      gaps = [2 + kit.rand(4)]; pool = u;
-    } else if (level === 2) {
-      u = distinct(3); var unit = Math.random() < 0.5 ? [0, 0, 1] : [0, 1, 1];
-      for (i = 0; i < 6; i++) seq.push(u[unit[i % 3]]);
-      gaps = [3 + kit.rand(3)]; pool = u;
-    } else if (level === 3) {
-      u = distinct(4); for (i = 0; i < 6; i++) seq.push(u[i % 3]);
-      gaps = [3 + kit.rand(3)]; pool = u;
-    } else if (level === 4) {
-      var sh = kit.shuffle(SHAPES), co = kit.shuffle(COLORS);
-      u = [{ shape: sh[0], color: co[0] }, { shape: sh[1], color: co[0] }, { shape: sh[0], color: co[1] }, { shape: sh[1], color: co[1] }];
-      for (i = 0; i < 6; i++) seq.push(u[i % 3]);
-      gaps = [3 + kit.rand(3)]; pool = u;
-    } else {
-      u = distinct(3); // فاصل ثم ١ ثم ٢ ثم ٣
-      seq = [u[0], u[1], u[0], u[1], u[1], u[0], u[1], u[1], u[1]];
-      gaps = [4 + kit.rand(2), 7 + kit.rand(2)]; pool = u;
-    }
-    return { seq: seq, gaps: gaps, pool: pool };
+    var u = distinct(4), seq = [], i, n, unit, gaps, choices = 3;
+    if (level <= 2) { unit = [0, 1]; n = 6; gaps = [5]; choices = level === 1 ? 2 : 3; }
+    else if (level === 3) { unit = [0, 1]; n = 8; gaps = [6 + kit.rand(2)]; }
+    else if (level === 4) { unit = Math.random() < 0.5 ? [0, 0, 1] : [0, 1, 1]; n = 6; gaps = [5]; }
+    else { unit = [0, 1, 2]; n = 6; gaps = [5]; }
+    for (i = 0; i < n; i++) seq.push(u[unit[i % unit.length]]);
+    var used = unit.filter(function (x, k, a) { return a.indexOf(x) === k; }).map(function (x) { return u[x]; });
+    var pool = used.concat(u.filter(function (x) { return used.indexOf(x) < 0; }));
+    return { seq: seq, gaps: gaps, pool: pool, choices: choices };
   }
   function optionsFor(pat, gapIdx) {
     var ok = pat.seq[gapIdx], opts = [ok];
-    kit.shuffle(pat.pool).forEach(function (s) { if (opts.length < 3 && !opts.some(function (o) { return same(o, s); })) opts.push(s); });
-    while (opts.length < 3) { var s = { shape: kit.pick(SHAPES), color: kit.pick(COLORS) }; if (!opts.some(function (o) { return same(o, s); })) opts.push(s); }
+    pat.pool.forEach(function (s) { if (opts.length < (pat.choices || 3) && !opts.some(function (o) { return same(o, s); })) opts.push(s); });
+    while (opts.length < (pat.choices || 3)) { var s = { shape: kit.pick(SHAPES), color: kit.pick(COLORS) }; if (!opts.some(function (o) { return same(o, s); })) opts.push(s); }
     opts = kit.shuffle(opts);
     return { opts: opts, correct: opts.findIndex(function (o) { return same(o, ok); }) };
   }
@@ -80,6 +70,13 @@
     });
     await ctx.sleep(500 + pat.seq.length * 70);
     if (!alive()) return;
+    // «قراءة» النمط: كل عنصر ينبض بدوره من اليمين إلى اليسار، ثم تنبض الخانة الناقصة
+    for (var q = 0; q < els.length; q++) {
+      UI.anim(els[q], [{ transform: 'scale(1)' }, { transform: 'scale(1.22)' }, { transform: 'scale(1)' }], { dur: 300, fill: 'none' });
+      if (B.audio && pat.gaps.indexOf(q) < 0) B.audio.play('pick');
+      await ctx.sleep(260);
+      if (!alive()) return;
+    }
 
     for (var g = 0; g < pat.gaps.length; g++) {
       var gi = pat.gaps[g], o = optionsFor(pat, gi);

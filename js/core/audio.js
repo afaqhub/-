@@ -74,7 +74,7 @@
     brake: function (c, t) { noise(c, t, 0.9, 0.045, 2600, 500, 0.7); },                // فرامل: هسهسة
     toot: function (c, t) { noise(c, t, 0.5, 0.05, 1200, 900, 3); },                    // نفخة بخار طويلة (بلا صافرة)
     right: function (c, t) { tone(c, 260, t, 0.08, 0.09, 'sine', 620); noise(c, t + 0.02, 0.15, 0.03, 6000, 8000, 2); }, // صواب: «بوب» مع لمعة
-    wrong: function (c, t) { tone(c, 150, t, 0.22, 0.08, 'sawtooth', 120); },           // خطأ: طنين منخفض قصير واحد
+    wrong: function (c, t) { tone(c, 480, t, 0.09, 0.06, 'square'); tone(c, 480, t + 0.14, 0.09, 0.06, 'square'); }, // خطأ: «بيب بيب» كتنبيه الأجهزة
     place: function (c, t) { click(c, t, 420, 0.08); noise(c, t, 0.05, 0.04, 1500, 800, 1); }, // «طق» مغناطيس
     pick: function (c, t) { click(c, t, 700, 0.045); },                                 // اختيار: نقرة خفيفة
     flutter: function (c, t) { for (var i = 0; i < 6; i++) noise(c, t + i * 0.09, 0.06, 0.035, 3000, 1500, 1.5); }, // رفرفة

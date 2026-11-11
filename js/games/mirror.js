@@ -11,11 +11,13 @@
 
   var FABRIC = ['#F2658E', '#3D8BFD', '#FFC83D', '#2DBE7E', '#8E5CF0', '#FF8A3D'];
   var CFG = {
-    1: { n: 6, fill: 4, colors: 2, axis: 'v', guided: true },
-    2: { n: 8, fill: 5, colors: 2, axis: 'v' },
-    3: { n: 8, fill: 6, colors: 3, axis: 'v' },
-    4: { n: 8, fill: 6, colors: 3, axis: 'h' },
-    5: { n: 12, fill: 8, colors: 3, axis: 'v', shapes: true }
+    /* سهّلناها لابن الرابعة: المستويات ١–٣ «انسخي مثلها» (كل بقعة في مكانها نفسه، بلا انعكاس)،
+       وظلّ اللون الباهت يدلّ على المطلوب في ١ و٢ و٤. الانعكاس الحقيقي (الفراشة) في ٤ و٥ فقط. */
+    1: { n: 4, fill: 2, colors: 2, axis: 'v', guided: true, copy: true },
+    2: { n: 4, fill: 3, colors: 2, axis: 'v', guided: true, copy: true },
+    3: { n: 6, fill: 4, colors: 3, axis: 'v', copy: true },
+    4: { n: 4, fill: 3, colors: 2, axis: 'v', guided: true },
+    5: { n: 6, fill: 4, colors: 3, axis: 'v' }
   };
 
   /* يختار أبعاد النصف (أعمدة×صفوف) التي تعطي أكبر خانة */
@@ -45,7 +47,7 @@
     for (i = 0; i < n; i++) cells.push(-1);
     var fillN = Math.min(n - 1, Math.round(cfg.fill * n / cfg.n));
     kit.shuffle(cells.map(function (_, k) { return k; })).slice(0, fillN).forEach(function (k, j) { cells[k] = j % tokens.length; });
-    return { level: level, axis: cfg.axis, guided: !!cfg.guided, c: f.c, r: f.r, size: Math.floor(Math.min(f.size, UI.vp().tablet ? 130 : 110)), tokens: tokens, cells: cells };
+    return { level: level, axis: cfg.axis, copy: !!cfg.copy, guided: !!cfg.guided, c: f.c, r: f.r, size: Math.floor(Math.min(f.size, UI.vp().tablet ? 130 : 110)), tokens: tokens, cells: cells };
   }
 
   function tokenHtml(t) {
@@ -88,7 +90,7 @@
     var vert = R.axis === 'v';
     // فراشة: جناح مصدر عليه بقع ملوّنة، وجناح مقابل فيه دوائر متقطعة تنتظر التلوين، وبينهما جسم الفراشة
     var body = Math.round(R.size * 0.42), S = R.size + 'px';
-    var grid = h('div', { class: 'mr-grid ' + (vert ? 'v' : 'hz'), style: vert
+    var grid = h('div', { class: 'mr-grid ' + (vert ? 'v' : 'hz') + (R.copy ? ' copy' : ''), style: vert
       ? { gridTemplateColumns: 'repeat(' + R.c + ',' + S + ') ' + body + 'px repeat(' + R.c + ',' + S + ')', gridAutoRows: S }
       : { gridTemplateColumns: 'repeat(' + R.c + ',' + S + ')', gridTemplateRows: 'repeat(' + R.r + ',' + S + ') ' + body + 'px repeat(' + R.r + ',' + S + ')' } });
     var targets = {}; // فهرس الخانة في النصف -> زر الهدف (للخانات الملوّنة في المصدر فقط)
@@ -107,7 +109,7 @@
     for (var y = 0; y < totalR; y++) {
       for (var x = 0; x < totalC; x++) {
         var src, i, j;
-        if (vert) { src = x >= R.c; i = src ? x - R.c : R.c - 1 - x; j = y; }
+        if (vert) { src = x >= R.c; i = src ? x - R.c : (R.copy ? x : R.c - 1 - x); j = y; } // النسخ: المكان نفسه؛ المرآة: معكوس
         else { src = y < R.r; i = x; j = src ? R.r - 1 - y : y - R.r; }
         var k = j * R.c + i, tok = R.cells[k];
         var col = vert ? (x < R.c ? x + 1 : x + 2) : x + 1;

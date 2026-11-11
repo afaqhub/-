@@ -477,6 +477,20 @@
       '<rect x="44" y="30" width="44" height="58" rx="9" fill="#FAFCFF" stroke="#8E5CF0" stroke-width="4" transform="rotate(8 66 59)"/>' +
       '<g transform="translate(48 38) scale(.38) rotate(8 50 50)">' + ANIMALS.cat(false) + '</g>';
   };
+  GAME_ICONS.shadows = function () {
+    return '<g transform="translate(2 22) scale(.56)" fill="#1F2A5A" opacity=".85"><circle cx="24" cy="27" r="13"/><circle cx="76" cy="27" r="13"/><circle cx="50" cy="55" r="36"/></g>' +
+      '<g transform="translate(42 22) scale(.56)">' + ANIMALS.bear(false) + '</g>';
+  };
+  GAME_ICONS.more = function () {
+    var a = function (x, y) { return '<circle cx="' + x + '" cy="' + y + '" r="9" fill="#F0485A"/>'; };
+    return '<ellipse cx="24" cy="74" rx="20" ry="7" fill="#C9D8F2"/>' + a(24, 62) +
+      '<ellipse cx="68" cy="74" rx="28" ry="8" fill="#FFD34E"/>' + a(52, 62) + a(68, 62) + a(84, 62) + a(60, 46) + a(76, 46) + a(68, 30);
+  };
+  GAME_ICONS.odd = function () {
+    var c = function (x, y, f) { return '<circle cx="' + x + '" cy="' + y + '" r="17" fill="' + f + '"/>'; };
+    return c(28, 28, '#3D8BFD') + c(72, 28, '#3D8BFD') + c(28, 72, '#3D8BFD') +
+      '<rect x="55" y="55" width="34" height="34" rx="8" fill="#FF8A3D"/><circle cx="72" cy="72" r="27" fill="none" stroke="#FFD34E" stroke-width="5" stroke-dasharray="6 6"/>';
+  };
   GAME_ICONS.workshop = function () {
     return '<rect x="10" y="50" width="38" height="38" rx="6" fill="#3D8BFD" fill-opacity=".8" stroke="#3D8BFD" stroke-width="4"/>' +
       '<polygon points="50,10 74,50 26,50" fill="#F2658E" fill-opacity=".8" stroke="#F2658E" stroke-width="4" stroke-linejoin="round"/>' +

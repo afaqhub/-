@@ -340,3 +340,62 @@
 }
 .lt-pond.finished .lt-fish { opacity: .3; pointer-events: none; transition: opacity .3s; }
 .lt-card svg, .train-stage .card .check-svg { width: 80%; height: auto; }
+/* المرآة في وضع «انسخي مثلها»: لوحتان متطابقتان وبينهما علامة «يساوي» */
+.mr-grid.copy .mr-body.v { background: none; margin: 0 4px; }
+.mr-grid.copy .mr-body.v::before, .mr-grid.copy .mr-body.v::after { content: ''; position: absolute; left: 12%; width: 76%; height: 7px; top: 44%; border: 0; border-radius: 4px; background: #1F2A5A; transform: none; aspect-ratio: auto; }
+.mr-grid.copy .mr-body.v::after { top: 56%; }
+
+/* ═════════ شرح وليّ الأمر ═════════ */
+.guide-layer { position: absolute; inset: 0; z-index: 95; display: grid; place-items: center; padding: 16px; background: rgba(31, 42, 90, .55); direction: rtl; }
+.guide-card { width: min(560px, 100%); max-height: 100%; overflow: auto; background: #FAFCFF; border-radius: 28px; padding: 18px 20px 20px; box-shadow: 0 10px 0 #9FB3E0; display: flex; flex-direction: column; gap: 12px; }
+.guide-card h2 { font-size: clamp(22px, 4.4vmin, 30px); font-weight: 800; color: var(--night); text-align: center; }
+.guide-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.guide-steps li { display: flex; gap: 10px; align-items: flex-start; font-size: clamp(17px, 3.3vmin, 22px); font-weight: 700; line-height: 1.5; color: var(--night); }
+.guide-steps b { flex: none; width: 34px; height: 34px; border-radius: 50%; background: var(--sun); display: grid; place-items: center; font-weight: 800; }
+.guide-go { align-self: center; min-width: 200px; min-height: var(--tap); padding: 10px 28px; border-radius: 22px; font-size: 26px; font-weight: 800; color: #fff; background: var(--meadow); box-shadow: 0 7px 0 var(--meadow-deep); }
+.guide-go:active { transform: translateY(5px); box-shadow: 0 2px 0 var(--meadow-deep); }
+.g-guide { position: relative; z-index: 3; flex: none; max-width: 100%; padding: 4px 14px; border-radius: 999px; background: rgba(255, 255, 255, .7); font-size: clamp(14px, 2.8vmin, 18px); font-weight: 700; color: #5A6699; text-align: center; margin-bottom: 4px; }
+/* جسر الروابط: مشهد الموقف */
+.br-situ { display: flex; gap: 10px; justify-content: center; align-items: center; min-height: clamp(70px, 16vh, 150px); }
+.br-situ-pic { width: clamp(70px, 16vh, 150px); aspect-ratio: 1; border-radius: 24%; background: rgba(255, 255, 255, .75); padding: 8px; box-shadow: 0 5px 0 rgba(159, 179, 224, .8); }
+.br-situ-pic svg { width: 100%; height: 100%; overflow: visible; }
+@media (max-height: 500px) { .br-situ { min-height: 56px; } .br-situ-pic { width: 56px; } .g-guide { display: none; } .br-stage .g-main { flex-direction: row; gap: 14px; } }
+
+/* ═════════ الألعاب الصغيرة: الظلال، أين الأكثر، أين المختلف ═════════ */
+.mg-stage { --deep: #6B3CC9; }
+.mg-top { display: grid; place-items: center; }
+.mg-tray { --cs: clamp(var(--tap), min(24vmin, calc((100vw - 70px) / 4)), 160px); }
+.sh-stage { background: linear-gradient(180deg, #FFE9C7 0%, #FFD3E2 100%); --deep: #C23C69; }
+.sh-card { width: clamp(150px, min(50vmin, 38vh), 300px); aspect-ratio: 1; border-radius: 24%; padding: 10%; background: #FAFCFF; box-shadow: 0 10px 0 #C23C69, 0 22px 28px rgba(194, 60, 105, .25); }
+.sh-pic svg { width: 100%; height: 100%; overflow: visible; transition: filter .5s; }
+.sh-pic.is-shadow svg { filter: brightness(0) opacity(.82); }
+.mo-stage { background: linear-gradient(180deg, #D4F3FF 0%, #D9F7D6 100%); --deep: #0B8269; }
+.mo-bear { width: clamp(80px, 20vmin, 150px); } .mo-bear svg { width: 100%; height: auto; }
+.mo-stage .mg-tray { --cs: clamp(130px, min(42vw, 38vh), 300px); gap: clamp(10px, 4vw, 30px); }
+.mo-btn { border-radius: 22%; padding: calc(var(--cs) * .08); }
+.mo-plate { display: grid; grid-template-columns: repeat(var(--c), 1fr); gap: 2px; width: 100%; align-content: center; justify-items: center; direction: rtl; }
+.mo-item { width: 100%; aspect-ratio: 1; } .mo-item svg { width: 100%; height: 100%; }
+.od-stage { background: linear-gradient(180deg, #E4E0FF 0%, #CFEBFF 100%); --deep: #6B3CC9; }
+.od-stage .g-main { display: none; }
+.od-stage .mg-tray.od-grid { flex: 1 1 0; display: grid; grid-template-columns: repeat(2, var(--cs)); align-content: center; justify-content: center; --cs: clamp(var(--tap), min(40vw, 30vh), 240px); gap: clamp(12px, 3vmin, 26px); }
+@media (max-height: 500px) {
+  .sh-stage, .mo-stage { flex-direction: row; gap: 16px; }
+  .sh-stage .g-main, .mo-stage .g-main { flex: 0 0 auto; width: auto; }
+  .sh-card { width: 44vh; } .mo-stage .mg-tray { --cs: 52vh; }
+  .od-stage .mg-tray.od-grid { grid-template-columns: repeat(4, var(--cs)); --cs: clamp(var(--tap), 20vw, 200px); }
+}
+
+/* ═════════ الرئيسية: «وحدي» فيها تسع ألعاب ═════════ */
+@media (orientation: portrait) {
+  .zones .zone-solo .tile { max-width: min(190px, max(72px, 10.5vh)); }
+  .zones .zone-solo .tile-name { font-size: clamp(13px, 1.8vh, 22px); white-space: nowrap; }
+  .zone-solo .tiles { row-gap: 6px; }
+  .zones .zone-head { margin-bottom: 2px; }
+}
+@media (orientation: landscape) {
+  /* خمس في الصف داخل «وحدي» (٥ + ٤) */
+  .zone-solo .tiles { max-width: none; }
+  .zone-solo .tile { flex: 0 0 calc((100% - 40px) / 5); }
+  .zones { grid-template-columns: 5fr 2fr; }
+  .zones .tile-name { white-space: nowrap; font-size: clamp(11px, 2.2vh, 20px); }
+}

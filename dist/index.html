@@ -843,6 +843,65 @@ textarea, input { -webkit-user-select: text; user-select: text; }
 }
 .lt-pond.finished .lt-fish { opacity: .3; pointer-events: none; transition: opacity .3s; }
 .lt-card svg, .train-stage .card .check-svg { width: 80%; height: auto; }
+/* المرآة في وضع «انسخي مثلها»: لوحتان متطابقتان وبينهما علامة «يساوي» */
+.mr-grid.copy .mr-body.v { background: none; margin: 0 4px; }
+.mr-grid.copy .mr-body.v::before, .mr-grid.copy .mr-body.v::after { content: ''; position: absolute; left: 12%; width: 76%; height: 7px; top: 44%; border: 0; border-radius: 4px; background: #1F2A5A; transform: none; aspect-ratio: auto; }
+.mr-grid.copy .mr-body.v::after { top: 56%; }
+
+/* ═════════ شرح وليّ الأمر ═════════ */
+.guide-layer { position: absolute; inset: 0; z-index: 95; display: grid; place-items: center; padding: 16px; background: rgba(31, 42, 90, .55); direction: rtl; }
+.guide-card { width: min(560px, 100%); max-height: 100%; overflow: auto; background: #FAFCFF; border-radius: 28px; padding: 18px 20px 20px; box-shadow: 0 10px 0 #9FB3E0; display: flex; flex-direction: column; gap: 12px; }
+.guide-card h2 { font-size: clamp(22px, 4.4vmin, 30px); font-weight: 800; color: var(--night); text-align: center; }
+.guide-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.guide-steps li { display: flex; gap: 10px; align-items: flex-start; font-size: clamp(17px, 3.3vmin, 22px); font-weight: 700; line-height: 1.5; color: var(--night); }
+.guide-steps b { flex: none; width: 34px; height: 34px; border-radius: 50%; background: var(--sun); display: grid; place-items: center; font-weight: 800; }
+.guide-go { align-self: center; min-width: 200px; min-height: var(--tap); padding: 10px 28px; border-radius: 22px; font-size: 26px; font-weight: 800; color: #fff; background: var(--meadow); box-shadow: 0 7px 0 var(--meadow-deep); }
+.guide-go:active { transform: translateY(5px); box-shadow: 0 2px 0 var(--meadow-deep); }
+.g-guide { position: relative; z-index: 3; flex: none; max-width: 100%; padding: 4px 14px; border-radius: 999px; background: rgba(255, 255, 255, .7); font-size: clamp(14px, 2.8vmin, 18px); font-weight: 700; color: #5A6699; text-align: center; margin-bottom: 4px; }
+/* جسر الروابط: مشهد الموقف */
+.br-situ { display: flex; gap: 10px; justify-content: center; align-items: center; min-height: clamp(70px, 16vh, 150px); }
+.br-situ-pic { width: clamp(70px, 16vh, 150px); aspect-ratio: 1; border-radius: 24%; background: rgba(255, 255, 255, .75); padding: 8px; box-shadow: 0 5px 0 rgba(159, 179, 224, .8); }
+.br-situ-pic svg { width: 100%; height: 100%; overflow: visible; }
+@media (max-height: 500px) { .br-situ { min-height: 56px; } .br-situ-pic { width: 56px; } .g-guide { display: none; } .br-stage .g-main { flex-direction: row; gap: 14px; } }
+
+/* ═════════ الألعاب الصغيرة: الظلال، أين الأكثر، أين المختلف ═════════ */
+.mg-stage { --deep: #6B3CC9; }
+.mg-top { display: grid; place-items: center; }
+.mg-tray { --cs: clamp(var(--tap), min(24vmin, calc((100vw - 70px) / 4)), 160px); }
+.sh-stage { background: linear-gradient(180deg, #FFE9C7 0%, #FFD3E2 100%); --deep: #C23C69; }
+.sh-card { width: clamp(150px, min(50vmin, 38vh), 300px); aspect-ratio: 1; border-radius: 24%; padding: 10%; background: #FAFCFF; box-shadow: 0 10px 0 #C23C69, 0 22px 28px rgba(194, 60, 105, .25); }
+.sh-pic svg { width: 100%; height: 100%; overflow: visible; transition: filter .5s; }
+.sh-pic.is-shadow svg { filter: brightness(0) opacity(.82); }
+.mo-stage { background: linear-gradient(180deg, #D4F3FF 0%, #D9F7D6 100%); --deep: #0B8269; }
+.mo-bear { width: clamp(80px, 20vmin, 150px); } .mo-bear svg { width: 100%; height: auto; }
+.mo-stage .mg-tray { --cs: clamp(130px, min(42vw, 38vh), 300px); gap: clamp(10px, 4vw, 30px); }
+.mo-btn { border-radius: 22%; padding: calc(var(--cs) * .08); }
+.mo-plate { display: grid; grid-template-columns: repeat(var(--c), 1fr); gap: 2px; width: 100%; align-content: center; justify-items: center; direction: rtl; }
+.mo-item { width: 100%; aspect-ratio: 1; } .mo-item svg { width: 100%; height: 100%; }
+.od-stage { background: linear-gradient(180deg, #E4E0FF 0%, #CFEBFF 100%); --deep: #6B3CC9; }
+.od-stage .g-main { display: none; }
+.od-stage .mg-tray.od-grid { flex: 1 1 0; display: grid; grid-template-columns: repeat(2, var(--cs)); align-content: center; justify-content: center; --cs: clamp(var(--tap), min(40vw, 30vh), 240px); gap: clamp(12px, 3vmin, 26px); }
+@media (max-height: 500px) {
+  .sh-stage, .mo-stage { flex-direction: row; gap: 16px; }
+  .sh-stage .g-main, .mo-stage .g-main { flex: 0 0 auto; width: auto; }
+  .sh-card { width: 44vh; } .mo-stage .mg-tray { --cs: 52vh; }
+  .od-stage .mg-tray.od-grid { grid-template-columns: repeat(4, var(--cs)); --cs: clamp(var(--tap), 20vw, 200px); }
+}
+
+/* ═════════ الرئيسية: «وحدي» فيها تسع ألعاب ═════════ */
+@media (orientation: portrait) {
+  .zones .zone-solo .tile { max-width: min(190px, max(72px, 10.5vh)); }
+  .zones .zone-solo .tile-name { font-size: clamp(13px, 1.8vh, 22px); white-space: nowrap; }
+  .zone-solo .tiles { row-gap: 6px; }
+  .zones .zone-head { margin-bottom: 2px; }
+}
+@media (orientation: landscape) {
+  /* خمس في الصف داخل «وحدي» (٥ + ٤) */
+  .zone-solo .tiles { max-width: none; }
+  .zone-solo .tile { flex: 0 0 calc((100% - 40px) / 5); }
+  .zones { grid-template-columns: 5fr 2fr; }
+  .zones .tile-name { white-space: nowrap; font-size: clamp(11px, 2.2vh, 20px); }
+}
 
 </style>
 </head>
@@ -871,8 +930,37 @@ textarea, input { -webkit-user-select: text; user-select: text; }
       fruits: 'سلة الفواكه',
       letters: 'صيد الحروف',
       memory: 'بطاقات الذاكرة',
+      shadows: 'لعبة الظلال',
+      more: 'أين الأكثر؟',
+      odd: 'أين المختلف؟',
       workshop: 'ورشة الأشكال',
       coloring: 'لوحة التلوين'
+    },
+
+    /* شرح مبسّط لوليّ الأمر يظهر قبل ألعاب «معك» */
+    guides: {
+      firstsound: {
+        title: 'أول صوت — دورك معها',
+        steps: [
+          'انطق اسم الصورة بصوتك بوضوح (الاسم مكتوب تحت الصورة).',
+          'تختار الطفلة الحرف الذي تبدأ به الكلمة من البطاقات الثلاث.',
+          'في المستوى الأخير تظهر ثلاث صور معاً: انطق أسماءها، وتلمس الطفلة الصورتين المتشابهتين في آخر الكلمة، مثل: بطة وقطة.',
+          'لا تصحّح نطقها. المطلوب أن تسمع أول الكلمة فقط.'
+        ]
+      },
+      bridge: {
+        title: 'جسر الروابط — دورك معها',
+        steps: [
+          'في الأعلى صورة الموقف، وتحتها جملة ناقصة.',
+          'اقرأ الجملة بصوتك، وتوقّف عند آخرها.',
+          'تختار الطفلة الصورة التي تُكمل الجملة.',
+          'بعد اختيارها تكتمل الجملة، فأعد قراءتها كاملة.'
+        ]
+      },
+      go: 'هيّا نبدأ',
+      fsLetter: 'انطق الكلمة، والطفلة تختار أول حرف فيها',
+      fsRhyme: 'انطق الكلمات الثلاث، والطفلة تلمس الكلمتين المتشابهتين في آخرهما',
+      brRead: 'اقرأ الجملة، والطفلة تختار الصورة التي تُكملها'
     },
 
     create: { color: 'تغيير اللون', clear: 'تنظيف اللوحة', next: 'رسمة أخرى' },
@@ -938,7 +1026,7 @@ textarea, input { -webkit-user-select: text; user-select: text; }
 
   var KEY = 'bustan.progress';
   var SCHEMA = 2;
-  var GAME_IDS = ['train', 'mirror', 'pattern', 'fruits', 'letters', 'memory', 'firstsound', 'bridge'];
+  var GAME_IDS = ['train', 'mirror', 'pattern', 'fruits', 'letters', 'memory', 'shadows', 'more', 'odd', 'firstsound', 'bridge'];
   var MAX_DAYS = 60;
 
   var data = null;
@@ -1278,7 +1366,7 @@ textarea, input { -webkit-user-select: text; user-select: text; }
     brake: function (c, t) { noise(c, t, 0.9, 0.045, 2600, 500, 0.7); },                // فرامل: هسهسة
     toot: function (c, t) { noise(c, t, 0.5, 0.05, 1200, 900, 3); },                    // نفخة بخار طويلة (بلا صافرة)
     right: function (c, t) { tone(c, 260, t, 0.08, 0.09, 'sine', 620); noise(c, t + 0.02, 0.15, 0.03, 6000, 8000, 2); }, // صواب: «بوب» مع لمعة
-    wrong: function (c, t) { tone(c, 150, t, 0.22, 0.08, 'sawtooth', 120); },           // خطأ: طنين منخفض قصير واحد
+    wrong: function (c, t) { tone(c, 480, t, 0.09, 0.06, 'square'); tone(c, 480, t + 0.14, 0.09, 0.06, 'square'); }, // خطأ: «بيب بيب» كتنبيه الأجهزة
     place: function (c, t) { click(c, t, 420, 0.08); noise(c, t, 0.05, 0.04, 1500, 800, 1); }, // «طق» مغناطيس
     pick: function (c, t) { click(c, t, 700, 0.045); },                                 // اختيار: نقرة خفيفة
     flutter: function (c, t) { for (var i = 0; i < 6; i++) noise(c, t + i * 0.09, 0.06, 0.035, 3000, 1500, 1.5); }, // رفرفة
@@ -1812,6 +1900,20 @@ textarea, input { -webkit-user-select: text; user-select: text; }
       '<path d="M27 30q2 8 9 9q-7 1-9 9q-2-8-9-9q7-1 9-9z" fill="#FFF7C2" transform="rotate(-10 27 39)"/>' +
       '<rect x="44" y="30" width="44" height="58" rx="9" fill="#FAFCFF" stroke="#8E5CF0" stroke-width="4" transform="rotate(8 66 59)"/>' +
       '<g transform="translate(48 38) scale(.38) rotate(8 50 50)">' + ANIMALS.cat(false) + '</g>';
+  };
+  GAME_ICONS.shadows = function () {
+    return '<g transform="translate(2 22) scale(.56)" fill="#1F2A5A" opacity=".85"><circle cx="24" cy="27" r="13"/><circle cx="76" cy="27" r="13"/><circle cx="50" cy="55" r="36"/></g>' +
+      '<g transform="translate(42 22) scale(.56)">' + ANIMALS.bear(false) + '</g>';
+  };
+  GAME_ICONS.more = function () {
+    var a = function (x, y) { return '<circle cx="' + x + '" cy="' + y + '" r="9" fill="#F0485A"/>'; };
+    return '<ellipse cx="24" cy="74" rx="20" ry="7" fill="#C9D8F2"/>' + a(24, 62) +
+      '<ellipse cx="68" cy="74" rx="28" ry="8" fill="#FFD34E"/>' + a(52, 62) + a(68, 62) + a(84, 62) + a(60, 46) + a(76, 46) + a(68, 30);
+  };
+  GAME_ICONS.odd = function () {
+    var c = function (x, y, f) { return '<circle cx="' + x + '" cy="' + y + '" r="17" fill="' + f + '"/>'; };
+    return c(28, 28, '#3D8BFD') + c(72, 28, '#3D8BFD') + c(28, 72, '#3D8BFD') +
+      '<rect x="55" y="55" width="34" height="34" rx="8" fill="#FF8A3D"/><circle cx="72" cy="72" r="27" fill="none" stroke="#FFD34E" stroke-width="5" stroke-dasharray="6 6"/>';
   };
   GAME_ICONS.workshop = function () {
     return '<rect x="10" y="50" width="38" height="38" rx="6" fill="#3D8BFD" fill-opacity=".8" stroke="#3D8BFD" stroke-width="4"/>' +
@@ -2438,6 +2540,9 @@ textarea, input { -webkit-user-select: text; user-select: text; }
     { id: 'fruits', zone: 'solo', rounds: 10 },
     { id: 'letters', zone: 'solo', rounds: 10 },
     { id: 'memory', zone: 'solo', rounds: 10 },
+    { id: 'shadows', zone: 'solo', rounds: 10 },
+    { id: 'more', zone: 'solo', rounds: 10 },
+    { id: 'odd', zone: 'solo', rounds: 10 },
     { id: 'firstsound', zone: 'together', rounds: 8 },
     { id: 'bridge', zone: 'together', rounds: 8 },
     // القسم الإبداعي: لعب حرّ بلا جولات ولا مصابيح
@@ -2538,6 +2643,7 @@ textarea, input { -webkit-user-select: text; user-select: text; }
     try {
       game.mount(ctx);
       await ctx.sleep(500);
+      if (B.S.guides[id]) await showGuide(ctx, B.S.guides[id]);
       if (!B.storage.demoSeen(id)) {
         await runDemo(ctx, game);
         B.storage.markDemoSeen(id);
@@ -2568,6 +2674,24 @@ textarea, input { -webkit-user-select: text; user-select: text; }
     } catch (e) {
       console.error(e);
     }
+  }
+
+  /* بطاقة شرح لوليّ الأمر (ألعاب «معك»): خطوات قصيرة وزر بدء */
+  function showGuide(ctx, g) {
+    return new Promise(function (res) {
+      var go = h('button', { class: 'guide-go', type: 'button', text: B.S.guides.go });
+      var card = h('div', { class: 'guide-card' },
+        h('h2', { text: g.title }),
+        h('ol', { class: 'guide-steps' }, g.steps.map(function (t, i) { return h('li', {}, h('b', { text: UI.num(i + 1) }), h('span', { text: t })); })),
+        go);
+      var layer = h('div', { class: 'guide-layer' }, card);
+      ctx.root.appendChild(layer);
+      UI.anim(card, [{ opacity: 0, transform: 'translateY(20px) scale(.95)' }, { opacity: 1, transform: 'none' }], { dur: 400, easing: UI.SPRING, fill: 'none' });
+      go.addEventListener('click', function () {
+        if (B.audio) B.audio.play('tap');
+        UI.anim(layer, [{ opacity: 1 }, { opacity: 0 }], { dur: 250 }).then(function () { layer.remove(); if (ctx.alive) res(); });
+      });
+    });
   }
 
   function requestDemo(ctx, game) {
@@ -3839,11 +3963,13 @@ textarea, input { -webkit-user-select: text; user-select: text; }
 
   var FABRIC = ['#F2658E', '#3D8BFD', '#FFC83D', '#2DBE7E', '#8E5CF0', '#FF8A3D'];
   var CFG = {
-    1: { n: 6, fill: 4, colors: 2, axis: 'v', guided: true },
-    2: { n: 8, fill: 5, colors: 2, axis: 'v' },
-    3: { n: 8, fill: 6, colors: 3, axis: 'v' },
-    4: { n: 8, fill: 6, colors: 3, axis: 'h' },
-    5: { n: 12, fill: 8, colors: 3, axis: 'v', shapes: true }
+    /* سهّلناها لابن الرابعة: المستويات ١–٣ «انسخي مثلها» (كل بقعة في مكانها نفسه، بلا انعكاس)،
+       وظلّ اللون الباهت يدلّ على المطلوب في ١ و٢ و٤. الانعكاس الحقيقي (الفراشة) في ٤ و٥ فقط. */
+    1: { n: 4, fill: 2, colors: 2, axis: 'v', guided: true, copy: true },
+    2: { n: 4, fill: 3, colors: 2, axis: 'v', guided: true, copy: true },
+    3: { n: 6, fill: 4, colors: 3, axis: 'v', copy: true },
+    4: { n: 4, fill: 3, colors: 2, axis: 'v', guided: true },
+    5: { n: 6, fill: 4, colors: 3, axis: 'v' }
   };
 
   /* يختار أبعاد النصف (أعمدة×صفوف) التي تعطي أكبر خانة */
@@ -3873,7 +3999,7 @@ textarea, input { -webkit-user-select: text; user-select: text; }
     for (i = 0; i < n; i++) cells.push(-1);
     var fillN = Math.min(n - 1, Math.round(cfg.fill * n / cfg.n));
     kit.shuffle(cells.map(function (_, k) { return k; })).slice(0, fillN).forEach(function (k, j) { cells[k] = j % tokens.length; });
-    return { level: level, axis: cfg.axis, guided: !!cfg.guided, c: f.c, r: f.r, size: Math.floor(Math.min(f.size, UI.vp().tablet ? 130 : 110)), tokens: tokens, cells: cells };
+    return { level: level, axis: cfg.axis, copy: !!cfg.copy, guided: !!cfg.guided, c: f.c, r: f.r, size: Math.floor(Math.min(f.size, UI.vp().tablet ? 130 : 110)), tokens: tokens, cells: cells };
   }
 
   function tokenHtml(t) {
@@ -3916,7 +4042,7 @@ textarea, input { -webkit-user-select: text; user-select: text; }
     var vert = R.axis === 'v';
     // فراشة: جناح مصدر عليه بقع ملوّنة، وجناح مقابل فيه دوائر متقطعة تنتظر التلوين، وبينهما جسم الفراشة
     var body = Math.round(R.size * 0.42), S = R.size + 'px';
-    var grid = h('div', { class: 'mr-grid ' + (vert ? 'v' : 'hz'), style: vert
+    var grid = h('div', { class: 'mr-grid ' + (vert ? 'v' : 'hz') + (R.copy ? ' copy' : ''), style: vert
       ? { gridTemplateColumns: 'repeat(' + R.c + ',' + S + ') ' + body + 'px repeat(' + R.c + ',' + S + ')', gridAutoRows: S }
       : { gridTemplateColumns: 'repeat(' + R.c + ',' + S + ')', gridTemplateRows: 'repeat(' + R.r + ',' + S + ') ' + body + 'px repeat(' + R.r + ',' + S + ')' } });
     var targets = {}; // فهرس الخانة في النصف -> زر الهدف (للخانات الملوّنة في المصدر فقط)
@@ -3935,7 +4061,7 @@ textarea, input { -webkit-user-select: text; user-select: text; }
     for (var y = 0; y < totalR; y++) {
       for (var x = 0; x < totalC; x++) {
         var src, i, j;
-        if (vert) { src = x >= R.c; i = src ? x - R.c : R.c - 1 - x; j = y; }
+        if (vert) { src = x >= R.c; i = src ? x - R.c : (R.copy ? x : R.c - 1 - x); j = y; } // النسخ: المكان نفسه؛ المرآة: معكوس
         else { src = y < R.r; i = x; j = src ? R.r - 1 - y : y - R.r; }
         var k = j * R.c + i, tok = R.cells[k];
         var col = vert ? (x < R.c ? x + 1 : x + 2) : x + 1;
@@ -4101,34 +4227,24 @@ textarea, input { -webkit-user-select: text; user-select: text; }
   }
 
   /* يبني نمطاً: seq العناصر، gaps مواضع الخانات الناقصة، pool عناصر الاختيار */
+  /* سهّلناها لابن الرابعة: تناوب بسيط، والخانة الناقصة هي الأخيرة دائماً (ما التالي؟).
+     ١) أ ب أ ب أ ؟ بخيارين  ٢) نفسه بثلاثة خيارات  ٣) سلسلة أطول والخانة قبل الأخيرة
+     ٤) أ أ ب أ أ ؟ / أ ب ب أ ب ؟  ٥) ثلاثة عناصر أ ب ج أ ب ؟ */
   function makePattern(level) {
-    var u, seq = [], gaps, pool, i;
-    if (level === 1) {
-      u = distinct(3); for (i = 0; i < 6; i++) seq.push(u[i % 2]);
-      gaps = [2 + kit.rand(4)]; pool = u;
-    } else if (level === 2) {
-      u = distinct(3); var unit = Math.random() < 0.5 ? [0, 0, 1] : [0, 1, 1];
-      for (i = 0; i < 6; i++) seq.push(u[unit[i % 3]]);
-      gaps = [3 + kit.rand(3)]; pool = u;
-    } else if (level === 3) {
-      u = distinct(4); for (i = 0; i < 6; i++) seq.push(u[i % 3]);
-      gaps = [3 + kit.rand(3)]; pool = u;
-    } else if (level === 4) {
-      var sh = kit.shuffle(SHAPES), co = kit.shuffle(COLORS);
-      u = [{ shape: sh[0], color: co[0] }, { shape: sh[1], color: co[0] }, { shape: sh[0], color: co[1] }, { shape: sh[1], color: co[1] }];
-      for (i = 0; i < 6; i++) seq.push(u[i % 3]);
-      gaps = [3 + kit.rand(3)]; pool = u;
-    } else {
-      u = distinct(3); // فاصل ثم ١ ثم ٢ ثم ٣
-      seq = [u[0], u[1], u[0], u[1], u[1], u[0], u[1], u[1], u[1]];
-      gaps = [4 + kit.rand(2), 7 + kit.rand(2)]; pool = u;
-    }
-    return { seq: seq, gaps: gaps, pool: pool };
+    var u = distinct(4), seq = [], i, n, unit, gaps, choices = 3;
+    if (level <= 2) { unit = [0, 1]; n = 6; gaps = [5]; choices = level === 1 ? 2 : 3; }
+    else if (level === 3) { unit = [0, 1]; n = 8; gaps = [6 + kit.rand(2)]; }
+    else if (level === 4) { unit = Math.random() < 0.5 ? [0, 0, 1] : [0, 1, 1]; n = 6; gaps = [5]; }
+    else { unit = [0, 1, 2]; n = 6; gaps = [5]; }
+    for (i = 0; i < n; i++) seq.push(u[unit[i % unit.length]]);
+    var used = unit.filter(function (x, k, a) { return a.indexOf(x) === k; }).map(function (x) { return u[x]; });
+    var pool = used.concat(u.filter(function (x) { return used.indexOf(x) < 0; }));
+    return { seq: seq, gaps: gaps, pool: pool, choices: choices };
   }
   function optionsFor(pat, gapIdx) {
     var ok = pat.seq[gapIdx], opts = [ok];
-    kit.shuffle(pat.pool).forEach(function (s) { if (opts.length < 3 && !opts.some(function (o) { return same(o, s); })) opts.push(s); });
-    while (opts.length < 3) { var s = { shape: kit.pick(SHAPES), color: kit.pick(COLORS) }; if (!opts.some(function (o) { return same(o, s); })) opts.push(s); }
+    pat.pool.forEach(function (s) { if (opts.length < (pat.choices || 3) && !opts.some(function (o) { return same(o, s); })) opts.push(s); });
+    while (opts.length < (pat.choices || 3)) { var s = { shape: kit.pick(SHAPES), color: kit.pick(COLORS) }; if (!opts.some(function (o) { return same(o, s); })) opts.push(s); }
     opts = kit.shuffle(opts);
     return { opts: opts, correct: opts.findIndex(function (o) { return same(o, ok); }) };
   }
@@ -4166,6 +4282,13 @@ textarea, input { -webkit-user-select: text; user-select: text; }
     });
     await ctx.sleep(500 + pat.seq.length * 70);
     if (!alive()) return;
+    // «قراءة» النمط: كل عنصر ينبض بدوره من اليمين إلى اليسار، ثم تنبض الخانة الناقصة
+    for (var q = 0; q < els.length; q++) {
+      UI.anim(els[q], [{ transform: 'scale(1)' }, { transform: 'scale(1.22)' }, { transform: 'scale(1)' }], { dur: 300, fill: 'none' });
+      if (B.audio && pat.gaps.indexOf(q) < 0) B.audio.play('pick');
+      await ctx.sleep(260);
+      if (!alive()) return;
+    }
 
     for (var g = 0; g < pat.gaps.length; g++) {
       var gi = pat.gaps[g], o = optionsFor(pat, gi);
@@ -4311,6 +4434,8 @@ textarea, input { -webkit-user-select: text; user-select: text; }
     stage.classList.add('g-stage', 'fs-stage');
     stage.appendChild(h('div', { class: 'fs-sun', html: art.sun() }));
     stage.appendChild(h('div', { class: 'fs-grass', html: art.sceneTile('fore', Math.max(600, UI.vp().W), 120) }));
+    st.guide = h('div', { class: 'g-guide' });
+    stage.appendChild(st.guide);
     st.card = h('div', { class: 'fs-card' });
     st.word = h('div', { class: 'fs-word' });
     st.tray = h('div', { class: 'g-tray' });
@@ -4333,6 +4458,7 @@ textarea, input { -webkit-user-select: text; user-select: text; }
     var pic = h('div', { class: 'fs-pic', html: B.pics.draw(r.key) });
     st.card.appendChild(pic);
     st.word.textContent = r.word; // بخط صغير رمادي للوالد
+    st.guide.textContent = B.S.guides.fsLetter;
     UI.anim(pic, [{ opacity: 0, transform: 'scale(.6)' }, { opacity: 1, transform: 'none' }], { dur: 500, easing: UI.SPRING, fill: 'backwards' });
     if (B.audio) B.audio.play('card');
     await ctx.sleep(700);
@@ -4364,6 +4490,7 @@ textarea, input { -webkit-user-select: text; user-select: text; }
     st.card.innerHTML = ''; st.tray.innerHTML = '';
     st.card.className = 'fs-card rhyme';
     st.word.textContent = r.keys.map(wordOf).join(' · ');
+    st.guide.textContent = B.S.guides.fsRhyme;
     var sel = [], done = false, resolve, busy = false;
     var p = new Promise(function (res) { resolve = res; });
     var btns = r.keys.map(function (k, i) {
@@ -4452,51 +4579,55 @@ textarea, input { -webkit-user-select: text; user-select: text; }
     feather: 'الريشة خفيفة', box: 'الصندوق مغلق', pumpkin: 'اليقطينة كبيرة', leaf: 'الورقة خضراء', strawberry: 'الفراولة حلوة'
   };
 
-  /* بنك الجمل: [رقم الرابط، الجملة، صورة الإتمام، نص الإتمام، مشتت، مشتت] — ٨ جمل لكل رابط */
+  /* بنك الجمل: [رقم الرابط، الجملة وفيها {c} موضع الرابط، صورة الإتمام، نص الإتمام، مشتت، مشتت، صور المشهد]
+     المشهد صورة أو صورتان تُظهران الموقف للطفلة (من هو؟ وما حاله؟) فتفهم المطلوب بالنظر.
+     ٨ جمل لكل رابط. ترتيب السهولة: «لذلك» (ماذا يحتاج؟) ثم «لأنّ» (ما السبب؟) ثم «لكنْ» (ما المانع؟) ثم «بينما» (المقابلة). */
   var BANK = [
-    [0, 'أراد الأرنب أن يعبر النهر،', 'brokenbridge', 'الجسر مكسور', 'sun', 'carrot'],
-    [0, 'أرادت البطة أن تسبح في البركة،', 'snow', 'الماء تجمّد', 'book', 'apple'],
-    [0, 'أراد الدب أن يأكل العسل،', 'bee', 'النحلة تحرسه', 'ball', 'moon'],
-    [0, 'أرادت القطة أن تدخل البيت،', 'door', 'الباب مغلق', 'fish', 'star'],
-    [0, 'أراد الخروف أن يقطف التفاحة،', 'tree', 'الشجرة عالية', 'key', 'balloon'],
-    [0, 'أرادت سلمى أن تلعب في الحديقة،', 'rain', 'المطر ينزل', 'crown', 'banana'],
-    [0, 'أراد الأرنب أن يقرأ حكايته،', 'moon', 'الظلام حلّ', 'carrot', 'ball'],
-    [0, 'أرادت البومة أن تنام،', 'sun', 'الشمس أشرقت', 'lemon', 'box'],
+    [2, 'نزل المطر على البطة، {c} فتحت…', 'umbrella', 'المظلّة', 'ball', 'crown', ['duck', 'rain']],
+    [2, 'الباب مغلق، {c} أحضرت القطة…', 'key', 'المفتاح', 'banana', 'flower', ['cat', 'door']],
+    [2, 'حلّ الظلام، {c} أضاء الدب…', 'lantern', 'الفانوس', 'apple', 'ball', ['bear', 'moon']],
+    [2, 'جاع الأرنب، {c} أكل…', 'carrot', 'الجزرة', 'star', 'key', ['rabbit']],
+    [2, 'أرادت النحلة الرحيق، {c} طارت إلى…', 'flower', 'الزهرة', 'box', 'rocket', ['bee']],
+    [2, 'أراد الأرنب أن يقرأ، {c} فتح…', 'book', 'الكتاب', 'lemon', 'ball', ['rabbit']],
+    [2, 'أرادت القطة أن تلعب، {c} أحضرت…', 'ball', 'الكرة', 'moon', 'leaf', ['cat']],
+    [2, 'أراد الضفدع أن يعرف الوقت، {c} نظر إلى…', 'clock', 'الساعة', 'pumpkin', 'feather', ['frog']],
 
-    [1, 'فتح الأرنب مظلّته', 'rain', 'المطر ينزل', 'star', 'banana'],
-    [1, 'لبس الخروف معطفه', 'snow', 'الثلج يتساقط', 'flower', 'key'],
-    [1, 'أضاء الدب الفانوس', 'moon', 'الليل حلّ', 'apple', 'ball'],
-    [1, 'شرب الجمل ماءً كثيراً', 'sun', 'الشمس حارّة', 'book', 'crown'],
-    [1, 'بكى الصغير', 'balloon', 'بالونه طار', 'tree', 'clock'],
-    [1, 'طار العصفور بعيداً', 'cat', 'القطة اقتربت', 'lemon', 'house'],
-    [1, 'لم يدخل الدب بيته', 'door', 'الباب مغلق', 'grapes', 'feather'],
-    [1, 'فرحت النحلة', 'flower', 'الزهرة تفتّحت', 'rocket', 'box'],
+    [1, 'فتحت البطة المظلّة {c}…', 'rain', 'المطر ينزل', 'star', 'banana', ['duck', 'umbrella']],
+    [1, 'أضاء الدب الفانوس {c}…', 'moon', 'الليل حلّ', 'apple', 'ball', ['bear', 'lantern']],
+    [1, 'هرب العصفور {c}…', 'cat', 'القطة اقتربت', 'lemon', 'house', ['bird']],
+    [1, 'فرحت النحلة {c}…', 'flower', 'الزهرة تفتّحت', 'rocket', 'box', ['bee']],
+    [1, 'شرب الجمل ماءً كثيراً {c}…', 'sun', 'الشمس حارّة', 'book', 'crown', ['camel']],
+    [1, 'لم تدخل القطة البيت {c}…', 'door', 'الباب مغلق', 'grapes', 'feather', ['cat', 'house']],
+    [1, 'ذاب الثلج {c}…', 'sun', 'الشمس أشرقت', 'key', 'balloon', ['snow']],
+    [1, 'لبس الخروف معطفه {c}…', 'snow', 'الثلج يتساقط', 'flower', 'key', ['lamb']],
 
-    [2, 'جاع الأرنب،', 'carrot', 'أكل الجزرة', 'star', 'key'],
-    [2, 'نزل المطر،', 'umbrella', 'فتحت البطة المظلّة', 'ball', 'crown'],
-    [2, 'حلّ الليل،', 'sleepbear', 'نام الدب', 'apple', 'rocket'],
-    [2, 'كان الباب مغلقاً،', 'key', 'أحضر الأرنب المفتاح', 'banana', 'flower'],
-    [2, 'عطشت الزهرة،', 'rain', 'سقتها الغيمة', 'book', 'lantern'],
-    [2, 'أشرقت الشمس،', 'rose', 'تفتّحت الوردة', 'box', 'feather'],
-    [2, 'أراد القط أن يعرف الوقت،', 'clock', 'نظر إلى الساعة', 'pumpkin', 'leaf'],
-    [2, 'أحبّت سلمى الحكايات،', 'book', 'فتحت الكتاب', 'lemon', 'ball'],
+    [0, 'أراد الأرنب أن يعبر النهر، {c}…', 'brokenbridge', 'الجسر مكسور', 'sun', 'carrot', ['rabbit']],
+    [0, 'أرادت البطة أن تسبح في البركة، {c}…', 'snow', 'الماء تجمّد', 'book', 'apple', ['duck']],
+    [0, 'أراد الدب أن يأكل العسل، {c}…', 'bee', 'النحلة تحرسه', 'ball', 'moon', ['bear']],
+    [0, 'أرادت القطة أن تدخل البيت، {c}…', 'door', 'الباب مغلق', 'fish', 'star', ['cat', 'house']],
+    [0, 'أراد الخروف أن يقطف التفاحة، {c}…', 'tree', 'الشجرة عالية', 'key', 'balloon', ['lamb', 'apple']],
+    [0, 'أرادت البطة أن تلعب في الحديقة، {c}…', 'rain', 'المطر ينزل', 'crown', 'banana', ['duck']],
+    [0, 'أراد الأرنب أن يقرأ حكايته، {c}…', 'moon', 'الظلام حلّ', 'carrot', 'ball', ['rabbit', 'book']],
+    [0, 'أرادت البومة أن تنام، {c}…', 'sun', 'الشمس أشرقت', 'lemon', 'box', ['owl']],
 
-    [3, 'الأرنب سريع،', 'turtle', 'السلحفاة بطيئة', 'apple', 'star'],
-    [3, 'الشمس تظهر في النهار،', 'moon', 'القمر يظهر في الليل', 'carrot', 'ball'],
-    [3, 'السمكة تسبح في الماء،', 'bird', 'العصفور يطير في السماء', 'key', 'crown'],
-    [3, 'الدب كبير،', 'bee', 'النحلة صغيرة', 'house', 'tree'],
-    [3, 'الثلج بارد،', 'sun', 'الشمس حارّة', 'book', 'balloon'],
-    [3, 'الليمون حامض،', 'banana', 'الموز حلو', 'clock', 'feather'],
-    [3, 'الطائرة تطير في السماء،', 'train', 'القطار يسير على الأرض', 'flower', 'lantern'],
-    [3, 'الجمل يعيش في الصحراء،', 'fish', 'السمكة تعيش في البحر', 'rocket', 'strawberry']
+    [3, 'الأرنب سريع، {c}…', 'turtle', 'السلحفاة بطيئة', 'apple', 'star', ['rabbit']],
+    [3, 'الشمس تظهر في النهار، {c}…', 'moon', 'القمر يظهر في الليل', 'carrot', 'ball', ['sun']],
+    [3, 'السمكة تسبح في الماء، {c}…', 'bird', 'العصفور يطير في السماء', 'key', 'crown', ['fish']],
+    [3, 'الدب كبير، {c}…', 'bee', 'النحلة صغيرة', 'house', 'tree', ['bear']],
+    [3, 'الثلج بارد، {c}…', 'sun', 'الشمس حارّة', 'book', 'balloon', ['snow']],
+    [3, 'الليمون حامض، {c}…', 'banana', 'الموز حلو', 'clock', 'feather', ['lemon']],
+    [3, 'الطائرة تطير في السماء، {c}…', 'train', 'القطار يسير على الأرض', 'flower', 'lantern', ['plane']],
+    [3, 'الجمل يعيش في الصحراء، {c}…', 'fish', 'السمكة تعيش في البحر', 'rocket', 'strawberry', ['camel']]
   ];
+  /* ترتيب الروابط حسب المستوى: من الأسهل إلى الأصعب */
+  var LEVEL_CONN = [2, 1, 0, 3];
 
   var st = null, runner = kit.roundRunner();
 
   function connectorFor(level) {
     var wk = B.storage.data().settings.weeklyConnector | 0; // رابط الأسبوع من ركن الوالدين
     if (wk >= 1 && wk <= 4) return wk - 1;
-    return level >= 5 ? kit.rand(4) : level - 1;
+    return level >= 5 ? kit.rand(4) : LEVEL_CONN[level - 1];
   }
   function nextSentence(ci) {
     if (!st.queues[ci] || !st.queues[ci].length) st.queues[ci] = kit.shuffle(BANK.filter(function (s) { return s[0] === ci; }));
@@ -4507,6 +4638,8 @@ textarea, input { -webkit-user-select: text; user-select: text; }
     var stage = ctx.stage;
     stage.classList.add('g-stage', 'br-stage');
     st.strip = h('div', { class: 'br-strip' });
+    st.sceneArt = h('div', { class: 'br-situ' });
+    stage.appendChild(h('div', { class: 'g-guide', text: B.S.guides.brRead }));
     st.tray = h('div', { class: 'br-options' });
     // مشهد الأسفل: نهر وجسر تُضاف إليه لوحة في كل جولة ويتقدم الأرنب
     st.planks = h('div', { class: 'br-planks' });
@@ -4514,7 +4647,7 @@ textarea, input { -webkit-user-select: text; user-select: text; }
     st.rabbit = h('div', { class: 'br-rabbit', html: art.animal('rabbit') });
     st.scene = h('div', { class: 'br-scene' }, h('div', { class: 'br-bank l' }), h('div', { class: 'br-bank r' }), st.planks, st.rabbit);
     stage.appendChild(st.strip);
-    stage.appendChild(h('div', { class: 'g-main' }, st.tray));
+    stage.appendChild(h('div', { class: 'g-main' }, st.sceneArt, st.tray));
     stage.appendChild(st.scene);
     placeRabbit(false);
   }
@@ -4528,10 +4661,20 @@ textarea, input { -webkit-user-select: text; user-select: text; }
   }
 
   async function round(ctx, level, demo, alive, setCur) {
-    var ci = connectorFor(demo ? 1 : level), s = nextSentence(ci);
+    var ci = demo ? 2 : connectorFor(level), s = nextSentence(ci);
     st.strip.innerHTML = ''; st.tray.innerHTML = '';
-    st.strip.appendChild(h('span', { class: 'br-text', text: s[1] + ' ' }));
-    st.strip.appendChild(h('span', { class: 'br-conn c' + ci, text: CONNECTORS[ci] + '…' }));
+    // الجملة: الرابط ملوّن ومكبّر في موضعه
+    var parts = s[1].split('{c}');
+    st.strip.appendChild(h('span', { class: 'br-text', text: parts[0] }));
+    st.strip.appendChild(h('span', { class: 'br-conn c' + ci, text: CONNECTORS[ci] }));
+    st.strip.appendChild(h('span', { class: 'br-text br-tail', text: parts[1] }));
+    // المشهد: من هو؟ وما حاله؟
+    st.sceneArt.innerHTML = '';
+    (s[6] || []).forEach(function (k, i) {
+      var pc = h('span', { class: 'br-situ-pic', html: B.pics.draw(k) });
+      st.sceneArt.appendChild(pc);
+      UI.anim(pc, [{ opacity: 0, transform: 'scale(.5)' }, { opacity: 1, transform: 'none' }], { dur: 450, delay: i * 150, easing: UI.SPRING, fill: 'backwards' });
+    });
     UI.anim(st.strip, [{ opacity: 0, transform: 'translateY(-16px)' }, { opacity: 1, transform: 'none' }], { dur: 450, fill: 'backwards' });
     if (B.audio) B.audio.play('card');
     await ctx.sleep(600);
@@ -4564,7 +4707,7 @@ textarea, input { -webkit-user-select: text; user-select: text; }
     st.answer = null;
     btns.forEach(function (x, i) { if (i !== correct) x.classList.add('faded'); });
     // الجملة تكتمل أمام الوالد
-    st.strip.lastChild.textContent = CONNECTORS[ci] + ' ' + s[3] + '.';
+    st.strip.lastChild.textContent = parts[1].replace('…', '') + ' ' + s[3] + '.';
     await ctx.sleep(500);
     if (!alive()) return;
     if (!demo) {
@@ -4588,7 +4731,7 @@ textarea, input { -webkit-user-select: text; user-select: text; }
     mount: function (ctx) { st = { ctx: ctx, queues: {}, built: 0 }; build(ctx); },
     demo: function (ctx) { return runner.run(function (alive, setCur) { return round(ctx, 1, true, alive, setCur); }); },
     playRound: function (ctx, level) { return runner.run(function (alive, setCur) { return round(ctx, level, false, alive, setCur); }); },
-    cancelRound: function () { runner.cancel(); if (st) { st.strip.innerHTML = ''; st.tray.innerHTML = ''; } },
+    cancelRound: function () { runner.cancel(); if (st) { st.strip.innerHTML = ''; st.tray.innerHTML = ''; st.sceneArt.innerHTML = ''; } },
     outro: function (ctx) { return kit.dusk(ctx); },
     endArt: function () { return kit.endScene('rabbit'); },
     destroy: function () { runner.stop(); st = null; },
@@ -5256,6 +5399,164 @@ textarea, input { -webkit-user-select: text; user-select: text; }
     _fit: fit,
     _solveStep: function () { return !!(st && st.solve && st.solve()); }
   };
+})();
+
+</script>
+<script>
+/* ثلاث ألعاب بسيطة جداً لابن الرابعة، كلها «انظري واختاري» بلا قراءة ولا شرح:
+   • «لعبة الظلال»: ظلّ أسود لشيء، وتختار صاحب الظل من الصور الملوّنة.
+   • «أين الأكثر؟»: طبقان من الفاكهة، وتختار الطبق الذي فيه أكثر (تحكم بالنظر: كثير/قليل).
+   • «أين المختلف؟»: أربع صور، ثلاث متشابهة وواحدة مختلفة، وتختار المختلفة.
+   كلها تستعمل جولة الاختيار المشتركة (kit.choice) بسلّم المساعدة نفسه. */
+(function () {
+  'use strict';
+  var B = (window.Bustan = window.Bustan || {});
+  var UI = B.UI, h = UI.h, art = B.art, kit = B.kit;
+
+  var GROUPS = {
+    animals: ['duck', 'bear', 'cat', 'rabbit', 'frog', 'lamb', 'owl', 'bird', 'turtle', 'whale', 'fish', 'bee', 'butterfly'],
+    fruits: ['apple', 'strawberry', 'lemon', 'banana', 'grapes', 'pomegranate', 'carrot', 'pumpkin'],
+    things: ['house', 'car', 'rocket', 'plane', 'key', 'clock', 'ball', 'balloon', 'tree', 'flower', 'crown', 'book', 'tent', 'train', 'lantern', 'umbrella']
+  };
+  var GNAMES = Object.keys(GROUPS);
+  function fromOther(g) { var o = kit.pick(GNAMES.filter(function (x) { return x !== g; })); return kit.pick(GROUPS[o]); }
+
+  /* مصنع لعبة صغيرة: opts.round(ctx, st, level, demo, alive, setCur) → {errors} */
+  function mini(id, cls, sleeper, roundFn) {
+    var st = null, runner = kit.roundRunner();
+    function clear() { if (st) { st.top.innerHTML = ''; st.tray.innerHTML = ''; st.answer = null; st.ctx.stage.querySelectorAll('.kit-hand').forEach(function (x) { x.remove(); }); } }
+    B.games[id] = {
+      id: id,
+      mount: function (ctx) {
+        st = { ctx: ctx, answer: null, last: '' };
+        ctx.stage.classList.add('g-stage', 'mg-stage', cls);
+        st.top = h('div', { class: 'mg-top' });
+        st.tray = h('div', { class: 'g-tray mg-tray' });
+        ctx.stage.appendChild(h('div', { class: 'g-main' }, st.top));
+        ctx.stage.appendChild(st.tray);
+      },
+      demo: function (ctx) { return runner.run(function (alive, setCur) { return roundFn(ctx, st, 1, true, alive, setCur); }); },
+      playRound: function (ctx, level) { return runner.run(function (alive, setCur) { return roundFn(ctx, st, level, false, alive, setCur); }); },
+      cancelRound: function () { runner.cancel(); clear(); },
+      outro: function (ctx) { return kit.dusk(ctx); },
+      endArt: function () { return kit.endScene(sleeper); },
+      destroy: function () { runner.stop(); st = null; },
+      _solveStep: function () { if (st && st.answer) { st.answer.click(); return true; } return false; }
+    };
+  }
+
+  function addBtns(st, htmls, cls) {
+    st.tray.innerHTML = '';
+    return htmls.map(function (html, i) {
+      var b = h('button', { class: 'g-choice ' + (cls || 'pic'), type: 'button', html: html });
+      st.tray.appendChild(b);
+      UI.anim(b, [{ opacity: 0, transform: 'translateY(30px) scale(.8)' }, { opacity: 1, transform: 'none' }], { dur: 400, delay: i * 90, easing: UI.SPRING, fill: 'backwards' });
+      return b;
+    });
+  }
+  async function ask(ctx, st, btns, correct, demo, alive, setCur) {
+    st.answer = btns[correct];
+    var ch = kit.choice(ctx, ctx.stage, btns, correct, { demo: demo });
+    setCur(ch);
+    var res = await ch.promise;
+    st.answer = null;
+    if (!alive() || res.cancelled) return null;
+    btns.forEach(function (b, i) { if (i !== correct) b.classList.add('faded'); });
+    return res;
+  }
+  async function cheer(ctx, el) {
+    var c = kit.center(el, ctx.stage);
+    UI.burst(ctx.stage, c.x, c.y, { n: 20, spread: 140, dur: 1300 });
+    if (B.audio) B.audio.play('cheer');
+    await ctx.sleep(1400);
+  }
+
+  /* ═════════ لعبة الظلال ═════════ */
+  mini('shadows', 'sh-stage', 'cat', async function (ctx, st, level, demo, alive, setCur) {
+    var n = level === 1 ? 2 : level <= 3 ? 3 : 4, same = level >= 3;
+    var g = kit.pick(GNAMES), target;
+    do { target = kit.pick(GROUPS[g]); } while (target === st.last);
+    st.last = target;
+    var opts = [target];
+    while (opts.length < n) { var d = same ? kit.pick(GROUPS[g]) : fromOther(g); if (opts.indexOf(d) < 0) opts.push(d); }
+    opts = kit.shuffle(opts);
+    st.top.innerHTML = '';
+    var sh = h('div', { class: 'sh-card' }, h('div', { class: 'sh-pic is-shadow', html: B.pics.draw(target) }));
+    st.top.appendChild(sh);
+    UI.anim(sh, [{ opacity: 0, transform: 'scale(.6)' }, { opacity: 1, transform: 'none' }], { dur: 480, easing: UI.SPRING, fill: 'backwards' });
+    if (B.audio) B.audio.play('card');
+    await ctx.sleep(600); if (!alive()) return;
+    var btns = addBtns(st, opts.map(function (k) { return B.pics.draw(k); }));
+    var res = await ask(ctx, st, btns, opts.indexOf(target), demo, alive, setCur);
+    if (!res) return;
+    // الظل يكشف عن صاحبه
+    sh.firstChild.classList.remove('is-shadow');
+    UI.anim(sh, [{ transform: 'scale(1)' }, { transform: 'scale(1.12)' }, { transform: 'scale(1)' }], { dur: 500, easing: UI.SPRING, fill: 'none' });
+    await cheer(ctx, sh); if (!alive()) return;
+    return { errors: demo ? 0 : res.errors };
+  });
+
+  /* ═════════ أين الأكثر؟ ═════════ */
+  function morePair(level) {
+    var a, b;
+    if (level === 1) { a = 1 + kit.rand(2); b = 5 + kit.rand(3); }
+    else if (level === 2) { a = 1 + kit.rand(4); b = a + 3 + kit.rand(2); }
+    else if (level === 3) { a = 2 + kit.rand(5); b = a + 2; }
+    else if (level === 4) { a = 3 + kit.rand(5); b = a + 1 + kit.rand(2); }
+    else { a = 4 + kit.rand(6); b = a + 1; }
+    return [a, Math.min(b, 12)];
+  }
+  function plate(fruit, n) {
+    var cols = n <= 4 ? 2 : n <= 9 ? 3 : 4, out = '<span class="mo-plate" style="--c:' + cols + '">';
+    for (var i = 0; i < n; i++) out += '<span class="mo-item">' + B.pics.draw(fruit) + '</span>';
+    return out + '</span>';
+  }
+  mini('more', 'mo-stage', 'bear', async function (ctx, st, level, demo, alive, setCur) {
+    var p = morePair(level), fruit = kit.pick(GROUPS.fruits.slice(0, 6));
+    var bigFirst = Math.random() < 0.5, counts = bigFirst ? [p[1], p[0]] : [p[0], p[1]];
+    st.top.innerHTML = '';
+    // الدب الجائع يريد الطبق الأكثر
+    var bear = h('div', { class: 'mo-bear', html: art.animal('bear') });
+    st.top.appendChild(bear);
+    UI.anim(bear, [{ transform: 'translateY(20px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { dur: 400, fill: 'backwards' });
+    await ctx.sleep(350); if (!alive()) return;
+    var btns = addBtns(st, counts.map(function (n) { return plate(fruit, n); }), 'mo-btn');
+    var res = await ask(ctx, st, btns, bigFirst ? 0 : 1, demo, alive, setCur);
+    if (!res) return;
+    UI.anim(bear, [{ transform: 'translateY(0)' }, { transform: 'translateY(-20px) rotate(-6deg)' }, { transform: 'translateY(0)' }, { transform: 'translateY(-12px) rotate(6deg)' }, { transform: 'translateY(0)' }], { dur: 900, fill: 'none' });
+    await cheer(ctx, btns[bigFirst ? 0 : 1]); if (!alive()) return;
+    return { errors: demo ? 0 : res.errors };
+  });
+
+  /* ═════════ أين المختلف؟ ═════════ */
+  function symHtml(shape, color) { return art.symbol({ shape: shape, color: color }); }
+  mini('odd', 'od-stage', 'owl', async function (ctx, st, level, demo, alive, setCur) {
+    var htmls, same, diff, g = kit.pick(GNAMES);
+    if (level <= 2) {                                   // ثلاث صور متطابقة وواحدة مختلفة
+      same = kit.pick(GROUPS[g]);
+      do { diff = level === 1 ? fromOther(g) : kit.pick(GROUPS[g]); } while (diff === same);
+      htmls = [B.pics.draw(same), B.pics.draw(same), B.pics.draw(same), B.pics.draw(diff)];
+    } else if (level <= 4) {                            // رموز: يختلف اللون ثم يختلف الشكل
+      var sh = kit.shuffle(art.SHAPES), co = kit.shuffle(art.COLOR_KEYS);
+      var a = symHtml(sh[0], co[0]), d = level === 3 ? symHtml(sh[0], co[1]) : symHtml(sh[1], co[0]);
+      htmls = [a, a, a, d];
+    } else {                                            // فئات: ثلاثة من نوع وواحد من نوع آخر
+      var three = kit.shuffle(GROUPS[g]).slice(0, 3);
+      htmls = three.map(function (k) { return B.pics.draw(k); }).concat([B.pics.draw(fromOther(g))]);
+    }
+    var order = kit.shuffle([0, 1, 2, 3]);
+    st.top.innerHTML = '';
+    st.tray.classList.add('od-grid');
+    var btns = addBtns(st, order.map(function (i) { return htmls[i]; }));
+    if (B.audio) B.audio.play('card');
+    var correct = order.indexOf(3);
+    var res = await ask(ctx, st, btns, correct, demo, alive, setCur);
+    if (!res) return;
+    await cheer(ctx, btns[correct]); if (!alive()) return;
+    return { errors: demo ? 0 : res.errors };
+  });
+
+  B.games.more._pair = morePair;
 })();
 
 </script>
