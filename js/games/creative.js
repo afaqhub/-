@@ -354,8 +354,7 @@
         colorBtns.forEach(function (b) { b.classList.toggle('selected', !dr.eraser && b.__c === dr.color); });
         eraseBtn.classList.toggle('selected', dr.eraser);
         mixBtn.classList.toggle('selected', dr.mixing);
-        sizeBtn.firstChild.style.width = sizeBtn.firstChild.style.height = [14, 26, 44][dr.size] + 'px';
-        sizeBtn.firstChild.style.background = dr.eraser ? '#C9D8F2' : dr.color;
+        sizeBtn.querySelectorAll('circle').forEach(function (c, i) { c.setAttribute('fill', i === dr.size ? '#8E5CF0' : '#C9D8F2'); });
       }
       DCOLS.forEach(function (c) {
         var b = h('button', { class: 'g-choice cl-color', type: 'button' }, h('span', { class: 'ws-dot', style: { background: c } }));
@@ -373,16 +372,19 @@
         });
         colorBtns.push(b); tray.appendChild(b);
       });
+      function tool(cls, svgStr, label, fn) {
+        var b = h('button', { class: 'g-choice dr-tool ' + cls, type: 'button', 'aria-label': label, html: svgStr }, h('small', { text: label }));
+        UI.bindPress(b, fn); return b;
+      }
       var mixDot = h('span', { class: 'dr-mixdot' });
-      var mixBtn = h('button', { class: 'g-choice dr-mix', type: 'button', 'aria-label': B.S.create.mix, html: art.svg('0 0 100 100', '<path d="M12 44H88Q86 84 50 86Q14 84 12 44Z" fill="#DDA86C" stroke="#8A5A33" stroke-width="5" stroke-linejoin="round"/><ellipse cx="50" cy="44" rx="38" ry="9" fill="#FAFCFF" stroke="#8A5A33" stroke-width="5"/><path d="M30 20L40 40M62 14L56 38" stroke="#8A5A33" stroke-width="5" stroke-linecap="round"/>') }, mixDot);
-      UI.bindPress(mixBtn, function () { dr.mixing = !dr.mixing; dr.mixSel = null; refresh(); if (B.audio) B.audio.play('pick'); });
-      var sizeBtn = h('button', { class: 'g-choice dr-size', type: 'button', 'aria-label': B.S.create.size }, h('span', { class: 'ws-dot' }));
-      UI.bindPress(sizeBtn, function () { dr.size = (dr.size + 1) % 3; refresh(); if (B.audio) B.audio.play('pick'); });
-      var eraseBtn = h('button', { class: 'g-choice dr-erase', type: 'button', 'aria-label': B.S.create.erase, html: art.svg('0 0 100 100', '<path d="M18 60L52 20L86 48L56 84H32Z" fill="#F2658E" stroke="#C23C69" stroke-width="5" stroke-linejoin="round"/><path d="M30 66L60 36" stroke="#fff" stroke-width="5"/>') });
-      UI.bindPress(eraseBtn, function () { dr.eraser = !dr.eraser; refresh(); });
-      var broom = h('button', { class: 'g-choice ws-broom', type: 'button', 'aria-label': B.S.create.clear, html: art.svg('0 0 100 100', '<path d="M62 8L44 52" stroke="#8A5A33" stroke-width="9" stroke-linecap="round"/><path d="M26 50L62 60L56 92Q36 96 16 84Z" fill="#FFD34E" stroke="#E2A21B" stroke-width="4" stroke-linejoin="round"/>') });
-      UI.bindPress(broom, function () { var r = wrap.getBoundingClientRect(); g.fillStyle = '#FFFFFF'; g.fillRect(0, 0, r.width, r.height); if (B.audio) B.audio.play('sweep'); });
+      var mixBtn = tool('dr-mix', art.toolMix(), B.S.create.tMix, function () { dr.mixing = !dr.mixing; dr.mixSel = null; refresh(); if (B.audio) B.audio.play('pick'); });
+      mixBtn.appendChild(mixDot);
+      var sizeBtn = tool('dr-size', art.toolSize(), B.S.create.tSize, function () { dr.size = (dr.size + 1) % 3; refresh(); if (B.audio) B.audio.play('pick'); });
+      var eraseBtn = tool('dr-erase', art.toolErase(), B.S.create.tErase, function () { dr.eraser = !dr.eraser; refresh(); });
+      var broom = tool('dr-broom', art.toolClear(), B.S.create.tClear, function () { var r = wrap.getBoundingClientRect(); g.fillStyle = '#FFFFFF'; g.fillRect(0, 0, r.width, r.height); if (B.audio) B.audio.play('sweep'); });
       [mixBtn, sizeBtn, eraseBtn, broom].forEach(function (b) { tray.appendChild(b); });
+      // فاصل واضح بين الألوان والأدوات
+      tray.insertBefore(h('span', { class: 'dr-sep' }), mixBtn);
       requestAnimationFrame(function () { fitCanvas(); g.fillStyle = '#FFFFFF'; g.fillRect(0, 0, canvas.width, canvas.height); refresh(); });
       dr.onResize = function () { if (!drawing) fitCanvas(); };
       window.addEventListener('resize', dr.onResize);

@@ -49,7 +49,13 @@
         h('span', { class: 'zone-badge', html: art.zoneBadge(zoneId) }),
         h('h2', { class: 'zone-name', text: S.zones[zoneId] })
       ),
-      h('div', { class: 'tiles' }, items.map(function (it) { return tile(it, locked && zoneId === 'solo'); }))
+      zoneId === 'solo'
+        ? h('div', { class: 'groups' }, ['watch', 'num', 'move', 'know'].map(function (cat) {
+            return h('div', { class: 'group' },
+              h('div', { class: 'group-label', text: S.cats[cat] }),
+              h('div', { class: 'tiles' }, items.filter(function (c) { return c.cat === cat; }).map(function (it) { return tile(it, locked); })));
+          }))
+        : h('div', { class: 'tiles' }, items.map(function (it) { return tile(it, locked && zoneId === 'solo'); }))
     );
     if (locked && zoneId === 'solo') {
       // شخصية نائمة تغطي المنطقة حتى الغد
@@ -59,6 +65,49 @@
       ));
     }
     return z;
+  }
+
+  /* بطاقة «بستاني» المستقلة: معاينة مما زُرع + عدده. وبجانبها «فاجئني» تختار لعبة عشوائية. */
+  function gardenRow(locked) {
+    var H = B.S.home, items = B.garden.items(), recent = items.slice(-4).reverse();
+    var preview = h('span', { class: 'gb-prev' }, recent.length
+      ? recent.map(function (k) { return h('span', { class: 'gb-item', html: B.pics.draw(k) }); })
+      : [h('span', { class: 'gb-item gb-seed', html: B.pics.draw('leaf') })]);
+    var gb = h('button', { class: 'gd-banner', type: 'button', 'data-game': 'garden', 'aria-label': H.garden },
+      h('span', { class: 'gb-title' }, h('b', { text: H.garden }), h('small', { text: H.gardenNote })),
+      preview,
+      h('span', { class: 'gb-count', text: UI.num(items.length) }));
+    UI.bindPress(gb, function () { var r = gb.getBoundingClientRect(); B.session.start('garden', { x: r.left + r.width / 2, y: r.top + r.height / 2 }); });
+    var sb = h('button', { class: 'surprise-btn', type: 'button', 'aria-label': H.surprise, html: art.dice() }, h('small', { text: H.surprise }));
+    UI.bindPress(sb, function () {
+      var pool = B.catalog.filter(function (c) { return !c.free && B.games[c.id] && !(locked && c.zone === 'solo'); });
+      var it = kit_pick(pool); if (!it) return;
+      var r = sb.getBoundingClientRect(); B.session.start(it.id, { x: r.left + r.width / 2, y: r.top + r.height / 2 });
+    });
+    return h('div', { class: 'gd-row' }, gb, sb);
+  }
+  function kit_pick(a) { return a.length ? a[Math.floor(Math.random() * a.length)] : null; }
+
+  /* أدوات الصفحة: ملء الشاشة، والوضع الليلي/النهاري (للكبار؛ ليست أزرار لعب) */
+  function applyNight(on) { document.documentElement.classList.toggle('night', !!on); }
+  B.applyNight = applyNight;
+  function tools() {
+    var H = B.S.home, set = B.storage.data().settings;
+    var box = h('div', { class: 'hdr-tools' });
+    var night = h('div', { class: 'hdr-tool', role: 'button', tabindex: '0' });
+    function paintNight() { night.innerHTML = set.night ? art.sunBtn() : art.moonBtn(); night.setAttribute('aria-label', set.night ? H.day : H.night); }
+    night.addEventListener('click', function () { set.night = !set.night; B.storage.save(); applyNight(set.night); paintNight(); if (B.audio) B.audio.play('pick'); });
+    paintNight(); box.appendChild(night);
+    var de = document.documentElement;
+    if (de.requestFullscreen || de.webkitRequestFullscreen) {
+      var fs = h('div', { class: 'hdr-tool', role: 'button', tabindex: '0', 'aria-label': H.full, html: art.full() });
+      fs.addEventListener('click', function () {
+        var on = document.fullscreenElement || document.webkitFullscreenElement;
+        try { if (on) (document.exitFullscreen || document.webkitExitFullscreen).call(document); else (de.requestFullscreen || de.webkitRequestFullscreen).call(de); } catch (e) {}
+      });
+      box.appendChild(fs);
+    }
+    return box;
   }
 
   function attachLongPress(btn) {
@@ -96,12 +145,12 @@
       h('div', { class: 'home-hills mid', html: art.sceneTile('mid', vp.W, Math.round(vp.H * 0.3)) })
     );
 
-    var zones = h('main', { class: 'zones scrollable' }, zone('solo', locked), zone('together', false), zone('create', false));
+    var zones = h('main', { class: 'zones scrollable' }, gardenRow(locked), zone('solo', locked), zone('together', false), zone('create', false));
     var fbPill = h('div', { class: 'fb-pill', role: 'button', tabindex: '0', text: B.S.feedback.pill });
     fbPill.addEventListener('click', function () { B.feedback.open(); });
     var dot = h('div', { class: 'adm-dot', role: 'button', tabindex: '0', 'aria-label': B.S.admin.dot, text: '·' });
     dot.addEventListener('click', function () { B.admin.open(); });
-    var el = h('div', { class: 'screen home' }, sky, zones, logo, fbPill, dot);
+    var el = h('div', { class: 'screen home' }, sky, zones, logo, tools(), fbPill, dot);
 
     // ظهور متتابع بحركة زنبركية (بعد الإدراج في الصفحة)
     requestAnimationFrame(function () {

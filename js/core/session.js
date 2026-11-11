@@ -17,23 +17,29 @@
 
   /* فهرس الألعاب: المنطقة وعدد الجولات */
   B.catalog = [
-    { id: 'train', zone: 'solo', rounds: 10 },
-    { id: 'mirror', zone: 'solo', rounds: 10 },
-    { id: 'pattern', zone: 'solo', rounds: 10 },
-    { id: 'fruits', zone: 'solo', rounds: 10 },
-    { id: 'letters', zone: 'solo', rounds: 10 },
-    { id: 'memory', zone: 'solo', rounds: 10 },
-    { id: 'shadows', zone: 'solo', rounds: 10 },
-    { id: 'more', zone: 'solo', rounds: 10 },
-    { id: 'odd', zone: 'solo', rounds: 10 },
-    { id: 'tracing', zone: 'solo', rounds: 10 },
+    // «وحدي» مجمّعة بمهارتها (cat): تظهر في الرئيسية تحت عناوين صغيرة
+    { id: 'memory', zone: 'solo', rounds: 10, cat: 'watch' },
+    { id: 'shadows', zone: 'solo', rounds: 10, cat: 'watch' },
+    { id: 'odd', zone: 'solo', rounds: 10, cat: 'watch' },
+    { id: 'hide', zone: 'solo', rounds: 10, cat: 'watch' },
+    { id: 'vanish', zone: 'solo', rounds: 10, cat: 'watch' },
+    { id: 'fruits', zone: 'solo', rounds: 10, cat: 'num' },
+    { id: 'more', zone: 'solo', rounds: 10, cat: 'num' },
+    { id: 'order', zone: 'solo', rounds: 10, cat: 'num' },
+    { id: 'mirror', zone: 'solo', rounds: 10, cat: 'num' },
+    { id: 'pattern', zone: 'solo', rounds: 10, cat: 'num' },
+    { id: 'letters', zone: 'solo', rounds: 10, cat: 'move' },
+    { id: 'tracing', zone: 'solo', rounds: 10, cat: 'move' },
+    { id: 'train', zone: 'solo', rounds: 10, cat: 'move' },
+    { id: 'feed', zone: 'solo', rounds: 10, cat: 'know' },
+    { id: 'habitat', zone: 'solo', rounds: 10, cat: 'know' },
     { id: 'firstsound', zone: 'together', rounds: 8 },
     { id: 'bridge', zone: 'together', rounds: 8 },
     // القسم الإبداعي: لعب حرّ بلا جولات ولا مصابيح
     { id: 'workshop', zone: 'create', free: true },
     { id: 'coloring', zone: 'create', free: true },
     { id: 'drawing', zone: 'create', free: true },
-    { id: 'garden', zone: 'create', free: true }
+    { id: 'garden', zone: 'garden', free: true }
   ];
   B.free = B.free || {};
   B.games = B.games || {};
@@ -47,6 +53,7 @@
 
   /* لعب حرّ: مسرح وزر الرئيسية فقط */
   function startFree(it, origin) {
+    if (it.id === 'garden') { /* يستعمل المحرك نفسه */ }
     var mod = B.free[it.id];
     if (!mod || active) return;
     if (B.audio) B.audio.play('whoosh');

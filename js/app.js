@@ -17,6 +17,7 @@
   }
 
   B.stats.open();
+  if (B.storage.data().settings.night) B.applyNight(true);
 
   // نبدأ بعد تحميل الخط كي لا يتبدل شكل النص أمام الطفلة
   function boot() { B.home.show(); }

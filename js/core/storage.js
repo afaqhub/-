@@ -6,7 +6,7 @@
 
   var KEY = 'bustan.progress';
   var SCHEMA = 3;
-  var GAME_IDS = ['train', 'mirror', 'pattern', 'fruits', 'letters', 'memory', 'shadows', 'more', 'odd', 'tracing', 'firstsound', 'bridge'];
+  var GAME_IDS = ['train', 'mirror', 'pattern', 'fruits', 'letters', 'memory', 'shadows', 'more', 'odd', 'tracing', 'feed', 'hide', 'vanish', 'order', 'habitat', 'firstsound', 'bridge'];
   var MAX_DAYS = 60;
 
   var data = null;
@@ -22,7 +22,7 @@
     return {
       schemaVersion: SCHEMA,
       created: Date.now(),
-      settings: { soundOn: true, soloLimit: 2, weeklyConnector: 0 },
+      settings: { soundOn: true, soloLimit: 2, weeklyConnector: 0, night: false },
       games: games,
       days: {},          // 'YYYY-MM-DD' -> { sessions:{id:n}, rounds:{id:n} }
       lock: { soloOpenDate: '' }, // تاريخ اليوم الذي فتح فيه الوالد «وحدي» رغم الحد

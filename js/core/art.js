@@ -278,6 +278,32 @@
       '<path d="M28 52L44 67L73 36" fill="none" stroke="#fff" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>', 'check-svg');
   }
 
+  function moonIcon() {
+    return svg('0 0 48 48', '<path d="M30 6A19 19 0 1 0 42 32A15 15 0 0 1 30 6Z" fill="currentColor"/>', 'icon-svg');
+  }
+  function sunIcon() {
+    return svg('0 0 48 48', '<circle cx="24" cy="24" r="9" fill="currentColor"/><path d="M24 4v6M24 38v6M4 24h6M38 24h6M10 10l4 4M34 34l4 4M10 38l4-4M34 14l4-4" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>', 'icon-svg');
+  }
+  function fullIcon() {
+    return svg('0 0 48 48', '<path d="M6 18V6h12M30 6h12v12M42 30v12H30M18 42H6V30" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>', 'icon-svg');
+  }
+  function diceIcon() {
+    return svg('0 0 48 48', '<rect x="6" y="6" width="36" height="36" rx="9" fill="currentColor"/><circle cx="17" cy="17" r="3.4" fill="#fff"/><circle cx="31" cy="17" r="3.4" fill="#fff"/><circle cx="24" cy="24" r="3.4" fill="#fff"/><circle cx="17" cy="31" r="3.4" fill="#fff"/><circle cx="31" cy="31" r="3.4" fill="#fff"/>', 'icon-svg');
+  }
+  /* أدوات الرسم: أيقونات واضحة */
+  function mixIcon() { // دائرتان متداخلتان تتولد منهما ثالثة
+    return svg('0 0 100 100', '<circle cx="36" cy="46" r="26" fill="#F0485A" opacity=".85"/><circle cx="64" cy="46" r="26" fill="#3D8BFD" opacity=".85"/><path d="M50 26a26 26 0 0 1 0 40a26 26 0 0 1 0-40Z" fill="#8E5CF0"/><path d="M30 84H70M60 76l10 8l-10 8" stroke="#1F2A5A" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>', 'tool-svg');
+  }
+  function sizeIcon() {
+    return svg('0 0 100 100', '<circle cx="20" cy="54" r="8" fill="#1F2A5A"/><circle cx="46" cy="54" r="14" fill="#1F2A5A"/><circle cx="80" cy="54" r="20" fill="#1F2A5A"/>', 'tool-svg');
+  }
+  function eraserIcon() {
+    return svg('0 0 100 100', '<g transform="rotate(-30 50 50)"><rect x="14" y="30" width="72" height="40" rx="10" fill="#FF9DB3" stroke="#C23C69" stroke-width="5"/><rect x="14" y="30" width="26" height="40" rx="10" fill="#8FD3F4" stroke="#2468D1" stroke-width="5"/></g>', 'tool-svg');
+  }
+  function broomIcon() {
+    return svg('0 0 100 100', '<path d="M62 8L44 52" stroke="#8A5A33" stroke-width="9" stroke-linecap="round"/><path d="M26 50L62 60L56 92Q36 96 16 84Z" fill="#FFD34E" stroke="#E2A21B" stroke-width="4" stroke-linejoin="round"/><path d="M30 64l-4 22M42 66l-2 24M52 68l-1 22" stroke="#E2A21B" stroke-width="3" stroke-linecap="round"/>', 'tool-svg');
+  }
+
   function pauseIcon() {
     return svg('0 0 48 48', '<rect x="13" y="10" width="8" height="28" rx="3" fill="currentColor"/><rect x="27" y="10" width="8" height="28" rx="3" fill="currentColor"/>', 'icon-svg');
   }
@@ -509,6 +535,27 @@
       '<rect x="66" y="52" width="4" height="22" rx="2" fill="#1C8F5C"/><circle cx="68" cy="46" r="10" fill="#F2658E"/><circle cx="68" cy="46" r="4" fill="#FFD34E"/>' +
       '<g transform="translate(38 54) scale(.26)">' + ANIMALS.rabbit(false) + '</g>';
   };
+  GAME_ICONS.feed = function () {
+    return '<g transform="translate(14 8) scale(.62)">' + ANIMALS.rabbit(false) + '</g>' +
+      '<path d="M62 60Q92 54 82 90Q60 96 52 70Z" fill="#FF8A3D" stroke="#D96A1F" stroke-width="3" stroke-linejoin="round"/><path d="M62 58Q58 44 50 42M66 58Q70 44 80 44" stroke="#2DBE7E" stroke-width="5" fill="none" stroke-linecap="round"/>';
+  };
+  GAME_ICONS.hide = function () {
+    return '<g transform="translate(34 4) scale(.5)">' + ANIMALS.cat(false) + '</g>' +
+      '<circle cx="30" cy="70" r="22" fill="#2DBE7E"/><circle cx="56" cy="62" r="26" fill="#3DD08A"/><circle cx="78" cy="72" r="19" fill="#2DBE7E"/><rect x="8" y="80" width="86" height="12" rx="6" fill="#1C8F5C"/>';
+  };
+  GAME_ICONS.vanish = function () {
+    return '<circle cx="24" cy="40" r="16" fill="#F0485A"/><circle cx="62" cy="40" r="16" fill="#FFC83D"/>' +
+      '<circle cx="42" cy="76" r="16" fill="none" stroke="#8FA0D8" stroke-width="4" stroke-dasharray="5 6"/><path d="M82 70q8-10 0-20M88 78q12-14 0-30" stroke="#8E5CF0" stroke-width="4" fill="none" stroke-linecap="round" opacity=".6"/>';
+  };
+  GAME_ICONS.order = function () {
+    return '<circle cx="20" cy="76" r="9" fill="#3D8BFD"/><circle cx="42" cy="70" r="14" fill="#3D8BFD"/><circle cx="72" cy="60" r="22" fill="#3D8BFD"/>' +
+      '<path d="M14 40H86M72 32l14 8l-14 8" stroke="#1F2A5A" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>';
+  };
+  GAME_ICONS.habitat = function () {
+    return '<rect x="6" y="8" width="42" height="42" rx="10" fill="#5CC8FF"/><path d="M6 30Q16 24 27 30T48 30V50H6Z" fill="#3D8BFD"/>' +
+      '<rect x="52" y="8" width="42" height="42" rx="10" fill="#BFEAD0"/><circle cx="66" cy="28" r="12" fill="#2DBE7E"/><rect x="63" y="34" width="5" height="12" fill="#8A5A33"/>' +
+      '<g transform="translate(22 52) scale(.5)">' + ANIMALS.frog(false) + '</g>';
+  };
   GAME_ICONS.workshop = function () {
     return '<rect x="10" y="50" width="38" height="38" rx="6" fill="#3D8BFD" fill-opacity=".8" stroke="#3D8BFD" stroke-width="4"/>' +
       '<polygon points="50,10 74,50 26,50" fill="#F2658E" fill-opacity=".8" stroke="#F2658E" stroke-width="4" stroke-linejoin="round"/>' +
@@ -567,6 +614,7 @@
     house: house,
     replayIcon: replayIcon,
     pauseIcon: pauseIcon,
+    moonBtn: moonIcon, sunBtn: sunIcon, full: fullIcon, dice: diceIcon, toolMix: mixIcon, toolSize: sizeIcon, toolErase: eraserIcon, toolClear: broomIcon,
     check: check,
     playIcon: playIcon,
     bulb: bulb,

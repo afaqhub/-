@@ -1012,6 +1012,79 @@ textarea, input { -webkit-user-select: text; user-select: text; }
 @media (orientation: portrait) { .zones .zone-solo .tile-name, .zones .tile-name { white-space: normal !important; width: 100%; } }
 @media (orientation: portrait) { .zones { bottom: calc(0px + var(--safe-b)) !important; padding-bottom: 64px; touch-action: pan-y; scrollbar-width: none; } .zones::-webkit-scrollbar { display: none; } }
 
+/* ═════════ بستاني: بطاقة مستقلة + فاجئني ═════════ */
+.gd-row { flex: 1 1 100%; display: flex; gap: 10px; align-items: stretch; order: -1; }
+.gd-banner { flex: 1 1 0; min-width: 0; min-height: var(--tap); display: flex; align-items: center; gap: 10px; padding: 8px 14px; border-radius: 28px; position: relative;
+  background: linear-gradient(135deg, #FFE98A 0%, #FFC83D 100%); box-shadow: 0 7px 0 #E2A21B, 0 14px 20px rgba(150, 100, 0, .25); color: var(--night); transition: transform .1s, box-shadow .1s; }
+.gd-banner.pressed, .gd-banner:active { transform: translateY(5px); box-shadow: 0 2px 0 #E2A21B; }
+.gb-title { display: flex; flex-direction: column; text-align: start; line-height: 1.15; }
+.gb-title b { font-size: 24px; font-weight: 800; } .gb-title small { font-size: 12px; font-weight: 700; opacity: .75; }
+.gb-prev { flex: 1; display: flex; gap: 2px; justify-content: center; align-items: flex-end; min-width: 0; }
+.gb-item { width: 34px; flex: none; } .gb-item svg { width: 100%; height: auto; } .gb-seed { opacity: .55; }
+.gb-count { min-width: 40px; height: 40px; border-radius: 20px; padding: 0 10px; background: #fff; display: grid; place-items: center; font-size: 22px; font-weight: 800; }
+.surprise-btn { flex: none; width: calc(var(--tap) + 8px); min-height: var(--tap); border-radius: 28px; display: grid; place-items: center; align-content: center; gap: 0; color: #fff; padding: 6px;
+  background: linear-gradient(135deg, #B79BFF, #8E5CF0); box-shadow: 0 7px 0 #6B3CC9, 0 14px 20px rgba(107, 60, 201, .25); }
+.surprise-btn svg { width: 36px; height: 36px; } .surprise-btn small { font-size: 12px; font-weight: 800; }
+.surprise-btn.pressed, .surprise-btn:active { transform: translateY(5px); box-shadow: 0 2px 0 #6B3CC9; }
+@media (orientation: landscape) { .gd-row { grid-column: 2; grid-row: 1; } .zones .zone-together { grid-row: 2; } .zones .zone-create { grid-row: 3; } .zones { grid-template-rows: auto auto auto; } .zones .zone-solo { grid-row: 1 / span 3; } .gb-title small, .gb-prev { display: none; } .gd-banner { padding: 6px 12px; } }
+
+/* مجموعات «وحدي» */
+.groups { display: flex; flex-direction: column; gap: 6px; }
+.group-label { display: inline-block; padding: 1px 12px; margin: 2px 0 4px; border-radius: 999px; background: rgba(255, 255, 255, .28); color: #fff; font-size: 13px; font-weight: 800; text-shadow: 0 1px 0 var(--zd); }
+.group .tiles { flex-wrap: wrap; row-gap: 8px; justify-content: flex-start; }
+.group .tile { flex: 0 0 calc((100% - 30px) / 4); }
+@media (orientation: landscape) { .group .tile { flex: 0 0 calc((100% - 40px) / 5); } .group-label { margin: 0; font-size: 12px; } .groups { gap: 2px; } }
+
+/* أدوات الصفحة */
+.hdr-tools { position: absolute; z-index: 5; top: calc(14px + var(--safe-t)); left: calc(12px + var(--safe-l)); display: flex; gap: 8px; }
+.hdr-tool { width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; background: rgba(255, 255, 255, .85); color: var(--night); box-shadow: 0 4px 0 var(--lilac-deep); cursor: pointer; }
+.hdr-tool svg { width: 26px; height: 26px; } .hdr-tool:active { transform: translateY(3px); }
+/* الوضع الليلي: غطاء داكن خفيف الكلفة */
+html.night::after { content: ''; position: fixed; inset: 0; z-index: 900; pointer-events: none; background: rgba(22, 30, 90, .52); mix-blend-mode: multiply; }
+
+/* أدوات الرسم: أيقونة + كلمة */
+.dr-tool { flex-direction: column; gap: 0; padding: 6px 4px 4px; display: grid; grid-template-rows: 1fr auto; place-items: center; }
+.dr-tool .tool-svg { width: 62%; height: auto; } .dr-tool small { font-size: 12px; font-weight: 800; color: var(--night-soft); line-height: 1; }
+.dr-sep { flex: none; width: 3px; align-self: stretch; margin: 8px 6px; border-radius: 2px; background: #C9B8FF; }
+.dr-tool.selected { box-shadow: 0 0 0 5px var(--sun), 0 6px 0 var(--sun-deep); }
+.dr-mixdot { position: absolute; right: 6%; top: 6%; width: 30%; aspect-ratio: 1; border-radius: 50%; border: 3px solid #fff; display: none; }
+.dr-mixdot.on { display: block; }
+
+/* ═════════ الألعاب الخمس الجديدة ═════════ */
+.fd-stage { background: linear-gradient(180deg, #FFF3C9 0%, #D9F7D6 100%); --deep: #0B8269; }
+.fd-animal { width: clamp(130px, min(40vmin, 28vh), 240px); } .fd-animal svg { width: 100%; height: auto; }
+.fd-fly { position: absolute; z-index: 40; width: 72px; pointer-events: none; } .fd-fly svg { width: 100%; height: auto; }
+.hd-stage { background: linear-gradient(180deg, #CFF3FF 0%, #B9EBB0 100%); --deep: #1C8F5C; }
+.hd-card { width: clamp(90px, 22vmin, 150px); aspect-ratio: 1; border-radius: 26%; background: #FAFCFF; padding: 10%; box-shadow: 0 7px 0 #1C8F5C; } .hd-card svg { width: 100%; height: 100%; }
+.hd-stage .g-main { display: flex; }
+.mg-tray.hd-grid { display: grid; grid-template-columns: repeat(3, var(--cs)); justify-content: center; --cs: clamp(var(--tap), min(27vw, 17vh), 150px); gap: 12px; direction: ltr; }
+.hd-btn { background: transparent !important; box-shadow: none !important; padding: 0 !important; overflow: visible; }
+.hd-wrap { position: relative; display: block; width: 100%; height: 100%; } .hd-spot { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; }
+.hd-animal { position: absolute; left: 15%; width: 70%; z-index: 1; } .hd-animal svg { width: 100%; height: auto; }
+.vn-stage { background: linear-gradient(180deg, #E4E0FF 0%, #CFEBFF 100%); --deep: #6B3CC9; }
+.vn-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; max-width: 100%; }
+.vn-item { width: clamp(64px, min(20vw, 14vh), 120px); aspect-ratio: 1; border-radius: 24%; background: #FAFCFF; padding: 8%; box-shadow: 0 5px 0 #9FB3E0; } .vn-item svg { width: 100%; height: 100%; }
+.vn-item.gone { background: rgba(255, 255, 255, .35); box-shadow: inset 0 0 0 4px #8E5CF0; border: 0; } .vn-item.gone svg { opacity: 0; }
+.od2-stage { background: linear-gradient(180deg, #FFE9C7 0%, #E3F6FF 100%); --deep: #C23C69; }
+.od2-stage .mg-top { width: 100%; display: flex; flex-direction: column; gap: 18px; align-items: center; }
+.or-podium { display: flex; flex-direction: row-reverse; align-items: flex-end; gap: 8px; min-height: 40px; }
+.or-slot { width: calc(var(--tap) * var(--s) * 1.3 + 10px); min-height: calc(var(--tap) * var(--s) * 1.3 + 10px); border-radius: 18px; border: 4px dashed #C9B8FF; display: grid; place-items: center; background: rgba(255, 255, 255, .5); }
+.or-pool { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; align-items: flex-end; }
+.or-item { width: calc(var(--tap) * var(--s) * 1.3); height: calc(var(--tap) * var(--s) * 1.3); min-width: var(--tap); min-height: var(--tap); border-radius: 22%; background: #FAFCFF; padding: 8%; box-shadow: 0 6px 0 #C23C69; transition: opacity .2s; }
+.or-item svg { width: 100%; height: 100%; } .or-item.placed { box-shadow: 0 0 0 4px var(--sun); width: 100%; height: 100%; min-width: 0; min-height: 0; padding: 4px; } .or-item:disabled { opacity: 1; }
+.hb-stage { background: linear-gradient(180deg, #E2F7FF 0%, #FFF0C9 100%); --deep: #2468D1; }
+.hb-btn { padding: 4% !important; --cs: clamp(var(--tap), min(30vw, 20vh), 190px); } .hb-scene { width: 100%; height: 100%; border-radius: 16px; }
+@media (max-height: 500px) { .fd-stage, .hb-stage, .hd-stage { flex-direction: row; gap: 14px; } .mg-tray.hd-grid { grid-template-columns: repeat(3, var(--cs)); --cs: clamp(var(--tap), 24vh, 110px); } }
+/* أدوات الرسم: صفّان واضحان بلا تمرير جانبي */
+.dr-tray { flex-wrap: wrap !important; justify-content: center !important; overflow: visible !important; gap: 4px !important; direction: ltr !important; padding-top: 8px; }
+.dr-sep { display: none; }
+@media (max-height: 500px) { .dr-tray { flex-direction: column !important; flex-wrap: wrap !important; max-height: 100%; width: auto; } }
+.or-slot { width: calc(var(--sz) * .7); min-height: calc(var(--sz) * .7); height: calc(var(--sz) * .7); }
+.or-item { width: var(--sz); height: var(--sz); min-width: 0; min-height: 0; }
+.or-item.placed { width: 100%; height: 100%; }
+.gd-banner { overflow: hidden; } .gb-prev { overflow: hidden; flex-wrap: nowrap; } .gb-item { width: 30px; }
+.or-slot { width: calc(var(--sz) * .6); min-height: calc(var(--sz) * .6); height: calc(var(--sz) * .6); } .or-podium { gap: 5px; flex-wrap: nowrap; max-width: 100%; }
+
 </style>
 </head>
 <body>
@@ -1043,6 +1116,11 @@ textarea, input { -webkit-user-select: text; user-select: text; }
       more: 'أين الأكثر؟',
       odd: 'أين المختلف؟',
       tracing: 'ارسم الطريق',
+      feed: 'أطعم الحيوان',
+      hide: 'أين يختبئ؟',
+      vanish: 'من اختفى؟',
+      order: 'رتّب الأحجام',
+      habitat: 'من يعيش هنا؟',
       drawing: 'الرسم الحر',
       garden: 'بستاني',
       workshop: 'ورشة الأشكال',
@@ -1087,8 +1165,10 @@ textarea, input { -webkit-user-select: text; user-select: text; }
       go: 'هيّا نبدأ'
     },
     garden: { count: 'ما زُرع' },
+    cats: { watch: 'ملاحظة وذاكرة', num: 'أرقام وأشكال', move: 'حروف وحركة', know: 'معرفة وتصنيف' },
+    home: { garden: 'بستاني', gardenNote: 'ما زرعتَه بإكمال ألعابك', surprise: 'فاجئني', night: 'الوضع الليلي', day: 'الوضع النهاري', full: 'ملء الشاشة', exitFull: 'إنهاء ملء الشاشة' },
     summary: { title: 'ملخّص', favorite: 'اللعبة الأكثر لعباً', suggest: 'اقتراح للعب الآن', planted: 'ما زُرع في البستان', sessionsAll: 'جلسات مكتملة', none: 'لم يلعب بعد' },
-    create: { color: 'تغيير اللون', clear: 'تنظيف اللوحة', next: 'رسمة أخرى', mix: 'وعاء خلط الألوان', size: 'حجم الفرشاة', erase: 'ممحاة' },
+    create: { tMix: 'خلط', tSize: 'حجم', tErase: 'ممحاة', tClear: 'مسح', color: 'تغيير اللون', clear: 'تنظيف اللوحة', next: 'رسمة أخرى', mix: 'وعاء خلط الألوان', size: 'حجم الفرشاة', erase: 'ممحاة' },
 
     buttons: {
       home: 'الرئيسية',
@@ -1165,7 +1245,7 @@ textarea, input { -webkit-user-select: text; user-select: text; }
 
   var KEY = 'bustan.progress';
   var SCHEMA = 3;
-  var GAME_IDS = ['train', 'mirror', 'pattern', 'fruits', 'letters', 'memory', 'shadows', 'more', 'odd', 'tracing', 'firstsound', 'bridge'];
+  var GAME_IDS = ['train', 'mirror', 'pattern', 'fruits', 'letters', 'memory', 'shadows', 'more', 'odd', 'tracing', 'feed', 'hide', 'vanish', 'order', 'habitat', 'firstsound', 'bridge'];
   var MAX_DAYS = 60;
 
   var data = null;
@@ -1181,7 +1261,7 @@ textarea, input { -webkit-user-select: text; user-select: text; }
     return {
       schemaVersion: SCHEMA,
       created: Date.now(),
-      settings: { soundOn: true, soloLimit: 2, weeklyConnector: 0 },
+      settings: { soundOn: true, soloLimit: 2, weeklyConnector: 0, night: false },
       games: games,
       days: {},          // 'YYYY-MM-DD' -> { sessions:{id:n}, rounds:{id:n} }
       lock: { soloOpenDate: '' }, // تاريخ اليوم الذي فتح فيه الوالد «وحدي» رغم الحد
@@ -1915,6 +1995,32 @@ textarea, input { -webkit-user-select: text; user-select: text; }
       '<path d="M28 52L44 67L73 36" fill="none" stroke="#fff" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>', 'check-svg');
   }
 
+  function moonIcon() {
+    return svg('0 0 48 48', '<path d="M30 6A19 19 0 1 0 42 32A15 15 0 0 1 30 6Z" fill="currentColor"/>', 'icon-svg');
+  }
+  function sunIcon() {
+    return svg('0 0 48 48', '<circle cx="24" cy="24" r="9" fill="currentColor"/><path d="M24 4v6M24 38v6M4 24h6M38 24h6M10 10l4 4M34 34l4 4M10 38l4-4M34 14l4-4" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>', 'icon-svg');
+  }
+  function fullIcon() {
+    return svg('0 0 48 48', '<path d="M6 18V6h12M30 6h12v12M42 30v12H30M18 42H6V30" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>', 'icon-svg');
+  }
+  function diceIcon() {
+    return svg('0 0 48 48', '<rect x="6" y="6" width="36" height="36" rx="9" fill="currentColor"/><circle cx="17" cy="17" r="3.4" fill="#fff"/><circle cx="31" cy="17" r="3.4" fill="#fff"/><circle cx="24" cy="24" r="3.4" fill="#fff"/><circle cx="17" cy="31" r="3.4" fill="#fff"/><circle cx="31" cy="31" r="3.4" fill="#fff"/>', 'icon-svg');
+  }
+  /* أدوات الرسم: أيقونات واضحة */
+  function mixIcon() { // دائرتان متداخلتان تتولد منهما ثالثة
+    return svg('0 0 100 100', '<circle cx="36" cy="46" r="26" fill="#F0485A" opacity=".85"/><circle cx="64" cy="46" r="26" fill="#3D8BFD" opacity=".85"/><path d="M50 26a26 26 0 0 1 0 40a26 26 0 0 1 0-40Z" fill="#8E5CF0"/><path d="M30 84H70M60 76l10 8l-10 8" stroke="#1F2A5A" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>', 'tool-svg');
+  }
+  function sizeIcon() {
+    return svg('0 0 100 100', '<circle cx="20" cy="54" r="8" fill="#1F2A5A"/><circle cx="46" cy="54" r="14" fill="#1F2A5A"/><circle cx="80" cy="54" r="20" fill="#1F2A5A"/>', 'tool-svg');
+  }
+  function eraserIcon() {
+    return svg('0 0 100 100', '<g transform="rotate(-30 50 50)"><rect x="14" y="30" width="72" height="40" rx="10" fill="#FF9DB3" stroke="#C23C69" stroke-width="5"/><rect x="14" y="30" width="26" height="40" rx="10" fill="#8FD3F4" stroke="#2468D1" stroke-width="5"/></g>', 'tool-svg');
+  }
+  function broomIcon() {
+    return svg('0 0 100 100', '<path d="M62 8L44 52" stroke="#8A5A33" stroke-width="9" stroke-linecap="round"/><path d="M26 50L62 60L56 92Q36 96 16 84Z" fill="#FFD34E" stroke="#E2A21B" stroke-width="4" stroke-linejoin="round"/><path d="M30 64l-4 22M42 66l-2 24M52 68l-1 22" stroke="#E2A21B" stroke-width="3" stroke-linecap="round"/>', 'tool-svg');
+  }
+
   function pauseIcon() {
     return svg('0 0 48 48', '<rect x="13" y="10" width="8" height="28" rx="3" fill="currentColor"/><rect x="27" y="10" width="8" height="28" rx="3" fill="currentColor"/>', 'icon-svg');
   }
@@ -2146,6 +2252,27 @@ textarea, input { -webkit-user-select: text; user-select: text; }
       '<rect x="66" y="52" width="4" height="22" rx="2" fill="#1C8F5C"/><circle cx="68" cy="46" r="10" fill="#F2658E"/><circle cx="68" cy="46" r="4" fill="#FFD34E"/>' +
       '<g transform="translate(38 54) scale(.26)">' + ANIMALS.rabbit(false) + '</g>';
   };
+  GAME_ICONS.feed = function () {
+    return '<g transform="translate(14 8) scale(.62)">' + ANIMALS.rabbit(false) + '</g>' +
+      '<path d="M62 60Q92 54 82 90Q60 96 52 70Z" fill="#FF8A3D" stroke="#D96A1F" stroke-width="3" stroke-linejoin="round"/><path d="M62 58Q58 44 50 42M66 58Q70 44 80 44" stroke="#2DBE7E" stroke-width="5" fill="none" stroke-linecap="round"/>';
+  };
+  GAME_ICONS.hide = function () {
+    return '<g transform="translate(34 4) scale(.5)">' + ANIMALS.cat(false) + '</g>' +
+      '<circle cx="30" cy="70" r="22" fill="#2DBE7E"/><circle cx="56" cy="62" r="26" fill="#3DD08A"/><circle cx="78" cy="72" r="19" fill="#2DBE7E"/><rect x="8" y="80" width="86" height="12" rx="6" fill="#1C8F5C"/>';
+  };
+  GAME_ICONS.vanish = function () {
+    return '<circle cx="24" cy="40" r="16" fill="#F0485A"/><circle cx="62" cy="40" r="16" fill="#FFC83D"/>' +
+      '<circle cx="42" cy="76" r="16" fill="none" stroke="#8FA0D8" stroke-width="4" stroke-dasharray="5 6"/><path d="M82 70q8-10 0-20M88 78q12-14 0-30" stroke="#8E5CF0" stroke-width="4" fill="none" stroke-linecap="round" opacity=".6"/>';
+  };
+  GAME_ICONS.order = function () {
+    return '<circle cx="20" cy="76" r="9" fill="#3D8BFD"/><circle cx="42" cy="70" r="14" fill="#3D8BFD"/><circle cx="72" cy="60" r="22" fill="#3D8BFD"/>' +
+      '<path d="M14 40H86M72 32l14 8l-14 8" stroke="#1F2A5A" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>';
+  };
+  GAME_ICONS.habitat = function () {
+    return '<rect x="6" y="8" width="42" height="42" rx="10" fill="#5CC8FF"/><path d="M6 30Q16 24 27 30T48 30V50H6Z" fill="#3D8BFD"/>' +
+      '<rect x="52" y="8" width="42" height="42" rx="10" fill="#BFEAD0"/><circle cx="66" cy="28" r="12" fill="#2DBE7E"/><rect x="63" y="34" width="5" height="12" fill="#8A5A33"/>' +
+      '<g transform="translate(22 52) scale(.5)">' + ANIMALS.frog(false) + '</g>';
+  };
   GAME_ICONS.workshop = function () {
     return '<rect x="10" y="50" width="38" height="38" rx="6" fill="#3D8BFD" fill-opacity=".8" stroke="#3D8BFD" stroke-width="4"/>' +
       '<polygon points="50,10 74,50 26,50" fill="#F2658E" fill-opacity=".8" stroke="#F2658E" stroke-width="4" stroke-linejoin="round"/>' +
@@ -2204,6 +2331,7 @@ textarea, input { -webkit-user-select: text; user-select: text; }
     house: house,
     replayIcon: replayIcon,
     pauseIcon: pauseIcon,
+    moonBtn: moonIcon, sunBtn: sunIcon, full: fullIcon, dice: diceIcon, toolMix: mixIcon, toolSize: sizeIcon, toolErase: eraserIcon, toolClear: broomIcon,
     check: check,
     playIcon: playIcon,
     bulb: bulb,
@@ -2765,23 +2893,29 @@ textarea, input { -webkit-user-select: text; user-select: text; }
 
   /* فهرس الألعاب: المنطقة وعدد الجولات */
   B.catalog = [
-    { id: 'train', zone: 'solo', rounds: 10 },
-    { id: 'mirror', zone: 'solo', rounds: 10 },
-    { id: 'pattern', zone: 'solo', rounds: 10 },
-    { id: 'fruits', zone: 'solo', rounds: 10 },
-    { id: 'letters', zone: 'solo', rounds: 10 },
-    { id: 'memory', zone: 'solo', rounds: 10 },
-    { id: 'shadows', zone: 'solo', rounds: 10 },
-    { id: 'more', zone: 'solo', rounds: 10 },
-    { id: 'odd', zone: 'solo', rounds: 10 },
-    { id: 'tracing', zone: 'solo', rounds: 10 },
+    // «وحدي» مجمّعة بمهارتها (cat): تظهر في الرئيسية تحت عناوين صغيرة
+    { id: 'memory', zone: 'solo', rounds: 10, cat: 'watch' },
+    { id: 'shadows', zone: 'solo', rounds: 10, cat: 'watch' },
+    { id: 'odd', zone: 'solo', rounds: 10, cat: 'watch' },
+    { id: 'hide', zone: 'solo', rounds: 10, cat: 'watch' },
+    { id: 'vanish', zone: 'solo', rounds: 10, cat: 'watch' },
+    { id: 'fruits', zone: 'solo', rounds: 10, cat: 'num' },
+    { id: 'more', zone: 'solo', rounds: 10, cat: 'num' },
+    { id: 'order', zone: 'solo', rounds: 10, cat: 'num' },
+    { id: 'mirror', zone: 'solo', rounds: 10, cat: 'num' },
+    { id: 'pattern', zone: 'solo', rounds: 10, cat: 'num' },
+    { id: 'letters', zone: 'solo', rounds: 10, cat: 'move' },
+    { id: 'tracing', zone: 'solo', rounds: 10, cat: 'move' },
+    { id: 'train', zone: 'solo', rounds: 10, cat: 'move' },
+    { id: 'feed', zone: 'solo', rounds: 10, cat: 'know' },
+    { id: 'habitat', zone: 'solo', rounds: 10, cat: 'know' },
     { id: 'firstsound', zone: 'together', rounds: 8 },
     { id: 'bridge', zone: 'together', rounds: 8 },
     // القسم الإبداعي: لعب حرّ بلا جولات ولا مصابيح
     { id: 'workshop', zone: 'create', free: true },
     { id: 'coloring', zone: 'create', free: true },
     { id: 'drawing', zone: 'create', free: true },
-    { id: 'garden', zone: 'create', free: true }
+    { id: 'garden', zone: 'garden', free: true }
   ];
   B.free = B.free || {};
   B.games = B.games || {};
@@ -2795,6 +2929,7 @@ textarea, input { -webkit-user-select: text; user-select: text; }
 
   /* لعب حرّ: مسرح وزر الرئيسية فقط */
   function startFree(it, origin) {
+    if (it.id === 'garden') { /* يستعمل المحرك نفسه */ }
     var mod = B.free[it.id];
     if (!mod || active) return;
     if (B.audio) B.audio.play('whoosh');
@@ -3051,7 +3186,13 @@ textarea, input { -webkit-user-select: text; user-select: text; }
         h('span', { class: 'zone-badge', html: art.zoneBadge(zoneId) }),
         h('h2', { class: 'zone-name', text: S.zones[zoneId] })
       ),
-      h('div', { class: 'tiles' }, items.map(function (it) { return tile(it, locked && zoneId === 'solo'); }))
+      zoneId === 'solo'
+        ? h('div', { class: 'groups' }, ['watch', 'num', 'move', 'know'].map(function (cat) {
+            return h('div', { class: 'group' },
+              h('div', { class: 'group-label', text: S.cats[cat] }),
+              h('div', { class: 'tiles' }, items.filter(function (c) { return c.cat === cat; }).map(function (it) { return tile(it, locked); })));
+          }))
+        : h('div', { class: 'tiles' }, items.map(function (it) { return tile(it, locked && zoneId === 'solo'); }))
     );
     if (locked && zoneId === 'solo') {
       // شخصية نائمة تغطي المنطقة حتى الغد
@@ -3061,6 +3202,49 @@ textarea, input { -webkit-user-select: text; user-select: text; }
       ));
     }
     return z;
+  }
+
+  /* بطاقة «بستاني» المستقلة: معاينة مما زُرع + عدده. وبجانبها «فاجئني» تختار لعبة عشوائية. */
+  function gardenRow(locked) {
+    var H = B.S.home, items = B.garden.items(), recent = items.slice(-4).reverse();
+    var preview = h('span', { class: 'gb-prev' }, recent.length
+      ? recent.map(function (k) { return h('span', { class: 'gb-item', html: B.pics.draw(k) }); })
+      : [h('span', { class: 'gb-item gb-seed', html: B.pics.draw('leaf') })]);
+    var gb = h('button', { class: 'gd-banner', type: 'button', 'data-game': 'garden', 'aria-label': H.garden },
+      h('span', { class: 'gb-title' }, h('b', { text: H.garden }), h('small', { text: H.gardenNote })),
+      preview,
+      h('span', { class: 'gb-count', text: UI.num(items.length) }));
+    UI.bindPress(gb, function () { var r = gb.getBoundingClientRect(); B.session.start('garden', { x: r.left + r.width / 2, y: r.top + r.height / 2 }); });
+    var sb = h('button', { class: 'surprise-btn', type: 'button', 'aria-label': H.surprise, html: art.dice() }, h('small', { text: H.surprise }));
+    UI.bindPress(sb, function () {
+      var pool = B.catalog.filter(function (c) { return !c.free && B.games[c.id] && !(locked && c.zone === 'solo'); });
+      var it = kit_pick(pool); if (!it) return;
+      var r = sb.getBoundingClientRect(); B.session.start(it.id, { x: r.left + r.width / 2, y: r.top + r.height / 2 });
+    });
+    return h('div', { class: 'gd-row' }, gb, sb);
+  }
+  function kit_pick(a) { return a.length ? a[Math.floor(Math.random() * a.length)] : null; }
+
+  /* أدوات الصفحة: ملء الشاشة، والوضع الليلي/النهاري (للكبار؛ ليست أزرار لعب) */
+  function applyNight(on) { document.documentElement.classList.toggle('night', !!on); }
+  B.applyNight = applyNight;
+  function tools() {
+    var H = B.S.home, set = B.storage.data().settings;
+    var box = h('div', { class: 'hdr-tools' });
+    var night = h('div', { class: 'hdr-tool', role: 'button', tabindex: '0' });
+    function paintNight() { night.innerHTML = set.night ? art.sunBtn() : art.moonBtn(); night.setAttribute('aria-label', set.night ? H.day : H.night); }
+    night.addEventListener('click', function () { set.night = !set.night; B.storage.save(); applyNight(set.night); paintNight(); if (B.audio) B.audio.play('pick'); });
+    paintNight(); box.appendChild(night);
+    var de = document.documentElement;
+    if (de.requestFullscreen || de.webkitRequestFullscreen) {
+      var fs = h('div', { class: 'hdr-tool', role: 'button', tabindex: '0', 'aria-label': H.full, html: art.full() });
+      fs.addEventListener('click', function () {
+        var on = document.fullscreenElement || document.webkitFullscreenElement;
+        try { if (on) (document.exitFullscreen || document.webkitExitFullscreen).call(document); else (de.requestFullscreen || de.webkitRequestFullscreen).call(de); } catch (e) {}
+      });
+      box.appendChild(fs);
+    }
+    return box;
   }
 
   function attachLongPress(btn) {
@@ -3098,12 +3282,12 @@ textarea, input { -webkit-user-select: text; user-select: text; }
       h('div', { class: 'home-hills mid', html: art.sceneTile('mid', vp.W, Math.round(vp.H * 0.3)) })
     );
 
-    var zones = h('main', { class: 'zones scrollable' }, zone('solo', locked), zone('together', false), zone('create', false));
+    var zones = h('main', { class: 'zones scrollable' }, gardenRow(locked), zone('solo', locked), zone('together', false), zone('create', false));
     var fbPill = h('div', { class: 'fb-pill', role: 'button', tabindex: '0', text: B.S.feedback.pill });
     fbPill.addEventListener('click', function () { B.feedback.open(); });
     var dot = h('div', { class: 'adm-dot', role: 'button', tabindex: '0', 'aria-label': B.S.admin.dot, text: '·' });
     dot.addEventListener('click', function () { B.admin.open(); });
-    var el = h('div', { class: 'screen home' }, sky, zones, logo, fbPill, dot);
+    var el = h('div', { class: 'screen home' }, sky, zones, logo, tools(), fbPill, dot);
 
     // ظهور متتابع بحركة زنبركية (بعد الإدراج في الصفحة)
     requestAnimationFrame(function () {
@@ -6073,6 +6257,262 @@ textarea, input { -webkit-user-select: text; user-select: text; }
 
 </script>
 <script>
+/* خمس ألعاب جديدة تضيف مهارات مختلفة (كلها بلا قراءة، وبلا فشل، مع سلّم المساعدة نفسه):
+   • «أطعم الحيوان»: ربط الحيوان بطعامه (الربط والتصنيف).
+   • «أين يختبئ الحيوان؟»: ملاحظة بصرية — حيوان يطلّ من خلف شجيرة أو صخرة.
+   • «من اختفى؟»: ذاكرة قصيرة المدى — صور تظهر ثم تختفي إحداها.
+   • «رتّب الأحجام»: التسلسل — من الأصغر إلى الأكبر.
+   • «من يعيش هنا؟»: تصنيف الحيوان حسب بيئته (بحر، غابة، مزرعة، سماء، صحراء). */
+(function () {
+  'use strict';
+  var B = (window.Bustan = window.Bustan || {});
+  var UI = B.UI, h = UI.h, art = B.art, kit = B.kit;
+  function pic(k) { return B.pics.draw(k); }
+
+  /* مصنع لعبة جلسات صغيرة (نفس عقد minis.js) */
+  function mini(id, cls, sleeper, roundFn) {
+    var st = null, runner = kit.roundRunner();
+    B.games[id] = {
+      id: id,
+      mount: function (ctx) {
+        st = { ctx: ctx, answer: null, last: '' };
+        ctx.stage.classList.add('g-stage', 'mg-stage', cls);
+        st.top = h('div', { class: 'mg-top' });
+        st.tray = h('div', { class: 'g-tray mg-tray' });
+        ctx.stage.appendChild(h('div', { class: 'g-main' }, st.top));
+        ctx.stage.appendChild(st.tray);
+      },
+      demo: function (ctx) { return runner.run(function (alive, setCur) { return roundFn(ctx, st, 1, true, alive, setCur); }); },
+      playRound: function (ctx, level) { return runner.run(function (alive, setCur) { return roundFn(ctx, st, level, false, alive, setCur); }); },
+      cancelRound: function () { runner.cancel(); if (st) { st.top.innerHTML = ''; st.tray.innerHTML = ''; st.answer = null; st.ctx.stage.querySelectorAll('.kit-hand').forEach(function (x) { x.remove(); }); } },
+      outro: function (ctx) { return kit.dusk(ctx); },
+      endArt: function () { return kit.endScene(sleeper); },
+      destroy: function () { runner.stop(); st = null; },
+      _solveStep: function () { if (st && st.solve && st.solve()) return true; if (st && st.answer) { st.answer.click(); return true; } return false; }
+    };
+    return B.games[id];
+  }
+  function addBtns(st, htmls, cls) {
+    st.tray.innerHTML = '';
+    return htmls.map(function (html, i) {
+      var b = h('button', { class: 'g-choice ' + (cls || 'pic'), type: 'button', html: html });
+      st.tray.appendChild(b);
+      UI.anim(b, [{ opacity: 0, transform: 'translateY(30px) scale(.8)' }, { opacity: 1, transform: 'none' }], { dur: 400, delay: i * 90, easing: UI.SPRING, fill: 'backwards' });
+      return b;
+    });
+  }
+  async function ask(ctx, st, btns, correct, demo, alive, setCur, opts) {
+    st.answer = btns[correct];
+    var o = { demo: demo }; for (var k in (opts || {})) o[k] = opts[k];
+    var ch = kit.choice(ctx, ctx.stage, btns, correct, o);
+    setCur(ch);
+    var res = await ch.promise;
+    st.answer = null;
+    if (!alive() || res.cancelled) return null;
+    return res;
+  }
+  async function cheer(ctx, el) {
+    var c = kit.center(el, ctx.stage);
+    UI.burst(ctx.stage, c.x, c.y, { n: 20, spread: 140, dur: 1300 });
+    if (B.audio) B.audio.play('cheer');
+    await ctx.sleep(1400);
+  }
+
+  /* ═════════ أطعم الحيوان ═════════ */
+  var FEED = [['rabbit', 'carrot'], ['cat', 'fish'], ['lamb', 'leaf'], ['bear', 'apple'], ['bee', 'flower'], ['bird', 'grapes'], ['frog', 'bee']];
+  var NOTFOOD = ['ball', 'key', 'clock', 'crown', 'book', 'rocket'];
+  mini('feed', 'fd-stage', 'rabbit', async function (ctx, st, level, demo, alive, setCur) {
+    var n = level <= 2 ? 2 : level <= 4 ? 3 : 4;
+    var pair; do { pair = kit.pick(FEED); } while (pair[0] === st.last); st.last = pair[0];
+    var foods = [pair[1]];
+    var pool = level >= 3 ? FEED.map(function (p) { return p[1]; }).concat(NOTFOOD) : NOTFOOD.concat(['banana', 'lemon']);
+    kit.shuffle(pool).forEach(function (f) { if (foods.length < n && foods.indexOf(f) < 0 && f !== pair[1]) foods.push(f); });
+    foods = kit.shuffle(foods);
+    st.top.innerHTML = '';
+    var an = h('div', { class: 'fd-animal', html: pic(pair[0]) });
+    st.top.appendChild(an);
+    UI.anim(an, [{ opacity: 0, transform: 'translateY(30px) scale(.7)' }, { opacity: 1, transform: 'none' }], { dur: 480, easing: UI.SPRING, fill: 'backwards' });
+    if (B.audio) B.audio.play('card');
+    await ctx.sleep(600); if (!alive()) return;
+    var btns = addBtns(st, foods.map(pic));
+    var res = await ask(ctx, st, btns, foods.indexOf(pair[1]), demo, alive, setCur);
+    if (!res) return;
+    // الطعام يطير إلى الحيوان، وهو يأكله بسعادة
+    var from = kit.center(btns[foods.indexOf(pair[1])], ctx.stage), to = kit.center(an, ctx.stage);
+    var fly = h('div', { class: 'fd-fly', style: { left: from.x - 36 + 'px', top: from.y - 36 + 'px' }, html: pic(pair[1]) });
+    ctx.stage.appendChild(fly);
+    btns.forEach(function (b, i) { if (i !== foods.indexOf(pair[1])) b.classList.add('faded'); });
+    await ctx.anim(fly, [{ transform: 'translate(0,0) scale(1)' }, { transform: 'translate(' + (to.x - from.x) + 'px,' + (to.y - from.y) + 'px) scale(.5)', opacity: 1, offset: 0.9 }, { transform: 'translate(' + (to.x - from.x) + 'px,' + (to.y - from.y) + 'px) scale(0)', opacity: 0 }], { dur: 700, easing: 'ease-in' });
+    fly.remove();
+    if (B.audio) B.audio.play('pop');
+    UI.anim(an, [{ transform: 'scale(1)' }, { transform: 'scale(1.15,.9)' }, { transform: 'scale(.95,1.1)' }, { transform: 'scale(1.1,.95)' }, { transform: 'scale(1)' }], { dur: 700, fill: 'none' });
+    await cheer(ctx, an); if (!alive()) return;
+    return { errors: demo ? 0 : res.errors };
+  });
+
+  /* ═════════ أين يختبئ الحيوان؟ ═════════ */
+  var SPOTS = {
+    bush: '<circle cx="30" cy="62" r="24" fill="#2DBE7E"/><circle cx="56" cy="52" r="28" fill="#3DD08A"/><circle cx="76" cy="66" r="22" fill="#2DBE7E"/><rect x="8" y="76" width="86" height="14" rx="7" fill="#1C8F5C"/>',
+    rock: '<path d="M8 90Q6 52 34 40Q60 28 82 50Q98 66 94 90Z" fill="#A9B4D0"/><path d="M30 56Q44 46 60 52" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" opacity=".5"/>',
+    tree: '<rect x="42" y="50" width="16" height="42" rx="5" fill="#8A5A33"/><circle cx="50" cy="38" r="30" fill="#2DBE7E"/><circle cx="32" cy="52" r="18" fill="#3DD08A"/><circle cx="70" cy="52" r="18" fill="#3DD08A"/>',
+    log: '<rect x="6" y="46" width="88" height="44" rx="22" fill="#B67B4D"/><ellipse cx="82" cy="68" rx="12" ry="20" fill="#DDA86C"/><path d="M20 58H66M20 70H66M20 80H60" stroke="#8A5A33" stroke-width="3" stroke-linecap="round"/>'
+  };
+  var HIDERS = ['rabbit', 'cat', 'duck', 'bear', 'lamb', 'frog'];
+  function spotSvg(kind) { return art.svg('0 0 100 100', SPOTS[kind], 'hd-spot'); }
+  mini('hide', 'hd-stage', 'cat', async function (ctx, st, level, demo, alive, setCur) {
+    var n = level <= 1 ? 3 : level <= 3 ? 4 : level === 4 ? 5 : 6;
+    var peek = level <= 2 ? 0.5 : level <= 4 ? 0.3 : 0.18;
+    var who; do { who = kit.pick(HIDERS); } while (who === st.last); st.last = who;
+    var kinds = []; for (var i = 0; i < n; i++) kinds.push(['bush', 'rock', 'tree', 'log'][i % 4]);
+    kinds = kit.shuffle(kinds);
+    var target = kit.rand(n);
+    st.top.innerHTML = '';
+    var card = h('div', { class: 'hd-card', html: pic(who) });
+    st.top.appendChild(card);
+    UI.anim(card, [{ opacity: 0, transform: 'scale(.5)' }, { opacity: 1, transform: 'none' }], { dur: 450, easing: UI.SPRING, fill: 'backwards' });
+    if (B.audio) B.audio.play('card');
+    await ctx.sleep(600); if (!alive()) return;
+    st.tray.classList.add('hd-grid');
+    var btns = addBtns(st, kinds.map(function (k, i) {
+      return '<span class="hd-wrap">' + (i === target ? '<span class="hd-animal" style="top:' + (-peek * 70 + 8) + '%">' + pic(who) + '</span>' : '') + spotSvg(k) + '</span>';
+    }), 'hd-btn');
+    var res = await ask(ctx, st, btns, target, demo, alive, setCur, {
+      onWrong: function (b) { UI.anim(b, [{ transform: 'translateY(0)' }, { transform: 'translateY(-14px)' }, { transform: 'translateY(0)' }], { dur: 400, fill: 'none' }); }
+    });
+    if (!res) return;
+    btns[target].classList.add('found');
+    UI.anim(btns[target].querySelector('.hd-animal'), [{ transform: 'translateY(0) scale(1)' }, { transform: 'translateY(-55%) scale(1.35)' }, { transform: 'translateY(-30%) scale(1.2)' }], { dur: 600, easing: UI.SPRING });
+    await cheer(ctx, btns[target]); if (!alive()) return;
+    return { errors: demo ? 0 : res.errors };
+  });
+
+  /* ═════════ من اختفى؟ ═════════ */
+  var THINGS = ['apple', 'car', 'cat', 'ball', 'flower', 'duck', 'house', 'banana', 'rocket', 'star', 'bear', 'fish', 'tree', 'balloon', 'strawberry'];
+  mini('vanish', 'vn-stage', 'owl', async function (ctx, st, level, demo, alive, setCur) {
+    var n = level <= 1 ? 3 : level <= 3 ? 4 : level === 4 ? 5 : 6;
+    var set = kit.shuffle(THINGS).slice(0, n), missing = kit.rand(n);
+    var others = THINGS.filter(function (t) { return set.indexOf(t) < 0; });
+    var opts = kit.shuffle([set[missing]].concat(kit.shuffle(others).slice(0, 2)));
+    st.top.innerHTML = ''; st.tray.innerHTML = '';
+    var row = h('div', { class: 'vn-row' });
+    var items = set.map(function (k, i) {
+      var it = h('div', { class: 'vn-item', html: pic(k) });
+      row.appendChild(it);
+      UI.anim(it, [{ opacity: 0, transform: 'scale(0)' }, { opacity: 1, transform: 'none' }], { dur: 400, delay: i * 100, easing: UI.SPRING, fill: 'backwards' });
+      return it;
+    });
+    st.top.appendChild(row);
+    if (B.audio) B.audio.play('card');
+    await ctx.sleep(1400 + n * 450); if (!alive()) return;     // وقت كافٍ للنظر
+    // الكل يختفي في سحابة، ثم يعود الباقون
+    if (B.audio) B.audio.play('whoosh');
+    await Promise.all(items.map(function (it) { return ctx.anim(it, [{ opacity: 1, transform: 'scale(1)' }, { opacity: 0, transform: 'scale(.2)' }], { dur: 350 }); }));
+    await ctx.sleep(700); if (!alive()) return;
+    items.forEach(function (it, i) { if (i !== missing) UI.anim(it, [{ opacity: 0, transform: 'scale(.2)' }, { opacity: 1, transform: 'none' }], { dur: 400, delay: i * 80, easing: UI.SPRING }); });
+    items[missing].classList.add('gone');
+    await ctx.sleep(900); if (!alive()) return;
+    var btns = addBtns(st, opts.map(pic));
+    var res = await ask(ctx, st, btns, opts.indexOf(set[missing]), demo, alive, setCur);
+    if (!res) return;
+    btns.forEach(function (b, i) { if (i !== opts.indexOf(set[missing])) b.classList.add('faded'); });
+    items[missing].classList.remove('gone');
+    UI.anim(items[missing], [{ opacity: 0, transform: 'scale(0) rotate(-40deg)' }, { opacity: 1, transform: 'scale(1.3)' }, { opacity: 1, transform: 'scale(1)' }], { dur: 700, easing: UI.SPRING });
+    await cheer(ctx, items[missing]); if (!alive()) return;
+    return { errors: demo ? 0 : res.errors };
+  });
+
+  /* ═════════ رتّب الأحجام ═════════ */
+  mini('order', 'od2-stage', 'bear', async function (ctx, st, level, demo, alive, setCur) {
+    var n = level <= 1 ? 3 : level <= 3 ? 4 : 5;
+    var kind = kit.pick(['ball', 'fish', 'flower', 'apple', 'balloon', 'duck', 'tree']);
+    var sizes = []; for (var i = 0; i < n; i++) sizes.push(i);          // ٠ الأصغر
+    var shown = kit.shuffle(sizes);
+    st.top.innerHTML = ''; st.tray.innerHTML = '';
+    var podium = h('div', { class: 'or-podium' });
+    var pool = h('div', { class: 'or-pool' });
+    for (var s = 0; s < n; s++) { var sl = h('div', { class: 'or-slot' }); sl.style.setProperty('--sz', (72 + s * (60 / (n - 1 || 1))) + 'px'); podium.appendChild(sl); }
+    st.top.appendChild(podium);
+    st.top.appendChild(pool);
+    var btns = shown.map(function (sz, i) {
+      var b = h('button', { class: 'or-item', type: 'button', html: pic(kind) }); b.style.setProperty('--sz', (72 + sz * (60 / (n - 1 || 1))) + 'px');
+      b.__sz = sz; pool.appendChild(b);
+      UI.anim(b, [{ opacity: 0, transform: 'scale(0)' }, { opacity: 1, transform: 'none' }], { dur: 400, delay: i * 90, easing: UI.SPRING, fill: 'backwards' });
+      return b;
+    });
+    if (B.audio) B.audio.play('card');
+    var next = 0, errors = 0, fails = 0, busy = false, done, fin = new Promise(function (r) { done = r; });
+    function hint() { var t = btns.filter(function (x) { return x.__sz === next; })[0]; if (t) t.classList.add('pulse-hint'); return t; }
+    function take(b) {
+      if (busy || ctx.paused || b.__sz === undefined) return;
+      if (b.__sz !== next) {
+        errors++; fails++; kit.wrong(b);
+        if (fails === 2) hint();
+        if (fails >= 3) auto();
+        return;
+      }
+      fails = 0; b.classList.remove('pulse-hint');
+      // FLIP: ينتقل الشكل إلى الدرج (يزداد حجمه من اليمين إلى اليسار)
+      var slot = podium.children[next], r1 = b.getBoundingClientRect();
+      slot.appendChild(b); b.classList.add('placed');
+      var r2 = b.getBoundingClientRect();
+      UI.anim(b, [{ transform: 'translate(' + (r1.left - r2.left) + 'px,' + (r1.top - r2.top) + 'px) scale(1.1)' }, { transform: 'none' }], { dur: 500, easing: UI.SPRING, fill: 'none' });
+      b.disabled = true; b.__sz = undefined;
+      if (B.audio) B.audio.play('place');
+      next++;
+      if (next >= n) done(true);
+    }
+    async function auto() {
+      busy = true;
+      var t = btns.filter(function (x) { return x.__sz === next; })[0];
+      var c = kit.center(t, ctx.stage), hd = kit.hand(ctx.stage, c.x, c.y + c.h * 0.1);
+      await ctx.sleep(600); if (!alive()) return;
+      await hd.tap(); hd.el.remove(); busy = false; fails = 0; take(t);
+    }
+    btns.forEach(function (b) { UI.bindPress(b, function () { take(b); }); });
+    st.solve = function () { var t = btns.filter(function (x) { return x.__sz === next; })[0]; if (!t || busy) return false; take(t); return true; };
+    st.answer = null;
+    await ctx.sleep(500); if (!alive()) return;
+    if (demo) { (async function () { while (alive() && next < n) { await ctx.sleep(500); if (busy) continue; var t = btns.filter(function (x) { return x.__sz === next; })[0]; if (!t) return; var c = kit.center(t, ctx.stage), hd = kit.hand(ctx.stage, c.x, c.y + c.h * 0.1); await ctx.sleep(450); await hd.tap(); hd.el.remove(); take(t); } })(); }
+    await fin; st.solve = null;
+    if (!alive()) return;
+    await cheer(ctx, podium); if (!alive()) return;
+    return { errors: demo ? 0 : Math.min(errors, 6) };
+  });
+
+  /* ═════════ من يعيش هنا؟ ═════════ */
+  var HAB = {
+    sea: '<rect width="100" height="100" rx="14" fill="#5CC8FF"/><path d="M0 40Q12 32 25 40T50 40T75 40T100 40V100H0Z" fill="#3D8BFD"/><circle cx="24" cy="66" r="4" fill="#fff" opacity=".7"/><circle cx="70" cy="78" r="5" fill="#fff" opacity=".6"/><path d="M80 90q-6-14 0-24M88 90q4-12 0-20" stroke="#2DBE7E" stroke-width="5" fill="none" stroke-linecap="round"/>',
+    forest: '<rect width="100" height="100" rx="14" fill="#BFEAD0"/><rect x="18" y="52" width="9" height="40" fill="#8A5A33"/><circle cx="22" cy="40" r="22" fill="#2DBE7E"/><rect x="66" y="46" width="9" height="46" fill="#8A5A33"/><circle cx="70" cy="34" r="26" fill="#1C8F5C"/><rect x="0" y="86" width="100" height="14" fill="#5ED38A"/>',
+    farm: '<rect width="100" height="100" rx="14" fill="#FFF0B8"/><rect x="22" y="42" width="56" height="42" fill="#F0485A"/><polygon points="14,44 50,16 86,44" fill="#C22E40"/><rect x="42" y="58" width="16" height="26" fill="#FAFCFF"/><path d="M0 86H100" stroke="#5ED38A" stroke-width="14"/><path d="M6 78v14M18 78v14M30 78v14" stroke="#fff" stroke-width="4"/>',
+    sky: '<rect width="100" height="100" rx="14" fill="#9FDDFF"/><circle cx="78" cy="24" r="12" fill="#FFD34E"/><path d="M14 66a12 12 0 0 1 22-4a10 10 0 0 1 20 4v6H14Z" fill="#fff"/><path d="M52 40a9 9 0 0 1 16-3a8 8 0 0 1 14 5v5H52Z" fill="#fff" opacity=".9"/>',
+    desert: '<rect width="100" height="100" rx="14" fill="#FFE9B8"/><circle cx="76" cy="22" r="13" fill="#FFB52E"/><path d="M0 74Q30 50 60 74T100 66V100H0Z" fill="#F2C66F"/><path d="M0 88Q40 70 100 88V100H0Z" fill="#E8B050"/><rect x="22" y="48" width="8" height="26" rx="4" fill="#2DBE7E"/><rect x="14" y="56" width="6" height="12" rx="3" fill="#2DBE7E"/><rect x="32" y="52" width="6" height="12" rx="3" fill="#2DBE7E"/>'
+  };
+  var LIVES = { sea: ['fish', 'whale', 'turtle'], forest: ['bear', 'fox', 'owl'], farm: ['lamb', 'hen', 'cat'], sky: ['bird', 'butterfly', 'bee'], desert: ['camel'] };
+  mini('habitat', 'hb-stage', 'frog', async function (ctx, st, level, demo, alive, setCur) {
+    var n = level <= 2 ? 2 : 3, keys = Object.keys(LIVES);
+    var home = kit.pick(keys), who; do { who = kit.pick(LIVES[home]); } while (who === st.last); st.last = who;
+    var opts = [home]; kit.shuffle(keys).forEach(function (k) { if (opts.length < n && opts.indexOf(k) < 0) opts.push(k); });
+    opts = kit.shuffle(opts);
+    st.top.innerHTML = '';
+    var an = h('div', { class: 'fd-animal', html: pic(who) });
+    st.top.appendChild(an);
+    UI.anim(an, [{ opacity: 0, transform: 'scale(.5)' }, { opacity: 1, transform: 'none' }], { dur: 450, easing: UI.SPRING, fill: 'backwards' });
+    if (B.audio) B.audio.play('card');
+    await ctx.sleep(600); if (!alive()) return;
+    var btns = addBtns(st, opts.map(function (k) { return art.svg('0 0 100 100', HAB[k], 'hb-scene'); }), 'hb-btn');
+    var res = await ask(ctx, st, btns, opts.indexOf(home), demo, alive, setCur);
+    if (!res) return;
+    btns.forEach(function (b, i) { if (i !== opts.indexOf(home)) b.classList.add('faded'); });
+    var from = kit.center(an, ctx.stage), to = kit.center(btns[opts.indexOf(home)], ctx.stage);
+    await ctx.anim(an, [{ transform: 'translate(0,0) scale(1)' }, { transform: 'translate(' + (to.x - from.x) + 'px,' + (to.y - from.y) + 'px) scale(.45)' }], { dur: 800, easing: 'ease-in-out', fill: 'forwards' });
+    await cheer(ctx, btns[opts.indexOf(home)]); if (!alive()) return;
+    return { errors: demo ? 0 : res.errors };
+  });
+
+})();
+
+</script>
+<script>
 /* القسم الإبداعي: لعب حرّ بلا هدف ولا جولات ولا مصابيح.
    ١) ورشة الأشكال: ابنِ الصورة من الأشكال (بيت، صاروخ، قطار…)، تلتصق القطع في أماكنها كالمغناطيس.
    ٢) لوحة التلوين: رسمات بمناطق، تختار لوناً ثم تنقر المنطقة.
@@ -6429,8 +6869,7 @@ textarea, input { -webkit-user-select: text; user-select: text; }
         colorBtns.forEach(function (b) { b.classList.toggle('selected', !dr.eraser && b.__c === dr.color); });
         eraseBtn.classList.toggle('selected', dr.eraser);
         mixBtn.classList.toggle('selected', dr.mixing);
-        sizeBtn.firstChild.style.width = sizeBtn.firstChild.style.height = [14, 26, 44][dr.size] + 'px';
-        sizeBtn.firstChild.style.background = dr.eraser ? '#C9D8F2' : dr.color;
+        sizeBtn.querySelectorAll('circle').forEach(function (c, i) { c.setAttribute('fill', i === dr.size ? '#8E5CF0' : '#C9D8F2'); });
       }
       DCOLS.forEach(function (c) {
         var b = h('button', { class: 'g-choice cl-color', type: 'button' }, h('span', { class: 'ws-dot', style: { background: c } }));
@@ -6448,16 +6887,19 @@ textarea, input { -webkit-user-select: text; user-select: text; }
         });
         colorBtns.push(b); tray.appendChild(b);
       });
+      function tool(cls, svgStr, label, fn) {
+        var b = h('button', { class: 'g-choice dr-tool ' + cls, type: 'button', 'aria-label': label, html: svgStr }, h('small', { text: label }));
+        UI.bindPress(b, fn); return b;
+      }
       var mixDot = h('span', { class: 'dr-mixdot' });
-      var mixBtn = h('button', { class: 'g-choice dr-mix', type: 'button', 'aria-label': B.S.create.mix, html: art.svg('0 0 100 100', '<path d="M12 44H88Q86 84 50 86Q14 84 12 44Z" fill="#DDA86C" stroke="#8A5A33" stroke-width="5" stroke-linejoin="round"/><ellipse cx="50" cy="44" rx="38" ry="9" fill="#FAFCFF" stroke="#8A5A33" stroke-width="5"/><path d="M30 20L40 40M62 14L56 38" stroke="#8A5A33" stroke-width="5" stroke-linecap="round"/>') }, mixDot);
-      UI.bindPress(mixBtn, function () { dr.mixing = !dr.mixing; dr.mixSel = null; refresh(); if (B.audio) B.audio.play('pick'); });
-      var sizeBtn = h('button', { class: 'g-choice dr-size', type: 'button', 'aria-label': B.S.create.size }, h('span', { class: 'ws-dot' }));
-      UI.bindPress(sizeBtn, function () { dr.size = (dr.size + 1) % 3; refresh(); if (B.audio) B.audio.play('pick'); });
-      var eraseBtn = h('button', { class: 'g-choice dr-erase', type: 'button', 'aria-label': B.S.create.erase, html: art.svg('0 0 100 100', '<path d="M18 60L52 20L86 48L56 84H32Z" fill="#F2658E" stroke="#C23C69" stroke-width="5" stroke-linejoin="round"/><path d="M30 66L60 36" stroke="#fff" stroke-width="5"/>') });
-      UI.bindPress(eraseBtn, function () { dr.eraser = !dr.eraser; refresh(); });
-      var broom = h('button', { class: 'g-choice ws-broom', type: 'button', 'aria-label': B.S.create.clear, html: art.svg('0 0 100 100', '<path d="M62 8L44 52" stroke="#8A5A33" stroke-width="9" stroke-linecap="round"/><path d="M26 50L62 60L56 92Q36 96 16 84Z" fill="#FFD34E" stroke="#E2A21B" stroke-width="4" stroke-linejoin="round"/>') });
-      UI.bindPress(broom, function () { var r = wrap.getBoundingClientRect(); g.fillStyle = '#FFFFFF'; g.fillRect(0, 0, r.width, r.height); if (B.audio) B.audio.play('sweep'); });
+      var mixBtn = tool('dr-mix', art.toolMix(), B.S.create.tMix, function () { dr.mixing = !dr.mixing; dr.mixSel = null; refresh(); if (B.audio) B.audio.play('pick'); });
+      mixBtn.appendChild(mixDot);
+      var sizeBtn = tool('dr-size', art.toolSize(), B.S.create.tSize, function () { dr.size = (dr.size + 1) % 3; refresh(); if (B.audio) B.audio.play('pick'); });
+      var eraseBtn = tool('dr-erase', art.toolErase(), B.S.create.tErase, function () { dr.eraser = !dr.eraser; refresh(); });
+      var broom = tool('dr-broom', art.toolClear(), B.S.create.tClear, function () { var r = wrap.getBoundingClientRect(); g.fillStyle = '#FFFFFF'; g.fillRect(0, 0, r.width, r.height); if (B.audio) B.audio.play('sweep'); });
       [mixBtn, sizeBtn, eraseBtn, broom].forEach(function (b) { tray.appendChild(b); });
+      // فاصل واضح بين الألوان والأدوات
+      tray.insertBefore(h('span', { class: 'dr-sep' }), mixBtn);
       requestAnimationFrame(function () { fitCanvas(); g.fillStyle = '#FFFFFF'; g.fillRect(0, 0, canvas.width, canvas.height); refresh(); });
       dr.onResize = function () { if (!drawing) fitCanvas(); };
       window.addEventListener('resize', dr.onResize);
@@ -6518,6 +6960,7 @@ textarea, input { -webkit-user-select: text; user-select: text; }
   }
 
   B.stats.open();
+  if (B.storage.data().settings.night) B.applyNight(true);
 
   // نبدأ بعد تحميل الخط كي لا يتبدل شكل النص أمام الطفلة
   function boot() { B.home.show(); }

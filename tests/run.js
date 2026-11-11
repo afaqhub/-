@@ -73,7 +73,7 @@ async function newPage(browser, vp, base, opts = {}) {
 async function open(page, base, query = '', opts = {}) {
   await page.goto(base + 'index.html' + query);
   await page.waitForSelector('.tile', { timeout: 8000 });
-  await page.waitForTimeout(2600); // حتى تنتهي حركة ظهور الأيقونات (١٦ أيقونة متتابعة)
+  await page.waitForTimeout(3200); // حتى تنتهي حركة ظهور الأيقونات (٢٠ أيقونة متتابعة)
   if (!opts.keepWelcome) { const gg = await page.$('.guide-go'); if (gg) { await gg.click(); await page.waitForTimeout(500); } } // شاشة الترحيب
 }
 const tap = (page) => page.dispatchEvent('.stop-btn', 'pointerdown');
@@ -320,7 +320,7 @@ async function seeDemoThrough(page) {
       dir: document.documentElement.dir, lang: document.documentElement.lang,
       digits: !/[0-9]/.test(document.body.innerText)
     }));
-    ok(info.zones === 3 && info.tiles === 16, `${name}: ثلاث مناطق و١٦ نشاطاً`);
+    ok(info.zones === 3 && info.tiles === 20 && !!(await page.$('.gd-banner')), `${name}: ثلاث مناطق و٢٠ نشاطاً وبطاقة «بستاني» مستقلة`);
     ok(info.sleeping === 0, `${name}: كل الألعاب متاحة (لا أيقونات نائمة)`);
     const fontOk = await page.evaluate(async () => {
       const r = await Promise.all(['400', '700', '800'].map((w) => document.fonts.load(w + ' 20px Tajawal', 'بستان')));
@@ -511,7 +511,7 @@ async function seeDemoThrough(page) {
 
   /* ───── الألعاب الأربع الجديدة: جلسة كاملة آلياً ───── */
   if (!QUICK) {
-    const NAMES = { tracing: 'ارسم الطريق', shadows: 'لعبة الظلال', more: 'أين الأكثر؟', odd: 'أين المختلف؟', memory: 'بطاقات الذاكرة', fruits: 'سلة الفواكه', letters: 'صيد الحروف', mirror: 'مرآة الأشكال', pattern: 'صانعة الأنماط', firstsound: 'أول صوت', bridge: 'جسر الروابط' };
+    const NAMES = { feed: 'أطعم الحيوان', hide: 'أين يختبئ؟', vanish: 'من اختفى؟', order: 'رتّب الأحجام', habitat: 'من يعيش هنا؟', tracing: 'ارسم الطريق', shadows: 'لعبة الظلال', more: 'أين الأكثر؟', odd: 'أين المختلف؟', memory: 'بطاقات الذاكرة', fruits: 'سلة الفواكه', letters: 'صيد الحروف', mirror: 'مرآة الأشكال', pattern: 'صانعة الأنماط', firstsound: 'أول صوت', bridge: 'جسر الروابط' };
     for (const vpName of ['جوال-عمودي', 'آيباد-أفقي', 'جوال-أفقي', 'آيباد-عمودي']) {
       for (const g of Object.keys(NAMES)) {
         section(`جلسة كاملة آلياً — ${NAMES[g]} — ${vpName}`);
@@ -628,6 +628,22 @@ async function seeDemoThrough(page) {
     await page.__ctx.close();
   }
 
+  section('الوضع الليلي وزر فاجئني');
+  {
+    const page = await newPage(browser, VIEWPORTS['جوال-عمودي'], base);
+    await open(page, base);
+    await page.click('.hdr-tool >> nth=0'); await page.waitForTimeout(300);
+    ok(await page.evaluate(() => document.documentElement.classList.contains('night') && Bustan.storage.data().settings.night === true), 'زر الوضع الليلي يعمل ويُحفظ');
+    await page.reload(); await page.waitForSelector('.tile');
+    ok(await page.evaluate(() => document.documentElement.classList.contains('night')), 'الوضع الليلي يبقى بعد إعادة التحميل');
+    await page.click('.hdr-tool >> nth=0');
+    ok(!(await page.evaluate(() => document.documentElement.classList.contains('night'))), 'وزر النهار يعيده');
+    await page.waitForTimeout(2600);
+    await page.tap('.surprise-btn'); await page.waitForSelector('.game-screen', { timeout: 6000 });
+    ok(true, 'زر «فاجئني» يبدأ لعبة عشوائية');
+    await page.__ctx.close();
+  }
+
   section('شاشة الترحيب، الرسم الحر، البستان');
   {
     const page = await newPage(browser, VIEWPORTS['جوال-عمودي'], base);
@@ -650,7 +666,7 @@ async function seeDemoThrough(page) {
     await page.tap('.home-btn'); await page.waitForSelector('.home .tile'); await page.waitForTimeout(400);
     // البستان
     await page.evaluate(() => { Bustan.garden.plant(); Bustan.garden.plant(); Bustan.garden.plant(); });
-    await page.tap('.tile[data-game=garden]'); await page.waitForSelector('.gd-item'); await page.waitForTimeout(700);
+    await page.tap('.gd-banner'); await page.waitForSelector('.gd-item'); await page.waitForTimeout(700);
     ok((await page.evaluate(() => document.querySelectorAll('.gd-item').length)) === 3, 'البستان يعرض ما زُرع');
     ok(page.__log.errors.length === 0, 'لا أخطاء console' + (page.__log.errors.length ? ' — ' + page.__log.errors[0] : ''));
     await page.__ctx.close();
