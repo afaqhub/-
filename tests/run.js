@@ -162,7 +162,7 @@ async function seeDemoThrough(page) {
     files.forEach((f) => {
       const s = fs.readFileSync(f, 'utf8');
       if (/speechSynthesis|SpeechSynthesis|new Audio\(|<audio|XMLHttpRequest|serviceWorker.*postMessage/.test(s)) bad.push(f + ' (api ممنوع)');
-      if (!/sw\.js$/.test(f) && /\bfetch\(/.test(s)) bad.push(f + ' (fetch)');
+      if (!/(sw|stats)\.js$/.test(f) && /\bfetch\(/.test(s)) bad.push(f + ' (fetch)');
       const urls = (s.match(/https?:\/\/[^\s"'`)]+/g) || []).filter((u) => !/w3\.org/.test(u));
       if (urls.length) bad.push(f + ' (روابط: ' + urls.join(',') + ')');
     });

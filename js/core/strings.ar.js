@@ -100,8 +100,9 @@
     },
 
     /* بريد الاقتراحات مشفّر (base64) كي لا يظهر نصاً صريحاً لمن يفحص الصفحة */
-    /* رمز موقعك في GoatCounter (مثلاً abc يعني abc.goatcounter.com). فارغ = لا إحصاءات */
-    statsCode: '',
+    /* رابط قاعدة Firebase Realtime Database لعدّاد الإحصاءات (مثل https://اسم-default-rtdb.firebaseio.com). فارغ = لا إحصاءات */
+    statsDb: '',
+    admin: { dot: 'إدارة', title: 'لوحة الإدارة', pass: 'كلمة السر', enter: 'دخول', bad: 'كلمة السر غير صحيحة', refresh: 'تحديث', off: 'لم تُضبط قاعدة الإحصاءات بعد', fail: 'تعذّر جلب الأرقام', visitors: 'الأجهزة التي زارت', players: 'الأجهزة التي لعبت', opens: 'مرات فتح التطبيق', games: 'الألعاب', started: 'بدأت', finished: 'اكتملت' },
     feedbackMail: 'dHJpZmxlbWFuZ28xNDQ0QGdtYWlsLmNvbQ==',
     feedback: {
       pill: 'ملاحظة أو مقترح؟',

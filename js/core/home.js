@@ -99,7 +99,9 @@
     var zones = h('main', { class: 'zones' }, zone('solo', locked), zone('together', false), zone('create', false));
     var fbPill = h('div', { class: 'fb-pill', role: 'button', tabindex: '0', text: B.S.feedback.pill });
     fbPill.addEventListener('click', function () { B.feedback.open(); });
-    var el = h('div', { class: 'screen home' }, sky, zones, logo, fbPill);
+    var dot = h('div', { class: 'adm-dot', role: 'button', tabindex: '0', 'aria-label': B.S.admin.dot, text: '·' });
+    dot.addEventListener('click', function () { B.admin.open(); });
+    var el = h('div', { class: 'screen home' }, sky, zones, logo, fbPill, dot);
 
     // ظهور متتابع بحركة زنبركية (بعد الإدراج في الصفحة)
     requestAnimationFrame(function () {

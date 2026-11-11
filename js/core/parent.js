@@ -233,5 +233,52 @@
   }
   B.feedback = { open: openFeedback };
 
+  /* لوحة الإدارة: كلمة سر (للتنظيم فقط، لا سرّ فيها) ثم أرقام الاستعمال */
+  var adOverlay = null;
+  function sha(s) { // تجزئة بسيطة كي لا تظهر كلمة السر نصاً في الكود
+    return window.crypto && crypto.subtle ? crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)).then(function (b) {
+      return Array.prototype.map.call(new Uint8Array(b), function (x) { return ('0' + x.toString(16)).slice(-2); }).join('');
+    }) : Promise.resolve(s);
+  }
+  var ADMIN_HASH = 'bd2b80301c06f0463c086066d5d67f1633331da53416d15db5d847c033350fe3';
+  function openAdmin() {
+    if (adOverlay) return;
+    var A = B.S.admin, S = B.S;
+    var body = h('div', { class: 'p-body' });
+    var close = h('button', { class: 'p-close', type: 'button', text: '✕', 'aria-label': S.buttons.close });
+    close.addEventListener('click', function () { adOverlay.remove(); adOverlay = null; });
+    adOverlay = h('div', { class: 'parent-overlay', role: 'dialog' }, h('div', { class: 'p-card' }, h('header', { class: 'p-head' }, h('h2', { text: A.title }), close), body));
+    document.body.appendChild(adOverlay);
+    var pw = h('input', { class: 'p-ta', type: 'password', placeholder: A.pass, style: { minHeight: '48px' }, inputmode: 'numeric' });
+    var go = h('button', { class: 'p-btn', type: 'button', text: A.enter });
+    var msg = h('div', { class: 'p-msg' });
+    body.appendChild(pw); body.appendChild(go); body.appendChild(msg);
+    function stat(label, n) { return h('div', { class: 'p-row' }, h('div', { class: 'p-game', text: label }), h('div', { class: 'p-nums', text: UI.num(n || 0) })); }
+    function show() {
+      body.innerHTML = '';
+      if (!B.stats.enabled()) { body.appendChild(h('div', { class: 'p-warn', text: A.off })); return; }
+      var out = h('div', { class: 'p-sec' }), rf = h('button', { class: 'p-btn', type: 'button', text: A.refresh });
+      function load() {
+        out.innerHTML = '';
+        B.stats.read().then(function (d) {
+          d = d || {};
+          var dev = d.devices || {}, ev = d.events || {}, pl = d.play || {}, dn = d.done || {};
+          out.appendChild(stat(A.visitors, dev['new'])); out.appendChild(stat(A.players, dev.player)); out.appendChild(stat(A.opens, ev.open));
+          out.appendChild(h('h3', { text: A.games }));
+          B.catalog.forEach(function (c) {
+            out.appendChild(h('div', { class: 'p-row' }, h('div', { class: 'p-game', text: S.games[c.id] }),
+              h('div', { class: 'p-nums' }, h('span', { text: A.started + ': ' + UI.num(pl[c.id] || 0) }), c.free ? null : h('span', { text: A.finished + ': ' + UI.num(dn[c.id] || 0) }))));
+          });
+        }).catch(function () { out.appendChild(h('div', { class: 'p-warn', text: A.fail })); });
+      }
+      rf.addEventListener('click', load);
+      body.appendChild(rf); body.appendChild(out); load();
+    }
+    go.addEventListener('click', function () {
+      sha(pw.value).then(function (x) { if (x === ADMIN_HASH) show(); else msg.textContent = A.bad; });
+    });
+  }
+  B.admin = { open: openAdmin };
+
   B.parent = { open: open, close: close, isOpen: function () { return !!overlay; } };
 })();

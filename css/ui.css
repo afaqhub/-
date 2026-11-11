@@ -222,3 +222,5 @@
   box-shadow: 0 3px 0 var(--lilac-deep); text-align: center; }
 .fb-pill:active { transform: translateY(2px); }
 .zones { bottom: calc(52px + var(--safe-b)) !important; }
+.adm-dot { position: absolute; z-index: 7; left: calc(6px + var(--safe-l)); bottom: calc(4px + var(--safe-b)); width: 36px; height: 36px; display: grid; place-items: center;
+  font-size: 28px; line-height: 1; color: rgba(31, 42, 90, .22); cursor: pointer; }
