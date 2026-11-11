@@ -338,3 +338,5 @@
   .zones .tile-name { font-size: 12px; white-space: nowrap; }
   .zones .tile { gap: 4px; }
 }
+.lt-pond.finished .lt-fish { opacity: .3; pointer-events: none; transition: opacity .3s; }
+.lt-card svg, .train-stage .card .check-svg { width: 80%; height: auto; }

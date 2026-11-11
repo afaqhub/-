@@ -59,63 +59,34 @@
   }
 
   var N = { c5: 523.25, d5: 587.33, e5: 659.25, g5: 783.99, a5: 880, c6: 1046.5, e6: 1318.5 };
-  var SCALE = [523.25, 587.33, 659.25, 783.99, 880, 1046.5, 1174.66, 1318.5, 1567.98, 1760]; // سلّم خماسي للمصابيح
 
+  /* كل الأصوات مؤثرات غير موسيقية: نقرات وفرقعات ونفخات وضجيج مرشَّح.
+     لا نغمات متتابعة ولا سلّم ولا لحن، وكل صوت ثابت لا تتغير طبقته مع التكرار
+     (بطلب صاحب المشروع: الابتعاد عن أي شبه بالموسيقى). */
+  function click(c, t, f, vol) { tone(c, f, t, 0.035, vol || 0.06, 'square', f * 0.7); }
   var SOUNDS = {
-    // لمسة زر
-    tap: function (c, t) { tone(c, 640, t, 0.05, 0.05); },
-    // انتقال: همسة صاعدة
-    whoosh: function (c, t) { noise(c, t, 0.45, 0.035, 500, 2400, 0.8); },
-    // ظهور البطاقة
-    card: function (c, t) { tone(c, 520, t, 0.1, 0.05, 'triangle'); tone(c, 780, t + 0.07, 0.14, 0.045, 'triangle'); },
-    // صعود الراكب
-    pop: function (c, t) { tone(c, 420, t, 0.09, 0.07, 'triangle', 760); },
-    // استقرار الراكب في العربة: رنين صغير
-    sparkle: function (c, t) {
-      [N.g5, N.c6, N.e6].forEach(function (f, i) { tone(c, f, t + i * 0.06, 0.16, 0.035, 'sine'); });
+    tap: function (c, t) { click(c, t, 900, 0.035); },                                  // لمسة زر: نقرة
+    whoosh: function (c, t) { noise(c, t, 0.45, 0.04, 500, 2400, 0.8); },               // انتقال: همسة هواء
+    card: function (c, t) { noise(c, t, 0.12, 0.05, 2500, 1200, 1.2); },                // ظهور بطاقة: «فشّ» ورق
+    pop: function (c, t) { tone(c, 300, t, 0.07, 0.08, 'sine', 700); },                 // فرقعة فقاعة
+    sparkle: function (c, t) { noise(c, t, 0.25, 0.035, 7000, 9000, 2); },              // لمعة: حفيف ناعم
+    chug: function (c, t, a) { noise(c, t, 0.12, 0.035 * (a == null ? 1 : a), 700, 300, 0.9); }, // تشو تشو: نفخة بخار
+    brake: function (c, t) { noise(c, t, 0.9, 0.045, 2600, 500, 0.7); },                // فرامل: هسهسة
+    toot: function (c, t) { noise(c, t, 0.5, 0.05, 1200, 900, 3); },                    // نفخة بخار طويلة (بلا صافرة)
+    right: function (c, t) { tone(c, 260, t, 0.08, 0.09, 'sine', 620); noise(c, t + 0.02, 0.15, 0.03, 6000, 8000, 2); }, // صواب: «بوب» مع لمعة
+    wrong: function (c, t) { tone(c, 150, t, 0.22, 0.08, 'sawtooth', 120); },           // خطأ: طنين منخفض قصير واحد
+    place: function (c, t) { click(c, t, 420, 0.08); noise(c, t, 0.05, 0.04, 1500, 800, 1); }, // «طق» مغناطيس
+    pick: function (c, t) { click(c, t, 700, 0.045); },                                 // اختيار: نقرة خفيفة
+    flutter: function (c, t) { for (var i = 0; i < 6; i++) noise(c, t + i * 0.09, 0.06, 0.035, 3000, 1500, 1.5); }, // رفرفة
+    lantern: function (c, t) { tone(c, 300, t, 0.07, 0.07, 'sine', 700); },             // عدّ/إضاءة: الفرقعة نفسها كل مرة
+    splash: function (c, t) { noise(c, t, 0.35, 0.07, 1800, 500, 0.8); },               // رشّة ماء
+    sweep: function (c, t) { noise(c, t, 0.5, 0.05, 3000, 600, 0.6); },                 // كنس
+    chime: function (c, t) { tone(c, 300, t, 0.07, 0.07, 'sine', 700); },               // مصباح: فرقعة ثابتة
+    soft: function (c, t) { noise(c, t, 0.12, 0.03, 900, 600, 1); },                    // رجوع بطاقة
+    cheer: function (c, t) {                                                             // فوز: تصفيق (ضجيج متقطع)
+      for (var i = 0; i < 9; i++) noise(c, t + i * 0.07 + Math.random() * 0.03, 0.05, 0.05, 2200, 1800, 1);
     },
-    // تشو تشو: نفخة بخار قصيرة ومنخفضة (تتكرر أثناء الحركة)
-    chug: function (c, t, a) {
-      noise(c, t, 0.12, 0.03 * (a == null ? 1 : a), 700, 300, 0.9);
-      tone(c, 90, t, 0.08, 0.025 * (a == null ? 1 : a), 'sine', 60);
-    },
-    // الكبح: هسهسة هابطة لطيفة
-    brake: function (c, t) { noise(c, t, 0.9, 0.04, 2600, 500, 0.7); },
-    // صافرة قصيرة فرِحة
-    toot: function (c, t) {
-      tone(c, 523, t, 0.22, 0.045, 'triangle'); tone(c, 659, t, 0.22, 0.04, 'triangle');
-      tone(c, 523, t + 0.28, 0.3, 0.045, 'triangle'); tone(c, 659, t + 0.28, 0.3, 0.04, 'triangle');
-    },
-    // صواب: رنّة صاعدة لامعة
-    right: function (c, t) { tone(c, N.e5, t, 0.12, 0.06, 'triangle'); tone(c, N.a5, t + 0.09, 0.14, 0.06, 'triangle'); tone(c, N.e6, t + 0.18, 0.3, 0.05, 'sine'); },
-    // خطأ: نغمتان هابطتان واضحتان (بلا حدّة ولا إزعاج)
-    wrong: function (c, t) { tone(c, 330, t, 0.18, 0.07, 'triangle', 290); tone(c, 220, t + 0.17, 0.3, 0.07, 'triangle', 185); },
-    // وضع قطعة
-    place: function (c, t) { tone(c, 300, t, 0.07, 0.06, 'triangle', 520); },
-    // اختيار لون أو قطعة
-    pick: function (c, t) { tone(c, 880, t, 0.06, 0.04, 'sine'); },
-    // رفرفة فراشة
-    flutter: function (c, t) { for (var i = 0; i < 6; i++) noise(c, t + i * 0.09, 0.06, 0.03, 3000 + i * 300, 1500, 1.5); },
-    // إضاءة فانوس (نغمة حسب الترتيب)
-    lantern: function (c, t, i) { tone(c, SCALE[(i || 0) % SCALE.length], t, 0.25, 0.05, 'sine'); },
-    // رشّة ماء (صيد سمكة)
-    splash: function (c, t) { noise(c, t, 0.35, 0.06, 1800, 500, 0.8); tone(c, 900, t + 0.05, 0.12, 0.03, 'sine', 1400); },
-    // كنس اللوحة
-    sweep: function (c, t) { noise(c, t, 0.5, 0.05, 3000, 600, 0.6); },
-    // مصباح يُضاء: النغمة ترتفع مع كل مصباح
-    chime: function (c, t, i) {
-      var f = SCALE[(i || 0) % SCALE.length];
-      tone(c, f, t, 0.3, 0.05, 'sine'); tone(c, f * 2, t, 0.18, 0.015, 'sine');
-    },
-    // فوز الجولة: ارتفاع فرِح قصير
-    cheer: function (c, t) {
-      [N.c5, N.e5, N.g5, N.c6].forEach(function (f, i) { tone(c, f, t + i * 0.1, 0.28, 0.05, 'triangle'); });
-      tone(c, N.c6, t + 0.42, 0.5, 0.04, 'sine'); tone(c, N.e6, t + 0.42, 0.5, 0.03, 'sine');
-    },
-    // ختام الجلسة: تهويدة قصيرة هابطة
-    lullaby: function (c, t) {
-      [N.g5, N.e5, N.d5, N.c5].forEach(function (f, i) { tone(c, f, t + i * 0.42, 0.7, 0.04, 'sine'); });
-    }
+    lullaby: function (c, t) { noise(c, t, 1.4, 0.03, 600, 300, 0.6); }                 // ختام: نفَس هادئ طويل
   };
 
   /* iOS يُسكت WebAudio حين يكون مفتاح الكتم الجانبي مفعّلاً، إلا إذا كانت الصفحة

@@ -570,6 +570,13 @@
   async function finishRound(tok) {
     var ctx = st.ctx, g = st.G;
     st.phase = 'cheer';
+    // علامة «تمّ» فوراً مكان الشكل المطلوب، فلا تظن الطفلة أنه ما زال مطلوباً
+    var cd = st.el.card;
+    cd.classList.remove('two', 'inverted');
+    cd.innerHTML = '<span class="card-sym">' + art.check() + '</span>';
+    UI.anim(cd, [{ transform: 'scale(.4) rotate(-15deg)' }, { transform: 'scale(1.15)' }, { transform: 'none' }], { dur: 450, easing: UI.SPRING, fill: 'none' });
+    // الأعمدة القديمة تبهت ولا يُحتسب عليها شيء
+    st.rings.forEach(function (r) { r.poles.forEach(function (p) { if (p.el) p.el.classList.add('old'); }); });
     // احتفال: العربات تقفز بالتتابع، وفرقعة جسيمات، ونفخة دخان كبيرة
     st.cars.forEach(function (c, i) {
       UI.anim(c.el, [{ transform: 'translateY(0)' }, { transform: 'translateY(-14px)' }, { transform: 'translateY(0)' }], { dur: 560, delay: i * 110, easing: UI.SPRING, fill: 'none', deco: true });

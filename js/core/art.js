@@ -272,6 +272,12 @@
       '<rect x="20" y="28" width="8" height="12" rx="3" fill="currentColor"/>', 'icon-svg');
   }
 
+  /* علامة «تمّ»: دائرة خضراء بصح أبيض — تظهر فور اكتمال المطلوب */
+  function check() {
+    return svg('0 0 100 100', '<circle cx="50" cy="50" r="46" fill="#2DBE7E" stroke="#1C8F5C" stroke-width="5"/>' +
+      '<path d="M28 52L44 67L73 36" fill="none" stroke="#fff" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>', 'check-svg');
+  }
+
   function pauseIcon() {
     return svg('0 0 48 48', '<rect x="13" y="10" width="8" height="28" rx="3" fill="currentColor"/><rect x="27" y="10" width="8" height="28" rx="3" fill="currentColor"/>', 'icon-svg');
   }
@@ -529,6 +535,7 @@
     house: house,
     replayIcon: replayIcon,
     pauseIcon: pauseIcon,
+    check: check,
     playIcon: playIcon,
     bulb: bulb,
     cloud: cloud,

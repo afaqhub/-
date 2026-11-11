@@ -182,7 +182,12 @@
       if (B.audio) B.audio.play('place');
     });
     st.caught++;
-    if (st.caught >= st.need) { st.active = false; setTimeout(function () { if (st && st.done) st.done(true); }, 750 / UI.ts); }
+    if (st.caught >= st.need) {
+      st.active = false;
+      st.card.innerHTML = B.art.check();
+      UI.anim(st.card, [{ transform: 'scale(.4) rotate(-15deg)' }, { transform: 'scale(1.15)' }, { transform: 'none' }], { dur: 450, easing: UI.SPRING, fill: 'none' });
+      st.pond.classList.add('finished');
+      setTimeout(function () { if (st && st.done) st.done(true); }, 750 / UI.ts); }
   }
 
   async function round(ctx, level, demo, alive) {
@@ -199,7 +204,7 @@
     st.slots.innerHTML = '';
     for (var i = 0; i < st.need; i++) st.slots.appendChild(h('span', { class: 'lt-slot', html: fishSvg(FISH_COLS[i]) }));
     buildFish(level);
-    st.pond.classList.remove('calm');
+    st.pond.classList.remove('calm', 'finished');
     await ctx.sleep(700);
     if (!alive()) return;
     st.active = true;

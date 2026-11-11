@@ -177,3 +177,4 @@
 }
 .end-train .seat { flex: none; margin-top: 22%; }
 .end-train .seat svg { width: 100%; height: 100%; }
+.train-stage .pole.old { opacity: .35; transition: opacity .3s; }
