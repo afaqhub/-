@@ -912,6 +912,106 @@ textarea, input { -webkit-user-select: text; user-select: text; }
   .zones .tile-name { white-space: nowrap; font-size: clamp(11px, 2.2vh, 20px); }
 }
 
+/* ═════════ الرسم الحر ═════════ */
+.dr-stage { background: linear-gradient(180deg, #E4F6FF 0%, #FFE9F4 100%); --deep: #6B3CC9; padding-top: var(--hud-h); }
+.dr-main { padding: 2px 0; }
+.dr-wrap { width: 100%; height: 100%; border-radius: 26px; overflow: hidden; background: #fff; box-shadow: inset 0 0 0 5px #8E5CF0, 0 8px 0 #6B3CC9; }
+.dr-canvas { width: 100%; height: 100%; display: block; touch-action: none; cursor: crosshair; }
+.dr-tray { position: relative; z-index: 3; flex: none; display: flex; flex-wrap: nowrap; gap: 8px; width: 100%; overflow-x: auto; padding: 14px 4px 10px; touch-action: pan-x; --cs: var(--tap); -webkit-overflow-scrolling: touch; justify-content: flex-start; direction: rtl; }
+.dr-tray > * { flex: none; }
+.dr-size .ws-dot { margin: auto; } .dr-size { display: grid; place-items: center; padding: 0; }
+.dr-mix { position: relative; --deep: #8A5A33; }
+.dr-mixdot { position: absolute; right: 8%; top: 8%; width: 36%; aspect-ratio: 1; border-radius: 50%; border: 3px solid #fff; display: none; }
+.dr-mixdot.on { display: block; }
+.dr-erase { --deep: #C23C69; }
+@media (max-height: 500px) { .dr-stage { flex-direction: row; } .dr-tray { flex-direction: column; width: auto; overflow-x: visible; overflow-y: auto; touch-action: pan-y; max-height: 100%; padding: 4px; } }
+
+/* ═════════ بستاني ═════════ */
+.gd-stage { background: linear-gradient(180deg, #8FD3F4 0%, #CFEBFF 55%, #D9F7D6 100%); padding: 0; display: block; }
+.gd-sun { position: absolute; left: 6%; top: 3%; width: clamp(70px, 14vmin, 120px); pointer-events: none; }
+.gd-hills { position: absolute; left: 0; right: 0; bottom: 0; height: 55%; pointer-events: none; }
+.gd-hills svg { width: 100%; height: 100%; }
+.gd-field { position: absolute; left: 0; right: 0; bottom: 0; top: 28%; background: linear-gradient(180deg, rgba(95, 205, 150, .0), #5FCD96 20%, #2DBE7E); }
+.gd-item { position: absolute; transform-origin: 50% 100%; margin-left: -4vmin; cursor: pointer; touch-action: manipulation; }
+.gd-item svg { width: 100%; height: auto; overflow: visible; filter: drop-shadow(0 4px 0 rgba(0, 0, 0, .12)); }
+.gd-count { position: absolute; top: calc(18px + var(--safe-t)); left: 0; right: 0; margin: 0 auto; width: max-content; display: flex; align-items: center; gap: 8px; padding: 6px 18px; border-radius: 999px; background: rgba(255, 255, 255, .85); box-shadow: 0 4px 0 var(--lilac-deep); font-size: 26px; color: var(--night); }
+.gd-count-ic { width: 32px; } .gd-count-ic svg { width: 100%; height: auto; }
+.gd-empty { position: absolute; inset: 0; display: grid; place-items: center; }
+.gd-seed { width: clamp(70px, 14vmin, 110px); position: absolute; top: 34%; animation: balloonFloat 4s ease-in-out infinite; }
+.gd-bear { width: clamp(90px, 18vmin, 150px); position: absolute; top: 52%; }
+.gd-seed svg, .gd-bear svg { width: 100%; height: auto; }
+
+/* ═════════ ورشة: وضع النموذج ═════════ */
+.ws-board.model .ws-ghost { opacity: 0; }
+.ws-model { position: absolute; top: 3%; inset-inline-start: 3%; width: 34%; aspect-ratio: 1; padding: 6%; border-radius: 18px; background: rgba(255, 255, 255, .9); box-shadow: 0 4px 0 #E2A21B; z-index: 3; pointer-events: none; }
+.ws-model .ws-art { position: relative; width: 100%; height: 100%; }
+.ws-model svg { position: absolute; overflow: visible; }
+
+/* ═════════ ارسم الطريق ═════════ */
+.tr-stage { background: linear-gradient(180deg, #FFF3C9 0%, #D9F7D6 100%); --deep: #0B8269; }
+.tr-card { flex: none; min-width: clamp(80px, 16vmin, 130px); height: clamp(80px, 16vmin, 130px); border-radius: 26px; background: #FAFCFF; display: grid; place-items: center; padding: 8px 14px; box-shadow: 0 7px 0 #0B8269, 0 14px 18px rgba(11, 130, 105, .25); z-index: 3; }
+.tr-letter { font-size: clamp(56px, 12vmin, 100px); font-weight: 800; color: var(--night); line-height: 1; padding-bottom: .12em; }
+.tr-pair { display: flex; align-items: center; gap: 6px; direction: ltr; }
+.tr-pair svg { width: clamp(44px, 9vmin, 76px); height: auto; } .tr-pair i { width: 22px; height: 5px; border-radius: 3px; background: #0B8269; }
+.tr-board { position: relative; width: min(94vw, 62vh, 520px); aspect-ratio: 1; border-radius: 30px; background: #FAFCFF; box-shadow: inset 0 0 0 5px #FFD34E, 0 8px 0 #E2A21B; touch-action: none; }
+.tr-svg { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; overflow: visible; }
+.tr-lane { stroke: #EEF3FF; } .tr-guide { stroke: #8FA0D8; stroke-dasharray: 2 14; }
+.tr-guide.pulse { animation: trPulse 1s ease-in-out infinite; stroke: var(--sun-deep); }
+@keyframes trPulse { 0%, 100% { opacity: .4; } 50% { opacity: 1; } }
+.tr-fill { stroke: #2DBE7E; pointer-events: none; }
+.tr-start { position: absolute; width: 11%; aspect-ratio: 1; margin: -5.5% 0 0 -5.5%; border-radius: 50%; background: rgba(45, 190, 126, .28); border: 4px solid #2DBE7E; pointer-events: none; }
+.tr-goal { position: absolute; width: 15%; margin: 0; transform: translate(-50%, -50%); pointer-events: none; }
+.tr-avatar { position: absolute; width: 15%; transform: translate(-50%, -50%); pointer-events: none; transition: left .06s linear, top .06s linear; filter: drop-shadow(0 4px 0 rgba(0, 0, 0, .15)); z-index: 2; }
+.tr-goal svg, .tr-avatar svg { width: 100%; height: auto; }
+.tr-paw { position: absolute; transform: translate(-50%, -8%); pointer-events: none; z-index: 4; }
+.tr-paw svg { width: 100%; height: 100%; overflow: visible; }
+@media (max-height: 500px) { .tr-stage .g-main { flex-direction: row; gap: 14px; } .tr-board { width: min(80vh, 50vw); } }
+.end-plant { position: absolute; bottom: calc(var(--tap) * 1.5 + 60px); left: 0; right: 0; margin: 0 auto; width: clamp(70px, 14vmin, 110px); pointer-events: none; z-index: 2; }
+.end-plant svg { width: 100%; height: auto; filter: drop-shadow(0 6px 10px rgba(0, 0, 0, .3)); }
+.guide-steps b { font-size: 20px; }
+
+/* ═════════ الرئيسية: ١٠ في «وحدي» + ٢ + ٤ ═════════ */
+.zones { overflow-y: auto; overflow-x: hidden; }
+@media (orientation: portrait) {
+  .zones { align-content: flex-start; }
+  .zones .zone-together, .zones .zone-create { flex: 1 1 100%; }
+  .zone-solo .tile { flex: 0 0 calc((100% - 30px) / 4); }
+  .zones .zone-solo .tile, .zones .tile { max-width: max(72px, min(120px, 9.6vh)); }
+  .zone-together .tiles, .zone-create .tiles { justify-content: center; }
+  .zone-together .tile, .zone-create .tile { flex: 0 0 calc((100% - 30px) / 4); }
+  .zones .tile-name { font-size: clamp(12px, 1.7vh, 18px); white-space: normal; line-height: 1.15; }
+  .zones .zone { padding: 6px 10px 10px; }
+  .zones .zone-name { font-size: 22px; } .zones .zone-badge { width: 40px; height: 34px; }
+  .zones { row-gap: 10px; }
+}
+@media (orientation: landscape) {
+  .zone-create .tiles { flex-wrap: wrap; justify-content: center; row-gap: 6px; }
+  .zone-create .tile { flex: 0 0 calc((100% - 8px) / 2); }
+  .zones .tile { max-width: max(72px, min(170px, 17vh)); }
+}
+@media (orientation: landscape) and (max-height: 500px) {
+  .zones .zone-solo { margin-top: calc(var(--tap) - 2px); }
+  .zones .tile-name { font-size: 11px; }
+}
+@media (max-height: 500px) { .guide-card { padding: 10px 16px 12px; gap: 6px; } .guide-card h2 { font-size: 20px; } .guide-steps { gap: 4px; } .guide-steps li { font-size: 14px; line-height: 1.35; } .guide-steps b { width: 22px; height: 22px; font-size: 14px; } .guide-go { min-height: 56px; font-size: 22px; } }
+@media (orientation: portrait) {
+  .zones .tile, .zones .zone-solo .tile { max-width: max(72px, 8.6vh); }
+  .zones .tile-name { max-width: 100%; overflow-wrap: anywhere; white-space: normal; font-size: clamp(11px, 1.55vh, 16px); }
+  .zones .zone-head { margin-bottom: 0; }
+  .zones { top: calc(var(--tap) + 14px + var(--safe-t)); }
+}
+@media (orientation: landscape) {
+  .zones { bottom: calc(6px + var(--safe-b)) !important; top: calc(6px + var(--safe-t)); }
+  .zones .zone-head { margin-bottom: 0; }
+  .zones .zone-name { font-size: clamp(18px, 3.4vh, 28px); }
+}
+@media (orientation: landscape) and (max-height: 500px) {
+  .zones .zone-badge { width: 34px; height: 30px; }
+  .zones .zone-solo { margin-top: calc(var(--tap) + 8px); }
+}
+@media (orientation: portrait) { .zones .zone-solo .tile-name, .zones .tile-name { white-space: normal !important; width: 100%; } }
+@media (orientation: portrait) { .zones { bottom: calc(0px + var(--safe-b)) !important; padding-bottom: 64px; touch-action: pan-y; scrollbar-width: none; } .zones::-webkit-scrollbar { display: none; } }
+
 </style>
 </head>
 <body>
@@ -942,6 +1042,9 @@ textarea, input { -webkit-user-select: text; user-select: text; }
       shadows: 'لعبة الظلال',
       more: 'أين الأكثر؟',
       odd: 'أين المختلف؟',
+      tracing: 'ارسم الطريق',
+      drawing: 'الرسم الحر',
+      garden: 'بستاني',
       workshop: 'ورشة الأشكال',
       coloring: 'لوحة التلوين'
     },
@@ -972,7 +1075,20 @@ textarea, input { -webkit-user-select: text; user-select: text; }
       brRead: 'اقرأ الجملة، والطفل تختار الصورة التي تُكملها'
     },
 
-    create: { color: 'تغيير اللون', clear: 'تنظيف اللوحة', next: 'رسمة أخرى' },
+    welcome: {
+      title: 'أهلاً بكم في بستان الصغار',
+      lines: [
+        'ألعاب قصيرة تُمتع الطفل وتدرّبه على الانتباه والذاكرة والعدّ والحروف والألوان والأشكال.',
+        'لا خسارة فيها ولا مؤقتات ولا نقاط؛ وكل جولة تنتهي بنجاح، وكل جلسة تنتهي بإضاءة المصابيح العشرة.',
+        'مع كل جلسة تكتمل ينمو «بستاني»: يزرع الطفل شيئاً جديداً يبقى معه.',
+        'ألعاب «معك» يلعبها الطفل مع أحد الوالدين، ويظهر لكم شرحها قبل البدء.',
+        'للوالدين: اضغطوا ٣ ثوانٍ على شعار «بستان الصغار» لفتح ركنكم (الصوت، حدّ اللعب، الملخّص).'
+      ],
+      go: 'هيّا نبدأ'
+    },
+    garden: { count: 'ما زُرع' },
+    summary: { title: 'ملخّص', favorite: 'اللعبة الأكثر لعباً', suggest: 'اقتراح للعب الآن', planted: 'ما زُرع في البستان', sessionsAll: 'جلسات مكتملة', none: 'لم يلعب بعد' },
+    create: { color: 'تغيير اللون', clear: 'تنظيف اللوحة', next: 'رسمة أخرى', mix: 'وعاء خلط الألوان', size: 'حجم الفرشاة', erase: 'ممحاة' },
 
     buttons: {
       home: 'الرئيسية',
@@ -1048,8 +1164,8 @@ textarea, input { -webkit-user-select: text; user-select: text; }
   var B = (window.Bustan = window.Bustan || {});
 
   var KEY = 'bustan.progress';
-  var SCHEMA = 2;
-  var GAME_IDS = ['train', 'mirror', 'pattern', 'fruits', 'letters', 'memory', 'shadows', 'more', 'odd', 'firstsound', 'bridge'];
+  var SCHEMA = 3;
+  var GAME_IDS = ['train', 'mirror', 'pattern', 'fruits', 'letters', 'memory', 'shadows', 'more', 'odd', 'tracing', 'firstsound', 'bridge'];
   var MAX_DAYS = 60;
 
   var data = null;
@@ -1069,7 +1185,9 @@ textarea, input { -webkit-user-select: text; user-select: text; }
       games: games,
       days: {},          // 'YYYY-MM-DD' -> { sessions:{id:n}, rounds:{id:n} }
       lock: { soloOpenDate: '' }, // تاريخ اليوم الذي فتح فيه الوالد «وحدي» رغم الحد
-      demoSeen: {}       // id -> true
+      demoSeen: {},      // id -> true
+      garden: [],        // أنواع ما زُرع في «بستاني»
+      welcomed: false    // هل عُرضت شاشة الترحيب
     };
   }
 
@@ -1078,7 +1196,9 @@ textarea, input { -webkit-user-select: text; user-select: text; }
   var MIGRATIONS = {
     0: function (d) { d.schemaVersion = 1; return d; },
     // ١ → ٢: كان الصوت مطفأً افتراضياً، وصار مفعّلاً؛ نفعّله لمن حُفظ عنده الافتراضي القديم
-    1: function (d) { if (d.settings) d.settings.soundOn = true; d.schemaVersion = 2; return d; }
+    1: function (d) { if (d.settings) d.settings.soundOn = true; d.schemaVersion = 2; return d; },
+    // ٢ → ٣: البستان وشاشة الترحيب
+    2: function (d) { d.garden = d.garden || []; d.schemaVersion = 3; return d; }
   };
 
   function isObj(x) { return x && typeof x === 'object' && !Array.isArray(x); }
@@ -1486,6 +1606,29 @@ textarea, input { -webkit-user-select: text; user-select: text; }
       var u = B.S.statsDb;
       if (!u) return Promise.reject(new Error('no db'));
       return window.fetch(u.replace(/\/+$/, '') + '/stats.json').then(function (r) { return r.json(); });
+    }
+  };
+})();
+
+</script>
+<script>
+/* «بستاني»: بستان دائم يكبر مع كل جلسة تكتمل (شجرة، زهرة، حيوان…).
+   لا نقاط ولا نجوم ولا سلاسل أيام: المكافأة أن يحيا ما أنجزه. يُحفظ في التخزين (garden). */
+(function () {
+  'use strict';
+  var B = (window.Bustan = window.Bustan || {});
+  var KINDS = ['tree', 'flower', 'rabbit', 'rose', 'duck', 'balloon', 'bear', 'windmill', 'butterfly', 'lamb', 'bee', 'cat',
+    'pumpkin', 'frog', 'bird', 'turtle', 'house', 'strawberry', 'owl', 'grapes'];
+  B.garden = {
+    KINDS: KINDS,
+    items: function () { return B.storage.data().garden; },
+    /* يزرع عنصراً جديداً بالتتابع ويُرجع نوعه */
+    plant: function () {
+      var g = B.storage.data().garden, k = KINDS[g.length % KINDS.length];
+      g.push(k);
+      if (g.length > 120) g.shift();
+      B.storage.save();
+      return k;
     }
   };
 })();
@@ -1984,6 +2127,24 @@ textarea, input { -webkit-user-select: text; user-select: text; }
     var c = function (x, y, f) { return '<circle cx="' + x + '" cy="' + y + '" r="17" fill="' + f + '"/>'; };
     return c(28, 28, '#3D8BFD') + c(72, 28, '#3D8BFD') + c(28, 72, '#3D8BFD') +
       '<rect x="55" y="55" width="34" height="34" rx="8" fill="#FF8A3D"/><circle cx="72" cy="72" r="27" fill="none" stroke="#FFD34E" stroke-width="5" stroke-dasharray="6 6"/>';
+  };
+  GAME_ICONS.tracing = function () {
+    return '<path d="M16 78Q20 24 56 40T86 20" fill="none" stroke="#EEF3FF" stroke-width="16" stroke-linecap="round"/>' +
+      '<path d="M16 78Q20 24 56 40T86 20" fill="none" stroke="#8FA0D8" stroke-width="3" stroke-dasharray="2 8" stroke-linecap="round"/>' +
+      '<path d="M16 78Q20 24 40 36" fill="none" stroke="#2DBE7E" stroke-width="9" stroke-linecap="round"/>' +
+      '<circle cx="86" cy="20" r="9" fill="#F2658E"/><circle cx="86" cy="20" r="3.5" fill="#FFD34E"/>' +
+      '<g transform="translate(24 56) scale(.3)">' + ANIMALS.duck(false) + '</g>';
+  };
+  GAME_ICONS.drawing = function () {
+    return '<path d="M18 74Q30 30 50 52T84 24" fill="none" stroke="#F0485A" stroke-width="9" stroke-linecap="round"/>' +
+      '<path d="M24 86Q46 60 62 80T90 56" fill="none" stroke="#3D8BFD" stroke-width="9" stroke-linecap="round"/>' +
+      '<path d="M70 10L90 30L56 40Z" fill="#FFC83D" stroke="#E2A21B" stroke-width="4" stroke-linejoin="round"/><path d="M56 40L52 52L66 44Z" fill="#FFE5B8"/>';
+  };
+  GAME_ICONS.garden = function () {
+    return '<path d="M0 78Q50 62 100 78V100H0Z" fill="#2DBE7E"/>' +
+      '<rect x="22" y="42" width="8" height="30" rx="3" fill="#8A5A33"/><circle cx="26" cy="36" r="17" fill="#5ED38A"/><circle cx="22" cy="30" r="3.5" fill="#F0485A"/><circle cx="32" cy="40" r="3.5" fill="#F0485A"/>' +
+      '<rect x="66" y="52" width="4" height="22" rx="2" fill="#1C8F5C"/><circle cx="68" cy="46" r="10" fill="#F2658E"/><circle cx="68" cy="46" r="4" fill="#FFD34E"/>' +
+      '<g transform="translate(38 54) scale(.26)">' + ANIMALS.rabbit(false) + '</g>';
   };
   GAME_ICONS.workshop = function () {
     return '<rect x="10" y="50" width="38" height="38" rx="6" fill="#3D8BFD" fill-opacity=".8" stroke="#3D8BFD" stroke-width="4"/>' +
@@ -2613,11 +2774,14 @@ textarea, input { -webkit-user-select: text; user-select: text; }
     { id: 'shadows', zone: 'solo', rounds: 10 },
     { id: 'more', zone: 'solo', rounds: 10 },
     { id: 'odd', zone: 'solo', rounds: 10 },
+    { id: 'tracing', zone: 'solo', rounds: 10 },
     { id: 'firstsound', zone: 'together', rounds: 8 },
     { id: 'bridge', zone: 'together', rounds: 8 },
     // القسم الإبداعي: لعب حرّ بلا جولات ولا مصابيح
     { id: 'workshop', zone: 'create', free: true },
-    { id: 'coloring', zone: 'create', free: true }
+    { id: 'coloring', zone: 'create', free: true },
+    { id: 'drawing', zone: 'create', free: true },
+    { id: 'garden', zone: 'create', free: true }
   ];
   B.free = B.free || {};
   B.games = B.games || {};
@@ -2780,7 +2944,12 @@ textarea, input { -webkit-user-select: text; user-select: text; }
     var btn = UI.iconButton('home-btn end-home', B.art.house(), S.buttons.home, function () { exit(ctx, game); });
     var end = h('div', { class: 'end-screen' }, h('div', { class: 'end-art' }, art), btn);
     ctx.hud.classList.add('is-hidden');
+    var plant = B.garden.plant();
+    end.appendChild(h('div', { class: 'end-plant', html: B.pics.draw(plant) }));
     ctx.root.appendChild(end);
+    var ep = end.lastChild;
+    UI.anim(ep, [{ opacity: 0, transform: 'translateY(30px) scale(.2)' }, { opacity: 1, transform: 'translateY(0) scale(1.15)', offset: 0.6 }, { opacity: 1, transform: 'none' }], { dur: 900, delay: 1400, easing: UI.SPRING, fill: 'backwards' });
+    if (B.audio) setTimeout(function () { B.audio.play('pop'); }, 1400 / UI.ts);
     UI.anim(end, [{ opacity: 0 }, { opacity: 1 }], { dur: 1000, fill: 'both' });
     if (art) UI.anim(art, [{ opacity: 0, transform: 'translateY(16px)' }, { opacity: 1, transform: 'none' }], { dur: 900, delay: 300, easing: UI.SPRING });
   }
@@ -2929,7 +3098,7 @@ textarea, input { -webkit-user-select: text; user-select: text; }
       h('div', { class: 'home-hills mid', html: art.sceneTile('mid', vp.W, Math.round(vp.H * 0.3)) })
     );
 
-    var zones = h('main', { class: 'zones' }, zone('solo', locked), zone('together', false), zone('create', false));
+    var zones = h('main', { class: 'zones scrollable' }, zone('solo', locked), zone('together', false), zone('create', false));
     var fbPill = h('div', { class: 'fb-pill', role: 'button', tabindex: '0', text: B.S.feedback.pill });
     fbPill.addEventListener('click', function () { B.feedback.open(); });
     var dot = h('div', { class: 'adm-dot', role: 'button', tabindex: '0', 'aria-label': B.S.admin.dot, text: '·' });
@@ -2949,6 +3118,19 @@ textarea, input { -webkit-user-select: text; user-select: text; }
       UI.anim(el.querySelectorAll('.zone-head')[1], [{ opacity: 0, transform: 'translateY(-10px)' }, { opacity: 1, transform: 'none' }], { dur: 420, delay: 200 });
       UI.anim(el.querySelectorAll('.zone-head')[2], [{ opacity: 0, transform: 'translateY(-10px)' }, { opacity: 1, transform: 'none' }], { dur: 420, delay: 400 });
     });
+    // شاشة ترحيب للوالدين مرة واحدة
+    if (!B.storage.data().welcomed) {
+      var W = B.S.welcome, go = h('button', { class: 'guide-go', type: 'button', text: W.go });
+      var card = h('div', { class: 'guide-card' }, h('h2', { text: W.title }),
+        h('ul', { class: 'guide-steps' }, W.lines.map(function (t) { return h('li', {}, h('b', { text: '•' }), h('span', { text: t })); })), go);
+      var layer = h('div', { class: 'guide-layer', style: { zIndex: 50 } }, card);
+      el.appendChild(layer);
+      requestAnimationFrame(function () { UI.anim(card, [{ opacity: 0, transform: 'translateY(20px) scale(.95)' }, { opacity: 1, transform: 'none' }], { dur: 450, easing: UI.SPRING, fill: 'none' }); });
+      go.addEventListener('click', function () {
+        B.storage.data().welcomed = true; B.storage.save();
+        UI.anim(layer, [{ opacity: 1 }, { opacity: 0 }], { dur: 250 }).then(function () { layer.remove(); });
+      });
+    }
     return el;
   }
 
@@ -2997,6 +3179,14 @@ textarea, input { -webkit-user-select: text; user-select: text; }
     }
 
     /* الإحصاءات */
+    var played = B.catalog.filter(function (c) { return !c.free; }).map(function (c) { return { id: c.id, g: st.game(c.id) }; });
+    var fav = played.slice().sort(function (a, b) { return b.g.rounds - a.g.rounds; })[0];
+    var sug = played.filter(function (x) { return !B.games[x.id] ? false : true; }).sort(function (a, b) { return a.g.rounds - b.g.rounds; })[0];
+    var SM = S.summary, totalS = played.reduce(function (s, x) { return s + x.g.sessions; }, 0);
+    var summary = h('section', { class: 'p-sec' }, h('h3', { text: SM.title }),
+      h('div', { class: 'p-line', text: SM.sessionsAll + ': ' + UI.num(totalS) + ' — ' + SM.planted + ': ' + UI.num(st.data().garden.length) }),
+      h('div', { class: 'p-line', text: SM.favorite + ': ' + (fav && fav.g.rounds ? S.games[fav.id] : SM.none) }),
+      h('div', { class: 'p-line', text: SM.suggest + ': ' + (sug ? S.games[sug.id] : SM.none) }));
     var rows = B.catalog.filter(function (c) { return !c.free; }).map(function (c) {
       var g = st.game(c.id), built = !!B.games[c.id];
       return h('div', { class: 'p-row' },
@@ -3130,6 +3320,7 @@ textarea, input { -webkit-user-select: text; user-select: text; }
 
     var body = h('div', { class: 'p-body scrollable' },
       !st.isPersistent() ? h('div', { class: 'p-warn', text: P.storageWarn }) : null,
+      summary,
       h('section', { class: 'p-sec' }, rows),
       h('section', { class: 'p-sec' }, h('h3', { text: P.lastDays }), chart),
       h('section', { class: 'p-sec' },
@@ -5710,6 +5901,178 @@ textarea, input { -webkit-user-select: text; user-select: text; }
 
 </script>
 <script>
+/* لعبة «ارسم الطريق» — تتبّع الخطوط بالإصبع (تمهيد للكتابة وتقوية لليد).
+   حيوان صغير يقف في بداية طريق منقّط، وعلى الطفل أن يمرّر إصبعه فوق الطريق فيسير الحيوان معه حتى هدفه.
+   المستويات: ١) خطوط مستقيمة  ٢) منحنيات وموجة  ٣) زوايا (زجزاج، مثلث، مربع)  ٤) دائرة وحلزون ومنحنى S
+              ٥) أشكال بعض الحروف (ا ل ر د ب) — مجرد أشكال بلا نطق.
+   لا فشل: الخروج عن الطريق لا يوقف شيئاً، يكفي أن يعود الإصبع قرب آخر نقطة وصل إليها.
+   سلّم المساعدة: بعد ٣ خروج أو ٩ ثوانٍ بلا تقدّم ينبض الطريق، ثم يُظهر الكفّ الطريق ويُكمله. */
+(function () {
+  'use strict';
+  var B = (window.Bustan = window.Bustan || {});
+  var UI = B.UI, h = UI.h, art = B.art, kit = B.kit;
+  var NS = 'http://www.w3.org/2000/svg';
+
+  /* الطرق في لوحة ٣٠٠×٣٠٠. الحرف إن وُجد يظهر في البطاقة. */
+  var PATHS = {
+    1: [{ d: 'M40 150H260' }, { d: 'M150 40V260' }, { d: 'M50 250L250 50' }, { d: 'M260 150H40' }, { d: 'M50 50L250 250' }],
+    2: [{ d: 'M40 220Q150 20 260 220' }, { d: 'M30 150Q75 70 120 150T210 150T290 150' }, { d: 'M40 80Q150 260 260 80' }, { d: 'M50 230C50 100 250 100 250 230' }],
+    3: [{ d: 'M40 220L100 80L160 220L220 80L270 220' }, { d: 'M150 50L260 250H40Z' }, { d: 'M60 60H240V240H60Z' }, { d: 'M50 200L120 120L180 200L250 100' }],
+    4: [{ d: 'M150 40A110 110 0 1 1 149.9 40' }, { d: 'M60 80C260 20 260 160 150 150C40 140 40 250 240 230' }, { d: 'M150 150C150 110 200 110 200 150C200 210 100 210 100 140C100 70 210 60 230 150' }, { d: 'M70 70C250 70 250 150 150 150C50 150 50 230 230 230' }],
+    5: [{ d: 'M150 40V260', letter: 'ا' }, { d: 'M115 40V195Q115 255 180 255Q235 255 248 205', letter: 'ل' }, { d: 'M205 80Q215 190 105 245', letter: 'ر' }, { d: 'M75 100H190Q228 100 222 150Q214 205 148 242', letter: 'د' }, { d: 'M60 120Q60 235 150 235Q240 235 240 120', letter: 'ب' }]
+  };
+  var PAIRS = [['bee', 'flower'], ['rabbit', 'carrot'], ['bear', 'apple'], ['cat', 'fish'], ['lamb', 'tree'], ['duck', 'whale'], ['frog', 'leaf'], ['bird', 'house']];
+  var STEP = 3;      // المسافة بين نقاط العيّنة بوحدات اللوحة
+
+  function makeRound(level, prev) {
+    var list = PATHS[level] || PATHS[1], p;
+    do { p = kit.pick(list); } while (list.length > 1 && p.d === prev);
+    return { d: p.d, letter: p.letter || '', pair: kit.pick(PAIRS), level: level };
+  }
+
+  /* عيّنة نقاط على المسار (تحتاج DOM) */
+  function sample(d) {
+    var path = document.createElementNS(NS, 'path');
+    path.setAttribute('d', d);
+    var L = path.getTotalLength(), pts = [];
+    for (var s = 0; s <= L; s += STEP) { var q = path.getPointAtLength(s); pts.push([q.x, q.y]); }
+    var e = path.getPointAtLength(L); pts.push([e.x, e.y]);
+    return { pts: pts, len: L };
+  }
+
+  var st = null, runner = kit.roundRunner();
+
+  function build(ctx) {
+    ctx.stage.classList.add('g-stage', 'tr-stage');
+    st.card = h('div', { class: 'tr-card' });
+    st.board = h('div', { class: 'tr-board' });
+    ctx.stage.appendChild(h('div', { class: 'g-main' }, st.card, st.board));
+  }
+
+  function put(el, p) { el.style.left = p[0] / 3 + '%'; el.style.top = p[1] / 3 + '%'; }
+
+  async function round(ctx, level, demo, alive) {
+    var R = makeRound(level, st.prev); st.prev = R.d;
+    var sm = sample(R.d), pts = sm.pts, N = pts.length;
+    var prog = 0, errors = 0, straying = false, down = false, busy = false, finished = false, idle = 0, done;
+    var fin = new Promise(function (r) { done = r; });
+    st.board.innerHTML = ''; st.card.innerHTML = '';
+    // البطاقة: الحرف في المستوى ٥، وإلا الحيوان وهدفه
+    if (R.letter) st.card.appendChild(h('span', { class: 'tr-letter', text: R.letter }));
+    else st.card.innerHTML = '<span class="tr-pair">' + B.pics.draw(R.pair[0]) + '<i></i>' + B.pics.draw(R.pair[1]) + '</span>';
+    UI.anim(st.card, [{ opacity: 0, transform: 'scale(.5)' }, { opacity: 1, transform: 'none' }], { dur: 420, easing: UI.SPRING, fill: 'backwards' });
+
+    var svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 300 300'); svg.setAttribute('class', 'tr-svg');
+    function p(cls, w) { var e = document.createElementNS(NS, 'path'); e.setAttribute('d', R.d); e.setAttribute('class', cls); e.setAttribute('fill', 'none'); e.setAttribute('stroke-width', w); e.setAttribute('stroke-linecap', 'round'); e.setAttribute('stroke-linejoin', 'round'); svg.appendChild(e); return e; }
+    p('tr-lane', 40); var guide = p('tr-guide', 8); var fill = p('tr-fill', 22);
+    fill.style.strokeDasharray = '0 99999';
+    st.board.appendChild(svg);
+    var goal = h('div', { class: 'tr-goal', html: B.pics.draw(R.pair[1]) }); put(goal, pts[N - 1]);
+    var av = h('div', { class: 'tr-avatar', html: B.pics.draw(R.pair[0]) }); put(av, pts[0]);
+    var start = h('div', { class: 'tr-start' }); put(start, pts[0]);
+    st.board.appendChild(start); st.board.appendChild(goal); st.board.appendChild(av);
+    UI.anim(av, [{ transform: 'translate(-50%,-50%) scale(0)' }, { transform: 'translate(-50%,-50%) scale(1)' }], { dur: 420, easing: UI.SPRING, fill: 'backwards' });
+    if (B.audio) B.audio.play('card');
+
+    function setProg(i) {
+      prog = Math.max(prog, Math.min(N - 1, i));
+      fill.style.strokeDasharray = Math.max(0.01, prog * STEP) + ' 99999';
+      put(av, pts[prog]);
+      idle = 0;
+      if (prog >= N - 4 && !finished) { finished = true; done(true); }
+    }
+    function toSvg(e) {
+      var r = svg.getBoundingClientRect();
+      return [(e.clientX - r.left) / r.width * 300, (e.clientY - r.top) / r.height * 300];
+    }
+    function tol() { var r = svg.getBoundingClientRect(); return Math.max(30, 40 * 300 / r.width); }
+    function move(e) {
+      if (!down || busy || finished || ctx.paused) return;
+      var q = toSvg(e), T = tol(), best = -1, hi = Math.min(N - 1, prog + 70);
+      for (var i = prog; i <= hi; i++) {
+        var dx = pts[i][0] - q[0], dy = pts[i][1] - q[1];
+        if (dx * dx + dy * dy <= T * T) best = i;
+      }
+      if (best >= 0) {
+        if (straying) straying = false;
+        if (best > prog) { setProg(best); if (B.audio && best % 20 === 0) B.audio.play('soft'); }
+      } else if (!straying) { straying = true; errors++; if (errors === 2) guide.classList.add('pulse'); if (errors >= 3 && !demo) autoTrace(); }
+    }
+    svg.addEventListener('pointerdown', function (e) {
+      if (busy || finished || ctx.paused) return;
+      var q = toSvg(e), T = tol() * 1.7, a = pts[prog];
+      if ((a[0] - q[0]) * (a[0] - q[0]) + (a[1] - q[1]) * (a[1] - q[1]) > T * T) return; // يبدأ قرب الحيوان
+      down = true; straying = false;
+      try { svg.setPointerCapture(e.pointerId); } catch (x) {}
+      e.preventDefault();
+    });
+    svg.addEventListener('pointermove', move);
+    ['pointerup', 'pointercancel'].forEach(function (ev) { svg.addEventListener(ev, function () { down = false; }); });
+
+    /* الكفّ يرسم الطريق ويُكمله (العرض التوضيحي، أو بعد تعثّر) */
+    async function autoTrace() {
+      if (busy || finished) return;
+      busy = true; down = false;
+      var sz = st.board.clientWidth * 0.26;
+      var paw = h('div', { class: 'tr-paw', style: { width: sz + 'px', height: sz * 96 / 88 + 'px' }, html: art.hand() });
+      st.board.appendChild(paw);
+      function at(i) { paw.style.left = pts[i][0] / 3 + '%'; paw.style.top = pts[i][1] / 3 + '%'; }
+      at(prog);
+      UI.anim(paw, [{ opacity: 0 }, { opacity: 1 }], { dur: 300, fill: 'backwards' });
+      await ctx.sleep(600); if (!alive()) return;
+      for (var i = prog; i < N && alive(); i += 2) { at(i); setProg(i); await ctx.sleep(22); }
+      setProg(N - 1);
+      paw.remove(); busy = false;
+    }
+    st.solve = function () { if (finished) return false; setProg(N - 1); return true; };
+    st.cancel = function () { finished = true; done(false); };
+
+    // خمول طويل: ينبض الطريق ثم يُكمله الكفّ
+    (async function watch() {
+      while (alive() && !finished) {
+        await ctx.sleep(1000);
+        if (ctx.paused || busy) continue;
+        idle++;
+        if (idle === 5) guide.classList.add('pulse');
+        if (idle >= 9 && !demo) autoTrace();
+      }
+    })();
+
+    await ctx.sleep(demo ? 900 : 300); if (!alive()) return;
+    if (demo) autoTrace();
+    var ok = await fin;
+    st.solve = null;
+    if (!alive() || !ok) return;
+    // الاحتفال: يقفز الحيوان إلى هدفه ويفرح
+    guide.classList.remove('pulse');
+    put(av, pts[N - 1]);
+    UI.anim(av, [{ transform: 'translate(-50%,-50%) scale(1)' }, { transform: 'translate(-50%,-120%) scale(1.3)' }, { transform: 'translate(-50%,-50%) scale(1)' }], { dur: 600, easing: UI.SPRING, fill: 'none' });
+    UI.anim(goal, [{ transform: 'translate(-50%,-50%) scale(1)' }, { transform: 'translate(-50%,-50%) scale(1.4)' }, { transform: 'translate(-50%,-50%) scale(1)' }], { dur: 600, easing: UI.SPRING, fill: 'none' });
+    var c = kit.center(goal, ctx.stage);
+    UI.burst(ctx.stage, c.x, c.y, { n: 22, spread: 150, dur: 1400 });
+    if (B.audio) { B.audio.play('right'); B.audio.play('cheer'); }
+    await ctx.sleep(1500); if (!alive()) return;
+    return { errors: demo ? 0 : Math.min(errors, 5) };
+  }
+
+  B.games.tracing = {
+    id: 'tracing',
+    mount: function (ctx) { st = { ctx: ctx }; build(ctx); },
+    demo: function (ctx) { return runner.run(function (alive) { return round(ctx, 1, true, alive); }); },
+    playRound: function (ctx, level) { return runner.run(function (alive) { return round(ctx, level, false, alive); }); },
+    cancelRound: function () { runner.cancel(); if (st) { if (st.cancel) st.cancel(); st.board.innerHTML = ''; } },
+    outro: function (ctx) { return kit.dusk(ctx); },
+    endArt: function () { return kit.endScene('bear'); },
+    destroy: function () { runner.stop(); st = null; },
+    _makeRound: makeRound,
+    _paths: PATHS,
+    _solveStep: function () { return !!(st && st.solve && st.solve()); }
+  };
+})();
+
+</script>
+<script>
 /* القسم الإبداعي: لعب حرّ بلا هدف ولا جولات ولا مصابيح.
    ١) ورشة الأشكال: ابنِ الصورة من الأشكال (بيت، صاروخ، قطار…)، تلتصق القطع في أماكنها كالمغناطيس.
    ٢) لوحة التلوين: رسمات بمناطق، تختار لوناً ثم تنقر المنطقة.
@@ -5784,7 +6147,7 @@ textarea, input { -webkit-user-select: text; user-select: text; }
       var board = h('div', { class: 'ws-board' });
       var tray = h('div', { class: 'ws-tray' });
       var nextBtn = h('button', { class: 'g-choice ws-next', type: 'button', 'aria-label': B.S.create.next, html: B.art.playIcon() });
-      ws = { idx: Math.floor(Math.random() * PICS.length), sel: null };
+      ws = { idx: Math.floor(Math.random() * PICS.length), sel: null, done: 0 };
       stage.appendChild(h('div', { class: 'g-main ws-main' }, board));
       stage.appendChild(h('div', { class: 'ws-bottom' }, tray, nextBtn));
       UI.bindPress(nextBtn, function () { ws.idx = (ws.idx + 1) % PICS.length; if (B.audio) B.audio.play('whoosh'); show(); });
@@ -5796,6 +6159,12 @@ textarea, input { -webkit-user-select: text; user-select: text; }
         ws.sel = null;
         var art = h('div', { class: 'ws-art' });
         board.appendChild(art);
+        // بعد ثلاث صور مكتملة: «ابنِ من نموذج» — صورة صغيرة ملوّنة للنظر، وتختفي الخطوط المتقطعة
+        var model = ws.done >= 3;
+        board.classList.toggle('model', model);
+        if (model) {
+          board.appendChild(h('div', { class: 'ws-model' }, h('div', { class: 'ws-art', html: pic.parts.map(function (pt) { return partSvg(pt, 'ws-fill', 'fill="' + pt.c + '" stroke="rgba(31,42,90,.35)" stroke-width="3"'); }).join('') })));
+        }
         ws.slots = pic.parts.map(function (pt, i) {
           // المكان: شكل متقطع، ومساحة لمس شفافة لا تقل عن حدّ اللمس
           var el = h('div', { class: 'ws-slot', 'data-i': i, html: partSvg(pt, 'ws-ghost', 'fill="rgba(255,255,255,.6)" stroke="#8FA0D8" stroke-width="3" stroke-dasharray="7 6"') });
@@ -5905,7 +6274,7 @@ textarea, input { -webkit-user-select: text; user-select: text; }
         if (B.audio) { B.audio.play('cheer'); }
         var c = kit.center(board, stage);
         UI.burst(stage, c.x, c.y, { n: 26, spread: 170, dur: 1500 });
-        board.classList.add('done');
+        board.classList.add('done'); ws.done++;
         if (pic.live === 'fly') {
           if (B.audio) B.audio.play('whoosh');
           UI.anim(art, [{ transform: 'translateY(0)' }, { transform: 'translateY(8px)', offset: 0.15 }, { transform: 'translateY(-120%)', offset: 0.6 }, { transform: 'translateY(-120%)', offset: 0.61, opacity: 0 }, { transform: 'translateY(30%)', opacity: 0, offset: 0.62 }, { transform: 'translateY(0)', opacity: 1 }], { dur: 2600, easing: 'ease-in-out', fill: 'none' });
@@ -6005,6 +6374,126 @@ textarea, input { -webkit-user-select: text; user-select: text; }
       show();
     },
     destroy: function () { cl = null; }
+  };
+
+  /* ═════════ الرسم الحر ═════════
+     لوحة بيضاء يرسم عليها الطفل بإصبعه: ٦ ألوان، ثلاثة أحجام للفرشاة، ممحاة، مكنسة،
+     و«وعاء الخلط»: يلمس لونين فيُخلط لون جديد (متوسط اللونين) ويصير لون الفرشاة. */
+  var DCOLS = ['#F0485A', '#FFC83D', '#3D8BFD', '#2DBE7E', '#8E5CF0', '#FF8A3D'];
+  function hexRgb(c) { return [parseInt(c.slice(1, 3), 16), parseInt(c.slice(3, 5), 16), parseInt(c.slice(5, 7), 16)]; }
+  function mixHex(a, b) {
+    var x = hexRgb(a), y = hexRgb(b), o = '#';
+    for (var i = 0; i < 3; i++) o += ('0' + Math.round((x[i] + y[i]) / 2).toString(16)).slice(-2);
+    return o;
+  }
+  var dr = null;
+  B.free.drawing = {
+    open: function (ctx) {
+      var stage = ctx.stage;
+      stage.classList.add('g-stage', 'dr-stage');
+      var canvas = h('canvas', { class: 'dr-canvas' });
+      var wrap = h('div', { class: 'dr-wrap' }, canvas);
+      var tray = h('div', { class: 'dr-tray scrollable' });
+      dr = { color: DCOLS[0], size: 1, eraser: false, mixing: false, mixSel: null };
+      stage.appendChild(h('div', { class: 'g-main dr-main' }, wrap));
+      stage.appendChild(tray);
+      var g;
+      function fitCanvas() {
+        var r = wrap.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1);
+        var keep = canvas.width ? canvas.toDataURL() : null;
+        canvas.width = Math.round(r.width * dpr); canvas.height = Math.round(r.height * dpr);
+        g = canvas.getContext('2d'); g.scale(dpr, dpr); g.lineCap = 'round'; g.lineJoin = 'round';
+        if (keep) { var im = new Image(); im.onload = function () { g.drawImage(im, 0, 0, r.width, r.height); }; im.src = keep; }
+      }
+      var SIZES = [6, 16, 34];
+      var px, py, drawing = false;
+      function pos(e) { var r = canvas.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; }
+      canvas.addEventListener('pointerdown', function (e) {
+        if (ctx.paused) return;
+        drawing = true; var q = pos(e); px = q[0]; py = q[1];
+        try { canvas.setPointerCapture(e.pointerId); } catch (x) {}
+        g.strokeStyle = dr.eraser ? '#FFFFFF' : dr.color; g.lineWidth = SIZES[dr.size] * (dr.eraser ? 1.6 : 1);
+        g.beginPath(); g.moveTo(px, py); g.lineTo(px + 0.01, py); g.stroke();
+        if (B.audio) B.audio.play('tap');
+      });
+      canvas.addEventListener('pointermove', function (e) {
+        if (!drawing) return; var q = pos(e);
+        g.beginPath(); g.moveTo(px, py); g.lineTo(q[0], q[1]); g.stroke(); px = q[0]; py = q[1];
+      });
+      ['pointerup', 'pointercancel'].forEach(function (ev) { canvas.addEventListener(ev, function () { drawing = false; }); });
+
+      // الأدوات: ألوان، وعاء الخلط، حجم، ممحاة، مكنسة
+      var colorBtns = [];
+      function setColor(c) { dr.color = c; dr.eraser = false; refresh(); }
+      function refresh() {
+        colorBtns.forEach(function (b) { b.classList.toggle('selected', !dr.eraser && b.__c === dr.color); });
+        eraseBtn.classList.toggle('selected', dr.eraser);
+        mixBtn.classList.toggle('selected', dr.mixing);
+        sizeBtn.firstChild.style.width = sizeBtn.firstChild.style.height = [14, 26, 44][dr.size] + 'px';
+        sizeBtn.firstChild.style.background = dr.eraser ? '#C9D8F2' : dr.color;
+      }
+      DCOLS.forEach(function (c) {
+        var b = h('button', { class: 'g-choice cl-color', type: 'button' }, h('span', { class: 'ws-dot', style: { background: c } }));
+        b.__c = c;
+        UI.bindPress(b, function () {
+          if (dr.mixing) { // خلط: لونان متتاليان
+            if (!dr.mixSel) { dr.mixSel = c; if (B.audio) B.audio.play('pick'); b.classList.add('selected'); return; }
+            var m = mixHex(dr.mixSel, c); dr.mixSel = null; dr.mixing = false;
+            if (B.audio) B.audio.play('sweep');
+            mixDot.style.background = m; mixDot.classList.add('on');
+            UI.anim(mixBtn, [{ transform: 'rotate(0)' }, { transform: 'rotate(360deg)' }], { dur: 700, fill: 'none' });
+            setColor(m); return;
+          }
+          if (B.audio) B.audio.play('pick'); setColor(c);
+        });
+        colorBtns.push(b); tray.appendChild(b);
+      });
+      var mixDot = h('span', { class: 'dr-mixdot' });
+      var mixBtn = h('button', { class: 'g-choice dr-mix', type: 'button', 'aria-label': B.S.create.mix, html: art.svg('0 0 100 100', '<path d="M12 44H88Q86 84 50 86Q14 84 12 44Z" fill="#DDA86C" stroke="#8A5A33" stroke-width="5" stroke-linejoin="round"/><ellipse cx="50" cy="44" rx="38" ry="9" fill="#FAFCFF" stroke="#8A5A33" stroke-width="5"/><path d="M30 20L40 40M62 14L56 38" stroke="#8A5A33" stroke-width="5" stroke-linecap="round"/>') }, mixDot);
+      UI.bindPress(mixBtn, function () { dr.mixing = !dr.mixing; dr.mixSel = null; refresh(); if (B.audio) B.audio.play('pick'); });
+      var sizeBtn = h('button', { class: 'g-choice dr-size', type: 'button', 'aria-label': B.S.create.size }, h('span', { class: 'ws-dot' }));
+      UI.bindPress(sizeBtn, function () { dr.size = (dr.size + 1) % 3; refresh(); if (B.audio) B.audio.play('pick'); });
+      var eraseBtn = h('button', { class: 'g-choice dr-erase', type: 'button', 'aria-label': B.S.create.erase, html: art.svg('0 0 100 100', '<path d="M18 60L52 20L86 48L56 84H32Z" fill="#F2658E" stroke="#C23C69" stroke-width="5" stroke-linejoin="round"/><path d="M30 66L60 36" stroke="#fff" stroke-width="5"/>') });
+      UI.bindPress(eraseBtn, function () { dr.eraser = !dr.eraser; refresh(); });
+      var broom = h('button', { class: 'g-choice ws-broom', type: 'button', 'aria-label': B.S.create.clear, html: art.svg('0 0 100 100', '<path d="M62 8L44 52" stroke="#8A5A33" stroke-width="9" stroke-linecap="round"/><path d="M26 50L62 60L56 92Q36 96 16 84Z" fill="#FFD34E" stroke="#E2A21B" stroke-width="4" stroke-linejoin="round"/>') });
+      UI.bindPress(broom, function () { var r = wrap.getBoundingClientRect(); g.fillStyle = '#FFFFFF'; g.fillRect(0, 0, r.width, r.height); if (B.audio) B.audio.play('sweep'); });
+      [mixBtn, sizeBtn, eraseBtn, broom].forEach(function (b) { tray.appendChild(b); });
+      requestAnimationFrame(function () { fitCanvas(); g.fillStyle = '#FFFFFF'; g.fillRect(0, 0, canvas.width, canvas.height); refresh(); });
+      dr.onResize = function () { if (!drawing) fitCanvas(); };
+      window.addEventListener('resize', dr.onResize);
+    },
+    destroy: function () { if (dr) window.removeEventListener('resize', dr.onResize); dr = null; }
+  };
+
+  /* ═════════ بستاني ═════════
+     كل ما زرعه الطفل بإكمال جلساته. يلمس أي عنصر فيهتز. فارغ؟ شتلة صغيرة بانتظار أول جلسة. */
+  B.free.garden = {
+    open: function (ctx) {
+      var stage = ctx.stage, items = B.garden.items();
+      stage.classList.add('g-stage', 'gd-stage');
+      stage.appendChild(h('div', { class: 'gd-sun', html: art.sun() }));
+      var hills = h('div', { class: 'gd-hills', html: art.sceneTile('mid', Math.max(600, UI.vp().W), 260) });
+      stage.appendChild(hills);
+      var field = h('div', { class: 'gd-field' });
+      stage.appendChild(field);
+      stage.appendChild(h('div', { class: 'gd-count' }, h('span', { class: 'gd-count-ic', html: B.pics.draw('leaf') }), h('b', { text: UI.num(items.length) })));
+      if (!items.length) {
+        field.appendChild(h('div', { class: 'gd-empty' }, h('div', { class: 'gd-seed', html: B.pics.draw('leaf') }), h('div', { class: 'gd-bear', html: art.animal('bear') })));
+      }
+      items.forEach(function (k, i) {
+        function rnd(n) { var s = Math.sin((i + 1) * 12.9898 + n * 78.233) * 43758.5453; return s - Math.floor(s); }
+        var depth = rnd(1), x = 4 + rnd(2) * 84, y = 8 + depth * 78;
+        var sz = 10 + depth * 9;
+        var el = h('div', { class: 'gd-item', role: 'button', style: { left: x + '%', top: y + '%', width: sz + 'vmin', zIndex: Math.round(y) }, html: B.pics.draw(k) });
+        field.appendChild(el);
+        UI.anim(el, [{ transform: 'scale(0)' }, { transform: 'scale(1)' }], { dur: 420, delay: Math.min(1500, i * 25), easing: UI.SPRING, fill: 'backwards' });
+        el.addEventListener('pointerdown', function () {
+          if (B.audio) B.audio.play('pop');
+          UI.anim(el, [{ transform: 'rotate(0) scale(1)' }, { transform: 'rotate(-10deg) scale(1.2)' }, { transform: 'rotate(10deg) scale(1.2)' }, { transform: 'rotate(0) scale(1)' }], { dur: 500, fill: 'none' });
+        });
+      });
+    },
+    destroy: function () {}
   };
 })();
 

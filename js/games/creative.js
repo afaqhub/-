@@ -72,7 +72,7 @@
       var board = h('div', { class: 'ws-board' });
       var tray = h('div', { class: 'ws-tray' });
       var nextBtn = h('button', { class: 'g-choice ws-next', type: 'button', 'aria-label': B.S.create.next, html: B.art.playIcon() });
-      ws = { idx: Math.floor(Math.random() * PICS.length), sel: null };
+      ws = { idx: Math.floor(Math.random() * PICS.length), sel: null, done: 0 };
       stage.appendChild(h('div', { class: 'g-main ws-main' }, board));
       stage.appendChild(h('div', { class: 'ws-bottom' }, tray, nextBtn));
       UI.bindPress(nextBtn, function () { ws.idx = (ws.idx + 1) % PICS.length; if (B.audio) B.audio.play('whoosh'); show(); });
@@ -84,6 +84,12 @@
         ws.sel = null;
         var art = h('div', { class: 'ws-art' });
         board.appendChild(art);
+        // بعد ثلاث صور مكتملة: «ابنِ من نموذج» — صورة صغيرة ملوّنة للنظر، وتختفي الخطوط المتقطعة
+        var model = ws.done >= 3;
+        board.classList.toggle('model', model);
+        if (model) {
+          board.appendChild(h('div', { class: 'ws-model' }, h('div', { class: 'ws-art', html: pic.parts.map(function (pt) { return partSvg(pt, 'ws-fill', 'fill="' + pt.c + '" stroke="rgba(31,42,90,.35)" stroke-width="3"'); }).join('') })));
+        }
         ws.slots = pic.parts.map(function (pt, i) {
           // المكان: شكل متقطع، ومساحة لمس شفافة لا تقل عن حدّ اللمس
           var el = h('div', { class: 'ws-slot', 'data-i': i, html: partSvg(pt, 'ws-ghost', 'fill="rgba(255,255,255,.6)" stroke="#8FA0D8" stroke-width="3" stroke-dasharray="7 6"') });
@@ -193,7 +199,7 @@
         if (B.audio) { B.audio.play('cheer'); }
         var c = kit.center(board, stage);
         UI.burst(stage, c.x, c.y, { n: 26, spread: 170, dur: 1500 });
-        board.classList.add('done');
+        board.classList.add('done'); ws.done++;
         if (pic.live === 'fly') {
           if (B.audio) B.audio.play('whoosh');
           UI.anim(art, [{ transform: 'translateY(0)' }, { transform: 'translateY(8px)', offset: 0.15 }, { transform: 'translateY(-120%)', offset: 0.6 }, { transform: 'translateY(-120%)', offset: 0.61, opacity: 0 }, { transform: 'translateY(30%)', opacity: 0, offset: 0.62 }, { transform: 'translateY(0)', opacity: 1 }], { dur: 2600, easing: 'ease-in-out', fill: 'none' });
@@ -293,5 +299,125 @@
       show();
     },
     destroy: function () { cl = null; }
+  };
+
+  /* ═════════ الرسم الحر ═════════
+     لوحة بيضاء يرسم عليها الطفل بإصبعه: ٦ ألوان، ثلاثة أحجام للفرشاة، ممحاة، مكنسة،
+     و«وعاء الخلط»: يلمس لونين فيُخلط لون جديد (متوسط اللونين) ويصير لون الفرشاة. */
+  var DCOLS = ['#F0485A', '#FFC83D', '#3D8BFD', '#2DBE7E', '#8E5CF0', '#FF8A3D'];
+  function hexRgb(c) { return [parseInt(c.slice(1, 3), 16), parseInt(c.slice(3, 5), 16), parseInt(c.slice(5, 7), 16)]; }
+  function mixHex(a, b) {
+    var x = hexRgb(a), y = hexRgb(b), o = '#';
+    for (var i = 0; i < 3; i++) o += ('0' + Math.round((x[i] + y[i]) / 2).toString(16)).slice(-2);
+    return o;
+  }
+  var dr = null;
+  B.free.drawing = {
+    open: function (ctx) {
+      var stage = ctx.stage;
+      stage.classList.add('g-stage', 'dr-stage');
+      var canvas = h('canvas', { class: 'dr-canvas' });
+      var wrap = h('div', { class: 'dr-wrap' }, canvas);
+      var tray = h('div', { class: 'dr-tray scrollable' });
+      dr = { color: DCOLS[0], size: 1, eraser: false, mixing: false, mixSel: null };
+      stage.appendChild(h('div', { class: 'g-main dr-main' }, wrap));
+      stage.appendChild(tray);
+      var g;
+      function fitCanvas() {
+        var r = wrap.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1);
+        var keep = canvas.width ? canvas.toDataURL() : null;
+        canvas.width = Math.round(r.width * dpr); canvas.height = Math.round(r.height * dpr);
+        g = canvas.getContext('2d'); g.scale(dpr, dpr); g.lineCap = 'round'; g.lineJoin = 'round';
+        if (keep) { var im = new Image(); im.onload = function () { g.drawImage(im, 0, 0, r.width, r.height); }; im.src = keep; }
+      }
+      var SIZES = [6, 16, 34];
+      var px, py, drawing = false;
+      function pos(e) { var r = canvas.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; }
+      canvas.addEventListener('pointerdown', function (e) {
+        if (ctx.paused) return;
+        drawing = true; var q = pos(e); px = q[0]; py = q[1];
+        try { canvas.setPointerCapture(e.pointerId); } catch (x) {}
+        g.strokeStyle = dr.eraser ? '#FFFFFF' : dr.color; g.lineWidth = SIZES[dr.size] * (dr.eraser ? 1.6 : 1);
+        g.beginPath(); g.moveTo(px, py); g.lineTo(px + 0.01, py); g.stroke();
+        if (B.audio) B.audio.play('tap');
+      });
+      canvas.addEventListener('pointermove', function (e) {
+        if (!drawing) return; var q = pos(e);
+        g.beginPath(); g.moveTo(px, py); g.lineTo(q[0], q[1]); g.stroke(); px = q[0]; py = q[1];
+      });
+      ['pointerup', 'pointercancel'].forEach(function (ev) { canvas.addEventListener(ev, function () { drawing = false; }); });
+
+      // الأدوات: ألوان، وعاء الخلط، حجم، ممحاة، مكنسة
+      var colorBtns = [];
+      function setColor(c) { dr.color = c; dr.eraser = false; refresh(); }
+      function refresh() {
+        colorBtns.forEach(function (b) { b.classList.toggle('selected', !dr.eraser && b.__c === dr.color); });
+        eraseBtn.classList.toggle('selected', dr.eraser);
+        mixBtn.classList.toggle('selected', dr.mixing);
+        sizeBtn.firstChild.style.width = sizeBtn.firstChild.style.height = [14, 26, 44][dr.size] + 'px';
+        sizeBtn.firstChild.style.background = dr.eraser ? '#C9D8F2' : dr.color;
+      }
+      DCOLS.forEach(function (c) {
+        var b = h('button', { class: 'g-choice cl-color', type: 'button' }, h('span', { class: 'ws-dot', style: { background: c } }));
+        b.__c = c;
+        UI.bindPress(b, function () {
+          if (dr.mixing) { // خلط: لونان متتاليان
+            if (!dr.mixSel) { dr.mixSel = c; if (B.audio) B.audio.play('pick'); b.classList.add('selected'); return; }
+            var m = mixHex(dr.mixSel, c); dr.mixSel = null; dr.mixing = false;
+            if (B.audio) B.audio.play('sweep');
+            mixDot.style.background = m; mixDot.classList.add('on');
+            UI.anim(mixBtn, [{ transform: 'rotate(0)' }, { transform: 'rotate(360deg)' }], { dur: 700, fill: 'none' });
+            setColor(m); return;
+          }
+          if (B.audio) B.audio.play('pick'); setColor(c);
+        });
+        colorBtns.push(b); tray.appendChild(b);
+      });
+      var mixDot = h('span', { class: 'dr-mixdot' });
+      var mixBtn = h('button', { class: 'g-choice dr-mix', type: 'button', 'aria-label': B.S.create.mix, html: art.svg('0 0 100 100', '<path d="M12 44H88Q86 84 50 86Q14 84 12 44Z" fill="#DDA86C" stroke="#8A5A33" stroke-width="5" stroke-linejoin="round"/><ellipse cx="50" cy="44" rx="38" ry="9" fill="#FAFCFF" stroke="#8A5A33" stroke-width="5"/><path d="M30 20L40 40M62 14L56 38" stroke="#8A5A33" stroke-width="5" stroke-linecap="round"/>') }, mixDot);
+      UI.bindPress(mixBtn, function () { dr.mixing = !dr.mixing; dr.mixSel = null; refresh(); if (B.audio) B.audio.play('pick'); });
+      var sizeBtn = h('button', { class: 'g-choice dr-size', type: 'button', 'aria-label': B.S.create.size }, h('span', { class: 'ws-dot' }));
+      UI.bindPress(sizeBtn, function () { dr.size = (dr.size + 1) % 3; refresh(); if (B.audio) B.audio.play('pick'); });
+      var eraseBtn = h('button', { class: 'g-choice dr-erase', type: 'button', 'aria-label': B.S.create.erase, html: art.svg('0 0 100 100', '<path d="M18 60L52 20L86 48L56 84H32Z" fill="#F2658E" stroke="#C23C69" stroke-width="5" stroke-linejoin="round"/><path d="M30 66L60 36" stroke="#fff" stroke-width="5"/>') });
+      UI.bindPress(eraseBtn, function () { dr.eraser = !dr.eraser; refresh(); });
+      var broom = h('button', { class: 'g-choice ws-broom', type: 'button', 'aria-label': B.S.create.clear, html: art.svg('0 0 100 100', '<path d="M62 8L44 52" stroke="#8A5A33" stroke-width="9" stroke-linecap="round"/><path d="M26 50L62 60L56 92Q36 96 16 84Z" fill="#FFD34E" stroke="#E2A21B" stroke-width="4" stroke-linejoin="round"/>') });
+      UI.bindPress(broom, function () { var r = wrap.getBoundingClientRect(); g.fillStyle = '#FFFFFF'; g.fillRect(0, 0, r.width, r.height); if (B.audio) B.audio.play('sweep'); });
+      [mixBtn, sizeBtn, eraseBtn, broom].forEach(function (b) { tray.appendChild(b); });
+      requestAnimationFrame(function () { fitCanvas(); g.fillStyle = '#FFFFFF'; g.fillRect(0, 0, canvas.width, canvas.height); refresh(); });
+      dr.onResize = function () { if (!drawing) fitCanvas(); };
+      window.addEventListener('resize', dr.onResize);
+    },
+    destroy: function () { if (dr) window.removeEventListener('resize', dr.onResize); dr = null; }
+  };
+
+  /* ═════════ بستاني ═════════
+     كل ما زرعه الطفل بإكمال جلساته. يلمس أي عنصر فيهتز. فارغ؟ شتلة صغيرة بانتظار أول جلسة. */
+  B.free.garden = {
+    open: function (ctx) {
+      var stage = ctx.stage, items = B.garden.items();
+      stage.classList.add('g-stage', 'gd-stage');
+      stage.appendChild(h('div', { class: 'gd-sun', html: art.sun() }));
+      var hills = h('div', { class: 'gd-hills', html: art.sceneTile('mid', Math.max(600, UI.vp().W), 260) });
+      stage.appendChild(hills);
+      var field = h('div', { class: 'gd-field' });
+      stage.appendChild(field);
+      stage.appendChild(h('div', { class: 'gd-count' }, h('span', { class: 'gd-count-ic', html: B.pics.draw('leaf') }), h('b', { text: UI.num(items.length) })));
+      if (!items.length) {
+        field.appendChild(h('div', { class: 'gd-empty' }, h('div', { class: 'gd-seed', html: B.pics.draw('leaf') }), h('div', { class: 'gd-bear', html: art.animal('bear') })));
+      }
+      items.forEach(function (k, i) {
+        function rnd(n) { var s = Math.sin((i + 1) * 12.9898 + n * 78.233) * 43758.5453; return s - Math.floor(s); }
+        var depth = rnd(1), x = 4 + rnd(2) * 84, y = 8 + depth * 78;
+        var sz = 10 + depth * 9;
+        var el = h('div', { class: 'gd-item', role: 'button', style: { left: x + '%', top: y + '%', width: sz + 'vmin', zIndex: Math.round(y) }, html: B.pics.draw(k) });
+        field.appendChild(el);
+        UI.anim(el, [{ transform: 'scale(0)' }, { transform: 'scale(1)' }], { dur: 420, delay: Math.min(1500, i * 25), easing: UI.SPRING, fill: 'backwards' });
+        el.addEventListener('pointerdown', function () {
+          if (B.audio) B.audio.play('pop');
+          UI.anim(el, [{ transform: 'rotate(0) scale(1)' }, { transform: 'rotate(-10deg) scale(1.2)' }, { transform: 'rotate(10deg) scale(1.2)' }, { transform: 'rotate(0) scale(1)' }], { dur: 500, fill: 'none' });
+        });
+      });
+    },
+    destroy: function () {}
   };
 })();

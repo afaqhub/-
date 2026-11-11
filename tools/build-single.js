@@ -36,7 +36,7 @@ fs.writeFileSync(path.join(OUT, 'index.html'), html);
 // Service Worker مبسّط للملف الواحد
 const sw = `/* Service Worker — يحفظ الصفحة الوحيدة ليعمل التطبيق دون إنترنت. ارفع VERSION عند كل تحديث. */
 'use strict';
-const VERSION = '4.5.1';
+const VERSION = '5.0.2';
 const CACHE = 'bustan-v' + VERSION;
 const FILES = ['./', './index.html'];
 self.addEventListener('install', (e) => {

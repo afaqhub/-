@@ -26,11 +26,14 @@
     { id: 'shadows', zone: 'solo', rounds: 10 },
     { id: 'more', zone: 'solo', rounds: 10 },
     { id: 'odd', zone: 'solo', rounds: 10 },
+    { id: 'tracing', zone: 'solo', rounds: 10 },
     { id: 'firstsound', zone: 'together', rounds: 8 },
     { id: 'bridge', zone: 'together', rounds: 8 },
     // القسم الإبداعي: لعب حرّ بلا جولات ولا مصابيح
     { id: 'workshop', zone: 'create', free: true },
-    { id: 'coloring', zone: 'create', free: true }
+    { id: 'coloring', zone: 'create', free: true },
+    { id: 'drawing', zone: 'create', free: true },
+    { id: 'garden', zone: 'create', free: true }
   ];
   B.free = B.free || {};
   B.games = B.games || {};
@@ -193,7 +196,12 @@
     var btn = UI.iconButton('home-btn end-home', B.art.house(), S.buttons.home, function () { exit(ctx, game); });
     var end = h('div', { class: 'end-screen' }, h('div', { class: 'end-art' }, art), btn);
     ctx.hud.classList.add('is-hidden');
+    var plant = B.garden.plant();
+    end.appendChild(h('div', { class: 'end-plant', html: B.pics.draw(plant) }));
     ctx.root.appendChild(end);
+    var ep = end.lastChild;
+    UI.anim(ep, [{ opacity: 0, transform: 'translateY(30px) scale(.2)' }, { opacity: 1, transform: 'translateY(0) scale(1.15)', offset: 0.6 }, { opacity: 1, transform: 'none' }], { dur: 900, delay: 1400, easing: UI.SPRING, fill: 'backwards' });
+    if (B.audio) setTimeout(function () { B.audio.play('pop'); }, 1400 / UI.ts);
     UI.anim(end, [{ opacity: 0 }, { opacity: 1 }], { dur: 1000, fill: 'both' });
     if (art) UI.anim(art, [{ opacity: 0, transform: 'translateY(16px)' }, { opacity: 1, transform: 'none' }], { dur: 900, delay: 300, easing: UI.SPRING });
   }

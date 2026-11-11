@@ -70,10 +70,11 @@ async function newPage(browser, vp, base, opts = {}) {
   page.__ctx = ctx; page.__log = log;
   return page;
 }
-async function open(page, base, query = '') {
+async function open(page, base, query = '', opts = {}) {
   await page.goto(base + 'index.html' + query);
   await page.waitForSelector('.tile', { timeout: 8000 });
-  await page.waitForTimeout(1900); // حتى تنتهي حركة ظهور الأيقونات (١٣ أيقونة متتابعة)
+  await page.waitForTimeout(2600); // حتى تنتهي حركة ظهور الأيقونات (١٦ أيقونة متتابعة)
+  if (!opts.keepWelcome) { const gg = await page.$('.guide-go'); if (gg) { await gg.click(); await page.waitForTimeout(500); } } // شاشة الترحيب
 }
 const tap = (page) => page.dispatchEvent('.stop-btn', 'pointerdown');
 const probe = (page) => page.evaluate(() => Bustan.games.train._probe());
@@ -206,10 +207,10 @@ async function seeDemoThrough(page) {
       s = st(1, 0, 1); s = Bustan.adaptive.step(s, 4); out.floor1 = s.level === 1;
       // التخزين: ترحيل من بيانات بلا إصدار
       const m = Bustan.storage.migrate({ games: { train: { level: 4 } } });
-      out.migrate = m.schemaVersion === 2 && m.games.train.level === 4 && !!m.games.mirror && m.settings.soloLimit === 2;
-      out.migrateBad = Bustan.storage.migrate('x').schemaVersion === 2;
+      out.migrate = m.schemaVersion === 3 && m.games.train.level === 4 && !!m.games.mirror && m.settings.soloLimit === 2;
+      out.migrateBad = Bustan.storage.migrate('x').schemaVersion === 3;
       const old = Bustan.storage.migrate({ schemaVersion: 1, settings: { soundOn: false, soloLimit: 2 }, games: {} });
-      out.oldSoundOn = old.settings.soundOn === true && old.schemaVersion === 2;
+      out.oldSoundOn = old.settings.soundOn === true && old.schemaVersion === 3 && Array.isArray(old.garden);
       const exp = Bustan.storage.exportJSON();
       out.importBad = Bustan.storage.importJSON('{not json') === false && Bustan.storage.importJSON('{"games":5}') === false;
       out.importFuture = Bustan.storage.importJSON(JSON.stringify({ schemaVersion: 99, games: {} })) === false;
@@ -319,7 +320,7 @@ async function seeDemoThrough(page) {
       dir: document.documentElement.dir, lang: document.documentElement.lang,
       digits: !/[0-9]/.test(document.body.innerText)
     }));
-    ok(info.zones === 3 && info.tiles === 13, `${name}: ثلاث مناطق و١٣ لعبة`);
+    ok(info.zones === 3 && info.tiles === 16, `${name}: ثلاث مناطق و١٦ نشاطاً`);
     ok(info.sleeping === 0, `${name}: كل الألعاب متاحة (لا أيقونات نائمة)`);
     const fontOk = await page.evaluate(async () => {
       const r = await Promise.all(['400', '700', '800'].map((w) => document.fonts.load(w + ' 20px Tajawal', 'بستان')));
@@ -510,7 +511,7 @@ async function seeDemoThrough(page) {
 
   /* ───── الألعاب الأربع الجديدة: جلسة كاملة آلياً ───── */
   if (!QUICK) {
-    const NAMES = { shadows: 'لعبة الظلال', more: 'أين الأكثر؟', odd: 'أين المختلف؟', memory: 'بطاقات الذاكرة', fruits: 'سلة الفواكه', letters: 'صيد الحروف', mirror: 'مرآة الأشكال', pattern: 'صانعة الأنماط', firstsound: 'أول صوت', bridge: 'جسر الروابط' };
+    const NAMES = { tracing: 'ارسم الطريق', shadows: 'لعبة الظلال', more: 'أين الأكثر؟', odd: 'أين المختلف؟', memory: 'بطاقات الذاكرة', fruits: 'سلة الفواكه', letters: 'صيد الحروف', mirror: 'مرآة الأشكال', pattern: 'صانعة الأنماط', firstsound: 'أول صوت', bridge: 'جسر الروابط' };
     for (const vpName of ['جوال-عمودي', 'آيباد-أفقي', 'جوال-أفقي', 'آيباد-عمودي']) {
       for (const g of Object.keys(NAMES)) {
         section(`جلسة كاملة آلياً — ${NAMES[g]} — ${vpName}`);
@@ -521,6 +522,7 @@ async function seeDemoThrough(page) {
         await page.waitForSelector('.game-screen');
         const total = await page.evaluate(() => document.querySelectorAll('.bulb').length);
         ok(total === (g === 'firstsound' || g === 'bridge' ? 8 : 10), 'عدد المصابيح ' + total);
+        const gBefore = await page.evaluate(() => Bustan.storage.data().garden.length);
         let checked = false, sawHand = false; const t0 = Date.now();
         while (Date.now() - t0 < 240000) {
           if (await page.evaluate(() => !!document.querySelector('.end-screen'))) break;
@@ -533,6 +535,7 @@ async function seeDemoThrough(page) {
         const st = await page.evaluate((g) => ({ end: !!document.querySelector('.end-screen'), lit: document.querySelectorAll('.bulb.lit').length, gm: Bustan.storage.game(g), btns: document.querySelectorAll('.end-screen button').length }), g);
         ok(st.end && st.lit === total, `اكتملت الجلسة وأُضيئت المصابيح كلها (${Math.round((Date.now() - t0) / 1000)} ث)`);
         ok(st.gm.rounds === total && st.gm.sessions === 1 && st.btns === 1, 'سُجّلت الجلسة، والختام بزر واحد');
+        ok((await page.evaluate(() => Bustan.storage.data().garden.length)) === gBefore + 1 && !!(await page.$('.end-plant')), 'أُضيف عنصر جديد إلى «بستاني» عند اكتمال الجلسة');
         ok(page.__log.errors.length === 0, 'لا أخطاء console' + (page.__log.errors.length ? ' — ' + page.__log.errors[0] : ''));
         ok(page.__log.external.length === 0, 'لا طلبات خارجية');
         await page.__ctx.close();
@@ -622,6 +625,34 @@ async function seeDemoThrough(page) {
     await checkScreen(page, vp, vpName + ' / التلوين');
     await shot(page, 'coloring-' + vpName);
     ok(page.__log.errors.length === 0, `${vpName}: لا أخطاء console` + (page.__log.errors.length ? ' — ' + page.__log.errors[0] : ''));
+    await page.__ctx.close();
+  }
+
+  section('شاشة الترحيب، الرسم الحر، البستان');
+  {
+    const page = await newPage(browser, VIEWPORTS['جوال-عمودي'], base);
+    await open(page, base, '', { keepWelcome: true });
+    ok(!!(await page.$('.guide-layer')) && /أهلاً بكم/.test(await page.evaluate(() => document.body.innerText)), 'شاشة ترحيب للوالدين عند أول دخول');
+    ok(!/علاج|صعوبات|اضطراب|تشخيص/.test(await page.evaluate(() => document.body.innerText)), 'لا إشارة إلى علاج أو صعوبات تعلم');
+    await page.click('.guide-go'); await page.waitForTimeout(500);
+    ok(!(await page.$('.guide-layer')) && (await page.evaluate(() => Bustan.storage.data().welcomed)), 'يُغلق الترحيب ولا يعود');
+    await page.reload(); await page.waitForSelector('.tile'); await page.waitForTimeout(800);
+    ok(!(await page.$('.guide-layer')), 'لا يظهر الترحيب مرة ثانية');
+    await page.waitForTimeout(1800);
+    // الرسم الحر
+    await page.tap('.tile[data-game=drawing]'); await page.waitForSelector('.dr-canvas'); await page.waitForTimeout(600);
+    const c = await page.evaluate(() => { const r = document.querySelector('.dr-canvas').getBoundingClientRect(); return [r.left, r.top, r.width, r.height]; });
+    await page.mouse.move(c[0] + 40, c[1] + 60); await page.mouse.down(); await page.mouse.move(c[0] + c[2] - 40, c[1] + c[3] - 60, { steps: 10 }); await page.mouse.up();
+    ok(await page.evaluate(() => { const cv = document.querySelector('.dr-canvas'); const d = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height).data; for (let i = 0; i < d.length; i += 4) if (d[i + 2] < 200) return true; return false; }), 'الرسم بالإصبع يترك أثراً على اللوحة');
+    await page.tap('.dr-mix'); await page.tap('.dr-tray .cl-color >> nth=0', { force: true }); await page.tap('.dr-tray .cl-color >> nth=2', { force: true });
+    ok(await page.evaluate(() => getComputedStyle(document.querySelector('.dr-mixdot')).display !== 'none'), 'خلط لونين يُنتج لوناً جديداً في الوعاء');
+    await checkScreen(page, VIEWPORTS['جوال-عمودي'], 'الرسم الحر');
+    await page.tap('.home-btn'); await page.waitForSelector('.home .tile'); await page.waitForTimeout(400);
+    // البستان
+    await page.evaluate(() => { Bustan.garden.plant(); Bustan.garden.plant(); Bustan.garden.plant(); });
+    await page.tap('.tile[data-game=garden]'); await page.waitForSelector('.gd-item'); await page.waitForTimeout(700);
+    ok((await page.evaluate(() => document.querySelectorAll('.gd-item').length)) === 3, 'البستان يعرض ما زُرع');
+    ok(page.__log.errors.length === 0, 'لا أخطاء console' + (page.__log.errors.length ? ' — ' + page.__log.errors[0] : ''));
     await page.__ctx.close();
   }
 
@@ -730,6 +761,7 @@ async function seeDemoThrough(page) {
       const r = await Promise.all(['400', '700', '800'].map((w) => document.fonts.load(w + ' 20px Tajawal', 'بستان')));
       return r.every((a) => a.length > 0 && a[0].status === 'loaded');
     })), 'file://: الخط المحلي يُحمَّل');
+    { const gg = await page.$('.guide-go'); if (gg) { await gg.click(); await page.waitForTimeout(400); } }
     await page.tap('.tile[data-game=train]');
     await page.waitForSelector('.stop-btn', { timeout: 6000 });
     await page.waitForTimeout(2500);
@@ -751,6 +783,7 @@ async function seeDemoThrough(page) {
     ok(names.length === 1 && /^bustan-v\d/.test(names[0]), 'اسم الذاكرة مرقّم بالإصدار: ' + names.join(','));
     const cached = await page.evaluate(async () => (await (await caches.open((await caches.keys())[0])).keys()).length);
     ok(cached >= 20, 'حُفظ ' + cached + ' ملفاً في الذاكرة');
+    await page.evaluate(() => { Bustan.storage.data().welcomed = true; Bustan.storage.save(); });
     await page.__ctx.setOffline(true);
     await page.reload();
     await page.waitForSelector('.tile', { timeout: 8000 });

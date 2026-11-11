@@ -96,7 +96,7 @@
       h('div', { class: 'home-hills mid', html: art.sceneTile('mid', vp.W, Math.round(vp.H * 0.3)) })
     );
 
-    var zones = h('main', { class: 'zones' }, zone('solo', locked), zone('together', false), zone('create', false));
+    var zones = h('main', { class: 'zones scrollable' }, zone('solo', locked), zone('together', false), zone('create', false));
     var fbPill = h('div', { class: 'fb-pill', role: 'button', tabindex: '0', text: B.S.feedback.pill });
     fbPill.addEventListener('click', function () { B.feedback.open(); });
     var dot = h('div', { class: 'adm-dot', role: 'button', tabindex: '0', 'aria-label': B.S.admin.dot, text: '·' });
@@ -116,6 +116,19 @@
       UI.anim(el.querySelectorAll('.zone-head')[1], [{ opacity: 0, transform: 'translateY(-10px)' }, { opacity: 1, transform: 'none' }], { dur: 420, delay: 200 });
       UI.anim(el.querySelectorAll('.zone-head')[2], [{ opacity: 0, transform: 'translateY(-10px)' }, { opacity: 1, transform: 'none' }], { dur: 420, delay: 400 });
     });
+    // شاشة ترحيب للوالدين مرة واحدة
+    if (!B.storage.data().welcomed) {
+      var W = B.S.welcome, go = h('button', { class: 'guide-go', type: 'button', text: W.go });
+      var card = h('div', { class: 'guide-card' }, h('h2', { text: W.title }),
+        h('ul', { class: 'guide-steps' }, W.lines.map(function (t) { return h('li', {}, h('b', { text: '•' }), h('span', { text: t })); })), go);
+      var layer = h('div', { class: 'guide-layer', style: { zIndex: 50 } }, card);
+      el.appendChild(layer);
+      requestAnimationFrame(function () { UI.anim(card, [{ opacity: 0, transform: 'translateY(20px) scale(.95)' }, { opacity: 1, transform: 'none' }], { dur: 450, easing: UI.SPRING, fill: 'none' }); });
+      go.addEventListener('click', function () {
+        B.storage.data().welcomed = true; B.storage.save();
+        UI.anim(layer, [{ opacity: 1 }, { opacity: 0 }], { dur: 250 }).then(function () { layer.remove(); });
+      });
+    }
     return el;
   }
 

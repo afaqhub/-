@@ -35,6 +35,14 @@
     }
 
     /* الإحصاءات */
+    var played = B.catalog.filter(function (c) { return !c.free; }).map(function (c) { return { id: c.id, g: st.game(c.id) }; });
+    var fav = played.slice().sort(function (a, b) { return b.g.rounds - a.g.rounds; })[0];
+    var sug = played.filter(function (x) { return !B.games[x.id] ? false : true; }).sort(function (a, b) { return a.g.rounds - b.g.rounds; })[0];
+    var SM = S.summary, totalS = played.reduce(function (s, x) { return s + x.g.sessions; }, 0);
+    var summary = h('section', { class: 'p-sec' }, h('h3', { text: SM.title }),
+      h('div', { class: 'p-line', text: SM.sessionsAll + ': ' + UI.num(totalS) + ' — ' + SM.planted + ': ' + UI.num(st.data().garden.length) }),
+      h('div', { class: 'p-line', text: SM.favorite + ': ' + (fav && fav.g.rounds ? S.games[fav.id] : SM.none) }),
+      h('div', { class: 'p-line', text: SM.suggest + ': ' + (sug ? S.games[sug.id] : SM.none) }));
     var rows = B.catalog.filter(function (c) { return !c.free; }).map(function (c) {
       var g = st.game(c.id), built = !!B.games[c.id];
       return h('div', { class: 'p-row' },
@@ -168,6 +176,7 @@
 
     var body = h('div', { class: 'p-body scrollable' },
       !st.isPersistent() ? h('div', { class: 'p-warn', text: P.storageWarn }) : null,
+      summary,
       h('section', { class: 'p-sec' }, rows),
       h('section', { class: 'p-sec' }, h('h3', { text: P.lastDays }), chart),
       h('section', { class: 'p-sec' },

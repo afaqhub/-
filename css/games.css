@@ -399,3 +399,103 @@
   .zones { grid-template-columns: 5fr 2fr; }
   .zones .tile-name { white-space: nowrap; font-size: clamp(11px, 2.2vh, 20px); }
 }
+
+/* ═════════ الرسم الحر ═════════ */
+.dr-stage { background: linear-gradient(180deg, #E4F6FF 0%, #FFE9F4 100%); --deep: #6B3CC9; padding-top: var(--hud-h); }
+.dr-main { padding: 2px 0; }
+.dr-wrap { width: 100%; height: 100%; border-radius: 26px; overflow: hidden; background: #fff; box-shadow: inset 0 0 0 5px #8E5CF0, 0 8px 0 #6B3CC9; }
+.dr-canvas { width: 100%; height: 100%; display: block; touch-action: none; cursor: crosshair; }
+.dr-tray { position: relative; z-index: 3; flex: none; display: flex; flex-wrap: nowrap; gap: 8px; width: 100%; overflow-x: auto; padding: 14px 4px 10px; touch-action: pan-x; --cs: var(--tap); -webkit-overflow-scrolling: touch; justify-content: flex-start; direction: rtl; }
+.dr-tray > * { flex: none; }
+.dr-size .ws-dot { margin: auto; } .dr-size { display: grid; place-items: center; padding: 0; }
+.dr-mix { position: relative; --deep: #8A5A33; }
+.dr-mixdot { position: absolute; right: 8%; top: 8%; width: 36%; aspect-ratio: 1; border-radius: 50%; border: 3px solid #fff; display: none; }
+.dr-mixdot.on { display: block; }
+.dr-erase { --deep: #C23C69; }
+@media (max-height: 500px) { .dr-stage { flex-direction: row; } .dr-tray { flex-direction: column; width: auto; overflow-x: visible; overflow-y: auto; touch-action: pan-y; max-height: 100%; padding: 4px; } }
+
+/* ═════════ بستاني ═════════ */
+.gd-stage { background: linear-gradient(180deg, #8FD3F4 0%, #CFEBFF 55%, #D9F7D6 100%); padding: 0; display: block; }
+.gd-sun { position: absolute; left: 6%; top: 3%; width: clamp(70px, 14vmin, 120px); pointer-events: none; }
+.gd-hills { position: absolute; left: 0; right: 0; bottom: 0; height: 55%; pointer-events: none; }
+.gd-hills svg { width: 100%; height: 100%; }
+.gd-field { position: absolute; left: 0; right: 0; bottom: 0; top: 28%; background: linear-gradient(180deg, rgba(95, 205, 150, .0), #5FCD96 20%, #2DBE7E); }
+.gd-item { position: absolute; transform-origin: 50% 100%; margin-left: -4vmin; cursor: pointer; touch-action: manipulation; }
+.gd-item svg { width: 100%; height: auto; overflow: visible; filter: drop-shadow(0 4px 0 rgba(0, 0, 0, .12)); }
+.gd-count { position: absolute; top: calc(18px + var(--safe-t)); left: 0; right: 0; margin: 0 auto; width: max-content; display: flex; align-items: center; gap: 8px; padding: 6px 18px; border-radius: 999px; background: rgba(255, 255, 255, .85); box-shadow: 0 4px 0 var(--lilac-deep); font-size: 26px; color: var(--night); }
+.gd-count-ic { width: 32px; } .gd-count-ic svg { width: 100%; height: auto; }
+.gd-empty { position: absolute; inset: 0; display: grid; place-items: center; }
+.gd-seed { width: clamp(70px, 14vmin, 110px); position: absolute; top: 34%; animation: balloonFloat 4s ease-in-out infinite; }
+.gd-bear { width: clamp(90px, 18vmin, 150px); position: absolute; top: 52%; }
+.gd-seed svg, .gd-bear svg { width: 100%; height: auto; }
+
+/* ═════════ ورشة: وضع النموذج ═════════ */
+.ws-board.model .ws-ghost { opacity: 0; }
+.ws-model { position: absolute; top: 3%; inset-inline-start: 3%; width: 34%; aspect-ratio: 1; padding: 6%; border-radius: 18px; background: rgba(255, 255, 255, .9); box-shadow: 0 4px 0 #E2A21B; z-index: 3; pointer-events: none; }
+.ws-model .ws-art { position: relative; width: 100%; height: 100%; }
+.ws-model svg { position: absolute; overflow: visible; }
+
+/* ═════════ ارسم الطريق ═════════ */
+.tr-stage { background: linear-gradient(180deg, #FFF3C9 0%, #D9F7D6 100%); --deep: #0B8269; }
+.tr-card { flex: none; min-width: clamp(80px, 16vmin, 130px); height: clamp(80px, 16vmin, 130px); border-radius: 26px; background: #FAFCFF; display: grid; place-items: center; padding: 8px 14px; box-shadow: 0 7px 0 #0B8269, 0 14px 18px rgba(11, 130, 105, .25); z-index: 3; }
+.tr-letter { font-size: clamp(56px, 12vmin, 100px); font-weight: 800; color: var(--night); line-height: 1; padding-bottom: .12em; }
+.tr-pair { display: flex; align-items: center; gap: 6px; direction: ltr; }
+.tr-pair svg { width: clamp(44px, 9vmin, 76px); height: auto; } .tr-pair i { width: 22px; height: 5px; border-radius: 3px; background: #0B8269; }
+.tr-board { position: relative; width: min(94vw, 62vh, 520px); aspect-ratio: 1; border-radius: 30px; background: #FAFCFF; box-shadow: inset 0 0 0 5px #FFD34E, 0 8px 0 #E2A21B; touch-action: none; }
+.tr-svg { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; overflow: visible; }
+.tr-lane { stroke: #EEF3FF; } .tr-guide { stroke: #8FA0D8; stroke-dasharray: 2 14; }
+.tr-guide.pulse { animation: trPulse 1s ease-in-out infinite; stroke: var(--sun-deep); }
+@keyframes trPulse { 0%, 100% { opacity: .4; } 50% { opacity: 1; } }
+.tr-fill { stroke: #2DBE7E; pointer-events: none; }
+.tr-start { position: absolute; width: 11%; aspect-ratio: 1; margin: -5.5% 0 0 -5.5%; border-radius: 50%; background: rgba(45, 190, 126, .28); border: 4px solid #2DBE7E; pointer-events: none; }
+.tr-goal { position: absolute; width: 15%; margin: 0; transform: translate(-50%, -50%); pointer-events: none; }
+.tr-avatar { position: absolute; width: 15%; transform: translate(-50%, -50%); pointer-events: none; transition: left .06s linear, top .06s linear; filter: drop-shadow(0 4px 0 rgba(0, 0, 0, .15)); z-index: 2; }
+.tr-goal svg, .tr-avatar svg { width: 100%; height: auto; }
+.tr-paw { position: absolute; transform: translate(-50%, -8%); pointer-events: none; z-index: 4; }
+.tr-paw svg { width: 100%; height: 100%; overflow: visible; }
+@media (max-height: 500px) { .tr-stage .g-main { flex-direction: row; gap: 14px; } .tr-board { width: min(80vh, 50vw); } }
+.end-plant { position: absolute; bottom: calc(var(--tap) * 1.5 + 60px); left: 0; right: 0; margin: 0 auto; width: clamp(70px, 14vmin, 110px); pointer-events: none; z-index: 2; }
+.end-plant svg { width: 100%; height: auto; filter: drop-shadow(0 6px 10px rgba(0, 0, 0, .3)); }
+.guide-steps b { font-size: 20px; }
+
+/* ═════════ الرئيسية: ١٠ في «وحدي» + ٢ + ٤ ═════════ */
+.zones { overflow-y: auto; overflow-x: hidden; }
+@media (orientation: portrait) {
+  .zones { align-content: flex-start; }
+  .zones .zone-together, .zones .zone-create { flex: 1 1 100%; }
+  .zone-solo .tile { flex: 0 0 calc((100% - 30px) / 4); }
+  .zones .zone-solo .tile, .zones .tile { max-width: max(72px, min(120px, 9.6vh)); }
+  .zone-together .tiles, .zone-create .tiles { justify-content: center; }
+  .zone-together .tile, .zone-create .tile { flex: 0 0 calc((100% - 30px) / 4); }
+  .zones .tile-name { font-size: clamp(12px, 1.7vh, 18px); white-space: normal; line-height: 1.15; }
+  .zones .zone { padding: 6px 10px 10px; }
+  .zones .zone-name { font-size: 22px; } .zones .zone-badge { width: 40px; height: 34px; }
+  .zones { row-gap: 10px; }
+}
+@media (orientation: landscape) {
+  .zone-create .tiles { flex-wrap: wrap; justify-content: center; row-gap: 6px; }
+  .zone-create .tile { flex: 0 0 calc((100% - 8px) / 2); }
+  .zones .tile { max-width: max(72px, min(170px, 17vh)); }
+}
+@media (orientation: landscape) and (max-height: 500px) {
+  .zones .zone-solo { margin-top: calc(var(--tap) - 2px); }
+  .zones .tile-name { font-size: 11px; }
+}
+@media (max-height: 500px) { .guide-card { padding: 10px 16px 12px; gap: 6px; } .guide-card h2 { font-size: 20px; } .guide-steps { gap: 4px; } .guide-steps li { font-size: 14px; line-height: 1.35; } .guide-steps b { width: 22px; height: 22px; font-size: 14px; } .guide-go { min-height: 56px; font-size: 22px; } }
+@media (orientation: portrait) {
+  .zones .tile, .zones .zone-solo .tile { max-width: max(72px, 8.6vh); }
+  .zones .tile-name { max-width: 100%; overflow-wrap: anywhere; white-space: normal; font-size: clamp(11px, 1.55vh, 16px); }
+  .zones .zone-head { margin-bottom: 0; }
+  .zones { top: calc(var(--tap) + 14px + var(--safe-t)); }
+}
+@media (orientation: landscape) {
+  .zones { bottom: calc(6px + var(--safe-b)) !important; top: calc(6px + var(--safe-t)); }
+  .zones .zone-head { margin-bottom: 0; }
+  .zones .zone-name { font-size: clamp(18px, 3.4vh, 28px); }
+}
+@media (orientation: landscape) and (max-height: 500px) {
+  .zones .zone-badge { width: 34px; height: 30px; }
+  .zones .zone-solo { margin-top: calc(var(--tap) + 8px); }
+}
+@media (orientation: portrait) { .zones .zone-solo .tile-name, .zones .tile-name { white-space: normal !important; width: 100%; } }
+@media (orientation: portrait) { .zones { bottom: calc(0px + var(--safe-b)) !important; padding-bottom: 64px; touch-action: pan-y; scrollbar-width: none; } .zones::-webkit-scrollbar { display: none; } }

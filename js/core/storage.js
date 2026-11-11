@@ -5,8 +5,8 @@
   var B = (window.Bustan = window.Bustan || {});
 
   var KEY = 'bustan.progress';
-  var SCHEMA = 2;
-  var GAME_IDS = ['train', 'mirror', 'pattern', 'fruits', 'letters', 'memory', 'shadows', 'more', 'odd', 'firstsound', 'bridge'];
+  var SCHEMA = 3;
+  var GAME_IDS = ['train', 'mirror', 'pattern', 'fruits', 'letters', 'memory', 'shadows', 'more', 'odd', 'tracing', 'firstsound', 'bridge'];
   var MAX_DAYS = 60;
 
   var data = null;
@@ -26,7 +26,9 @@
       games: games,
       days: {},          // 'YYYY-MM-DD' -> { sessions:{id:n}, rounds:{id:n} }
       lock: { soloOpenDate: '' }, // تاريخ اليوم الذي فتح فيه الوالد «وحدي» رغم الحد
-      demoSeen: {}       // id -> true
+      demoSeen: {},      // id -> true
+      garden: [],        // أنواع ما زُرع في «بستاني»
+      welcomed: false    // هل عُرضت شاشة الترحيب
     };
   }
 
@@ -35,7 +37,9 @@
   var MIGRATIONS = {
     0: function (d) { d.schemaVersion = 1; return d; },
     // ١ → ٢: كان الصوت مطفأً افتراضياً، وصار مفعّلاً؛ نفعّله لمن حُفظ عنده الافتراضي القديم
-    1: function (d) { if (d.settings) d.settings.soundOn = true; d.schemaVersion = 2; return d; }
+    1: function (d) { if (d.settings) d.settings.soundOn = true; d.schemaVersion = 2; return d; },
+    // ٢ → ٣: البستان وشاشة الترحيب
+    2: function (d) { d.garden = d.garden || []; d.schemaVersion = 3; return d; }
   };
 
   function isObj(x) { return x && typeof x === 'object' && !Array.isArray(x); }

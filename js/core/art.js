@@ -491,6 +491,24 @@
     return c(28, 28, '#3D8BFD') + c(72, 28, '#3D8BFD') + c(28, 72, '#3D8BFD') +
       '<rect x="55" y="55" width="34" height="34" rx="8" fill="#FF8A3D"/><circle cx="72" cy="72" r="27" fill="none" stroke="#FFD34E" stroke-width="5" stroke-dasharray="6 6"/>';
   };
+  GAME_ICONS.tracing = function () {
+    return '<path d="M16 78Q20 24 56 40T86 20" fill="none" stroke="#EEF3FF" stroke-width="16" stroke-linecap="round"/>' +
+      '<path d="M16 78Q20 24 56 40T86 20" fill="none" stroke="#8FA0D8" stroke-width="3" stroke-dasharray="2 8" stroke-linecap="round"/>' +
+      '<path d="M16 78Q20 24 40 36" fill="none" stroke="#2DBE7E" stroke-width="9" stroke-linecap="round"/>' +
+      '<circle cx="86" cy="20" r="9" fill="#F2658E"/><circle cx="86" cy="20" r="3.5" fill="#FFD34E"/>' +
+      '<g transform="translate(24 56) scale(.3)">' + ANIMALS.duck(false) + '</g>';
+  };
+  GAME_ICONS.drawing = function () {
+    return '<path d="M18 74Q30 30 50 52T84 24" fill="none" stroke="#F0485A" stroke-width="9" stroke-linecap="round"/>' +
+      '<path d="M24 86Q46 60 62 80T90 56" fill="none" stroke="#3D8BFD" stroke-width="9" stroke-linecap="round"/>' +
+      '<path d="M70 10L90 30L56 40Z" fill="#FFC83D" stroke="#E2A21B" stroke-width="4" stroke-linejoin="round"/><path d="M56 40L52 52L66 44Z" fill="#FFE5B8"/>';
+  };
+  GAME_ICONS.garden = function () {
+    return '<path d="M0 78Q50 62 100 78V100H0Z" fill="#2DBE7E"/>' +
+      '<rect x="22" y="42" width="8" height="30" rx="3" fill="#8A5A33"/><circle cx="26" cy="36" r="17" fill="#5ED38A"/><circle cx="22" cy="30" r="3.5" fill="#F0485A"/><circle cx="32" cy="40" r="3.5" fill="#F0485A"/>' +
+      '<rect x="66" y="52" width="4" height="22" rx="2" fill="#1C8F5C"/><circle cx="68" cy="46" r="10" fill="#F2658E"/><circle cx="68" cy="46" r="4" fill="#FFD34E"/>' +
+      '<g transform="translate(38 54) scale(.26)">' + ANIMALS.rabbit(false) + '</g>';
+  };
   GAME_ICONS.workshop = function () {
     return '<rect x="10" y="50" width="38" height="38" rx="6" fill="#3D8BFD" fill-opacity=".8" stroke="#3D8BFD" stroke-width="4"/>' +
       '<polygon points="50,10 74,50 26,50" fill="#F2658E" fill-opacity=".8" stroke="#F2658E" stroke-width="4" stroke-linejoin="round"/>' +
