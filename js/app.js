@@ -16,6 +16,8 @@
     });
   }
 
+  B.stats.open();
+
   // نبدأ بعد تحميل الخط كي لا يتبدل شكل النص أمام الطفلة
   function boot() { B.home.show(); }
   if (document.fonts && document.fonts.ready) {

@@ -1019,6 +1019,8 @@ textarea, input { -webkit-user-select: text; user-select: text; }
     },
 
     /* بريد الاقتراحات مشفّر (base64) كي لا يظهر نصاً صريحاً لمن يفحص الصفحة */
+    /* رمز موقعك في GoatCounter (مثلاً abc يعني abc.goatcounter.com). فارغ = لا إحصاءات */
+    statsCode: '',
     feedbackMail: 'dHJpZmxlbWFuZ28xNDQ0QGdtYWlsLmNvbQ==',
     feedback: {
       pill: 'ملاحظة أو مقترح؟',
@@ -1434,6 +1436,47 @@ textarea, input { -webkit-user-select: text; user-select: text; }
       // السياق موقوف (iOS/متصفحات): نستأنفه ثم نشغّل الصوت
       try { c.resume().then(function () { if (c.state === 'running') go(); }, function () {}); } catch (e) {}
     }
+  };
+})();
+
+</script>
+<script>
+/* إحصاءات مجهولة الهوية لصاحب المشروع فقط (عبر GoatCounter: لوحة خاصة بك، بلا ملفات تعريف ارتباط).
+   لا يُرسل أي اسم أو بيانات شخصية: فقط أسماء أحداث مثل «play/train».
+   يبقى معطّلاً حتى تضع رمز موقعك في B.S.statsCode. بدون إنترنت أو رمز: لا يحدث شيء.
+   الأحداث:
+     open            كل فتحة للتطبيق
+     device/new      مرة واحدة لكل جهاز (عدد الزوار الإجمالي)
+     device/player   مرة واحدة لكل جهاز يلعب أول لعبة (عدد من لعب فعلاً)
+     play/<لعبة>     كل بدء للعبة
+     done/<لعبة>     كل جلسة مكتملة */
+(function () {
+  'use strict';
+  var B = (window.Bustan = window.Bustan || {});
+
+  function once(flag) {
+    try {
+      if (window.localStorage.getItem(flag)) return false;
+      window.localStorage.setItem(flag, '1');
+      return true;
+    } catch (e) { return false; } // بلا تخزين لا نعدّ مرة واحدة (نتجنب التكرار)
+  }
+
+  function send(path) {
+    var code = B.S && B.S.statsCode;
+    if (!code || /^(file:)/.test(window.location.protocol)) return; // لا نحسب فتح الملف محلياً
+    if (/localhost|127\.0\.0\.1/.test(window.location.hostname)) return;
+    try {
+      var img = new Image();
+      img.src = 'https://' + code + '.goatcounter.com/count?p=' + encodeURIComponent('/' + path) + '&e=true&t=' + encodeURIComponent(path) + '&rnd=' + Math.random().toString(36).slice(2);
+    } catch (e) {}
+  }
+
+  B.stats = {
+    track: send,
+    open: function () { send('open'); if (once('bustan.dev.new')) send('device/new'); },
+    play: function (id) { send('play/' + id); if (once('bustan.dev.player')) send('device/player'); },
+    done: function (id) { send('done/' + id); }
   };
 })();
 
@@ -2581,6 +2624,7 @@ textarea, input { -webkit-user-select: text; user-select: text; }
     var mod = B.free[it.id];
     if (!mod || active) return;
     if (B.audio) B.audio.play('whoosh');
+    B.stats.play(it.id);
     var cur = UI.curtain('#8E5CF0', origin.x, origin.y);
     cur.cover.then(function () {
       var stage = h('div', { class: 'stage' });
@@ -2602,6 +2646,7 @@ textarea, input { -webkit-user-select: text; user-select: text; }
     if (!game || !it || active) return;
     var color = it.zone === 'solo' ? '#19B394' : '#F2658E';
     if (B.audio) B.audio.play('whoosh');
+    B.stats.play(id);
     var cur = UI.curtain(color, origin.x, origin.y);
     cur.cover.then(function () {
       var ctx = build(it, game);
@@ -2684,6 +2729,7 @@ textarea, input { -webkit-user-select: text; user-select: text; }
         if (i < ctx.total) await ctx.sleep(1000);
       }
       B.storage.recordSession(id);
+      B.stats.done(id);
       ctx.ending = true;
       await ctx.sleep(500);
       await game.outro(ctx);
@@ -5922,6 +5968,8 @@ textarea, input { -webkit-user-select: text; user-select: text; }
       navigator.serviceWorker.register('sw.js').catch(function () {});
     });
   }
+
+  B.stats.open();
 
   // نبدأ بعد تحميل الخط كي لا يتبدل شكل النص أمام الطفلة
   function boot() { B.home.show(); }

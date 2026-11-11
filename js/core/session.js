@@ -47,6 +47,7 @@
     var mod = B.free[it.id];
     if (!mod || active) return;
     if (B.audio) B.audio.play('whoosh');
+    B.stats.play(it.id);
     var cur = UI.curtain('#8E5CF0', origin.x, origin.y);
     cur.cover.then(function () {
       var stage = h('div', { class: 'stage' });
@@ -68,6 +69,7 @@
     if (!game || !it || active) return;
     var color = it.zone === 'solo' ? '#19B394' : '#F2658E';
     if (B.audio) B.audio.play('whoosh');
+    B.stats.play(id);
     var cur = UI.curtain(color, origin.x, origin.y);
     cur.cover.then(function () {
       var ctx = build(it, game);
@@ -150,6 +152,7 @@
         if (i < ctx.total) await ctx.sleep(1000);
       }
       B.storage.recordSession(id);
+      B.stats.done(id);
       ctx.ending = true;
       await ctx.sleep(500);
       await game.outro(ctx);

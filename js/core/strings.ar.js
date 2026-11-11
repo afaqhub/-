@@ -100,6 +100,8 @@
     },
 
     /* بريد الاقتراحات مشفّر (base64) كي لا يظهر نصاً صريحاً لمن يفحص الصفحة */
+    /* رمز موقعك في GoatCounter (مثلاً abc يعني abc.goatcounter.com). فارغ = لا إحصاءات */
+    statsCode: '',
     feedbackMail: 'dHJpZmxlbWFuZ28xNDQ0QGdtYWlsLmNvbQ==',
     feedback: {
       pill: 'ملاحظة أو مقترح؟',
