@@ -1,27 +1,67 @@
 /* القسم الإبداعي: لعب حرّ بلا هدف ولا جولات ولا مصابيح.
-   ١) ورشة الأشكال: قطع ملوّنة شفافة مثل المكعبات المغناطيسية — تُضاف بنقرة، وتُسحب، وتدور بنقرة.
+   ١) ورشة الأشكال: ابنِ الصورة من الأشكال (بيت، صاروخ، قطار…)، تلتصق القطع في أماكنها كالمغناطيس.
    ٢) لوحة التلوين: رسمات بمناطق، تختار لوناً ثم تنقر المنطقة.
    عقد اللعب الحر (B.free[id]): open(ctx) و destroy(). */
 (function () {
   'use strict';
   var B = (window.Bustan = window.Bustan || {});
-  var UI = B.UI, h = UI.h, art = B.art;
+  var UI = B.UI, h = UI.h, art = B.art, kit = B.kit;
   B.free = B.free || {};
 
   var COLS = ['#F2658E', '#FFC83D', '#2DBE7E', '#3D8BFD', '#8E5CF0', '#FF8A3D', '#5CC8FF', '#F0485A'];
 
-  /* ═════════ ورشة الأشكال ═════════ */
-  var SHAPES = {
-    square: '<rect x="6" y="6" width="88" height="88" rx="10"/>',
-    triangle: '<polygon points="50,8 94,92 6,92"/>',
-    rect: '<rect x="6" y="28" width="88" height="44" rx="8"/>',
-    circle: '<circle cx="50" cy="50" r="44"/>',
-    diamond: '<polygon points="50,4 96,50 50,96 4,50"/>'
-  };
-  function piece(shape, col) {
-    // قطعة شفافة بحدّ لامع كالمكعب المغناطيسي
-    return '<svg viewBox="0 0 100 100"><g fill="' + col + '" fill-opacity=".72" stroke="' + col + '" stroke-width="6" stroke-linejoin="round">' + SHAPES[shape] + '</g>' +
-      '<g fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="2.5" stroke-linejoin="round" transform="translate(12 12) scale(.76)">' + SHAPES[shape] + '</g></svg>';
+  /* ═════════ ورشة الأشكال: ابنِ الصورة ═════════
+     صورة مرسومة بخطوط متقطعة (بيت، صاروخ، قطار…) تتكوّن من أشكال تعرفها:
+     مربع، مثلث، مستطيل، دائرة، معيّن. تسحب الشكل إلى مكانه فيلتصق كالمغناطيس
+     (أو تلمس الشكل ثم تلمس مكانه). الشكل في غير مكانه يعود بلطف إلى الصينية.
+     حين تكتمل الصورة تحيا: الصاروخ يطير، والسيارة تسير، ونوافذ البيت تُضاء. */
+
+  // رسم شكل داخل صندوق 0..100 (للأماكن والقطع): s = نوع الشكل
+  function shapePath(s) {
+    switch (s) {
+      case 'triangle': return '<polygon points="50,4 96,96 4,96"/>';
+      case 'circle': return '<circle cx="50" cy="50" r="48"/>';
+      case 'diamond': return '<polygon points="50,2 98,50 50,98 2,50"/>';
+      default: return '<rect x="2" y="2" width="96" height="96" rx="6"/>'; // مربع ومستطيل (الأبعاد من الصندوق)
+    }
+  }
+  /* الصور: كل قطعة {s: الشكل، x,y,w,h: الصندوق من ١٠٠، r: دوران، c: اللون} */
+  var Y = '#FFC83D', R = '#F0485A', G = '#2DBE7E', BL = '#3D8BFD', P = '#8E5CF0', O = '#FF8A3D', PK = '#F2658E', BR = '#B67B4D';
+  var PICS = [
+    { k: 'house', live: 'shine', parts: [
+      { s: 'square', x: 22, y: 44, w: 56, h: 46, c: Y }, { s: 'triangle', x: 14, y: 12, w: 72, h: 34, c: R },
+      { s: 'rect', x: 43, y: 64, w: 15, h: 26, c: BR }, { s: 'square', x: 28, y: 52, w: 12, h: 12, c: BL, win: 1 }, { s: 'square', x: 61, y: 52, w: 12, h: 12, c: BL, win: 1 }] },
+    { k: 'tree', live: 'bounce', parts: [
+      { s: 'rect', x: 43, y: 58, w: 14, h: 36, c: BR }, { s: 'circle', x: 20, y: 6, w: 60, h: 58, c: G },
+      { s: 'circle', x: 34, y: 22, w: 11, h: 11, c: R }, { s: 'circle', x: 57, y: 38, w: 11, h: 11, c: R }] },
+    { k: 'rocket', live: 'fly', parts: [
+      { s: 'rect', x: 38, y: 30, w: 24, h: 50, c: '#FAFCFF' }, { s: 'triangle', x: 38, y: 6, w: 24, h: 25, c: R },
+      { s: 'circle', x: 43, y: 40, w: 14, h: 14, c: BL }, { s: 'triangle', x: 22, y: 62, w: 17, h: 24, c: P }, { s: 'triangle', x: 61, y: 62, w: 17, h: 24, c: P },
+      { s: 'diamond', x: 42, y: 80, w: 16, h: 16, c: O }] },
+    { k: 'car', live: 'drive', parts: [
+      { s: 'rect', x: 8, y: 46, w: 84, h: 26, c: BL }, { s: 'rect', x: 26, y: 24, w: 46, h: 23, c: BL },
+      { s: 'square', x: 32, y: 29, w: 14, h: 14, c: '#D6EEFF' }, { s: 'square', x: 52, y: 29, w: 14, h: 14, c: '#D6EEFF' },
+      { s: 'circle', x: 16, y: 62, w: 22, h: 22, c: '#1F2A5A' }, { s: 'circle', x: 62, y: 62, w: 22, h: 22, c: '#1F2A5A' }] },
+    { k: 'boat', live: 'drive', parts: [
+      { s: 'rect', x: 14, y: 66, w: 72, h: 16, c: BR }, { s: 'rect', x: 47, y: 14, w: 6, h: 52, c: '#8A5A33' },
+      { s: 'triangle', x: 54, y: 16, w: 30, h: 46, c: PK }, { s: 'triangle', x: 18, y: 26, w: 28, h: 36, c: Y }, { s: 'circle', x: 28, y: 70, w: 8, h: 8, c: '#FAFCFF' }] },
+    { k: 'train', live: 'drive', parts: [
+      { s: 'rect', x: 8, y: 44, w: 52, h: 28, c: G }, { s: 'square', x: 58, y: 28, w: 32, h: 44, c: Y }, { s: 'rect', x: 16, y: 26, w: 12, h: 18, c: '#1F2A5A' },
+      { s: 'square', x: 66, y: 35, w: 16, h: 16, c: '#D6EEFF' }, { s: 'circle', x: 14, y: 64, w: 20, h: 20, c: '#1F2A5A' }, { s: 'circle', x: 38, y: 64, w: 20, h: 20, c: '#1F2A5A' },
+      { s: 'circle', x: 66, y: 62, w: 22, h: 22, c: '#1F2A5A' }] },
+    { k: 'flower', live: 'bounce', parts: [
+      { s: 'rect', x: 47, y: 50, w: 6, h: 44, c: G }, { s: 'diamond', x: 52, y: 64, w: 20, h: 14, c: G },
+      { s: 'circle', x: 38, y: 6, w: 24, h: 24, c: PK }, { s: 'circle', x: 58, y: 24, w: 24, h: 24, c: PK }, { s: 'circle', x: 38, y: 42, w: 24, h: 24, c: PK },
+      { s: 'circle', x: 18, y: 24, w: 24, h: 24, c: PK }, { s: 'circle', x: 40, y: 26, w: 20, h: 20, c: Y }] },
+    { k: 'kite', live: 'fly', parts: [
+      { s: 'diamond', x: 22, y: 6, w: 56, h: 60, c: O }, { s: 'diamond', x: 38, y: 22, w: 24, h: 28, c: Y },
+      { s: 'triangle', x: 44, y: 66, w: 12, h: 10, c: PK }, { s: 'triangle', x: 48, y: 78, w: 12, h: 10, c: BL }, { s: 'triangle', x: 44, y: 88, w: 12, h: 10, c: G }] }
+  ];
+  function key(pt) { return pt.s + ':' + Math.round(pt.w) + 'x' + Math.round(pt.h); } // القطع المتطابقة يمكن تبادلها
+
+  function partSvg(pt, cls, fill, extra) {
+    return '<svg class="' + cls + '" viewBox="0 0 100 100" preserveAspectRatio="none" style="left:' + pt.x + '%;top:' + pt.y + '%;width:' + pt.w + '%;height:' + pt.h + '%"' + (extra || '') + '>' +
+      '<g ' + fill + ' vector-effect="non-scaling-stroke">' + shapePath(pt.s) + '</g></svg>';
   }
 
   var ws = null;
@@ -29,85 +69,160 @@
     open: function (ctx) {
       var stage = ctx.stage, vp = UI.vp();
       stage.classList.add('g-stage', 'ws-stage');
-      var size = vp.tablet ? 120 : 88, colorIdx = 0, z = 1;
-      var canvas = h('div', { class: 'ws-canvas' });
-      var tray = h('div', { class: 'g-tray ws-tray' });
-      ws = { pieces: [] };
+      var board = h('div', { class: 'ws-board' });
+      var tray = h('div', { class: 'ws-tray' });
+      var nextBtn = h('button', { class: 'g-choice ws-next', type: 'button', 'aria-label': B.S.create.next, html: B.art.playIcon() });
+      ws = { idx: Math.floor(Math.random() * PICS.length), sel: null };
+      stage.appendChild(h('div', { class: 'g-main ws-main' }, board));
+      stage.appendChild(h('div', { class: 'ws-bottom' }, tray, nextBtn));
+      UI.bindPress(nextBtn, function () { ws.idx = (ws.idx + 1) % PICS.length; if (B.audio) B.audio.play('whoosh'); show(); });
 
-      function add(shape, btn) {
-        var r = canvas.getBoundingClientRect();
-        var x = r.width / 2 - size / 2 + (Math.random() - 0.5) * r.width * 0.5;
-        var y = r.height / 2 - size / 2 + (Math.random() - 0.5) * r.height * 0.4;
-        var el = h('div', { class: 'ws-piece', style: { width: size + 'px', height: size + 'px', zIndex: ++z }, html: piece(shape, COLS[colorIdx]) });
-        var p = { el: el, x: x, y: y, rot: 0 };
-        place(p);
-        canvas.appendChild(el);
-        ws.pieces.push(p);
-        if (ws.pieces.length > 40) { var old = ws.pieces.shift(); old.el.remove(); }
-        UI.anim(el.firstChild, [{ transform: 'scale(.2)' }, { transform: 'scale(1.15)' }, { transform: 'scale(1)' }], { dur: 420, easing: UI.SPRING, fill: 'none' });
-        if (B.audio) B.audio.play('pop');
-        drag(p);
+      function show() {
+        var pic = PICS[ws.idx];
+        board.innerHTML = ''; tray.innerHTML = '';
+        nextBtn.classList.remove('ready');
+        ws.sel = null;
+        var art = h('div', { class: 'ws-art' });
+        board.appendChild(art);
+        ws.slots = pic.parts.map(function (pt, i) {
+          // المكان: شكل متقطع، ومساحة لمس شفافة لا تقل عن حدّ اللمس
+          var el = h('div', { class: 'ws-slot', 'data-i': i, html: partSvg(pt, 'ws-ghost', 'fill="rgba(255,255,255,.6)" stroke="#8FA0D8" stroke-width="3" stroke-dasharray="7 6"') });
+          art.appendChild(el);
+          return { el: el, pt: pt, k: key(pt), filled: false };
+        });
+        // القطع في الصينية، مختلطة
+        kit.shuffle(pic.parts.map(function (pt, i) { return i; })).forEach(function (i, n) {
+          var pt = pic.parts[i];
+          var ar = pt.w / pt.h, iw = ar >= 1 ? 76 : 76 * ar, ih = ar >= 1 ? 76 / ar : 76;
+          var b = h('button', { class: 'ws-piece-btn', type: 'button' },
+            h('span', { class: 'ws-piece-art', style: { width: iw + '%', height: ih + '%' }, html: '<svg viewBox="0 0 100 100" preserveAspectRatio="none"><g fill="' + pt.c + '" stroke="rgba(31,42,90,.35)" stroke-width="3" vector-effect="non-scaling-stroke">' + shapePath(pt.s) + '</g></svg>' }));
+          b.__pt = pt; b.__k = key(pt);
+          tray.appendChild(b);
+          UI.anim(b, [{ transform: 'scale(0)' }, { transform: 'scale(1)' }], { dur: 380, delay: 200 + n * 70, easing: UI.SPRING, fill: 'backwards' });
+          dragify(b);
+        });
+        UI.anim(art, [{ opacity: 0, transform: 'scale(.9)' }, { opacity: 1, transform: 'none' }], { dur: 450, easing: UI.SPRING, fill: 'none' });
+        layout();
       }
-      function place(p) { p.el.style.transform = 'translate3d(' + p.x + 'px,' + p.y + 'px,0) rotate(' + p.rot + 'deg)'; }
-      function drag(p) {
-        var sx, sy, ox, oy, moved, active = false;
-        p.el.addEventListener('pointerdown', function (e) {
-          active = true; moved = false; sx = e.clientX; sy = e.clientY; ox = p.x; oy = p.y;
-          p.el.style.zIndex = ++z; p.el.classList.add('lift');
-          try { p.el.setPointerCapture(e.pointerId); } catch (err) {}
+      function layout() { // اللوحة مربعة بأكبر حجم يتسع
+        var m = board.parentNode, s = Math.min(m.clientWidth - 8, m.clientHeight - 8);
+        board.style.width = board.style.height = Math.max(160, s) + 'px';
+      }
+
+      function slotAt(k, x, y) { // أقرب مكان فارغ مطابق تحت الإصبع (مسافة التقاط متسامحة)
+        var best = null, bd = 1e9;
+        ws.slots.forEach(function (sl) {
+          if (sl.filled || sl.k !== k) return;
+          var r = sl.el.querySelector('svg').getBoundingClientRect();
+          var cx = r.left + r.width / 2, cy = r.top + r.height / 2, d = Math.hypot(cx - x, cy - y);
+          var tol = Math.max(70, Math.max(r.width, r.height) * 0.6);
+          if (d < tol && d < bd) { bd = d; best = sl; }
         });
-        p.el.addEventListener('pointermove', function (e) {
-          if (!active) return;
-          var dx = e.clientX - sx, dy = e.clientY - sy;
-          if (Math.abs(dx) + Math.abs(dy) > 8) moved = true;
-          p.x = ox + dx; p.y = oy + dy; place(p);
+        return best;
+      }
+      function firstFree(k) { return ws.slots.filter(function (sl) { return !sl.filled && sl.k === k; })[0]; }
+
+      function place(b, sl) {
+        sl.filled = true;
+        var pt = sl.pt;
+        sl.el.innerHTML = partSvg(pt, 'ws-fill' + (pt.win ? ' win' : ''), 'fill="' + pt.c + '" stroke="rgba(31,42,90,.35)" stroke-width="3"');
+        var sv = sl.el.firstChild;
+        UI.anim(sv, [{ transform: 'scale(1.35)', opacity: 0.4 }, { transform: 'scale(.92)', opacity: 1, offset: 0.6 }, { transform: 'scale(1)', opacity: 1 }], { dur: 380, easing: UI.SPRING, fill: 'none' });
+        if (B.audio) B.audio.play('place'); // صوت «طق» المغناطيس
+        b.remove();
+        ws.sel = null;
+        if (ws.slots.every(function (x) { return x.filled; })) complete();
+      }
+      function reject(b) { // يعود الشكل بلطف إلى الصينية
+        kit.wrong(b);
+        b.classList.remove('picked');
+      }
+
+      function dragify(b) {
+        var ghost = null, sx = 0, sy = 0, moved = false;
+        b.addEventListener('pointerdown', function (e) {
+          if (ctx.paused) return;
+          sx = e.clientX; sy = e.clientY; moved = false;
+          try { b.setPointerCapture(e.pointerId); } catch (err) {}
+          if (B.audio) B.audio.play('pick');
         });
-        function end() {
-          if (!active) return;
-          active = false; p.el.classList.remove('lift');
-          var r = canvas.getBoundingClientRect();
-          if (moved) { // التصاق مغناطيسي بشبكة خفية
-            var g = size / 4;
-            p.x = Math.max(-size * 0.3, Math.min(r.width - size * 0.7, Math.round(p.x / g) * g));
-            p.y = Math.max(-size * 0.3, Math.min(r.height - size * 0.7, Math.round(p.y / g) * g));
-            if (B.audio) B.audio.play('place');
-          } else { p.rot += 45; if (B.audio) B.audio.play('pick'); } // نقرة بلا سحب: دوران
-          p.el.classList.add('snap'); place(p);
-          setTimeout(function () { p.el.classList.remove('snap'); }, 320);
+        b.addEventListener('pointermove', function (e) {
+          if (!b.hasPointerCapture || !b.hasPointerCapture(e.pointerId)) return;
+          if (!moved && Math.hypot(e.clientX - sx, e.clientY - sy) < 10) return;
+          if (!moved) {
+            moved = true;
+            // قطعة تتبع الإصبع بحجمها في الصورة
+            var br = board.getBoundingClientRect(), pt = b.__pt;
+            ghost = h('div', { class: 'ws-drag', style: { width: br.width * pt.w / 100 + 'px', height: br.height * pt.h / 100 + 'px' },
+              html: '<svg viewBox="0 0 100 100" preserveAspectRatio="none"><g fill="' + pt.c + '" stroke="rgba(31,42,90,.35)" stroke-width="3" vector-effect="non-scaling-stroke">' + shapePath(pt.s) + '</g></svg>' });
+            document.body.appendChild(ghost);
+            b.classList.add('lifted');
+          }
+          ghost.style.transform = 'translate(' + (e.clientX - ghost.offsetWidth / 2) + 'px,' + (e.clientY - ghost.offsetHeight / 2) + 'px)';
+        });
+        function up(e) {
+          if (ghost) { ghost.remove(); ghost = null; }
+          b.classList.remove('lifted');
+          if (!b.isConnected) return;
+          if (moved) {
+            var sl = slotAt(b.__k, e.clientX, e.clientY);
+            if (sl) place(b, sl); else reject(b);
+          } else {
+            // نقرة: اختيار الشكل (ثم لمس مكانه)
+            tray.querySelectorAll('.picked').forEach(function (x) { x.classList.remove('picked'); });
+            ws.sel = b; b.classList.add('picked');
+          }
         }
-        p.el.addEventListener('pointerup', end);
-        p.el.addEventListener('pointercancel', end);
+        b.addEventListener('pointerup', up);
+        b.addEventListener('pointercancel', function () { if (ghost) { ghost.remove(); ghost = null; } b.classList.remove('lifted'); });
+      }
+      // لمس مكان بعد اختيار شكل
+      board.addEventListener('pointerdown', function (e) {
+        if (!ws.sel || ctx.paused) return;
+        var sl = slotAt(ws.sel.__k, e.clientX, e.clientY);
+        if (sl) place(ws.sel, sl);
+        else {
+          // لمس مكان لا يناسب هذا الشكل
+          var any = ws.slots.some(function (x) { var r = x.el.querySelector('svg').getBoundingClientRect(); return !x.filled && e.clientX > r.left - 20 && e.clientX < r.right + 20 && e.clientY > r.top - 20 && e.clientY < r.bottom + 20; });
+          if (any) reject(ws.sel);
+        }
+      });
+
+      function complete() {
+        var pic = PICS[ws.idx], art = board.querySelector('.ws-art');
+        if (B.audio) { B.audio.play('cheer'); }
+        var c = kit.center(board, stage);
+        UI.burst(stage, c.x, c.y, { n: 26, spread: 170, dur: 1500 });
+        board.classList.add('done');
+        if (pic.live === 'fly') {
+          if (B.audio) B.audio.play('whoosh');
+          UI.anim(art, [{ transform: 'translateY(0)' }, { transform: 'translateY(8px)', offset: 0.15 }, { transform: 'translateY(-120%)', offset: 0.6 }, { transform: 'translateY(-120%)', offset: 0.61, opacity: 0 }, { transform: 'translateY(30%)', opacity: 0, offset: 0.62 }, { transform: 'translateY(0)', opacity: 1 }], { dur: 2600, easing: 'ease-in-out', fill: 'none' });
+        } else if (pic.live === 'drive') {
+          if (B.audio) B.audio.play('toot');
+          UI.anim(art, [{ transform: 'translateX(0)' }, { transform: 'translateX(-130%)', offset: 0.45 }, { transform: 'translateX(-130%)', opacity: 0, offset: 0.46 }, { transform: 'translateX(130%)', opacity: 0, offset: 0.47 }, { transform: 'translateX(0)', opacity: 1 }], { dur: 2600, easing: 'ease-in-out', fill: 'none' });
+        } else if (pic.live === 'shine') {
+          board.querySelectorAll('.ws-fill.win g').forEach(function (g) { g.setAttribute('fill', '#FFE45E'); });
+          UI.anim(art, [{ transform: 'scale(1)' }, { transform: 'scale(1.08)' }, { transform: 'scale(1)' }], { dur: 700, easing: UI.SPRING, fill: 'none' });
+        } else {
+          UI.anim(art, [{ transform: 'rotate(0)' }, { transform: 'rotate(-5deg) scale(1.05)' }, { transform: 'rotate(5deg) scale(1.05)' }, { transform: 'rotate(0)' }], { dur: 1000, fill: 'none' });
+        }
+        // زر الصورة التالية يظهر وينبض (لا انتقال مفاجئ)
+        setTimeout(function () { if (ws) { nextBtn.classList.add('ready'); board.classList.remove('done'); } }, 1400 / UI.ts);
       }
 
-      // شريط الأدوات: زر اللون ثم الأشكال الخمسة ثم المكنسة
-      var shapeBtns = [];
-      var colorBtn = h('button', { class: 'g-choice ws-color', type: 'button', 'aria-label': B.S.create.color }, h('span', { class: 'ws-dot' }));
-      function paint() {
-        colorBtn.firstChild.style.background = COLS[colorIdx];
-        shapeBtns.forEach(function (b) { b.innerHTML = piece(b.getAttribute('data-shape'), COLS[colorIdx]); });
-      }
-      UI.bindPress(colorBtn, function () { colorIdx = (colorIdx + 1) % COLS.length; paint(); if (B.audio) B.audio.play('pick'); });
-      tray.appendChild(colorBtn);
-      Object.keys(SHAPES).forEach(function (s) {
-        var b = h('button', { class: 'g-choice ws-shape', type: 'button', 'data-shape': s });
-        UI.bindPress(b, function () { add(s, b); });
-        shapeBtns.push(b); tray.appendChild(b);
-      });
-      var broom = h('button', { class: 'g-choice ws-broom', type: 'button', 'aria-label': B.S.create.clear, html: art.svg('0 0 100 100', '<path d="M62 8L44 52" stroke="#8A5A33" stroke-width="9" stroke-linecap="round"/><path d="M26 50L62 60L56 92Q36 96 16 84Z" fill="#FFD34E" stroke="#E2A21B" stroke-width="4" stroke-linejoin="round"/><path d="M30 64l-4 22M42 66l-2 24M52 68l-1 22" stroke="#E2A21B" stroke-width="3" stroke-linecap="round"/>') });
-      UI.bindPress(broom, function () {
-        if (!ws.pieces.length) return;
-        if (B.audio) B.audio.play('sweep');
-        ws.pieces.forEach(function (p, i) {
-          UI.anim(p.el, [{ opacity: 1 }, { opacity: 0, transform: p.el.style.transform + ' translateY(80px) scale(.6)' }], { dur: 450, delay: i * 20 }).then(function () { p.el.remove(); });
-        });
-        ws.pieces = [];
-      });
-      tray.appendChild(broom);
-      paint();
-      stage.appendChild(canvas);
-      stage.appendChild(tray);
+      ws.solve = function () { // للاختبار الآلي
+        var b = tray.querySelector('.ws-piece-btn');
+        if (!b) return false;
+        var sl = firstFree(b.__k); if (sl) place(b, sl);
+        return true;
+      };
+      ws.onResize = function () { layout(); };
+      window.addEventListener('resize', ws.onResize);
+      requestAnimationFrame(show);
     },
-    destroy: function () { ws = null; }
+    destroy: function () { if (ws) window.removeEventListener('resize', ws.onResize); ws = null; },
+    _pics: function () { return PICS; },
+    _solve: function () { return !!(ws && ws.solve && ws.solve()); }
   };
 
   /* ═════════ لوحة التلوين ═════════ */

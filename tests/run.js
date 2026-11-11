@@ -279,6 +279,8 @@ async function seeDemoThrough(page) {
         if (!R.target || R.dis.length < 1 || R.dis.includes(R.target) || new Set(R.dis).size !== R.dis.length) np.push('letters' + lv);
         if (lv === 5 && !R.forms) np.push('forms');
       }
+      for (const n of [4, 6, 8, 12, 16]) { const f = Bustan.games.memory._fit(n, 360, 560); if (f.c * f.r !== n || f.s < 72) np.push('memory' + n); }
+      Bustan.free.workshop._pics().forEach((p) => { if (p.parts.length < 4) np.push('pic:' + p.k); });
       out.np = [...new Set(np)];
       return out;
     });
@@ -316,7 +318,7 @@ async function seeDemoThrough(page) {
       dir: document.documentElement.dir, lang: document.documentElement.lang,
       digits: !/[0-9]/.test(document.body.innerText)
     }));
-    ok(info.zones === 3 && info.tiles === 9, `${name}: ثلاث مناطق و٩ ألعاب`);
+    ok(info.zones === 3 && info.tiles === 10, `${name}: ثلاث مناطق و١٠ ألعاب`);
     ok(info.sleeping === 0, `${name}: كل الألعاب متاحة (لا أيقونات نائمة)`);
     const fontOk = await page.evaluate(async () => {
       const r = await Promise.all(['400', '700', '800'].map((w) => document.fonts.load(w + ' 20px Tajawal', 'بستان')));
@@ -507,7 +509,7 @@ async function seeDemoThrough(page) {
 
   /* ───── الألعاب الأربع الجديدة: جلسة كاملة آلياً ───── */
   if (!QUICK) {
-    const NAMES = { fruits: 'سلة الفواكه', letters: 'صيد الحروف', mirror: 'مرآة الأشكال', pattern: 'صانعة الأنماط', firstsound: 'أول صوت', bridge: 'جسر الروابط' };
+    const NAMES = { memory: 'بطاقات الذاكرة', fruits: 'سلة الفواكه', letters: 'صيد الحروف', mirror: 'مرآة الأشكال', pattern: 'صانعة الأنماط', firstsound: 'أول صوت', bridge: 'جسر الروابط' };
     for (const vpName of ['جوال-عمودي', 'آيباد-أفقي', 'جوال-أفقي', 'آيباد-عمودي']) {
       for (const g of Object.keys(NAMES)) {
         section(`جلسة كاملة آلياً — ${NAMES[g]} — ${vpName}`);
@@ -592,15 +594,24 @@ async function seeDemoThrough(page) {
     const page = await newPage(browser, vp, base);
     await open(page, base);
     await page.tap('.tile[data-game=workshop]');
-    await page.waitForSelector('.free-screen .ws-shape'); await page.waitForTimeout(700);
-    for (let i = 0; i < 5; i++) { await page.tap(`.ws-shape >> nth=${i}`); await page.tap('.ws-color'); }
-    await page.waitForTimeout(500);
-    ok((await page.evaluate(() => document.querySelectorAll('.ws-piece').length)) === 5, `${vpName}: الورشة تضيف القطع`);
+    await page.waitForSelector('.free-screen .ws-piece-btn'); await page.waitForTimeout(800);
     await checkScreen(page, vp, vpName + ' / الورشة');
     await shot(page, 'workshop-' + vpName);
+    const pieces = await page.evaluate(() => document.querySelectorAll('.ws-piece-btn').length);
+    ok(pieces >= 4, `${vpName}: الورشة تعرض صورة متقطعة و${pieces} أشكال لبنائها`);
     ok((await page.evaluate(() => document.querySelectorAll('.bulb').length)) === 0, `${vpName}: لعب حرّ بلا مصابيح`);
-    await page.tap('.ws-broom'); await page.waitForTimeout(900);
-    ok((await page.evaluate(() => document.querySelectorAll('.ws-piece').length)) === 0, `${vpName}: المكنسة تنظّف اللوحة`);
+    // سحب حقيقي: أول شكل إلى كل الأماكن حتى يلتصق في مكانه المطابق
+    const pos = await page.evaluate(() => { const r = document.querySelector('.ws-piece-btn').getBoundingClientRect(); return { from: [r.left + r.width / 2, r.top + r.height / 2], slots: [...document.querySelectorAll('.ws-slot svg')].map((x) => { const q = x.getBoundingClientRect(); return [q.left + q.width / 2, q.top + q.height / 2]; }) }; });
+    let snapped = false;
+    for (const to of pos.slots) {
+      await page.mouse.move(pos.from[0], pos.from[1]); await page.mouse.down();
+      await page.mouse.move(to[0], to[1], { steps: 8 }); await page.mouse.up(); await page.waitForTimeout(450);
+      if ((await page.evaluate(() => document.querySelectorAll('.ws-piece-btn').length)) < pieces) { snapped = true; break; }
+    }
+    ok(snapped, `${vpName}: سحب الشكل إلى مكانه يلصقه كالمغناطيس`);
+    while (await page.evaluate(() => Bustan.free.workshop._solve())) await page.waitForTimeout(120);
+    await page.waitForTimeout(1800);
+    ok(await page.evaluate(() => document.querySelector('.ws-next').classList.contains('ready')), `${vpName}: اكتمال الصورة يُحييها ويُظهر زر الصورة التالية`);
     await page.tap('.home-btn'); await page.waitForSelector('.home .tile'); await page.waitForTimeout(400);
     await page.tap('.tile[data-game=coloring]');
     await page.waitForSelector('.cl-svg .rg'); await page.waitForTimeout(600);

@@ -22,6 +22,7 @@
     { id: 'pattern', zone: 'solo', rounds: 10 },
     { id: 'fruits', zone: 'solo', rounds: 10 },
     { id: 'letters', zone: 'solo', rounds: 10 },
+    { id: 'memory', zone: 'solo', rounds: 10 },
     { id: 'firstsound', zone: 'together', rounds: 8 },
     { id: 'bridge', zone: 'together', rounds: 8 },
     // القسم الإبداعي: لعب حرّ بلا جولات ولا مصابيح

@@ -465,6 +465,12 @@
       '<text x="54" y="60" text-anchor="middle" font-family="Tajawal, sans-serif" font-weight="800" font-size="34" fill="#1F2A5A">ب</text>' +
       '<circle cx="14" cy="16" r="5" fill="none" stroke="#5CC8FF" stroke-width="2.5"/><circle cx="26" cy="8" r="3" fill="none" stroke="#5CC8FF" stroke-width="2"/>';
   };
+  GAME_ICONS.memory = function () {
+    return '<rect x="8" y="14" width="38" height="50" rx="8" fill="#8E5CF0" transform="rotate(-10 27 39)"/>' +
+      '<path d="M27 30q2 8 9 9q-7 1-9 9q-2-8-9-9q7-1 9-9z" fill="#FFF7C2" transform="rotate(-10 27 39)"/>' +
+      '<rect x="44" y="30" width="44" height="58" rx="9" fill="#FAFCFF" stroke="#8E5CF0" stroke-width="4" transform="rotate(8 66 59)"/>' +
+      '<g transform="translate(48 38) scale(.38) rotate(8 50 50)">' + ANIMALS.cat(false) + '</g>';
+  };
   GAME_ICONS.workshop = function () {
     return '<rect x="10" y="50" width="38" height="38" rx="6" fill="#3D8BFD" fill-opacity=".8" stroke="#3D8BFD" stroke-width="4"/>' +
       '<polygon points="50,10 74,50 26,50" fill="#F2658E" fill-opacity=".8" stroke="#F2658E" stroke-width="4" stroke-linejoin="round"/>' +
