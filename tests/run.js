@@ -526,7 +526,7 @@ async function seeDemoThrough(page) {
         let checked = false, sawHand = false; const t0 = Date.now();
         while (Date.now() - t0 < 240000) {
           if (await page.evaluate(() => !!document.querySelector('.end-screen'))) break;
-          if (!sawHand) sawHand = await page.evaluate(() => !!document.querySelector('.kit-hand'));
+          if (!sawHand) sawHand = await page.evaluate(() => !!document.querySelector('.kit-hand, .tr-paw'));
           const did = await page.evaluate((g) => { const go = document.querySelector('.guide-go'); if (go) { go.click(); return false; } return Bustan.games[g]._solveStep(); }, g);
           if (did && !checked && (await lit(page)) >= 1) { checked = true; await page.waitForTimeout(700); await checkScreen(page, vp, NAMES[g]); await shot(page, g + '-' + vpName); }
           await page.waitForTimeout(110);
