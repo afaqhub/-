@@ -153,7 +153,7 @@ async function seeDemoThrough(page) {
     (function walk(d) {
       fs.readdirSync(d).forEach((f) => {
         const p = path.join(d, f);
-        if (/node_modules|\.git$|tests|tools/.test(p)) return;
+        if (/node_modules|\.git$|tests|tools|dist/.test(p)) return;
         if (fs.statSync(p).isDirectory()) walk(p);
         else if (/\.(js|css|html|webmanifest)$/.test(f) && f !== 'dua-card.html') files.push(p);
       });
