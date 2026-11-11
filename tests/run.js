@@ -87,7 +87,7 @@ async function checkScreen(page, vp, label) {
     document.querySelectorAll('button').forEach((b) => {
       if (b.closest('.parent-overlay')) return;
       const cs = getComputedStyle(b);
-      if (cs.display === 'none' || cs.visibility === 'hidden') return;
+      if (cs.display === 'none' || cs.visibility === 'hidden' || b.disabled) return;
       const r = b.getBoundingClientRect();
       if (Math.min(r.width, r.height) < tapMin - 0.5) out.small.push((b.className || b.tagName) + ' ' + Math.round(r.width) + 'x' + Math.round(r.height));
     });
@@ -269,6 +269,17 @@ async function seeDemoThrough(page) {
         if ((lv === 4) !== (m.axis === 'h')) pp.push('axis' + lv);
       }
       out.pp = [...new Set(pp)];
+      const np = [];
+      for (let lv = 1; lv <= 5; lv++) for (let i = 0; i < 200; i++) {
+        const c = Bustan.games.fruits._config(lv, i);
+        const max = [0, 5, 10, 10, 15, 20][lv];
+        if (c.n < 1 || c.n > max) np.push('fruitsN' + lv);
+        if (lv === 1 && c.mode !== 'give') np.push('fruitsMode1');
+        const R = Bustan.games.letters._makeRound(lv, null);
+        if (!R.target || R.dis.length < 1 || R.dis.includes(R.target) || new Set(R.dis).size !== R.dis.length) np.push('letters' + lv);
+        if (lv === 5 && !R.forms) np.push('forms');
+      }
+      out.np = [...new Set(np)];
       return out;
     });
     ok(r.up, 'التكيّف: ٣ جولات سلسة ← صعود');
@@ -283,6 +294,7 @@ async function seeDemoThrough(page) {
     ok(r.probs.length === 0, 'بناء جولات القطار (٢٥٠٠ جولة) يطابق قواعد المستويات' + (r.probs.length ? ' — ' + r.probs.join(',') : ''));
     ok(r.fs.length === 0, 'بنك «أول صوت»: ≥٤٠ كلمة مرسومة، حرفان لكل حرف سهل، والحروف المؤجلة في المستوى ٤ فقط' + (r.fs.length ? ' — ' + r.fs.join(',') : ''));
     ok(r.br.length === 0, 'بنك «جسر الروابط»: ٨ جمل لكل رابط وكل صورها موجودة' + (r.br.length ? ' — ' + r.br.join(',') : ''));
+    ok(r.np.length === 0, 'بناء جولات «سلة الفواكه» و«صيد الحروف» يطابق المستويات' + (r.np.length ? ' — ' + r.np.join(',') : ''));
     ok(r.pp.length === 0, 'بناء الأنماط والمرايا يطابق المستويات وحدّ اللمس' + (r.pp.length ? ' — ' + r.pp.join(',') : ''));
     await page.__ctx.close();
   }
@@ -304,7 +316,7 @@ async function seeDemoThrough(page) {
       dir: document.documentElement.dir, lang: document.documentElement.lang,
       digits: !/[0-9]/.test(document.body.innerText)
     }));
-    ok(info.zones === 3 && info.tiles === 7, `${name}: ثلاث مناطق و٧ ألعاب`);
+    ok(info.zones === 3 && info.tiles === 9, `${name}: ثلاث مناطق و٩ ألعاب`);
     ok(info.sleeping === 0, `${name}: كل الألعاب متاحة (لا أيقونات نائمة)`);
     const fontOk = await page.evaluate(async () => {
       const r = await Promise.all(['400', '700', '800'].map((w) => document.fonts.load(w + ' 20px Tajawal', 'بستان')));
@@ -468,7 +480,7 @@ async function seeDemoThrough(page) {
       await page.evaluate(() => Bustan.storage.markDemoSeen('train'));
       await startTrain(page);
       await waitPlay(page);
-      ok((await page.evaluate(() => document.querySelectorAll('.game-screen .hud-btn').length)) === 1, 'الشريط العلوي فيه زر الرئيسية فقط (لا سهم إعادة)');
+      ok((await page.evaluate(() => !document.querySelector('.game-screen .replay-btn') && document.querySelectorAll('.game-screen .hud-btn').length === 2)), 'لا سهم إعادة في الشريط العلوي (الرئيسية والإيقاف فقط)');
       await page.tap('.home-btn'); await page.waitForSelector('.home .tile');
       const box = await page.locator('.logo-corner').boundingBox();
       await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2); await page.mouse.down(); await page.waitForTimeout(3300); await page.mouse.up();
@@ -495,7 +507,7 @@ async function seeDemoThrough(page) {
 
   /* ───── الألعاب الأربع الجديدة: جلسة كاملة آلياً ───── */
   if (!QUICK) {
-    const NAMES = { mirror: 'مرآة الأشكال', pattern: 'صانعة الأنماط', firstsound: 'أول صوت', bridge: 'جسر الروابط' };
+    const NAMES = { fruits: 'سلة الفواكه', letters: 'صيد الحروف', mirror: 'مرآة الأشكال', pattern: 'صانعة الأنماط', firstsound: 'أول صوت', bridge: 'جسر الروابط' };
     for (const vpName of ['جوال-عمودي', 'آيباد-أفقي', 'جوال-أفقي', 'آيباد-عمودي']) {
       for (const g of Object.keys(NAMES)) {
         section(`جلسة كاملة آلياً — ${NAMES[g]} — ${vpName}`);
@@ -505,7 +517,7 @@ async function seeDemoThrough(page) {
         await page.tap(`.tile[data-game=${g}]`);
         await page.waitForSelector('.game-screen');
         const total = await page.evaluate(() => document.querySelectorAll('.bulb').length);
-        ok(total === (g === 'mirror' || g === 'pattern' ? 10 : 8), 'عدد المصابيح ' + total);
+        ok(total === (g === 'firstsound' || g === 'bridge' ? 8 : 10), 'عدد المصابيح ' + total);
         let checked = false, sawHand = false; const t0 = Date.now();
         while (Date.now() - t0 < 240000) {
           if (await page.evaluate(() => !!document.querySelector('.end-screen'))) break;
@@ -522,6 +534,29 @@ async function seeDemoThrough(page) {
         ok(page.__log.external.length === 0, 'لا طلبات خارجية');
         await page.__ctx.close();
       }
+    }
+
+    section('الإيقاف المؤقت');
+    {
+      const page = await newPage(browser, VIEWPORTS['جوال-عمودي'], base);
+      await open(page, base, '?ts=1');
+      await page.evaluate(() => Bustan.storage.markDemoSeen('train'));
+      await startTrain(page);
+      await waitPlay(page);
+      ok((await page.evaluate(() => document.querySelectorAll('.game-screen .hud-btn').length)) === 2, 'الشريط العلوي: الرئيسية والإيقاف المؤقت');
+      await page.tap('.pause-btn'); await page.waitForTimeout(300);
+      const x1 = await page.evaluate(() => Bustan.games.train._probe().v + '|' + document.querySelector('.pole').style.transform);
+      await page.waitForTimeout(1500);
+      const x2 = await page.evaluate(() => Bustan.games.train._probe().v + '|' + document.querySelector('.pole').style.transform);
+      ok(x1 === x2 && !!(await page.$('.pause-layer .resume-btn')), 'الإيقاف يجمّد القطار ويُظهر زر متابعة كبيراً');
+      await shot(page, 'pause');
+      await tap(page);
+      ok((await probe(page)).phase === 'play', 'زر «قف» لا يعمل أثناء الإيقاف');
+      await page.tap('.resume-btn'); await page.waitForTimeout(1200);
+      const x3 = await page.evaluate(() => document.querySelector('.pole').style.transform);
+      ok(x3 !== x2.split('|')[1] && !(await page.$('.pause-layer')), 'المتابعة تُكمل الحركة');
+      ok(page.__log.errors.length === 0, 'لا أخطاء console');
+      await page.__ctx.close();
     }
 
     section('سلّم المساعدة في ألعاب الاختيار (صانعة الأنماط)');

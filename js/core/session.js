@@ -20,6 +20,8 @@
     { id: 'train', zone: 'solo', rounds: 10 },
     { id: 'mirror', zone: 'solo', rounds: 10 },
     { id: 'pattern', zone: 'solo', rounds: 10 },
+    { id: 'fruits', zone: 'solo', rounds: 10 },
+    { id: 'letters', zone: 'solo', rounds: 10 },
     { id: 'firstsound', zone: 'together', rounds: 8 },
     { id: 'bridge', zone: 'together', rounds: 8 },
     // القسم الإبداعي: لعب حرّ بلا جولات ولا مصابيح
@@ -83,12 +85,26 @@
     };
     ctx.homeBtn = UI.iconButton('home-btn', B.art.house(), S.buttons.home, function () { exit(ctx, game); });
     // شريط الأعلى: زر الرئيسية فقط والمصابيح (مساحة فارغة تعادل الزر لتبقى المصابيح في الوسط)
-    ctx.hud = h('div', { class: 'hud' }, ctx.homeBtn, bulbs.el, h('span', { class: 'hud-spacer' }));
+    // شريط الأعلى: الرئيسية (يمين) — المصابيح — إيقاف مؤقت (يسار)
+    ctx.pauseBtn = UI.iconButton('pause-btn', B.art.pauseIcon(), S.buttons.pause, function () { pause(ctx, game); });
+    ctx.hud = h('div', { class: 'hud' }, ctx.homeBtn, bulbs.el, ctx.pauseBtn);
     ctx.root = h('div', { class: 'screen game-screen game-' + it.id, 'data-game': it.id, 'data-zone': it.zone }, stage, ctx.hud);
 
     // انتظار وحركة آمنان: لا يكملان بعد الخروج من اللعبة
     function guard(v) { return ctx.alive ? v : new Promise(function () {}); }
-    ctx.sleep = function (ms) { return UI.sleep(ms).then(guard); };
+    /* انتظار يتجمّد مع الإيقاف المؤقت: يُحسب الوقت المتبقي ويُستأنف بعد المتابعة */
+    ctx.timers = [];
+    ctx.paused = false;
+    ctx.sleep = function (ms) {
+      return new Promise(function (res) {
+        var t = { rem: ms / UI.ts, id: 0, t0: 0, on: false };
+        t.start = function () { t.on = true; t.t0 = performance.now(); t.id = setTimeout(t.done, Math.max(0, t.rem)); };
+        t.stop = function () { if (!t.on) return; t.on = false; clearTimeout(t.id); t.rem -= performance.now() - t.t0; };
+        t.done = function () { ctx.timers = ctx.timers.filter(function (x) { return x !== t; }); if (ctx.alive) res(); };
+        ctx.timers.push(t);
+        if (!ctx.paused) t.start();
+      });
+    };
     ctx.anim = function (el, kf, o) { return UI.anim(el, kf, o).then(guard); };
     return ctx;
   }
@@ -154,6 +170,34 @@
     ctx.root.appendChild(end);
     UI.anim(end, [{ opacity: 0 }, { opacity: 1 }], { dur: 1000, fill: 'both' });
     if (art) UI.anim(art, [{ opacity: 0, transform: 'translateY(16px)' }, { opacity: 1, transform: 'none' }], { dur: 900, delay: 300, easing: UI.SPRING });
+  }
+
+  /* الإيقاف المؤقت: يتجمّد كل شيء (الحركة والمؤقتات والقطار) وتظهر طبقة بزر متابعة كبير */
+  function pause(ctx, game) {
+    if (ctx.paused || !ctx.alive || ctx.ending) return;
+    ctx.paused = true;
+    ctx.timers.forEach(function (t) { t.stop(); });
+    ctx.frozen = ctx.stage.getAnimations({ subtree: true }).filter(function (a) { return a.playState === 'running'; });
+    ctx.frozen.forEach(function (a) { try { a.pause(); } catch (e) {} });
+    ctx.root.classList.add('is-paused');
+    if (game.pause) game.pause();
+    var resume = UI.iconButton('resume-btn', B.art.playIcon(), B.S.buttons.resume, function () { unpause(ctx, game); });
+    ctx.pauseLayer = h('div', { class: 'pause-layer' }, resume);
+    ctx.root.appendChild(ctx.pauseLayer);
+    UI.anim(ctx.pauseLayer, [{ opacity: 0 }, { opacity: 1 }], { dur: 250, fill: 'none' });
+    UI.anim(resume, [{ transform: 'scale(.4)' }, { transform: 'scale(1)' }], { dur: 380, easing: UI.SPRING, fill: 'none' });
+  }
+  function unpause(ctx, game) {
+    if (!ctx.paused) return;
+    var layer = ctx.pauseLayer;
+    ctx.pauseLayer = null;
+    UI.anim(layer, [{ opacity: 1 }, { opacity: 0 }], { dur: 220 }).then(function () { layer.remove(); });
+    ctx.paused = false;
+    ctx.root.classList.remove('is-paused');
+    (ctx.frozen || []).forEach(function (a) { try { if (a.playState === 'paused') a.play(); } catch (e) {} });
+    ctx.frozen = null;
+    if (game.resume) game.resume();
+    ctx.timers.slice().forEach(function (t) { t.start(); });
   }
 
   function exit(ctx, game) {

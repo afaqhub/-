@@ -272,6 +272,13 @@
       '<rect x="20" y="28" width="8" height="12" rx="3" fill="currentColor"/>', 'icon-svg');
   }
 
+  function pauseIcon() {
+    return svg('0 0 48 48', '<rect x="13" y="10" width="8" height="28" rx="3" fill="currentColor"/><rect x="27" y="10" width="8" height="28" rx="3" fill="currentColor"/>', 'icon-svg');
+  }
+  function playIcon() {
+    return svg('0 0 48 48', '<path d="M16 10L38 24L16 38Z" fill="currentColor" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/>', 'icon-svg');
+  }
+
   function replayIcon() {
     // يد صغيرة مع سهم تشغيل
     return svg('0 0 48 48',
@@ -442,6 +449,22 @@
     }
   };
 
+  GAME_ICONS.fruits = function () {
+    return '<circle cx="34" cy="30" r="15" fill="#F0485A"/><circle cx="60" cy="24" r="15" fill="#F0485A"/><circle cx="48" cy="44" r="15" fill="#FF8A3D"/>' +
+      '<path d="M34 16q2-8 8-10M60 10q2-6 8-8" stroke="#6B4E2E" stroke-width="3" fill="none" stroke-linecap="round"/>' +
+      '<ellipse cx="28" cy="25" rx="4" ry="6" fill="#fff" opacity=".4"/>' +
+      '<path d="M10 52H90L80 90Q79 94 74 94H26Q21 94 20 90Z" fill="#DDA86C" stroke="#8A5A33" stroke-width="4" stroke-linejoin="round"/>' +
+      '<path d="M16 66H84M20 80H80M38 52L40 94M62 52L60 94" stroke="#B67B4D" stroke-width="3"/>' +
+      '<rect x="6" y="46" width="88" height="10" rx="5" fill="#C9925A" stroke="#8A5A33" stroke-width="3"/>';
+  };
+  GAME_ICONS.letters = function () {
+    return '<path d="M0 72Q50 60 100 72V100H0Z" fill="#6FD1F4"/>' +
+      '<path d="M84 46L100 26V66Z" fill="#FF8A3D" stroke="#FF8A3D" stroke-width="5" stroke-linejoin="round"/>' +
+      '<ellipse cx="50" cy="46" rx="40" ry="28" fill="#FF8A3D"/><ellipse cx="54" cy="48" rx="24" ry="21" fill="#FAFCFF"/>' +
+      '<circle cx="20" cy="40" r="5" fill="#fff"/><circle cx="19" cy="40" r="3" fill="#2B2340"/>' +
+      '<text x="54" y="60" text-anchor="middle" font-family="Tajawal, sans-serif" font-weight="800" font-size="34" fill="#1F2A5A">ب</text>' +
+      '<circle cx="14" cy="16" r="5" fill="none" stroke="#5CC8FF" stroke-width="2.5"/><circle cx="26" cy="8" r="3" fill="none" stroke="#5CC8FF" stroke-width="2"/>';
+  };
   GAME_ICONS.workshop = function () {
     return '<rect x="10" y="50" width="38" height="38" rx="6" fill="#3D8BFD" fill-opacity=".8" stroke="#3D8BFD" stroke-width="4"/>' +
       '<polygon points="50,10 74,50 26,50" fill="#F2658E" fill-opacity=".8" stroke="#F2658E" stroke-width="4" stroke-linejoin="round"/>' +
@@ -499,6 +522,8 @@
     hand: hand,
     house: house,
     replayIcon: replayIcon,
+    pauseIcon: pauseIcon,
+    playIcon: playIcon,
     bulb: bulb,
     cloud: cloud,
     moon: moon,

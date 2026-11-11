@@ -3,7 +3,7 @@
    لا يعيد تحميل الصفحة تلقائياً (كي لا تُفاجأ الطفلة)؛ يظهر التحديث عند الفتح التالي. */
 'use strict';
 
-const VERSION = '2.1.0';
+const VERSION = '3.0.0';
 const CACHE = 'bustan-v' + VERSION;
 
 const FILES = [
@@ -30,6 +30,8 @@ const FILES = [
   './js/games/pattern.js',
   './js/games/firstsound.js',
   './js/games/bridge.js',
+  './js/games/fruits.js',
+  './js/games/letters.js',
   './js/games/creative.js',
   './js/app.js',
   './assets/fonts/tajawal-arabic-400-normal.woff2',

@@ -98,6 +98,8 @@
     flutter: function (c, t) { for (var i = 0; i < 6; i++) noise(c, t + i * 0.09, 0.06, 0.03, 3000 + i * 300, 1500, 1.5); },
     // إضاءة فانوس (نغمة حسب الترتيب)
     lantern: function (c, t, i) { tone(c, SCALE[(i || 0) % SCALE.length], t, 0.25, 0.05, 'sine'); },
+    // رشّة ماء (صيد سمكة)
+    splash: function (c, t) { noise(c, t, 0.35, 0.06, 1800, 500, 0.8); tone(c, 900, t + 0.05, 0.12, 0.03, 'sine', 1400); },
     // كنس اللوحة
     sweep: function (c, t) { noise(c, t, 0.5, 0.05, 3000, 600, 0.6); },
     // مصباح يُضاء: النغمة ترتفع مع كل مصباح

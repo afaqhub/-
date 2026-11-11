@@ -128,11 +128,13 @@
 .mr-cell { position: relative; z-index: 1; display: grid; place-items: center; padding: 9%; border: 0; background: transparent; border-radius: 50%; }
 .mr-cell.src { }
 .mr-cell.none { }
-.mr-cell.tgt { border: 4px dashed #8E5CF0; background: rgba(255, 255, 255, .55); margin: 6%; padding: 4%; }
-.mr-cell.tgt::before { content: ''; position: absolute; inset: 14%; border-radius: 50%; background: var(--ghost, transparent); opacity: .3; }
-.mr-cell.tgt.next { animation: gapPulse 1.1s ease-in-out infinite; border-color: var(--sun-deep); background: rgba(255, 211, 78, .35); }
-.mr-cell.tgt.done { border: 0; background: transparent; margin: 0; padding: 9%; }
-.mr-cell.tgt.done::before { display: none; }
+.mr-cell.tgt { padding: 9%; } /* الزر بحجم الخانة كاملاً (مساحة لمس كاملة)، والدائرة المتقطعة داخله */
+.mr-cell.tgt::after { content: ''; position: absolute; inset: 6%; border-radius: 50%; border: 4px dashed #8E5CF0; background: rgba(255, 255, 255, .55); z-index: -1; }
+.mr-cell.tgt::before { content: ''; position: absolute; inset: 20%; border-radius: 50%; background: var(--ghost, transparent); opacity: .3; }
+.mr-cell.tgt.next { animation: gapPulse 1.1s ease-in-out infinite; }
+.mr-cell.tgt.next::after { border-color: var(--sun-deep); background: rgba(255, 211, 78, .35); }
+.mr-cell.tgt.done::after, .mr-cell.tgt.done::before { display: none; }
+.mr-cell { isolation: isolate; }
 .mr-fill { display: block; width: 100%; height: 100%; border-radius: 50%; box-shadow: inset 0 -6px 0 rgba(0, 0, 0, .14), inset 0 5px 0 rgba(255, 255, 255, .35); }
 .mr-shape { width: 100%; height: 100%; }
 .g-choice.swatch { padding: calc(var(--cs) * .16); }
@@ -165,4 +167,103 @@
 
 @media (prefers-reduced-motion: reduce) {
   .pt-light, .pt-item.lit, .pt-dancer, .mr-deco, .bf-wing, .pulse-hint, .pulse-hint::after { animation: none !important; }
+}
+
+/* ═════════ سلة الفواكه: بستان وشجرة ═════════ */
+.fr-stage { background: linear-gradient(180deg, #BFEAFF 0%, #DFF6E8 55%, #B8E9A8 100%); --deep: #0B8269; }
+.fr-ask { position: relative; z-index: 3; display: flex; align-items: center; gap: 12px; direction: rtl; flex: none; }
+.fr-bear { width: clamp(64px, 13vmin, 110px); }
+.fr-bear svg { width: 100%; height: auto; }
+.fr-card { min-width: clamp(76px, 15vmin, 124px); height: clamp(76px, 15vmin, 124px); padding: 0 12px; border-radius: 26px; background: #FAFCFF; display: grid; place-items: center;
+  box-shadow: 0 7px 0 #0B8269, 0 14px 18px rgba(11, 130, 105, .25); font-size: clamp(48px, 10vmin, 86px); font-weight: 800; color: var(--night); line-height: 1; }
+.fr-card span { padding-bottom: .1em; }
+.fr-card.q { padding: 10px; } .fr-card.q svg { width: 70%; height: auto; }
+.fr-main { padding: 6px 0; }
+.fr-tree { position: relative; width: min(100%, 720px); height: 100%; display: grid; place-items: center; }
+.fr-canopy { position: absolute; inset: 0 2% 12% 2%; border-radius: 46% 46% 40% 40% / 50% 50% 40% 40%; background: radial-gradient(circle at 40% 35%, #6FDB8F, #2DBE7E 60%, #1C8F5C); box-shadow: 0 8px 0 #157A4D; }
+.fr-trunk { position: absolute; left: 50%; bottom: 0; width: 13%; height: 16%; margin-left: -6.5%; background: #8A5A33; border-radius: 8px 8px 0 0; z-index: -1; }
+.fr-grid { position: relative; z-index: 1; display: grid; justify-content: center; align-content: center; gap: 0; direction: rtl; margin-bottom: 10%; }
+.fr-fruit { display: grid; place-items: center; padding: 8%; border-radius: 50%; position: relative; transition: opacity .3s, transform .3s; }
+.fr-fruit svg { width: 100%; height: 100%; filter: drop-shadow(0 4px 0 rgba(0, 0, 0, .15)); }
+.fr-fruit.taken { opacity: 0; transform: scale(.4); pointer-events: none; }
+.fr-fruit.rest { opacity: .6; }
+.fr-fruit.counted::after { content: attr(data-n); position: absolute; top: -8%; inset-inline-start: -4%; min-width: 46%; aspect-ratio: 1; border-radius: 50%; background: var(--sun); color: var(--night);
+  display: grid; place-items: center; font-weight: 800; font-size: clamp(16px, 3.6vmin, 30px); line-height: 1; box-shadow: 0 3px 0 var(--sun-deep); }
+.fr-fly { position: absolute; z-index: 30; pointer-events: none; padding: 8%; } .fr-fly svg { width: 100%; height: 100%; }
+.fr-basket { position: relative; z-index: 3; flex: none; width: clamp(130px, 30vmin, 230px); margin-top: -4px; }
+.fr-basket-art svg { width: 100%; height: auto; position: relative; z-index: 2; }
+.fr-in { position: absolute; bottom: 40%; width: 26%; z-index: 1; } .fr-in svg { width: 100%; height: auto; }
+.fr-count { position: absolute; z-index: 4; top: -38%; left: 50%; width: 46%; aspect-ratio: 1; margin-left: -23%; border-radius: 50%; background: var(--sun); color: var(--night);
+  display: grid; place-items: center; font-size: clamp(28px, 7vmin, 56px); font-weight: 800; line-height: 1; box-shadow: 0 5px 0 var(--sun-deep); opacity: 0; transition: opacity .2s; padding-bottom: .08em; }
+.fr-count.on { opacity: 1; }
+.g-choice.num span { font-size: calc(var(--cs) * .56); }
+.end-basket { width: 110px; }
+@media (orientation: landscape) and (max-height: 600px) {
+  .fr-stage { display: grid; grid-template-columns: auto 1fr; grid-template-rows: 1fr auto; column-gap: 14px; }
+  .fr-ask { grid-column: 1; grid-row: 1; flex-direction: column; align-self: center; }
+  .fr-main { grid-column: 2; grid-row: 1 / span 2; }
+  .fr-basket { grid-column: 1; grid-row: 2; width: 120px; margin-top: 30px; }
+  .fr-tray { grid-column: 1; grid-row: 2; flex-direction: column; }
+  .fr-stage .fr-tray { flex-direction: row; grid-column: 2; grid-row: 2; }
+}
+
+/* ═════════ صيد الحروف: بركة وأسماك ═════════ */
+.lt-stage { background: linear-gradient(180deg, #CFF3FF 0%, #9FE0FF 22%, #5CC8FF 60%, #2E9BE0 100%); --deep: #2468D1; }
+.lt-top { position: relative; z-index: 3; flex: none; display: flex; align-items: center; gap: 12px; direction: rtl; }
+.lt-frog { width: clamp(64px, 13vmin, 110px); } .lt-frog svg { width: 100%; height: auto; }
+.lt-card { width: clamp(84px, 17vmin, 136px); height: clamp(84px, 17vmin, 136px); border-radius: 28px; background: #FAFCFF; display: grid; place-items: center;
+  box-shadow: 0 7px 0 #2468D1, 0 14px 18px rgba(36, 104, 209, .3); font-size: clamp(56px, 12vmin, 100px); font-weight: 800; color: var(--night); line-height: 1; }
+.lt-card span { padding-bottom: .12em; }
+.lt-pond { position: relative; flex: 1 1 0; min-height: 0; width: calc(100% + 24px + var(--safe-l) + var(--safe-r)); margin: 8px 0; overflow: hidden; direction: ltr; }
+.lt-bubble { position: absolute; bottom: -20px; width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, .7); animation: bubbleUp 7s linear infinite; pointer-events: none; }
+@keyframes bubbleUp { from { transform: translateY(0); opacity: .9; } to { transform: translateY(-110vh); opacity: 0; } }
+.lt-fish { position: absolute; left: 0; animation-name: swim; animation-timing-function: linear; animation-iteration-count: infinite; will-change: transform; touch-action: none; cursor: pointer; }
+@keyframes swim { from { transform: translateX(var(--from)); } to { transform: translateX(var(--to)); } }
+.lt-inner { position: relative; width: 100%; height: 100%; animation: wiggle 1.4s ease-in-out infinite alternate; }
+@keyframes wiggle { from { transform: translateY(-4px) rotate(-3deg); } to { transform: translateY(4px) rotate(3deg); } }
+.lt-body svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.lt-letter { position: absolute; left: 31%; top: 22%; width: 46%; height: 62%; display: grid; place-items: center; font-weight: 800; color: var(--night); line-height: 1; padding-bottom: .1em; pointer-events: none; }
+.lt-fish.caught { visibility: hidden; pointer-events: none; }
+.lt-fish.pulse-hint { animation-name: swim; } /* يبقى السبح، والنبض على الداخل */
+.lt-fish.pulse-hint .lt-inner { animation: pulseHint 1s ease-in-out infinite; }
+.lt-fish.pulse-hint .lt-inner::after { content: ''; position: absolute; inset: 0 5% 0 0; border-radius: 50%; border: 6px solid var(--sun); animation: haloRing 1s ease-in-out infinite; pointer-events: none; }
+.lt-fish.pulse-hint::after { display: none; }
+.lt-splash { position: absolute; z-index: 25; width: 120px; height: 120px; border-radius: 50%; border: 6px solid rgba(255, 255, 255, .9); pointer-events: none; }
+.lt-fly { position: absolute; z-index: 30; pointer-events: none; }
+.lt-bucket { position: relative; z-index: 3; flex: none; display: flex; align-items: center; gap: 10px; direction: rtl; }
+.lt-bucket-art { width: clamp(70px, 14vmin, 110px); } .lt-bucket-art svg { width: 100%; height: auto; }
+.lt-slots { display: flex; gap: 8px; }
+.lt-slot { width: clamp(44px, 9vmin, 70px); opacity: .3; filter: grayscale(1); transition: opacity .3s, filter .3s; }
+.lt-slot svg { width: 100%; height: auto; } .lt-slot.on { opacity: 1; filter: none; }
+@media (orientation: landscape) and (max-height: 600px) {
+  .lt-stage { display: grid; grid-template-columns: auto 1fr; grid-template-rows: 1fr auto; column-gap: 10px; }
+  .lt-top { grid-column: 1; grid-row: 1; flex-direction: column; align-self: center; }
+  .lt-pond { grid-column: 2; grid-row: 1 / span 2; width: auto; margin: 0; border-radius: 26px; }
+  .lt-bucket { grid-column: 1; grid-row: 2; flex-direction: column; }
+  .lt-slots { flex-direction: row; } .lt-slot { width: 34px; }
+}
+@media (prefers-reduced-motion: reduce) { .lt-inner, .lt-bubble { animation: none !important; } }
+
+/* ═════════ الرئيسية: «وحدي» فيها خمس ألعاب ═════════ */
+@media (orientation: portrait) {
+  /* «وحدي» بعرض كامل في صفين (٣ + ٢)، و«معك» و«إبداع» جنباً إلى جنب تحتها */
+  .zones { flex-direction: row; flex-wrap: wrap; align-content: center; }
+  .zones .zone-solo { flex: 1 1 100%; }
+  .zones .zone-together, .zones .zone-create { flex: 1 1 0; min-width: 0; }
+  .zone-solo .tiles { flex-wrap: wrap; justify-content: center; row-gap: 10px; }
+  .zone-solo .tile { flex: 0 0 calc((100% - 20px) / 3); }
+  .zone-together .zone-name, .zone-create .zone-name { font-size: 24px; }
+  .zone-together .tile-name, .zone-create .tile-name { font-size: clamp(14px, 2vh, 22px); }
+}
+@media (orientation: landscape) {
+  .zones .zone-solo { flex: 5 1 0; }
+  .zones .zone-together, .zones .zone-create { flex: 2 1 0; }
+  .zones .tile-name { font-size: clamp(14px, 2.6vh, 22px); }
+}
+@media (orientation: portrait) and (max-width: 560px) {
+  /* على الجوال: هوامش أضيق حتى لا تنزل أيقونات «معك» و«إبداع» عن حدّ اللمس */
+  .zones { left: calc(10px + var(--safe-l)); right: calc(10px + var(--safe-r)); column-gap: 10px; }
+  .zones .zone-together, .zones .zone-create { padding: 8px 8px 12px; }
+  .zone-together .tiles, .zone-create .tiles { gap: 6px; }
+  .zone-together .zone-badge, .zone-create .zone-badge { width: 42px; height: 38px; }
 }

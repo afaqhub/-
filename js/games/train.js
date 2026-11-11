@@ -374,7 +374,7 @@
     if (!st || !st.alive) return;
     var dt = Math.min(0.05, (now - st.last) / 1000) * UI.ts;
     st.last = now;
-    step(dt);
+    if (!st.paused) step(dt); // الإيقاف المؤقت: لا حركة ولا عدّ ولا صوت
     st.raf = requestAnimationFrame(frame);
   }
 
@@ -453,7 +453,7 @@
 
   /* ══════════ النقر على «قف» ══════════ */
   function onTap() {
-    if (!st || st.phase !== 'play' || st.demo) return;
+    if (!st || st.paused || st.phase !== 'play' || st.demo) return;
     if (st.v < SPEED * 0.25) return; // يتوقف أو ينطلق ببطء: نتجاهل
     var g = st.G, best = null, bd = 9;
     st.active.poles.forEach(function (p) {
@@ -744,6 +744,9 @@
     playRound: function (ctx, level, index) {
       return runRound(level, index, false);
     },
+
+    pause: function () { if (st) st.paused = true; },
+    resume: function () { if (st) { st.paused = false; st.last = performance.now(); } },
 
     cancelRound: function () {
       if (!st || !st.resolve) return;

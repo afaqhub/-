@@ -22,8 +22,14 @@
 .hud-btn svg { width: 54%; height: 54%; }
 .hud-btn.pressed, .hud-btn:active { transform: translateY(5px); box-shadow: 0 1px 0 var(--lilac-deep), 0 3px 8px rgba(31, 42, 90, .2); }
 .hud-btn:disabled { opacity: .35; pointer-events: none; }
-.hud-spacer { width: var(--tap); height: 1px; flex: none; }
-@media (max-width: 560px) { .hud-spacer { order: 2; } }
+@media (max-width: 560px) { .hud .pause-btn { order: 2; } }
+/* الإيقاف المؤقت: يتجمّد المسرح وتظهر طبقة بزر متابعة كبير */
+.is-paused .stage, .is-paused .stage * { animation-play-state: paused !important; }
+.pause-layer { position: absolute; inset: 0; z-index: 90; display: grid; place-items: center; background: rgba(31, 42, 90, .45); }
+.resume-btn { width: calc(var(--tap) * 1.9); height: calc(var(--tap) * 1.9);
+  background: radial-gradient(circle at 35% 26%, #FFF4B8 0%, var(--sun) 60%, #F5BC2A 100%); box-shadow: 0 10px 0 var(--sun-deep), 0 20px 30px rgba(0, 0, 0, .3); }
+.resume-btn svg { width: 46%; height: 46%; margin-inline-start: 6%; }
+.resume-btn.pressed, .resume-btn:active { transform: translateY(8px); box-shadow: 0 2px 0 var(--sun-deep), 0 6px 12px rgba(0, 0, 0, .3); }
 
 /* ───────── مصابيح الجلسة ───────── */
 .bulbs {
