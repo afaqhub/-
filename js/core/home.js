@@ -89,7 +89,6 @@
       h('div', { class: 'home-cloud c1', html: art.cloud() }),
       h('div', { class: 'home-cloud c2', html: art.cloud() }),
       h('div', { class: 'home-cloud c3', html: art.cloud() }),
-      h('div', { class: 'home-rainbow', html: art.rainbow() }),
       h('div', { class: 'home-balloon hb1', html: art.balloon('#F2658E', '#FFD34E') }),
       h('div', { class: 'home-balloon hb2', html: art.balloon('#8E5CF0', '#5CC8FF') }),
       h('div', { class: 'home-bird', html: art.bird('#FF8A3D') }),

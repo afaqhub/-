@@ -186,8 +186,6 @@ textarea, input { -webkit-user-select: text; user-select: text; }
 .home-cloud.c2 { top: 26%; width: clamp(80px, 14vmin, 140px); animation-duration: 120s; animation-delay: -80s; opacity: .85; }
 .home-cloud.c3 { top: 6%; width: clamp(70px, 12vmin, 120px); animation-duration: 150s; animation-delay: -10s; opacity: .8; }
 @keyframes drift { from { transform: translateX(-30vw); } to { transform: translateX(130vw); } }
-.home-rainbow { position: absolute; left: 50%; bottom: 28%; width: min(90vw, 560px); margin-left: min(-45vw, -280px); opacity: .55; }
-.home-rainbow svg { width: 100%; height: auto; }
 .home-balloon { position: absolute; width: clamp(40px, 7vmin, 64px); animation: balloonFloat 8s ease-in-out infinite; }
 .home-balloon.hb1 { left: 68%; top: 13%; }
 .home-balloon.hb2 { left: 8%; top: 24%; width: clamp(30px, 5.5vmin, 50px); animation-duration: 11s; animation-delay: -5s; }
@@ -376,8 +374,6 @@ textarea, input { -webkit-user-select: text; user-select: text; }
 }
 
 /* زينة السماء: قوس قزح وجبال وبالونات وطيور وطاحونة */
-.train-stage .rainbow { position: absolute; z-index: 1; pointer-events: none; opacity: .8; }
-.train-stage .rainbow svg { width: 100%; height: auto; }
 .train-stage .l-mtn { z-index: 1; }
 .train-stage .sky-deco { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
 .train-stage .balloon { position: absolute; animation: balloonFloat 7s ease-in-out infinite; }
@@ -1904,14 +1900,6 @@ textarea, input { -webkit-user-select: text; user-select: text; }
       '<ellipse cx="30" cy="26" rx="10" ry="8" fill="' + col + '"/>' +
       '<circle cx="35" cy="24" r="1.8" fill="' + EYE + '"/><path d="M40 26l6 1-6 2z" fill="#FFA63D"/>', 'bird-svg');
   }
-  function rainbow() {
-    var cols = ['#FF6B8A', '#FFB347', '#FFE45E', '#7AE582', '#5CC8FF', '#B79BFF'];
-    var out = '';
-    cols.forEach(function (c, i) {
-      out += '<path d="M' + (10 + i * 9) + ' 160A' + (150 - i * 9) + ' ' + (150 - i * 9) + ' 0 0 1 ' + (310 - i * 9) + ' 160" fill="none" stroke="' + c + '" stroke-width="9" opacity=".75"/>';
-    });
-    return svg('0 0 320 160', out, 'rainbow-svg');
-  }
   function windmill() {
     return svg('0 0 100 140',
       '<path d="M38 140L44 50h12l6 90z" fill="#FAFCFF" stroke="#C9D8F2" stroke-width="3"/>' +
@@ -1937,7 +1925,7 @@ textarea, input { -webkit-user-select: text; user-select: text; }
     return svg('0 0 20 20', '<circle cx="10" cy="10" r="3" fill="' + (col || '#FFF7C2') + '"/>', 'star-svg');
   }
 
-  B.art.balloon = balloon; B.art.bird = bird; B.art.rainbow = rainbow; B.art.windmill = windmill;
+  B.art.balloon = balloon; B.art.bird = bird; B.art.windmill = windmill;
   B.art.sparkle = sparkle; B.art.mountains = mountains; B.art.star = star;
 })();
 
@@ -2737,7 +2725,6 @@ textarea, input { -webkit-user-select: text; user-select: text; }
       h('div', { class: 'home-cloud c1', html: art.cloud() }),
       h('div', { class: 'home-cloud c2', html: art.cloud() }),
       h('div', { class: 'home-cloud c3', html: art.cloud() }),
-      h('div', { class: 'home-rainbow', html: art.rainbow() }),
       h('div', { class: 'home-balloon hb1', html: art.balloon('#F2658E', '#FFD34E') }),
       h('div', { class: 'home-balloon hb2', html: art.balloon('#8E5CF0', '#5CC8FF') }),
       h('div', { class: 'home-bird', html: art.bird('#FF8A3D') }),
@@ -3145,9 +3132,8 @@ textarea, input { -webkit-user-select: text; user-select: text; }
     stage.appendChild(h('div', { class: 'sky' }));
     stage.appendChild(h('div', { class: 'sun', style: { left: W * 0.6 + 'px', top: H * 0.07 + 'px', width: 120 * g.u + 'px' }, html: art.sun() }));
 
-    // قوس قزح خافت خلف الجبال، وجبال بقمم ثلجية (أبطأ طبقة)
-    var rbW = Math.min(W * 0.9, 520 * g.u);
-    stage.appendChild(h('div', { class: 'rainbow', style: { left: W * 0.5 - rbW / 2 + 'px', top: g.yTrack - rbW * 0.5 - 20 * g.u + 'px', width: rbW + 'px' }, html: art.rainbow() }));
+    // جبال بقمم ثلجية (أبطأ طبقة)
+
     var hmn = Math.min(g.yTrack * 0.42, 260 * g.u);
     var mtn = h('div', { class: 'layer l-mtn', style: { top: g.yTrack - hmn + 6 + 'px', height: hmn + 'px', width: 2 * tileW + 'px' }, html: art.mountains(tileW, hmn) + art.mountains(tileW, hmn) });
     stage.appendChild(mtn);

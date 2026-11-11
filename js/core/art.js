@@ -564,14 +564,6 @@
       '<ellipse cx="30" cy="26" rx="10" ry="8" fill="' + col + '"/>' +
       '<circle cx="35" cy="24" r="1.8" fill="' + EYE + '"/><path d="M40 26l6 1-6 2z" fill="#FFA63D"/>', 'bird-svg');
   }
-  function rainbow() {
-    var cols = ['#FF6B8A', '#FFB347', '#FFE45E', '#7AE582', '#5CC8FF', '#B79BFF'];
-    var out = '';
-    cols.forEach(function (c, i) {
-      out += '<path d="M' + (10 + i * 9) + ' 160A' + (150 - i * 9) + ' ' + (150 - i * 9) + ' 0 0 1 ' + (310 - i * 9) + ' 160" fill="none" stroke="' + c + '" stroke-width="9" opacity=".75"/>';
-    });
-    return svg('0 0 320 160', out, 'rainbow-svg');
-  }
   function windmill() {
     return svg('0 0 100 140',
       '<path d="M38 140L44 50h12l6 90z" fill="#FAFCFF" stroke="#C9D8F2" stroke-width="3"/>' +
@@ -597,6 +589,6 @@
     return svg('0 0 20 20', '<circle cx="10" cy="10" r="3" fill="' + (col || '#FFF7C2') + '"/>', 'star-svg');
   }
 
-  B.art.balloon = balloon; B.art.bird = bird; B.art.rainbow = rainbow; B.art.windmill = windmill;
+  B.art.balloon = balloon; B.art.bird = bird; B.art.windmill = windmill;
   B.art.sparkle = sparkle; B.art.mountains = mountains; B.art.star = star;
 })();

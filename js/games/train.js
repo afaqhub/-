@@ -156,9 +156,8 @@
     stage.appendChild(h('div', { class: 'sky' }));
     stage.appendChild(h('div', { class: 'sun', style: { left: W * 0.6 + 'px', top: H * 0.07 + 'px', width: 120 * g.u + 'px' }, html: art.sun() }));
 
-    // قوس قزح خافت خلف الجبال، وجبال بقمم ثلجية (أبطأ طبقة)
-    var rbW = Math.min(W * 0.9, 520 * g.u);
-    stage.appendChild(h('div', { class: 'rainbow', style: { left: W * 0.5 - rbW / 2 + 'px', top: g.yTrack - rbW * 0.5 - 20 * g.u + 'px', width: rbW + 'px' }, html: art.rainbow() }));
+    // جبال بقمم ثلجية (أبطأ طبقة)
+
     var hmn = Math.min(g.yTrack * 0.42, 260 * g.u);
     var mtn = h('div', { class: 'layer l-mtn', style: { top: g.yTrack - hmn + 6 + 'px', height: hmn + 'px', width: 2 * tileW + 'px' }, html: art.mountains(tileW, hmn) + art.mountains(tileW, hmn) });
     stage.appendChild(mtn);

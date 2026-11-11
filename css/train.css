@@ -52,8 +52,6 @@
 }
 
 /* زينة السماء: قوس قزح وجبال وبالونات وطيور وطاحونة */
-.train-stage .rainbow { position: absolute; z-index: 1; pointer-events: none; opacity: .8; }
-.train-stage .rainbow svg { width: 100%; height: auto; }
 .train-stage .l-mtn { z-index: 1; }
 .train-stage .sky-deco { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
 .train-stage .balloon { position: absolute; animation: balloonFloat 7s ease-in-out infinite; }
