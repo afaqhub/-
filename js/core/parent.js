@@ -158,19 +158,6 @@
       return b;
     });
 
-    var fb = null;
-    if (B.S.feedbackEmail) {
-      var F = B.S.feedback;
-      var fta = h('textarea', { class: 'p-ta', rows: 3, placeholder: F.text });
-      var fct = h('input', { class: 'p-ta', type: 'text', placeholder: F.contact, style: { minHeight: '44px' } });
-      var fsend = h('button', { class: 'p-btn', type: 'button', text: F.send });
-      fsend.addEventListener('click', function () {
-        if (!fta.value.trim()) return;
-        window.location.href = 'mailto:' + B.S.feedbackEmail + '?subject=' + encodeURIComponent(F.subject) +
-          '&body=' + encodeURIComponent(fta.value + (fct.value.trim() ? '\n\n' + fct.value.trim() : ''));
-      });
-      fb = h('section', { class: 'p-sec' }, h('h3', { text: F.title }), h('div', { class: 'p-line muted', text: F.note }), fta, fct, fsend);
-    }
     var demoBtn = h('button', { class: 'p-btn', type: 'button', text: P.replayDemo, 'data-act': 'replay-demo' });
     demoBtn.addEventListener('click', function () {
       st.data().demoSeen = {}; st.save(); say(P.replayDemoDone);
@@ -197,7 +184,6 @@
         ta, h('div', { class: 'p-wrap' }, restoreBtn, restoreFileBtn), picker
       ),
       h('section', { class: 'p-sec' }, demoBtn, resetBtns),
-      fb,
       msg
     );
 
@@ -221,6 +207,31 @@
     overlay = null;
     B.storage.save();
   }
+
+  /* نافذة الاقتراحات (من الرئيسية): نص + وسيلة تواصل اختيارية، والإرسال عبر mailto إلى بريد صاحب المشروع */
+  var fbOverlay = null;
+  function openFeedback() {
+    if (fbOverlay) return;
+    var F = B.S.feedback;
+    var ta = h('textarea', { class: 'p-ta', rows: 5, placeholder: F.text });
+    var ct = h('input', { class: 'p-ta', type: 'text', placeholder: F.contact, style: { minHeight: '48px' } });
+    var send = h('button', { class: 'p-btn', type: 'button', text: F.send });
+    var close = h('button', { class: 'p-close', type: 'button', text: '✕', 'aria-label': B.S.buttons.close });
+    function shut() { fbOverlay.remove(); fbOverlay = null; }
+    close.addEventListener('click', shut);
+    send.addEventListener('click', function () {
+      if (!ta.value.trim()) { ta.focus(); return; }
+      var to = ''; try { to = atob(B.S.feedbackMail); } catch (e) {}
+      window.location.href = 'mailto:' + to + '?subject=' + encodeURIComponent(F.subject) +
+        '&body=' + encodeURIComponent(ta.value + (ct.value.trim() ? '\n\n' + ct.value.trim() : ''));
+    });
+    fbOverlay = h('div', { class: 'parent-overlay', role: 'dialog' },
+      h('div', { class: 'p-card' },
+        h('header', { class: 'p-head' }, h('h2', { text: F.title }), close),
+        h('div', { class: 'p-body' }, h('div', { class: 'p-line', text: F.note }), ta, ct, send)));
+    document.body.appendChild(fbOverlay);
+  }
+  B.feedback = { open: openFeedback };
 
   B.parent = { open: open, close: close, isOpen: function () { return !!overlay; } };
 })();

@@ -216,3 +216,9 @@
 .p-ta { width: 100%; border: 3px solid #D9E5FB; border-radius: 14px; padding: 10px; font-size: 15px; resize: none; font-family: inherit; background: #fff; }
 .p-msg { min-height: 26px; font-size: 18px; font-weight: 800; color: var(--meadow-deep); }
 .p-warn { background: #FFF1C4; border-radius: 14px; padding: 10px 14px; font-size: 16px; }
+/* شريط «ملاحظة أو مقترح؟» في أسفل الرئيسية (للآباء؛ ليس زراً حتى لا يُحسب بين أزرار الطفل) */
+.fb-pill { position: absolute; z-index: 6; left: 0; right: 0; bottom: calc(8px + var(--safe-b)); margin: 0 auto; width: max-content; max-width: 90%;
+  padding: 8px 20px; border-radius: 999px; background: rgba(255, 255, 255, .88); color: var(--night-soft); font-size: 16px; font-weight: 700; cursor: pointer;
+  box-shadow: 0 3px 0 var(--lilac-deep); text-align: center; }
+.fb-pill:active { transform: translateY(2px); }
+.zones { bottom: calc(52px + var(--safe-b)) !important; }

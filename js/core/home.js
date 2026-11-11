@@ -97,7 +97,9 @@
     );
 
     var zones = h('main', { class: 'zones' }, zone('solo', locked), zone('together', false), zone('create', false));
-    var el = h('div', { class: 'screen home' }, sky, zones, logo);
+    var fbPill = h('div', { class: 'fb-pill', role: 'button', tabindex: '0', text: B.S.feedback.pill });
+    fbPill.addEventListener('click', function () { B.feedback.open(); });
+    var el = h('div', { class: 'screen home' }, sky, zones, logo, fbPill);
 
     // ظهور متتابع بحركة زنبركية (بعد الإدراج في الصفحة)
     requestAnimationFrame(function () {

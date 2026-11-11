@@ -317,6 +317,12 @@ textarea, input { -webkit-user-select: text; user-select: text; }
 .p-ta { width: 100%; border: 3px solid #D9E5FB; border-radius: 14px; padding: 10px; font-size: 15px; resize: none; font-family: inherit; background: #fff; }
 .p-msg { min-height: 26px; font-size: 18px; font-weight: 800; color: var(--meadow-deep); }
 .p-warn { background: #FFF1C4; border-radius: 14px; padding: 10px 14px; font-size: 16px; }
+/* شريط «ملاحظة أو مقترح؟» في أسفل الرئيسية (للآباء؛ ليس زراً حتى لا يُحسب بين أزرار الطفل) */
+.fb-pill { position: absolute; z-index: 6; left: 0; right: 0; bottom: calc(8px + var(--safe-b)); margin: 0 auto; width: max-content; max-width: 90%;
+  padding: 8px 20px; border-radius: 999px; background: rgba(255, 255, 255, .88); color: var(--night-soft); font-size: 16px; font-weight: 700; cursor: pointer;
+  box-shadow: 0 3px 0 var(--lilac-deep); text-align: center; }
+.fb-pill:active { transform: translateY(2px); }
+.zones { bottom: calc(52px + var(--safe-b)) !important; }
 
 </style>
 <style>
@@ -1012,10 +1018,17 @@ textarea, input { -webkit-user-select: text; user-select: text; }
       daysShort: ['أحد', 'اثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة', 'سبت']
     },
 
-    /* بريد استقبال الاقتراحات: اكتب بريدك هنا ليصلك ما يكتبه الآباء (يبقى ظاهراً في الصفحة).
-       إن تُرك فارغاً يُخفى قسم الاقتراحات. */
-    feedbackEmail: '',
-    feedback: { title: 'اقتراح أو ملاحظة', note: 'اكتب ما تريد، وسيفتح بريدك لإرساله إلينا.', text: 'اقتراحك أو ملاحظتك', contact: 'وسيلة تواصل (اختياري)', send: 'إرسال', subject: 'اقتراح على بستان الصغار' },
+    /* بريد الاقتراحات مشفّر (base64) كي لا يظهر نصاً صريحاً لمن يفحص الصفحة */
+    feedbackMail: 'dHJpZmxlbWFuZ28xNDQ0QGdtYWlsLmNvbQ==',
+    feedback: {
+      pill: 'ملاحظة أو مقترح؟',
+      title: 'أي ملاحظة أو مقترح؟',
+      note: 'يسعدنا رأيك: لعبة لم تعجب طفلك، فكرة جديدة، أو أي شيء يخطر لك. سيفتح بريدك لإرسالها.',
+      text: 'اكتب هنا',
+      contact: 'وسيلة تواصل (اختياري): بريد أو جوال',
+      send: 'إرسال',
+      subject: 'اقتراح على بستان الصغار'
+    },
     noscript: 'يحتاج هذا التطبيق إلى تفعيل جافاسكربت.'
   };
 })();
@@ -2861,7 +2874,9 @@ textarea, input { -webkit-user-select: text; user-select: text; }
     );
 
     var zones = h('main', { class: 'zones' }, zone('solo', locked), zone('together', false), zone('create', false));
-    var el = h('div', { class: 'screen home' }, sky, zones, logo);
+    var fbPill = h('div', { class: 'fb-pill', role: 'button', tabindex: '0', text: B.S.feedback.pill });
+    fbPill.addEventListener('click', function () { B.feedback.open(); });
+    var el = h('div', { class: 'screen home' }, sky, zones, logo, fbPill);
 
     // ظهور متتابع بحركة زنبركية (بعد الإدراج في الصفحة)
     requestAnimationFrame(function () {
@@ -3047,19 +3062,6 @@ textarea, input { -webkit-user-select: text; user-select: text; }
       return b;
     });
 
-    var fb = null;
-    if (B.S.feedbackEmail) {
-      var F = B.S.feedback;
-      var fta = h('textarea', { class: 'p-ta', rows: 3, placeholder: F.text });
-      var fct = h('input', { class: 'p-ta', type: 'text', placeholder: F.contact, style: { minHeight: '44px' } });
-      var fsend = h('button', { class: 'p-btn', type: 'button', text: F.send });
-      fsend.addEventListener('click', function () {
-        if (!fta.value.trim()) return;
-        window.location.href = 'mailto:' + B.S.feedbackEmail + '?subject=' + encodeURIComponent(F.subject) +
-          '&body=' + encodeURIComponent(fta.value + (fct.value.trim() ? '\n\n' + fct.value.trim() : ''));
-      });
-      fb = h('section', { class: 'p-sec' }, h('h3', { text: F.title }), h('div', { class: 'p-line muted', text: F.note }), fta, fct, fsend);
-    }
     var demoBtn = h('button', { class: 'p-btn', type: 'button', text: P.replayDemo, 'data-act': 'replay-demo' });
     demoBtn.addEventListener('click', function () {
       st.data().demoSeen = {}; st.save(); say(P.replayDemoDone);
@@ -3086,7 +3088,6 @@ textarea, input { -webkit-user-select: text; user-select: text; }
         ta, h('div', { class: 'p-wrap' }, restoreBtn, restoreFileBtn), picker
       ),
       h('section', { class: 'p-sec' }, demoBtn, resetBtns),
-      fb,
       msg
     );
 
@@ -3110,6 +3111,31 @@ textarea, input { -webkit-user-select: text; user-select: text; }
     overlay = null;
     B.storage.save();
   }
+
+  /* نافذة الاقتراحات (من الرئيسية): نص + وسيلة تواصل اختيارية، والإرسال عبر mailto إلى بريد صاحب المشروع */
+  var fbOverlay = null;
+  function openFeedback() {
+    if (fbOverlay) return;
+    var F = B.S.feedback;
+    var ta = h('textarea', { class: 'p-ta', rows: 5, placeholder: F.text });
+    var ct = h('input', { class: 'p-ta', type: 'text', placeholder: F.contact, style: { minHeight: '48px' } });
+    var send = h('button', { class: 'p-btn', type: 'button', text: F.send });
+    var close = h('button', { class: 'p-close', type: 'button', text: '✕', 'aria-label': B.S.buttons.close });
+    function shut() { fbOverlay.remove(); fbOverlay = null; }
+    close.addEventListener('click', shut);
+    send.addEventListener('click', function () {
+      if (!ta.value.trim()) { ta.focus(); return; }
+      var to = ''; try { to = atob(B.S.feedbackMail); } catch (e) {}
+      window.location.href = 'mailto:' + to + '?subject=' + encodeURIComponent(F.subject) +
+        '&body=' + encodeURIComponent(ta.value + (ct.value.trim() ? '\n\n' + ct.value.trim() : ''));
+    });
+    fbOverlay = h('div', { class: 'parent-overlay', role: 'dialog' },
+      h('div', { class: 'p-card' },
+        h('header', { class: 'p-head' }, h('h2', { text: F.title }), close),
+        h('div', { class: 'p-body' }, h('div', { class: 'p-line', text: F.note }), ta, ct, send)));
+    document.body.appendChild(fbOverlay);
+  }
+  B.feedback = { open: openFeedback };
 
   B.parent = { open: open, close: close, isOpen: function () { return !!overlay; } };
 })();
