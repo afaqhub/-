@@ -30,14 +30,38 @@
           ch: [{ k: 'sun', x: 20, y: 40, s: 24, fx: 'pop' }, { k: 'rabbit', x: 60, y: 6, s: 34, fx: 'hop' }, { k: 'heart', x: 82, y: 50, s: 14, fx: 'pop' }] }
       ],
       ask: ['ماذا فعل أرنوب بالجزرة الكبيرة؟', 'كيف شعر الدب حين تشاركا الجزرة؟', 'متى شاركتَ شيئًا جميلًا مع أحد؟ وكيف شعرتَ؟', 'ماذا نقول قبل الأكل وبعده؟']
+    },
+    {
+      id: 'rocket', title: 'الصاروخ الصغير والمحاولة', cover: ['rocket', 'moon'], value: 'الصبر والمحاولة', bgc: '#8E7CF0',
+      pages: [
+        { bg: 'night', text: 'كان هناك صاروخٌ صغير اسمه «نجم»، يحلم بأن يصل إلى القمر.',
+          ch: [{ k: 'moon', x: 78, y: 54, s: 24, fx: 'pop' }, { k: 'star', x: 18, y: 66, s: 8, fx: 'spin' }, { k: 'star', x: 46, y: 74, s: 6, fx: 'spin' }, { k: 'rocket', x: 36, y: 8, s: 26, fx: 'sway' }] },
+        { bg: 'day', text: 'قال الثعلب: «القمر بعيدٌ جدًّا!» فقال نجم: «سأجرّب، بسم الله».',
+          ch: [{ k: 'mountain', x: 82, y: 6, s: 34 }, { k: 'fox', x: 24, y: 6, s: 26, fx: 'sway' }, { k: 'rocket', x: 54, y: 6, s: 22, fx: 'hop' }] },
+        { bg: 'day', text: 'انطلق نجم بقوة… لكنه لم يصل، وسقط على الأرض. فحزن قليلًا.',
+          ch: [{ k: 'cloud', x: 24, y: 60, s: 22, fx: 'sway' }, { k: 'rocket', x: 56, y: 6, s: 24 }, { k: 'fox', x: 84, y: 6, s: 20 }] },
+        { bg: 'day', text: 'جاء الدب وقال: «لا تحزن، من يحاول يتعلّم. هيا نحاول معًا!»',
+          ch: [{ k: 'bear', x: 28, y: 6, s: 30, fx: 'hop' }, { k: 'rocket', x: 60, y: 6, s: 24, fx: 'sway' }, { k: 'heart', x: 44, y: 58, s: 12, fx: 'pop' }, { k: 'fox', x: 88, y: 6, s: 18 }] },
+        { bg: 'day', text: 'في المرة الثانية طار نجم أعلى من قبل، لكنه لم يصل إلى القمر بعد.',
+          ch: [{ k: 'cloud', x: 20, y: 52, s: 22, fx: 'sway' }, { k: 'cloud', x: 80, y: 40, s: 18, fx: 'sway' }, { k: 'rocket', x: 52, y: 40, s: 24, fx: 'fly' }] },
+        { bg: 'evening', text: 'تعب نجم، فأخذ نفَسًا عميقًا وقال: «سأحاول مرة ثالثة، وسأصبر».',
+          ch: [{ k: 'sun', x: 20, y: 44, s: 22, fx: 'pop' }, { k: 'rocket', x: 58, y: 6, s: 26, fx: 'hop' }, { k: 'bear', x: 86, y: 6, s: 20 }] },
+        { bg: 'night', text: 'وفي المرة الثالثة وصل نجم إلى القمر! وصاح أصدقاؤه فرحين: «أحسنت!»',
+          ch: [{ k: 'moon', x: 60, y: 46, s: 30, fx: 'pop' }, { k: 'rocket', x: 36, y: 50, s: 22, fx: 'fly' }, { k: 'star', x: 14, y: 70, s: 8, fx: 'spin' }, { k: 'star', x: 90, y: 74, s: 8, fx: 'spin' }] },
+        { bg: 'night', text: 'وتعلّم نجم أن الصبر والمحاولة يوصلان إلى الأحلام. الحمد لله.',
+          ch: [{ k: 'moon', x: 76, y: 52, s: 22 }, { k: 'rocket', x: 40, y: 8, s: 28, fx: 'sway' }, { k: 'heart', x: 20, y: 60, s: 12, fx: 'pop' }, { k: 'star', x: 54, y: 72, s: 7, fx: 'spin' }] }
+      ],
+      ask: ['ماذا فعل نجم عندما سقط؟', 'كيف ساعده أصدقاؤه؟', 'متى حاولتَ شيئًا صعبًا ثم نجحتَ؟', 'ماذا نقول قبل أن نبدأ أي عمل؟']
     }
   ];
 
   function scene(p) {
     var s = h('div', { class: 'st-scene bg-' + p.bg });
     var vp = { w: 600, h: 200 };
-    s.appendChild(h('div', { class: 'st-hills far', html: art.sceneTile('gfar', 600, 120) }));
-    s.appendChild(h('div', { class: 'st-hills mid', html: art.sceneTile('gmid', 600, 90) }));
+    if (p.bg !== 'night') {
+      s.appendChild(h('div', { class: 'st-hills far', html: art.sceneTile('gfar', 600, 120) }));
+      s.appendChild(h('div', { class: 'st-hills mid', html: art.sceneTile('gmid', 600, 90) }));
+    } else s.appendChild(h('div', { class: 'st-hills mid', html: art.sceneTile('gmid', 600, 50) }));
     p.ch.forEach(function (c, i) {
       var el = h('div', { class: 'st-ch' + (c.fx ? ' fx-' + c.fx : ''), style: { left: c.x + '%', bottom: c.y + '%', width: c.s + '%', animationDelay: (i * 0.35) + 's' } },
         h('div', { class: 'st-in', style: c.flip ? { transform: 'scaleX(-1)' } : {}, html: pic(c.k) }));

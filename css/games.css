@@ -806,3 +806,5 @@ html.night .tabbar { background: rgba(30, 36, 90, .75); } html.night .tab-btn { 
 .st-root > * { flex: none; } .st-page { flex: none !important; }
 .st-scene { aspect-ratio: 4 / 3; max-height: 46vh; width: min(100%, 520px); align-self: center; }
 @media (orientation: landscape) and (max-height: 640px) { .st-scene { aspect-ratio: 16 / 10; width: auto; max-height: none; flex: 1 1 54%; } .st-card { min-width: 150px; width: min(220px, 30vw); } }
+.st-scene.bg-night { background: radial-gradient(circle at 80% 20%, #3B4AA8 0%, #1F2A6B 60%, #141C4F 100%); }
+.st-scene.bg-night .st-hills.mid { height: 26%; filter: brightness(.55) saturate(.8); }
