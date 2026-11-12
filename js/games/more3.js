@@ -271,6 +271,17 @@
     var goalEl = h('div', { class: 'mz-item mz-goal', html: pic('carrot') }); place(goalEl, goal); board.appendChild(goalEl);
     items.forEach(function (it) { it.el = h('div', { class: 'mz-item', html: pic('apple') }); place(it.el, it.rc); board.appendChild(it.el); });
     var bun = h('div', { class: 'mz-rabbit', html: pic('rabbit') }); place(bun, pos); board.appendChild(bun);
+    var need = null;
+    if (nItems > 0) {
+      need = h('div', { class: 'mz-need' }, items.map(function (it) { it.dot = h('span', { class: 'mz-nd', html: pic('apple') }); return it.dot; }), h('span', { class: 'mz-arrow', text: '→' }), h('span', { class: 'mz-nd mz-nc', html: pic('carrot') }));
+      st.top.appendChild(need);
+      goalEl.classList.add('locked');
+    }
+    function refreshNeed() {
+      if (!need) return;
+      items.forEach(function (it) { it.dot.classList.toggle('got', !!it.got); });
+      if (got >= nItems && goalEl.classList.contains('locked')) { goalEl.classList.remove('locked'); need.querySelector('.mz-nc').classList.add('got'); UI.anim(goalEl, [{ transform: 'scale(1)' }, { transform: 'scale(1.35)' }, { transform: 'scale(1)' }], { dur: 600, fill: 'none' }); }
+    }
     st.top.appendChild(board);
     UI.anim(board, [{ opacity: 0, transform: 'scale(.7)' }, { opacity: 1, transform: 'none' }], { dur: 480, easing: UI.SPRING, fill: 'backwards' });
     if (B.audio) B.audio.play('card');
@@ -280,10 +291,11 @@
       UI.anim(bun, [{ transform: 'translateY(0)' }, { transform: 'translateY(-14%)' }, { transform: 'translateY(0)' }], { dur: 160, fill: 'none' });
       idle = 0;
       items.forEach(function (it) { if (!it.got && it.rc[0] === pos[0] && it.rc[1] === pos[1]) { it.got = true; got++; it.el.style.visibility = 'hidden'; if (B.audio) B.audio.play('pop'); var c = kit.center(bun, ctx.stage); UI.burst(ctx.stage, c.x, c.y, { n: 8, spread: 50, dur: 700 }); } });
+      refreshNeed();
       board.querySelectorAll('.hint').forEach(function (x) { x.classList.remove('hint'); });
       if (pos[0] === goal[0] && pos[1] === goal[1]) {
         if (got >= nItems) done(true);
-        else { items.forEach(function (it) { if (!it.got) it.el.classList.add('pulse-hint'); }); UI.anim(bun, [{ transform: 'rotate(0)' }, { transform: 'rotate(-12deg)' }, { transform: 'rotate(12deg)' }, { transform: 'rotate(0)' }], { dur: 500, fill: 'none' }); }
+        else { items.forEach(function (it) { if (!it.got) it.el.classList.add('pulse-hint'); }); if (need) UI.anim(need, [{ transform: 'scale(1)' }, { transform: 'scale(1.12)' }, { transform: 'scale(1)' }], { dur: 600, fill: 'none' }); UI.anim(bun, [{ transform: 'rotate(0)' }, { transform: 'rotate(-12deg)' }, { transform: 'rotate(12deg)' }, { transform: 'rotate(0)' }], { dur: 500, fill: 'none' }); }
       }
     }
     function cellAt(e) { var r = board.getBoundingClientRect(), s = r.width / n; var c = Math.floor((e.clientX - r.left) / s), rr = Math.floor((e.clientY - r.top) / s); return (c < 0 || rr < 0 || c >= n || rr >= n) ? null : [rr, c]; }
@@ -311,11 +323,11 @@
     }
     function help() {
       if (errors === 3) showHint();
-      if (errors >= 6 && !busy) autoWalk();
+      if (errors >= 6 && !busy) showHint(true);   // لا يمشي عنه: يُظهر الطريق مضاءً ويكمل الطفل بنفسه
     }
-    function showHint() {
+    function showHint(long) {
       var t = target(), p = bfs(w, n, pos, t); if (!p) return;
-      p.slice(1, 5).forEach(function (rc) { var el = board.querySelector('[data-rc="' + rc.join() + '"]'); if (el) el.classList.add('hint'); });
+      p.slice(1, long ? 10 : 5).forEach(function (rc) { var el = board.querySelector('[data-rc="' + rc.join() + '"]'); if (el) el.classList.add('hint'); });
     }
     async function autoWalk() {
       if (busy) return; busy = true; var tok = 0;
@@ -328,7 +340,7 @@
     st.solve = function () { if (busy) return false; var guard = 0; while (!(pos[0] === goal[0] && pos[1] === goal[1] && got >= nItems) && guard++ < 6) { var p = bfs(w, n, pos, target()); if (!p) break; p.slice(1).forEach(step); } return true; };
     st.stop = function () { done(false); };
     await ctx.sleep(600); if (!alive()) return;
-    (async function watch() { while (alive() && !(got >= nItems && pos[0] === goal[0] && pos[1] === goal[1])) { await ctx.sleep(1000); if (ctx.paused || busy) continue; idle++; if (idle === 12) showHint(); if (idle >= 25 && !demo) autoWalk(); } })();
+    (async function watch() { while (alive() && !(got >= nItems && pos[0] === goal[0] && pos[1] === goal[1])) { await ctx.sleep(1000); if (ctx.paused || busy) continue; idle++; if (idle === 12) showHint(); if (idle >= 25 && !demo) showHint(true); } })();
     if (demo) autoWalk();
     await fin; st.solve = null;
     if (!alive()) return;

@@ -755,3 +755,9 @@ html.night::after { content: ''; position: fixed; inset: 0; z-index: 900; pointe
 html.night .zones .group, html.night .zones .zone-together > .tiles, html.night .zones .zone-create > .tiles { background: linear-gradient(160deg, rgba(30, 36, 90, .62), rgba(30, 36, 90, .4)); border-color: rgba(255, 255, 255, .22); }
 html.night .zones .tile-name { color: #fff !important; text-shadow: 0 1px 0 rgba(0, 0, 0, .5) !important; }
 html.night .tabbar { background: rgba(30, 36, 90, .75); } html.night .tab-btn { color: #cfd6ff; }
+.mz-need { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 12px; padding: 6px 16px; border-radius: 999px; background: rgba(255, 255, 255, .85); box-shadow: 0 4px 0 #1C8F5C; direction: ltr; }
+.mz-nd { width: 40px; height: 40px; display: block; opacity: .35; filter: grayscale(.8); transition: opacity .3s, filter .3s; } .mz-nd svg { width: 100%; height: 100%; } .mz-nd.got { opacity: 1; filter: none; }
+.mz-arrow { font-size: 26px; font-weight: 800; color: #1C8F5C; }
+.mz-goal.locked { opacity: .4; filter: grayscale(.9); }
+.logo-name { font-size: min(5.6vw, 34px) !important; }
+@media (min-width: 700px) { .logo-name { font-size: clamp(24px, 4.4vmin, 34px) !important; } }
