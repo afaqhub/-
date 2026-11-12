@@ -518,7 +518,7 @@ async function seeDemoThrough(page) {
         const vp = VIEWPORTS[vpName];
         const page = await newPage(browser, vp, base);
         await open(page, base, '?ts=6');
-        await page.tap(`.tile[data-game=${g}]`);
+        await page.evaluate((g) => Bustan.session.start(g, { x: 200, y: 200 }), g);
         await page.waitForSelector('.game-screen');
         const total = await page.evaluate(() => document.querySelectorAll('.bulb').length);
         ok(total === (g === 'firstsound' || g === 'bridge' ? 8 : 10), 'عدد المصابيح ' + total);

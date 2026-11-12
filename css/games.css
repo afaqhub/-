@@ -628,3 +628,5 @@ html.night::after { content: ''; position: fixed; inset: 0; z-index: 900; pointe
 .mascot { bottom: 10px; left: 8px; width: 54px; height: 54px; }
 .zones { padding-bottom: 76px; }
 .mascot { width: var(--tap); height: var(--tap); }
+.ms-stage .mg-tray .g-choice { min-width: calc(var(--tap) + 14px); min-height: calc(var(--tap) + 14px); }
+.wt-seed { width: 24%; min-width: calc(var(--tap) + 8px); min-height: calc(var(--tap) + 8px); }

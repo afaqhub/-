@@ -155,7 +155,7 @@
     var cur = 0, errors = 0, idle = 0, busy = false, done, fin = new Promise(function (r) { done = r; });
     function target() { return tools[steps[cur]]; }
     function showStep() {
-      var t = target(); t.style.display = ''; t.classList.add('wt-next');
+      var t = target(); if (!t) return; t.style.display = ''; t.classList.add('wt-next');
       UI.anim(t, [{ opacity: 0, transform: 'scale(.4)' }, { opacity: 1, transform: 'none' }], { dur: 420, easing: UI.SPRING, fill: 'backwards' });
       idle = 0;
     }
@@ -169,7 +169,7 @@
     }
     async function act() {
       if (busy) return; busy = true;
-      var step = steps[cur], t = target(); t.classList.remove('wt-next', 'pulse-hint');
+      var step = steps[cur], t = target(); if (!t) { busy = false; return; } t.classList.remove('wt-next', 'pulse-hint');
       if (step === 'seed') {
         var a = kit.center(t, ctx.stage), b = kit.center(pot, ctx.stage);
         await ctx.anim(t, [{ transform: 'translate(0,0)' }, { transform: 'translate(' + (b.x - a.x) * 0.5 + 'px,' + (b.y - a.y - 80) + 'px)', offset: 0.5 }, { transform: 'translate(' + (b.x - a.x) + 'px,' + (b.y - a.y - 10) + 'px) scale(.5)', opacity: 0 }], { dur: 700, easing: 'ease-in', fill: 'forwards' });
