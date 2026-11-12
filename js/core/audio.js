@@ -60,7 +60,8 @@
     flt.frequency.setValueAtTime(f1, at);
     if (f2) flt.frequency.exponentialRampToValueAtTime(f2, at + dur);
     g.gain.setValueAtTime(0.0001, at);
-    g.gain.exponentialRampToValueAtTime(vol, at + 0.02);
+    var att = Math.min(0.09, dur * 0.4);   // بداية ناعمة: لا «ضربة»
+    g.gain.exponentialRampToValueAtTime(vol, at + att);
     g.gain.exponentialRampToValueAtTime(0.0001, at + dur);
     s.connect(flt); flt.connect(g); g.connect(master);
     s.start(at, Math.random() * 0.2); s.stop(at + dur + 0.03);
@@ -73,7 +74,8 @@
      (بطلب صاحب المشروع: الابتعاد عن أي شبه بالموسيقى). */
   function rnd(a, b) { return a + Math.random() * (b - a); }
   function jit(f) { return f * rnd(0.9, 1.12); }      // تغيير طفيف في الطبقة كل مرة (لا تسلسل ولا لحن)
-  function click(c, t, f, vol) { tone(c, jit(f), t, 0.035, vol || 0.06, 'square', f * 0.7); }
+  function click(c, t, f, vol) { tone(c, jit(f) * 0.8, t, 0.07, (vol || 0.06) * 0.8, 'sine', f * 0.5); }   // «توك» خشبي ناعم بدل نقرة حادة
+  function bloop(c, t, f0, f1, vol, dur) { tone(c, jit(f0), t, dur || 0.14, vol || 0.07, 'sine', f1); }
   /* تصفيق: ضربات ضجيج قصيرة متراكبة، تتصاعد ثم تخفت */
   function applause(c, t, dur, density, vol) {
     var n = Math.round(dur * density);
@@ -89,9 +91,13 @@
   }
   /* كل اسم يمكن أن يكون دالة أو مصفوفة بدائل؛ يُختار بديل مختلف عن الأخير عشوائياً */
   var SOUNDS = {
-    tap: [function (c, t) { click(c, t, 900, 0.035); }, function (c, t) { click(c, t, 760, 0.035); noise(c, t, 0.02, 0.015, 3000, 2500, 1); }],
-    whoosh: [function (c, t) { noise(c, t, 0.45, 0.04, 500, 2400, 0.8); }, function (c, t) { noise(c, t, 0.4, 0.04, 2600, 600, 0.8); }, function (c, t) { noise(c, t, 0.5, 0.035, 900, 1800, 0.5); }],
-    card: [function (c, t) { noise(c, t, 0.12, 0.05, 2500, 1200, 1.2); }, function (c, t) { noise(c, t, 0.1, 0.05, 3200, 1800, 1.4); }, function (c, t) { noise(c, t, 0.14, 0.045, 1800, 900, 1); }],
+    tap: [function (c, t) { click(c, t, 880, 0.05); }, function (c, t) { bloop(c, t, 520, 760, 0.05, 0.08); }],
+    whoosh: [
+      function (c, t) { noise(c, t, 0.5, 0.035, 350, 1500, 0.5); },                              // هواء يرتفع بنعومة
+      function (c, t) { noise(c, t, 0.5, 0.035, 1700, 400, 0.5); },                              // هواء يهبط
+      function (c, t) { noise(c, t, 0.45, 0.03, 700, 1200, 0.4); noise(c, t + 0.05, 0.4, 0.02, 2200, 1000, 0.5); }
+    ],
+    card: [function (c, t) { noise(c, t, 0.16, 0.04, 2800, 1500, 0.9); }, function (c, t) { bloop(c, t, 420, 640, 0.05, 0.1); }, function (c, t) { noise(c, t, 0.2, 0.035, 2000, 1000, 0.7); }],
     pop: [function (c, t) { tone(c, jit(300), t, 0.07, 0.08, 'sine', 700); }, function (c, t) { tone(c, jit(420), t, 0.06, 0.08, 'sine', 900); noise(c, t, 0.03, 0.02, 4000, 3000, 1); }, function (c, t) { tone(c, jit(240), t, 0.09, 0.08, 'sine', 520); }],
     sparkle: [function (c, t) { noise(c, t, 0.25, 0.035, 7000, 9000, 2); }, function (c, t) { for (var i = 0; i < 4; i++) noise(c, t + i * 0.05, 0.05, 0.03, rnd(6000, 9000), 8000, 2.5); }],
     chug: function (c, t, a) { noise(c, t, 0.12, 0.035 * (a == null ? 1 : a), 700, 300, 0.9); },
@@ -106,8 +112,8 @@
       function (c, t) { for (var i = 0; i < 3; i++) tone(c, jit(700), t + i * 0.05, 0.04, 0.05, 'triangle', 1100); }            // زخّات ناعمة
     ],
     wrong: function (c, t) { tone(c, 480, t, 0.09, 0.06, 'square'); tone(c, 480, t + 0.14, 0.09, 0.06, 'square'); },
-    place: [function (c, t) { click(c, t, 420, 0.08); noise(c, t, 0.05, 0.04, 1500, 800, 1); }, function (c, t) { click(c, t, 330, 0.08); noise(c, t, 0.04, 0.05, 1100, 700, 1); }, function (c, t) { noise(c, t, 0.06, 0.06, 900, 500, 1.2); click(c, t, 260, 0.06); }],
-    pick: [function (c, t) { click(c, t, 700, 0.045); }, function (c, t) { click(c, t, 840, 0.04); }, function (c, t) { noise(c, t, 0.03, 0.03, 2500, 2000, 1.5); click(c, t, 600, 0.035); }],
+    place: [function (c, t) { click(c, t, 360, 0.09); noise(c, t, 0.08, 0.025, 900, 600, 0.8); }, function (c, t) { bloop(c, t, 300, 190, 0.08, 0.12); }, function (c, t) { click(c, t, 300, 0.09); }],
+    pick: [function (c, t) { click(c, t, 700, 0.05); }, function (c, t) { bloop(c, t, 480, 720, 0.05, 0.09); }, function (c, t) { click(c, t, 820, 0.045); noise(c, t, 0.05, 0.015, 3000, 2500, 1); }],
     flutter: function (c, t) { for (var i = 0; i < 6; i++) noise(c, t + i * 0.09, 0.06, 0.035, 3000, 1500, 1.5); },
     lantern: [function (c, t) { tone(c, jit(300), t, 0.07, 0.07, 'sine', 700); }, function (c, t) { tone(c, jit(360), t, 0.06, 0.07, 'sine', 820); }],
     splash: [function (c, t) { noise(c, t, 0.35, 0.07, 1800, 500, 0.8); }, function (c, t) { noise(c, t, 0.3, 0.07, 2400, 700, 0.7); noise(c, t + 0.12, 0.2, 0.04, 1500, 500, 0.9); }],
@@ -122,6 +128,23 @@
       function (c, t) { claps(c, t, 3, 0.22, 0.07); noise(c, t + 0.8, 0.5, 0.03, 7000, 9000, 2); },             // ثلاث صفقات ولمعة
       function (c, t) { for (var i = 0; i < 6; i++) { tone(c, jit(260), t + i * 0.09, 0.05, 0.06, 'sine', 700); } applause(c, t + 0.1, 1.2, 28, 0.04); } // فرقعات احتفال + تصفيق
     ],
+    /* تقليب صفحة: حفيف ورق ناعم */
+    page: [
+      function (c, t) { noise(c, t, 0.22, 0.045, 3500, 1800, 0.7); noise(c, t + 0.09, 0.14, 0.03, 4200, 2600, 0.8); },
+      function (c, t) { noise(c, t, 0.26, 0.04, 2600, 5200, 0.6); noise(c, t + 0.12, 0.12, 0.025, 3800, 2200, 0.9); },
+      function (c, t) { noise(c, t, 0.2, 0.045, 4500, 1500, 0.6); }
+    ],
+    /* فتح: انفتاح باب/كتاب بنفَس صاعد وفقاعة ناعمة */
+    open: [
+      function (c, t) { noise(c, t, 0.4, 0.035, 500, 2600, 0.5); bloop(c, t + 0.18, 300, 640, 0.06, 0.16); },
+      function (c, t) { bloop(c, t, 260, 560, 0.06, 0.18); noise(c, t + 0.05, 0.35, 0.03, 900, 3000, 0.5); }
+    ],
+    /* إغلاق: هبوط ناعم */
+    close: [
+      function (c, t) { noise(c, t, 0.4, 0.035, 2600, 450, 0.5); bloop(c, t + 0.1, 560, 260, 0.06, 0.16); },
+      function (c, t) { bloop(c, t, 520, 240, 0.06, 0.18); noise(c, t + 0.05, 0.3, 0.025, 2000, 600, 0.5); }
+    ],
+    bloop: [function (c, t) { bloop(c, t, 280, 620, 0.07, 0.14); }, function (c, t) { bloop(c, t, 360, 780, 0.07, 0.12); }, function (c, t) { bloop(c, t, 240, 500, 0.07, 0.16); }],
     lullaby: [function (c, t) { noise(c, t, 1.4, 0.03, 600, 300, 0.6); }, function (c, t) { noise(c, t, 1.6, 0.028, 500, 250, 0.5); }]
   };
   var lastVar = {};

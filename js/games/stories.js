@@ -259,7 +259,7 @@
         STORIES.forEach(function (S) {
           var card = h('button', { class: 'st-card' + (isRead(S.id) ? ' read' : ''), type: 'button', 'aria-label': S.title }, self.cover(S),
             h('b', { text: S.title }), h('small', { text: 'القيمة: ' + S.value }), isRead(S.id) ? h('span', { class: 'st-read', html: art.check() }) : null);
-          UI.bindPress(card, function () { intro(S); });
+          UI.bindPress(card, function () { if (B.audio) B.audio.play('open'); intro(S); });
           grid.appendChild(card);
         });
         root.appendChild(h('h2', { class: 'st-h', text: B.S.stories.title })); root.appendChild(grid);
@@ -273,8 +273,8 @@
         var sc = sceneEl({ bg: S.scenes[0].bg, ch: S.scenes[0].ch }, false);
         var go = h('button', { class: 'st-nav next big', type: 'button' }, h('b', { text: 'ابدأ القصة' }), h('span', { text: '←' }));
         var back = h('button', { class: 'st-nav prev', type: 'button' }, h('span', { text: '→' }), h('b', { text: B.S.stories.more }));
-        UI.bindPress(go, function () { if (B.audio) B.audio.play('card'); scene(S, 0); });
-        UI.bindPress(back, library);
+        UI.bindPress(go, function () { if (B.audio) B.audio.play('open'); scene(S, 0); });
+        UI.bindPress(back, function () { if (B.audio) B.audio.play('close'); library(); });
         root.appendChild(h('div', { class: 'st-title', text: S.title }));
         root.appendChild(h('div', { class: 'st-page' }, sc, h('div', { class: 'st-text intro' }, h('b', { text: S.title }))));
         root.appendChild(panel);
@@ -292,8 +292,8 @@
         var sc = sceneEl(P), txt = h('div', { class: 'st-text', text: P.text });
         var prev = h('button', { class: 'st-nav prev', type: 'button', 'aria-label': B.S.stories.prev }, h('span', { text: '→' }), h('b', { text: B.S.stories.prev }));
         var next = h('button', { class: 'st-nav next', type: 'button', 'aria-label': B.S.stories.next }, h('b', { text: i === n - 1 ? 'هيا نلعب ونتذكر!' : B.S.stories.next }), h('span', { text: '←' }));
-        UI.bindPress(prev, function () { if (B.audio) B.audio.play('whoosh'); if (i > 0) scene(S, i - 1); else intro(S); });
-        UI.bindPress(next, function () { if (B.audio) B.audio.play('whoosh'); if (i < n - 1) scene(S, i + 1); else act(S, 0); });
+        UI.bindPress(prev, function () { if (B.audio) B.audio.play('page'); if (i > 0) scene(S, i - 1); else intro(S); });
+        UI.bindPress(next, function () { if (B.audio) B.audio.play('page'); if (i < n - 1) scene(S, i + 1); else act(S, 0); });
         root.appendChild(topBar(i, n, 'المشهد ' + UI.num(i + 1) + ' من ' + UI.num(n)));
         root.appendChild(h('div', { class: 'st-page' }, sc, txt));
         root.appendChild(h('div', { class: 'st-bar' }, prev, next));
