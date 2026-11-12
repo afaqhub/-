@@ -55,3 +55,9 @@ self.addEventListener('fetch', (e) => {
 `;
 fs.writeFileSync(path.join(OUT, 'sw.js'), sw);
 console.log('dist/index.html', (fs.statSync(path.join(OUT, 'index.html')).size / 1024).toFixed(0) + ' كيلوبايت');
+
+// الدليل الشامل للمشروع (يُسلَّم مع كل تحديث): HANDOFF + IDEAS + PLAN في ملف واحد
+try {
+  const parts = ['HANDOFF.md', 'IDEAS.md', 'PLAN.md'].map((f) => '\n\n---\n\n<!-- ' + f + ' -->\n\n' + fs.readFileSync(path.join(ROOT, f), 'utf8'));
+  fs.writeFileSync(path.join(OUT, 'PROJECT.md'), '# دليل مشروع «بستان الصغار» الشامل (الإصدار ' + (fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8').match(/VERSION = '([^']+)'/) || [0, '?'])[1] + ')\n' + parts.join(''));
+} catch (e) { console.warn('PROJECT.md:', e.message); }
