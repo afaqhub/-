@@ -1392,6 +1392,16 @@ html.night .tabbar { background: rgba(30, 36, 90, .75); } html.night .tab-btn { 
 @media (orientation: landscape) and (max-height: 640px) { .st-scene { aspect-ratio: 4 / 3 !important; width: auto !important; height: min(62vh, 300px); flex: 0 0 auto !important; max-height: none; } .st-page { justify-content: center; } .st-text { flex: 1 1 40%; } }
 .st-soil { left: -10%; right: -10%; height: 34%; bottom: -4%; }
 
+/* 7.6.2: زر الوالدين دائري متناسق مع أزرار الأدوات، واسم اللعبة بعيد عن الصورة */
+.parent-btn.in-header { overflow: visible !important; width: 52px !important; height: 52px !important; padding: 0 !important; border-radius: 50% !important; justify-content: center; left: calc(72px + var(--safe-l)) !important; top: calc(14px + var(--safe-t)) !important; gap: 0 !important; }
+.parent-btn.in-header .pb-ic { width: 30px !important; height: 30px !important; }
+.parent-btn.in-header .pb-fill { border-radius: 50%; }
+.parent-btn.in-header .pb-tx { position: absolute; top: calc(100% + 3px); left: 50%; transform: translateX(-50%); font-size: 12px !important; white-space: nowrap; color: var(--night); text-shadow: 0 1px 0 rgba(255, 255, 255, .8); }
+@media (min-width: 521px) { .parent-btn.in-header { left: calc(132px + var(--safe-l)) !important; } .parent-btn.in-header .pb-tx { font-size: 13px !important; } }
+.zones .tile, .zones .group .tile { gap: 14px !important; }
+.zones .tile-name { line-height: 1.35; padding-top: 2px; }
+@media (orientation: landscape) and (max-height: 640px) { .parent-btn.in-header .pb-tx { display: none; } }
+
 </style>
 </head>
 <body>
