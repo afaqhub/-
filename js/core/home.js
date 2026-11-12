@@ -267,7 +267,7 @@
   }
 
   B.home = {
-    show: function () { return UI.go(build()); },
+    show: function () { if (B.audio) B.audio.theme(null); return UI.go(build()); },
     tab: function (id) { if (B.home._setTab) B.home._setTab(id); },
     build: build
   };

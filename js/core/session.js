@@ -57,6 +57,7 @@
 
   /* لعب حرّ: مسرح وزر الرئيسية فقط */
   function startFree(it, origin) {
+    if (B.audio) B.audio.theme(it.id);
     if (it.id === 'garden') { /* يستعمل المحرك نفسه */ }
     var mod = B.free[it.id];
     if (!mod || active) return;
@@ -77,6 +78,7 @@
   }
 
   function start(id, origin) {
+    if (B.audio) B.audio.theme(id);
     var game = B.games[id], it = item(id);
     origin = origin || {};
     if (it && it.free) { startFree(it, origin); return; }

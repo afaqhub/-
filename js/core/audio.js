@@ -31,10 +31,17 @@
     return ctx;
   }
 
+  /* «سمة صوت» لكل لعبة: تغيّر الطبقة ولمعان الضجيج ونوع الموجة، فلا تتشابه أصوات الألعاب */
+  var T0 = { p: 1, b: 1, w: null };
+  var THEMES = [T0, { p: 0.8, b: 0.8, w: null }, { p: 1.25, b: 1.2, w: null }, { p: 1, b: 0.7, w: 'triangle' }, { p: 1.12, b: 1.4, w: 'triangle' }, { p: 0.9, b: 1.1, w: 'sine' }, { p: 1.4, b: 0.9, w: 'sine' }, { p: 0.72, b: 1.3, w: 'square' }, { p: 1.18, b: 0.6, w: null }, { p: 0.95, b: 1.6, w: 'triangle' }];
+  var th = T0;
+  var ORDER = ['train', 'mirror', 'pattern', 'firstsound', 'bridge', 'fruits', 'letters', 'memory', 'shadows', 'more', 'odd', 'tracing', 'feed', 'hide', 'vanish', 'order', 'habitat', 'missing', 'water', 'maze', 'workshop', 'coloring', 'drawing', 'garden', 'gallery'];
+
   // نغمة: تردد، بداية، مدة، شدة، نوع الموجة، تردد نهائي اختياري (انزلاق)
   function tone(c, f, at, dur, vol, type, f2) {
     var o = c.createOscillator(), g = c.createGain();
-    o.type = type || 'sine';
+    f *= th.p; if (f2) f2 *= th.p;
+    o.type = (type === 'square' || !th.w) ? (type || 'sine') : th.w;
     o.frequency.setValueAtTime(f, at);
     if (f2) o.frequency.exponentialRampToValueAtTime(f2, at + dur);
     g.gain.setValueAtTime(0.0001, at);
@@ -48,6 +55,7 @@
   function noise(c, at, dur, vol, f1, f2, q) {
     var s = c.createBufferSource(), flt = c.createBiquadFilter(), g = c.createGain();
     s.buffer = noiseBuf;
+    f1 *= th.b; if (f2) f2 *= th.b;
     flt.type = 'bandpass'; flt.Q.value = q || 1.2;
     flt.frequency.setValueAtTime(f1, at);
     if (f2) flt.frequency.exponentialRampToValueAtTime(f2, at + dur);
@@ -141,6 +149,7 @@
   }
 
   B.audio = {
+    theme: function (id) { var i = ORDER.indexOf(id); th = i < 0 ? T0 : THEMES[(i % (THEMES.length - 1)) + 1]; },
     unlock: function () {
       var c = ensure();
       if (!c) return;
@@ -157,7 +166,8 @@
       if (!c) return;
       var fn = pickVariant(name);
       if (!fn) return;
-      function go() { try { fn(c, c.currentTime + 0.005, arg); } catch (e) {} }
+      var raw = (name === 'wrong' || name === 'chug' || name === 'toot' || name === 'brake');
+      function go() { var keep = th; if (raw) th = T0; try { fn(c, c.currentTime + 0.005, arg); } catch (e) {} th = keep; }
       if (c.state === 'running') { go(); return; }
       // السياق موقوف (iOS/متصفحات): نستأنفه ثم نشغّل الصوت
       try { c.resume().then(function () { if (c.state === 'running') go(); }, function () {}); } catch (e) {}

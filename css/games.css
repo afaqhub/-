@@ -551,7 +551,7 @@ html.night::after { content: ''; position: fixed; inset: 0; z-index: 900; pointe
 .hd-animal { position: absolute; left: 15%; width: 70%; z-index: 1; } .hd-animal svg { width: 100%; height: auto; }
 .vn-stage { background: linear-gradient(180deg, #E4E0FF 0%, #CFEBFF 100%); --deep: #6B3CC9; }
 .vn-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; max-width: 100%; }
-.vn-item { width: clamp(64px, min(20vw, 14vh), 120px); aspect-ratio: 1; border-radius: 24%; background: #FAFCFF; padding: 8%; box-shadow: 0 5px 0 #9FB3E0; } .vn-item svg { width: 100%; height: 100%; }
+.vn-item { width: clamp(80px, min(28vw, 19vh), 170px); aspect-ratio: 1; border-radius: 24%; background: #FAFCFF; padding: 8%; box-shadow: 0 5px 0 #9FB3E0; } .vn-item svg { width: 100%; height: 100%; }
 .vn-item.gone { background: rgba(255, 255, 255, .35); box-shadow: inset 0 0 0 4px #8E5CF0; border: 0; } .vn-item.gone svg { opacity: 0; }
 .od2-stage { background: linear-gradient(180deg, #FFE9C7 0%, #E3F6FF 100%); --deep: #C23C69; }
 .od2-stage .mg-top { width: 100%; display: flex; flex-direction: column; gap: 18px; align-items: center; }
