@@ -172,7 +172,7 @@
       var step = steps[cur], t = target(); if (!t) { busy = false; return; } t.classList.remove('wt-next', 'pulse-hint');
       if (step === 'seed') {
         var a = kit.center(t, ctx.stage), b = kit.center(pot, ctx.stage);
-        await ctx.anim(t, [{ transform: 'translate(0,0)' }, { transform: 'translate(' + (b.x - a.x) * 0.5 + 'px,' + (b.y - a.y - 80) + 'px)', offset: 0.5 }, { transform: 'translate(' + (b.x - a.x) + 'px,' + (b.y - a.y - 10) + 'px) scale(.5)', opacity: 0 }], { dur: 700, easing: 'ease-in', fill: 'forwards' });
+        await ctx.anim(t, [{ transform: 'translate(0,0)' }, { transform: 'translate(' + (b.x - a.x) * 0.5 + 'px,' + (b.y - a.y - 80) + 'px)', offset: 0.5 }, { transform: 'translate(' + (b.x - a.x) + 'px,' + (b.y - a.y - 10) + 'px)', opacity: 0 }], { dur: 700, easing: 'ease-in', fill: 'forwards' });
         if (B.audio) B.audio.play('place');
         pot.querySelector('.wt-soil').setAttribute('fill', '#6B4426');
       } else if (step === 'can') {
@@ -220,7 +220,6 @@
     await fin; st.solve = null;
     if (!alive()) return;
     // الزهرة تتفتح وتُزرع في «بستاني»، وفراشة تزورها
-    B.garden.add(kit.pick(['flower', 'rose']));
     var pc = kit.center(plant, ctx.stage);
     UI.burst(ctx.stage, pc.x, pc.y - 40, { n: 24, spread: 150, dur: 1500, colors: [col[0], col[1], '#fff', '#FFD34E'] });
     if (B.audio) B.audio.play('cheer');
