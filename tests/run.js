@@ -498,6 +498,7 @@ async function seeDemoThrough(page) {
       const box = await page.locator('.logo-corner').boundingBox();
       await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2); await page.mouse.down(); await page.waitForTimeout(3300); await page.mouse.up();
       await page.waitForSelector('.parent-overlay');
+      await page.evaluate(() => { document.querySelector('.p-more').open = true; });
       await page.click('[data-act=replay-demo]');
       ok((await page.evaluate(() => !Bustan.storage.demoSeen('train'))), 'ركن الوالدين يعيد العرض التوضيحي');
       await page.__ctx.close();
@@ -720,6 +721,7 @@ async function seeDemoThrough(page) {
     await page.mouse.move(cx, cy); await page.mouse.down(); await page.waitForTimeout(3300);
     await page.mouse.up();
     await page.waitForSelector('.parent-overlay', { timeout: 2000 });
+    await page.evaluate(() => { document.querySelector('.p-more').open = true; });
     ok(true, 'الضغطة المطولة ٣ ثوانٍ تفتح ركن الوالدين');
     await shot(page, 'parent-corner');
     const txt = await page.evaluate(() => document.querySelector('.parent-overlay').innerText);
@@ -750,6 +752,7 @@ async function seeDemoThrough(page) {
     // إعادة ضبط اللعبة (ضغطتان)
     await page.mouse.move(cx, cy); await page.mouse.down(); await page.waitForTimeout(3300); await page.mouse.up();
     await page.waitForSelector('.parent-overlay');
+    await page.evaluate(() => { document.querySelector('.p-more').open = true; });
     await page.click('[data-reset=train]');
     ok((await page.evaluate(() => Bustan.storage.game('train').rounds)) === 77, 'ضغطة واحدة لا تعيد الضبط (تأكيد أولاً)');
     await page.click('[data-reset=train]');

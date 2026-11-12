@@ -1402,6 +1402,23 @@ html.night .tabbar { background: rgba(30, 36, 90, .75); } html.night .tab-btn { 
 .zones .tile-name { line-height: 1.35; padding-top: 2px; }
 @media (orientation: landscape) and (max-height: 640px) { .parent-btn.in-header .pb-tx { display: none; } }
 
+/* ═════════ ركن الوالدين المبسّط + كلمة المرور + مؤقّت الراحة (7.7) ═════════ */
+.p-more { margin-top: 10px; background: rgba(255, 255, 255, .6); border-radius: 18px; padding: 6px 12px 12px; } .p-more > summary { cursor: pointer; font-size: 19px; font-weight: 800; color: #6B7BB8; padding: 12px 4px; list-style: none; min-height: 48px; } .p-more > summary::before { content: '▸ '; } .p-more[open] > summary::before { content: '▾ '; }
+.p-chip { min-width: 76px; } .p-chip.on { background: #2DBE7E; color: #fff; box-shadow: 0 4px 0 #1C8F5C; }
+.pin-overlay, .rest-overlay { position: fixed; inset: 0; z-index: 400; display: grid; place-items: center; background: rgba(31, 42, 90, .72); padding: 16px; direction: rtl; }
+.rest-overlay { z-index: 380; background: linear-gradient(180deg, #232C6B 0%, #4A3FA6 70%, #B35FA8 100%); }
+.pin-card, .rest-card { width: min(420px, 100%); background: #FAFCFF; border-radius: 30px; padding: 20px 16px 22px; display: grid; gap: 12px; justify-items: center; text-align: center; box-shadow: 0 10px 0 #C9B6F5; }
+.pin-card h2, .rest-card h2 { font-size: 26px; font-weight: 800; color: var(--night); margin: 0; } .rest-card p { font-size: 20px; color: var(--night-soft); margin: 0; }
+.pin-dots { display: flex; gap: 14px; } .pin-dots i { width: 22px; height: 22px; border-radius: 50%; background: #E3DBFA; } .pin-dots i.on { background: #8E5CF0; }
+.pin-note { min-height: 24px; color: #C9611F; font-weight: 800; font-size: 18px; }
+.pin-keys { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; }
+.pin-key { min-height: max(72px, var(--tap)); border: 0; border-radius: 22px; background: #fff; box-shadow: 0 5px 0 #B9A6F0; font-family: inherit; font-size: 30px; font-weight: 800; color: var(--night); cursor: pointer; } .pin-key.alt { background: #EEF1FA; color: #6B7BB8; } .pin-key:active { transform: translateY(3px); }
+.rest-bear { width: 140px; } .rest-bear svg { width: 100%; height: auto; }
+.rest-zone { display: grid; gap: 10px; width: 100%; justify-items: center; }
+.rest-btn { position: relative; overflow: hidden; min-width: 220px; min-height: max(72px, var(--tap)); padding: 8px 22px; border: 0; border-radius: 999px; background: linear-gradient(135deg, #B79BFF, #8E5CF0); color: #fff; box-shadow: 0 6px 0 #6B3CC9; font-family: inherit; font-size: 21px; font-weight: 800; cursor: pointer; } .rest-btn.alt { background: linear-gradient(135deg, #3FDCBC, #17A98B); box-shadow: 0 6px 0 #0B8269; } .rest-btn.hold { background: #FFB84E; box-shadow: 0 6px 0 #C9611F; color: var(--night); }
+.rest-btn .pb-fill { position: absolute; inset: 0; background: rgba(255, 255, 255, .5); transform: scaleX(0); transform-origin: 0 50%; } .rest-btn.holding .pb-fill { animation: pbFill 3s linear forwards; } .rest-btn b { position: relative; z-index: 1; }
+.timer-toast { position: fixed; z-index: 350; left: 50%; bottom: 110px; transform: translateX(-50%); background: #fff; padding: 12px 22px; border-radius: 999px; font-size: 20px; font-weight: 800; color: var(--night); box-shadow: 0 6px 0 #C9B6F5, 0 10px 20px rgba(0, 0, 0, .2); direction: rtl; white-space: nowrap; }
+
 </style>
 </head>
 <body>
@@ -1420,6 +1437,10 @@ html.night .tabbar { background: rgba(30, 36, 90, .75); } html.night .tab-btn { 
     ios: ['اضغط زر المشاركة في أسفل المتصفح (مربع وسهم لأعلى).', 'اختر «إضافة إلى الشاشة الرئيسية».', 'اضغط «إضافة».'],
     android: ['اضغط قائمة المتصفح (النقاط الثلاث).', 'اختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».', 'اضغط «تثبيت».'], ok: 'حسناً', now: 'ثبّت الآن' },
   appName: 'بستان الصغار',
+  timer: { title: 'وقت اللعب', off: 'بلا حد', min: 'د', left: 'المتبقي', none: 'غير مفعّل', fresh: 'ابدأ وقتًا جديدًا', warn: 'بقيت دقيقة واحدة ثم نرتاح',
+    restTitle: 'حان وقت الراحة', restText: 'انتهى وقت اللعب. نكمل لاحقًا بإذن الله.', parentBtn: 'للوالدين: زيادة الوقت', holdNote: 'اضغطوا مع الاستمرار ثلاث ثوانٍ', more10: '+ ١٠ دقائق', more15: '+ ١٥ دقيقة', more30: '+ ٣٠ دقيقة', fresh2: 'جلسة جديدة كاملة' },
+  pin: { title: 'كلمة مرور الوالدين', note: 'اختيارية: تحمي هذه الصفحة وتمديد الوقت من الأطفال.', set: 'تعيين كلمة مرور (٤ أرقام)', change: 'تغيير', remove: 'إزالة', isSet: 'كلمة المرور مفعّلة', enter: 'أدخل كلمة المرور', newOne: 'اختر ٤ أرقام', again: 'أعد إدخالها للتأكيد', bad: 'غير صحيحة، حاول مرة أخرى', mismatch: 'لم تتطابق، ابدأ من جديد', saved: 'تم حفظ كلمة المرور', removed: 'أُزيلت كلمة المرور', forgot: 'إن نسيتها: امسح بيانات الموقع من المتصفح.' },
+  more: 'خيارات أخرى (إحصاءات ونسخ احتياطي...)',
   stories: { title: 'قصص نقرؤها معًا', soon: 'قصة جديدة قريبًا', prev: 'السابق', next: 'التالي', end: 'النهاية', endText: 'انتهت القصة. أحسنتم!', again: 'نقرؤها مرة أخرى', more: 'قصص أخرى', parents: 'للوالدين: أسئلة للحوار', askTitle: 'اسألوا طفلكم' },
 
     zones: { stories: 'قصص', all: 'الكل', solo: 'وحدي', together: 'مع أبي وأمي', create: 'إبداع' },
@@ -1588,13 +1609,14 @@ html.night .tabbar { background: rgba(30, 36, 90, .75); } html.night .tab-btn { 
     return {
       schemaVersion: SCHEMA,
       created: Date.now(),
-      settings: { soundOn: true, soloLimit: 2, soloLimitOn: false, weeklyConnector: 0, night: false },
+      settings: { soundOn: true, timerMin: 0, pin: '', soloLimit: 2, soloLimitOn: false, weeklyConnector: 0, night: false },
       games: games,
       days: {},          // 'YYYY-MM-DD' -> { sessions:{id:n}, rounds:{id:n} }
       lock: { soloOpenDate: '' }, // تاريخ اليوم الذي فتح فيه الوالد «وحدي» رغم الحد
       demoSeen: {},      // id -> true
       garden: [],        // أنواع ما زُرع في «بستاني»
       gallery: [],       // صور «إبداعاتي» (روابط data)
+      timer: { date: '', usedMs: 0, extraMs: 0, locked: false },   // مؤقّت وقت اللعب
       stories: {},       // id -> { read:true } القصص التي أُكملت
       last: '',          // آخر لعبة لُعبت (لبطاقة «أكمل»)
       welcomed: false    // هل عُرضت شاشة الترحيب
@@ -4115,8 +4137,7 @@ html.night .tabbar { background: rgba(30, 36, 90, .75); } html.night .tab-btn { 
     var closeBtn = h('button', { class: 'p-close', type: 'button', 'aria-label': S.buttons.close, text: '✕' });
     closeBtn.addEventListener('click', function () { close(); B.home.show(); });
 
-    var body = h('div', { class: 'p-body scrollable' },
-      !st.isPersistent() ? h('div', { class: 'p-warn', text: P.storageWarn }) : null,
+    var more = h('details', { class: 'p-more' }, h('summary', { text: S.more }),
       summary,
       h('section', { class: 'p-sec' }, rows),
       h('section', { class: 'p-sec' }, h('h3', { text: P.lastDays }), chart),
@@ -4128,13 +4149,19 @@ html.night .tabbar { background: rgba(30, 36, 90, .75); } html.night .tab-btn { 
         openBtn
       ),
       h('section', { class: 'p-sec' }, h('h3', { text: P.weekly }), h('div', { class: 'p-wrap' }, weekBtns)),
-      h('section', { class: 'p-sec' }, h('h3', { text: P.sound }), soundBtn, h('div', { class: 'p-line muted', text: P.soundNote })),
       h('section', { class: 'p-sec' },
         h('h3', { text: P.backup }),
         h('div', { class: 'p-wrap' }, copyBtn, fileBtn),
         ta, h('div', { class: 'p-wrap' }, restoreBtn, restoreFileBtn), picker
       ),
-      h('section', { class: 'p-sec' }, demoBtn, galBtn, resetBtns),
+      h('section', { class: 'p-sec' }, demoBtn, galBtn, resetBtns)
+    );
+    var body = h('div', { class: 'p-body scrollable' },
+      !st.isPersistent() ? h('div', { class: 'p-warn', text: P.storageWarn }) : null,
+      timerSection(say),
+      pinSection(say),
+      h('section', { class: 'p-sec' }, h('h3', { text: P.sound }), soundBtn, h('div', { class: 'p-line muted', text: P.soundNote })),
+      more,
       msg
     );
 
@@ -4148,6 +4175,8 @@ html.night .tabbar { background: rgba(30, 36, 90, .75); } html.night .tab-btn { 
 
   function open() {
     if (overlay) return;
+    var pin = B.storage.data().settings.pin;
+    if (pin && !open._ok) { askPin(B.S.pin.enter, function (code) { return hashPin(code).then(function (x) { return x === pin; }); }, function () { open._ok = true; open(); open._ok = false; }); return; }
     overlay = build();
     document.body.appendChild(overlay);
     UI.anim(overlay, [{ opacity: 0 }, { opacity: 1 }], { dur: 260 });
@@ -4230,6 +4259,136 @@ html.night .tabbar { background: rgba(30, 36, 90, .75); } html.night .tab-btn { 
     });
   }
   B.admin = { open: openAdmin };
+
+
+  /* ═════════ كلمة مرور الوالدين + لوحة أرقام ═════════ */
+  function hashPin(code) { return sha('bustan-parent:' + code); }
+  /* لوحة أرقام كبيرة: check(code) تُرجع وعداً بـ true/false؛ عند الصحة onOk(code) */
+  function askPin(title, check, onOk) {
+    var P = B.S.pin, code = '';
+    var dots = h('div', { class: 'pin-dots' }, [0, 1, 2, 3].map(function () { return h('i'); }));
+    var note = h('div', { class: 'pin-note', text: '' });
+    var lay = h('div', { class: 'pin-overlay', role: 'dialog' });
+    function paint() { dots.childNodes.forEach(function (d, i) { d.className = i < code.length ? 'on' : ''; }); }
+    function shut() { lay.remove(); }
+    function press(d) {
+      if (code.length >= 4) return;
+      code += d; paint(); if (B.audio) B.audio.play('pick');
+      if (code.length === 4) {
+        Promise.resolve(check(code)).then(function (ok) {
+          if (ok) { var c = code; shut(); onOk(c); }
+          else { note.textContent = P.bad; UI.anim(dots, [{ transform: 'translateX(0)' }, { transform: 'translateX(-12px)' }, { transform: 'translateX(12px)' }, { transform: 'translateX(0)' }], { dur: 350 }); code = ''; setTimeout(paint, 250); }
+        });
+      }
+    }
+    var keys = h('div', { class: 'pin-keys' });
+    [1, 2, 3, 4, 5, 6, 7, 8, 9].forEach(function (n) { var b = h('button', { class: 'pin-key', type: 'button', text: UI.num(n) }); b.addEventListener('click', function () { press(String(n)); }); keys.appendChild(b); });
+    var del = h('button', { class: 'pin-key alt', type: 'button', text: '⌫', 'aria-label': 'حذف' }); del.addEventListener('click', function () { code = code.slice(0, -1); paint(); });
+    var zero = h('button', { class: 'pin-key', type: 'button', text: UI.num(0) }); zero.addEventListener('click', function () { press('0'); });
+    var x = h('button', { class: 'pin-key alt', type: 'button', text: '✕', 'aria-label': B.S.buttons.close }); x.addEventListener('click', shut);
+    keys.appendChild(x); keys.appendChild(zero); keys.appendChild(del);
+    lay.appendChild(h('div', { class: 'pin-card' }, h('h2', { text: title }), dots, note, keys));
+    document.body.appendChild(lay);
+    UI.anim(lay.firstChild, [{ opacity: 0, transform: 'scale(.92)' }, { opacity: 1, transform: 'none' }], { dur: 250 });
+  }
+
+  function pinSection(say) {
+    var P = B.S.pin, st = B.storage, sec = h('section', { class: 'p-sec' }, h('h3', { text: P.title })), line = h('div', { class: 'p-line muted', text: P.note }), box = h('div', { class: 'p-wrap' });
+    function paint() {
+      box.innerHTML = '';
+      var has = !!st.data().settings.pin;
+      line.textContent = has ? P.isSet + ' — ' + P.forgot : P.note;
+      function setNew() {
+        askPin(P.newOne, function () { return true; }, function (c1) {
+          askPin(P.again, function (c2) { return c2 === c1; }, function () {
+            hashPin(c1).then(function (hx) { st.data().settings.pin = hx; st.save(); say(P.saved); paint(); });
+          });
+        });
+      }
+      var b1 = h('button', { class: 'p-btn', type: 'button', 'data-act': 'pin-set', text: has ? P.change : P.set }); b1.addEventListener('click', setNew); box.appendChild(b1);
+      if (has) { var b2 = h('button', { class: 'p-btn warn', type: 'button', 'data-act': 'pin-remove', text: P.remove }); b2.addEventListener('click', function () { st.data().settings.pin = ''; st.save(); say(P.removed); paint(); }); box.appendChild(b2); }
+    }
+    paint(); sec.appendChild(line); sec.appendChild(box);
+    return sec;
+  }
+
+  /* ═════════ مؤقّت وقت اللعب ═════════ */
+  var restLay = null, tickN = 0, warned = false;
+  function tkey() { return B.storage.todayKey(); }
+  function tdata() {
+    var d = B.storage.data(); d.timer = d.timer || { date: '', usedMs: 0, extraMs: 0, locked: false };
+    if (d.timer.date !== tkey()) { d.timer.date = tkey(); d.timer.usedMs = 0; d.timer.extraMs = 0; d.timer.locked = false; warned = false; }
+    return d.timer;
+  }
+  function leftMs() { var s = B.storage.data().settings, T = tdata(); return s.timerMin ? s.timerMin * 60000 + T.extraMs - T.usedMs : Infinity; }
+  function toast(txt) {
+    var t = h('div', { class: 'timer-toast', text: txt }); document.body.appendChild(t);
+    UI.anim(t, [{ opacity: 0, transform: 'translate(-50%,20px)' }, { opacity: 1, transform: 'translate(-50%,0)' }], { dur: 350, fill: 'forwards' });
+    setTimeout(function () { t.remove(); }, 5000);
+  }
+  function showRest() {
+    if (restLay) return;
+    var Tm = B.S.timer, T = B.storage.data().timer;
+    if (B.free && B.session && B.session.pause) { try { B.session.pause(); } catch (e) {} }
+    var bearSleep = h('div', { class: 'rest-bear', html: B.art.animal('bear', { sleep: true }) });
+    var zone = h('div', { class: 'rest-zone' });
+    restLay = h('div', { class: 'rest-overlay', role: 'dialog' }, h('div', { class: 'rest-card' }, bearSleep, h('h2', { text: Tm.restTitle }), h('p', { text: Tm.restText }), zone));
+    document.body.appendChild(restLay);
+    function parentFlow() {
+      zone.innerHTML = '';
+      var pin = B.storage.data().settings.pin;
+      function choices() {
+        zone.innerHTML = '';
+        [[10, Tm.more10], [15, Tm.more15], [30, Tm.more30]].forEach(function (x) {
+          var b = h('button', { class: 'rest-btn', type: 'button', text: x[1] }); b.addEventListener('click', function () { extend(x[0]); }); zone.appendChild(b);
+        });
+        var f = h('button', { class: 'rest-btn alt', type: 'button', text: Tm.fresh2 }); f.addEventListener('click', function () { fresh(); }); zone.appendChild(f);
+      }
+      if (pin) { askPin(B.S.pin.enter, function (c) { return hashPin(c).then(function (x) { return x === pin; }); }, choices); return; }
+      // بلا كلمة مرور: ضغط مطوّل ٣ ثوانٍ
+      var hold = h('button', { class: 'rest-btn hold', type: 'button' }, h('b', { text: Tm.holdNote }), h('i', { class: 'pb-fill' }));
+      var tm = null;
+      hold.addEventListener('pointerdown', function () { hold.classList.add('holding'); tm = setTimeout(choices, 3000); });
+      ['pointerup', 'pointerleave', 'pointercancel'].forEach(function (ev) { hold.addEventListener(ev, function () { clearTimeout(tm); hold.classList.remove('holding'); }); });
+      zone.innerHTML = ''; zone.appendChild(hold);
+    }
+    var pb = h('button', { class: 'rest-btn', type: 'button', text: Tm.parentBtn }); pb.addEventListener('click', parentFlow); zone.appendChild(pb);
+  }
+  function hideRest() { if (restLay) { restLay.remove(); restLay = null; } if (B.session && B.session.resume) { try { B.session.resume(); } catch (e) {} } }
+  function extend(min) { var T = tdata(); T.extraMs += min * 60000; T.locked = false; warned = false; B.storage.save(); hideRest(); }
+  function fresh() { var T = tdata(); T.usedMs = 0; T.extraMs = 0; T.locked = false; warned = false; B.storage.save(); hideRest(); }
+  function tick() {
+    var s = B.storage.data().settings, T = tdata();
+    if (!s.timerMin) { if (T.locked) { T.locked = false; hideRest(); } return; }
+    if (T.locked) { showRest(); return; }
+    if (document.hidden || overlay) return;
+    T.usedMs += 1000;
+    if (++tickN % 5 === 0) B.storage.save();
+    var left = leftMs();
+    if (left <= 60000 && !warned && s.timerMin >= 3) { warned = true; toast(B.S.timer.warn); }
+    if (left <= 0) { T.locked = true; B.storage.save(); showRest(); }
+  }
+  function timerSection(say) {
+    var Tm = B.S.timer, st = B.storage, sec = h('section', { class: 'p-sec' }, h('h3', { text: Tm.title })), wrap = h('div', { class: 'p-wrap' }), status = h('div', { class: 'p-line', text: '' });
+    var VALS = [0, 10, 15, 20, 30, 45, 60];
+    function paint() {
+      var cur = st.data().settings.timerMin | 0;
+      wrap.innerHTML = '';
+      VALS.forEach(function (v) {
+        var b = h('button', { class: 'p-btn p-chip' + (v === cur ? ' on' : ''), type: 'button', 'data-timer': v, text: v ? UI.num(v) + ' ' + Tm.min : Tm.off });
+        b.addEventListener('click', function () {
+          var s = st.data().settings; s.timerMin = v; var T = tdata(); T.usedMs = 0; T.extraMs = 0; T.locked = false; warned = false; st.save(); paint();
+        });
+        wrap.appendChild(b);
+      });
+      var L = leftMs();
+      status.textContent = cur ? Tm.left + ': ' + UI.num(Math.max(0, Math.ceil(L / 60000))) + ' ' + Tm.min : Tm.none;
+    }
+    var fr = h('button', { class: 'p-btn', type: 'button', 'data-act': 'timer-fresh', text: Tm.fresh }); fr.addEventListener('click', function () { fresh(); paint(); });
+    paint(); sec.appendChild(wrap); sec.appendChild(status); sec.appendChild(fr);
+    return sec;
+  }
+  B.timer = { start: function () { setInterval(tick, 1000); if (B.storage.data().settings.timerMin && tdata().locked) showRest(); }, left: leftMs, _tick: tick, _rest: function () { return !!restLay; } };
 
   B.parent = { open: open, close: close, isOpen: function () { return !!overlay; } };
 })();
@@ -8421,6 +8580,7 @@ html.night .tabbar { background: rgba(30, 36, 90, .75); } html.night .tab-btn { 
     } catch (e) {}
   }
 
+  B.timer.start();
   B.stats.open();
   if (B.storage.data().settings.night) B.applyNight(true);
 

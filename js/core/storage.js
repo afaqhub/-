@@ -22,13 +22,14 @@
     return {
       schemaVersion: SCHEMA,
       created: Date.now(),
-      settings: { soundOn: true, soloLimit: 2, soloLimitOn: false, weeklyConnector: 0, night: false },
+      settings: { soundOn: true, timerMin: 0, pin: '', soloLimit: 2, soloLimitOn: false, weeklyConnector: 0, night: false },
       games: games,
       days: {},          // 'YYYY-MM-DD' -> { sessions:{id:n}, rounds:{id:n} }
       lock: { soloOpenDate: '' }, // تاريخ اليوم الذي فتح فيه الوالد «وحدي» رغم الحد
       demoSeen: {},      // id -> true
       garden: [],        // أنواع ما زُرع في «بستاني»
       gallery: [],       // صور «إبداعاتي» (روابط data)
+      timer: { date: '', usedMs: 0, extraMs: 0, locked: false },   // مؤقّت وقت اللعب
       stories: {},       // id -> { read:true } القصص التي أُكملت
       last: '',          // آخر لعبة لُعبت (لبطاقة «أكمل»)
       welcomed: false    // هل عُرضت شاشة الترحيب

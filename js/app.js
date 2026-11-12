@@ -29,6 +29,7 @@
     } catch (e) {}
   }
 
+  B.timer.start();
   B.stats.open();
   if (B.storage.data().settings.night) B.applyNight(true);
 

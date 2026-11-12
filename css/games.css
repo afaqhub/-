@@ -888,3 +888,20 @@ html.night .tabbar { background: rgba(30, 36, 90, .75); } html.night .tab-btn { 
 .zones .tile, .zones .group .tile { gap: 14px !important; }
 .zones .tile-name { line-height: 1.35; padding-top: 2px; }
 @media (orientation: landscape) and (max-height: 640px) { .parent-btn.in-header .pb-tx { display: none; } }
+
+/* ═════════ ركن الوالدين المبسّط + كلمة المرور + مؤقّت الراحة (7.7) ═════════ */
+.p-more { margin-top: 10px; background: rgba(255, 255, 255, .6); border-radius: 18px; padding: 6px 12px 12px; } .p-more > summary { cursor: pointer; font-size: 19px; font-weight: 800; color: #6B7BB8; padding: 12px 4px; list-style: none; min-height: 48px; } .p-more > summary::before { content: '▸ '; } .p-more[open] > summary::before { content: '▾ '; }
+.p-chip { min-width: 76px; } .p-chip.on { background: #2DBE7E; color: #fff; box-shadow: 0 4px 0 #1C8F5C; }
+.pin-overlay, .rest-overlay { position: fixed; inset: 0; z-index: 400; display: grid; place-items: center; background: rgba(31, 42, 90, .72); padding: 16px; direction: rtl; }
+.rest-overlay { z-index: 380; background: linear-gradient(180deg, #232C6B 0%, #4A3FA6 70%, #B35FA8 100%); }
+.pin-card, .rest-card { width: min(420px, 100%); background: #FAFCFF; border-radius: 30px; padding: 20px 16px 22px; display: grid; gap: 12px; justify-items: center; text-align: center; box-shadow: 0 10px 0 #C9B6F5; }
+.pin-card h2, .rest-card h2 { font-size: 26px; font-weight: 800; color: var(--night); margin: 0; } .rest-card p { font-size: 20px; color: var(--night-soft); margin: 0; }
+.pin-dots { display: flex; gap: 14px; } .pin-dots i { width: 22px; height: 22px; border-radius: 50%; background: #E3DBFA; } .pin-dots i.on { background: #8E5CF0; }
+.pin-note { min-height: 24px; color: #C9611F; font-weight: 800; font-size: 18px; }
+.pin-keys { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; }
+.pin-key { min-height: max(72px, var(--tap)); border: 0; border-radius: 22px; background: #fff; box-shadow: 0 5px 0 #B9A6F0; font-family: inherit; font-size: 30px; font-weight: 800; color: var(--night); cursor: pointer; } .pin-key.alt { background: #EEF1FA; color: #6B7BB8; } .pin-key:active { transform: translateY(3px); }
+.rest-bear { width: 140px; } .rest-bear svg { width: 100%; height: auto; }
+.rest-zone { display: grid; gap: 10px; width: 100%; justify-items: center; }
+.rest-btn { position: relative; overflow: hidden; min-width: 220px; min-height: max(72px, var(--tap)); padding: 8px 22px; border: 0; border-radius: 999px; background: linear-gradient(135deg, #B79BFF, #8E5CF0); color: #fff; box-shadow: 0 6px 0 #6B3CC9; font-family: inherit; font-size: 21px; font-weight: 800; cursor: pointer; } .rest-btn.alt { background: linear-gradient(135deg, #3FDCBC, #17A98B); box-shadow: 0 6px 0 #0B8269; } .rest-btn.hold { background: #FFB84E; box-shadow: 0 6px 0 #C9611F; color: var(--night); }
+.rest-btn .pb-fill { position: absolute; inset: 0; background: rgba(255, 255, 255, .5); transform: scaleX(0); transform-origin: 0 50%; } .rest-btn.holding .pb-fill { animation: pbFill 3s linear forwards; } .rest-btn b { position: relative; z-index: 1; }
+.timer-toast { position: fixed; z-index: 350; left: 50%; bottom: 110px; transform: translateX(-50%); background: #fff; padding: 12px 22px; border-radius: 999px; font-size: 20px; font-weight: 800; color: var(--night); box-shadow: 0 6px 0 #C9B6F5, 0 10px 20px rgba(0, 0, 0, .2); direction: rtl; white-space: nowrap; }
