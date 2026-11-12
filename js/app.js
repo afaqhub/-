@@ -16,6 +16,19 @@
     });
   }
 
+  // التثبيت كتطبيق: نحفظ حدث المتصفح، وفي الملف الواحد نولّد manifest من أيقونات مضمّنة
+  window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); B.installEvt = e; });
+  if (window.__BUSTAN_ICONS__ && /^https?:$/.test(window.location.protocol)) {
+    try {
+      var ib = window.__BUSTAN_ICONS__, base = window.location.href.replace(/[^\/]*$/, '');
+      var man = { name: B.S.appName, short_name: 'بستان', lang: 'ar', dir: 'rtl', start_url: base, scope: base, display: 'standalone', orientation: 'any', background_color: '#CFEBFF', theme_color: '#CFEBFF',
+        icons: [{ src: ib.a, sizes: '192x192', type: 'image/png', purpose: 'any' }, { src: ib.b, sizes: '512x512', type: 'image/png', purpose: 'any' }] };
+      var ml = document.createElement('link'); ml.rel = 'manifest';
+      ml.href = URL.createObjectURL(new Blob([JSON.stringify(man)], { type: 'application/manifest+json' }));
+      document.head.appendChild(ml);
+    } catch (e) {}
+  }
+
   B.stats.open();
   if (B.storage.data().settings.night) B.applyNight(true);
 

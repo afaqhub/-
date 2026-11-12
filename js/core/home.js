@@ -142,6 +142,31 @@
     return box;
   }
 
+  /* زر «ثبّت التطبيق»: يظهر دائماً ما دام التطبيق غير مثبّت */
+  function isInstalled() { return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true; }
+  function installBtn() {
+    if (isInstalled()) return null;
+    var I = B.S.install;
+    var b = h('button', { class: 'install-btn', type: 'button', 'data-act': 'install' }, h('span', { class: 'ib-ic', html: art.installIcon() }), h('b', { text: B.S.home.install }));
+    window.addEventListener('appinstalled', function () { b.remove(); });
+    UI.bindPress(b, function () {
+      if (B.installEvt) {
+        var ev = B.installEvt; B.installEvt = null;
+        try { ev.prompt(); ev.userChoice.then(function (r) { if (r && r.outcome === 'accepted') b.remove(); }); } catch (e) {}
+        return;
+      }
+      var ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+      var steps = ios ? I.ios : I.android;
+      var ok = h('button', { class: 'guide-go', type: 'button', text: I.ok });
+      var card = h('div', { class: 'guide-card' }, h('h2', { text: I.title }), h('p', { class: 'ib-sub', text: I.sub }),
+        h('ul', { class: 'guide-steps' }, steps.map(function (s, i) { return h('li', {}, h('b', { text: UI.num(i + 1) }), h('span', { text: s })); })), ok);
+      var layer = h('div', { class: 'guide-layer', style: { zIndex: 96 } }, card);
+      document.querySelector('.home').appendChild(layer);
+      UI.anim(card, [{ opacity: 0, transform: 'translateY(20px) scale(.95)' }, { opacity: 1, transform: 'none' }], { dur: 400, easing: UI.SPRING, fill: 'none' });
+      ok.addEventListener('click', function () { layer.remove(); });
+    });
+    return b;
+  }
   var HOLD_MS = 1200; // ضغطة مطوّلة قصيرة: لا يفتحها الطفل بالخطأ، ولا يطول انتظار الكبير
   /* زر «الوالدان» الظاهر: ضغط مطوّل ثانية وبعض الثانية؛ والنقرة السريعة تذكّر بالضغط المستمر */
   function parentBtn(cls) {
@@ -208,7 +233,7 @@
     );
 
     var chips = chipsRow(locked);
-    var zones = h('main', { class: 'zones scrollable', 'data-tab': tabNow }, h('div', { class: 'home-top' }, gardenRow(locked), chips), zone('solo', locked), zone('together', false), zone('create', false));
+    var zones = h('main', { class: 'zones scrollable', 'data-tab': tabNow }, h('div', { class: 'home-top' }, installBtn(), gardenRow(locked), chips), zone('solo', locked), zone('together', false), zone('create', false));
     var tabbar = h('nav', { class: 'tabbar', role: 'tablist' }, parentBtn('in-tabbar'), ['all', 'solo', 'together', 'create'].map(function (id) {
       var b = h('button', { class: 'tab-btn tab-' + id + (id === tabNow ? ' on' : ''), type: 'button', role: 'tab', 'data-tab': id, 'aria-label': B.S.zones[id] },
         h('span', { class: 'tab-ic', html: art.zoneBadge(id) }), h('b', { text: B.S.zones[id] }));

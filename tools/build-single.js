@@ -28,7 +28,7 @@ html = html.replace(/<script src="([^"]+)"><\/script>/g, (_, src) => {
 // الأيقونات و manifest
 html = html.replace('href="assets/icons/apple-touch-icon.png"', `href="data:image/png;base64,${b64('assets/icons/apple-touch-icon.png')}"`);
 html = html.replace('href="assets/icons/icon-192.png"', `href="data:image/png;base64,${b64('assets/icons/icon-192.png')}"`);
-html = html.replace(/<link rel="manifest"[^>]*>\n?/, '');
+html = html.replace(/<link rel="manifest"[^>]*>\n?/, `<script>window.__BUSTAN_ICONS__={a:"data:image/png;base64,${b64('assets/icons/icon-192.png')}",b:"data:image/png;base64,${b64('assets/icons/icon-512.png')}"};</script>\n`);
 
 fs.mkdirSync(OUT, { recursive: true });
 fs.writeFileSync(path.join(OUT, 'index.html'), html);
@@ -36,7 +36,7 @@ fs.writeFileSync(path.join(OUT, 'index.html'), html);
 // Service Worker مبسّط للملف الواحد
 const sw = `/* Service Worker — يحفظ الصفحة الوحيدة ليعمل التطبيق دون إنترنت. ارفع VERSION عند كل تحديث. */
 'use strict';
-const VERSION = '7.3.0';
+const VERSION = '7.4.0';
 const CACHE = 'bustan-v' + VERSION;
 const FILES = ['./', './index.html'];
 self.addEventListener('install', (e) => {

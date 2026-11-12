@@ -306,6 +306,9 @@
   function gearIcon() {
     return svg('0 0 100 100', '<path d="M42 8h16l3 12q6 2 11 6l12-4 8 14-9 9q1 6 0 12l9 9-8 14-12-4q-5 4-11 6l-3 12H42l-3-12q-6-2-11-6l-12 4-8-14 9-9q-1-6 0-12l-9-9 8-14 12 4q5-4 11-6z" fill="#8FA0D8" stroke="#5B6BA8" stroke-width="4" stroke-linejoin="round"/><circle cx="50" cy="50" r="15" fill="#fff" stroke="#5B6BA8" stroke-width="4"/>', 'tool-svg');
   }
+  function installIconFn() {
+    return svg('0 0 100 100', '<rect x="26" y="6" width="48" height="88" rx="10" fill="#fff" stroke="#fff" stroke-width="2"/><rect x="32" y="16" width="36" height="62" rx="4" fill="#5CC8FF"/><path d="M50 26V58M38 48L50 60L62 48" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="50" cy="86" r="3.5" fill="#8FA0D8"/>', 'tool-svg');
+  }
   function saveIcon() {
     return svg('0 0 100 100', '<rect x="10" y="16" width="80" height="68" rx="9" fill="#FAFCFF" stroke="#8E5CF0" stroke-width="6"/><path d="M16 74L38 48L54 64L66 52L84 74Z" fill="#2DBE7E"/><circle cx="70" cy="34" r="9" fill="#FFD34E"/><path d="M50 90v-10M44 86h12" stroke="#F2658E" stroke-width="6" stroke-linecap="round"/>', 'tool-svg');
   }
@@ -592,6 +595,9 @@
       '<g transform="translate(10 12) scale(.26)"><circle cx="50" cy="55" r="36" fill="#fff" stroke="#D5CEEA" stroke-width="3"/><ellipse cx="35" cy="22" rx="9" ry="22" fill="#fff" stroke="#D5CEEA" stroke-width="3"/><ellipse cx="65" cy="22" rx="9" ry="22" fill="#fff" stroke="#D5CEEA" stroke-width="3"/></g>' +
       '<path d="M76 76Q88 66 86 82Q80 92 70 84Z" fill="#FF8A3D"/>';
   };
+  GAME_ICONS.stories = function () {
+    return ('<path d="M8 22Q30 12 50 24Q70 12 92 22V82Q70 72 50 84Q30 72 8 82Z" fill="#fff" stroke="#8E5CF0" stroke-width="5" stroke-linejoin="round"/><path d="M50 24V84" stroke="#8E5CF0" stroke-width="4"/><circle cx="30" cy="42" r="8" fill="#FFD34E"/><path d="M16 70L28 56L40 68L36 74H16Z" fill="#2DBE7E"/><path d="M60 40H82M60 52H82M60 64H76" stroke="#B9A6F0" stroke-width="4" stroke-linecap="round"/>');
+  };
   GAME_ICONS.gallery = function () {
     return '<rect x="10" y="14" width="80" height="68" rx="8" fill="#FAFCFF" stroke="#8E5CF0" stroke-width="6"/><path d="M16 74L38 48L54 64L66 52L84 74Z" fill="#2DBE7E"/><circle cx="70" cy="34" r="9" fill="#FFD34E"/>' +
       '<path d="M28 90H72" stroke="#8E5CF0" stroke-width="6" stroke-linecap="round"/>';
@@ -657,7 +663,7 @@
     house: house,
     replayIcon: replayIcon,
     pauseIcon: pauseIcon,
-    moonBtn: moonIcon, sunBtn: sunIcon, full: fullIcon, dice: diceIcon, toolMix: mixIcon, toolSize: sizeIcon, toolErase: eraserIcon, toolClear: broomIcon, toolSave: saveIcon, gear: gearIcon, trash: trashIcon,
+    moonBtn: moonIcon, sunBtn: sunIcon, full: fullIcon, dice: diceIcon, toolMix: mixIcon, toolSize: sizeIcon, toolErase: eraserIcon, toolClear: broomIcon, toolSave: saveIcon, installIcon: installIconFn, gear: gearIcon, trash: trashIcon,
     check: check,
     playIcon: playIcon,
     bulb: bulb,
