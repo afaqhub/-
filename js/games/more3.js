@@ -208,11 +208,12 @@
     (async function watch() {
       while (alive() && cur < steps.length) {
         await ctx.sleep(1000); if (ctx.paused || busy) continue;
+        if (cur >= steps.length || !target()) break;
         idle++;
         if (idle === 6) { target().classList.add('pulse-hint'); errors++; }
         if (idle >= 12 || (demo && idle >= 2)) {
-          var t = target(), c = kit.center(t, ctx.stage), hd = kit.hand(ctx.stage, c.x, c.y + c.h * 0.1);
-          await ctx.sleep(600); await hd.tap(); hd.el.remove(); idle = 0; if (!busy && cur < steps.length) act();
+          var t = target(); if (!t) break; var c = kit.center(t, ctx.stage), hd = kit.hand(ctx.stage, c.x, c.y + c.h * 0.1);
+          await ctx.sleep(600); await hd.tap(); hd.el.remove(); idle = 0; if (cur >= steps.length) break; if (!busy && cur < steps.length) act();
         }
       }
     })();
