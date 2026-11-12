@@ -1418,6 +1418,13 @@ html.night .tabbar { background: rgba(30, 36, 90, .75); } html.night .tab-btn { 
 .rest-btn { position: relative; overflow: hidden; min-width: 220px; min-height: max(72px, var(--tap)); padding: 8px 22px; border: 0; border-radius: 999px; background: linear-gradient(135deg, #B79BFF, #8E5CF0); color: #fff; box-shadow: 0 6px 0 #6B3CC9; font-family: inherit; font-size: 21px; font-weight: 800; cursor: pointer; } .rest-btn.alt { background: linear-gradient(135deg, #3FDCBC, #17A98B); box-shadow: 0 6px 0 #0B8269; } .rest-btn.hold { background: #FFB84E; box-shadow: 0 6px 0 #C9611F; color: var(--night); }
 .rest-btn .pb-fill { position: absolute; inset: 0; background: rgba(255, 255, 255, .5); transform: scaleX(0); transform-origin: 0 50%; } .rest-btn.holding .pb-fill { animation: pbFill 3s linear forwards; } .rest-btn b { position: relative; z-index: 1; }
 .timer-toast { position: fixed; z-index: 350; left: 50%; bottom: 110px; transform: translateX(-50%); background: #fff; padding: 12px 22px; border-radius: 999px; font-size: 20px; font-weight: 800; color: var(--night); box-shadow: 0 6px 0 #C9B6F5, 0 10px 20px rgba(0, 0, 0, .2); direction: rtl; white-space: nowrap; }
+.st-bub.stack { transform: translateX(-50%); padding: 6px 12px 6px 12px; font-size: clamp(13px, 3.1vw, 19px); line-height: 1.4; } .st-bub.stack::after { bottom: -10px; }
+.st-bn { position: absolute; top: -11px; inset-inline-start: -8px; width: 26px; height: 26px; border-radius: 50%; background: #8E5CF0; color: #fff; font-style: normal; font-weight: 800; font-size: 16px; display: grid; place-items: center; box-shadow: 0 2px 0 #6B3CC9; border: 2px solid #fff; direction: rtl; }
+.st-scene { container-type: inline-size; }
+.st-bub { font-size: clamp(11px, 4.4cqw, 21px) !important; padding: .35em .7em !important; line-height: 1.4 !important; border-radius: 1em !important; }
+.st-bub.stack { font-size: clamp(11px, 4cqw, 19px) !important; }
+.st-says { position: absolute; left: 0; right: 0; top: 3%; z-index: 6; display: flex; flex-direction: column; gap: 12px; pointer-events: none; }
+.st-bub.stack { position: relative !important; width: 60%; top: auto !important; bottom: auto !important; }
 
 </style>
 </head>
@@ -8181,6 +8188,11 @@ html.night .tabbar { background: rgba(30, 36, 90, .75); } html.night .tab-btn { 
     pad: sv('<rect x="10" y="78" width="80" height="12" rx="5" fill="#8FA0D8"/><path d="M24 78V34M76 78V34M24 46H76M24 62H76" stroke="#6B7BB8" stroke-width="5" stroke-linecap="round"/>'),
     blocks: sv('<rect x="10" y="56" width="36" height="36" rx="5" fill="#F2658E"/><rect x="50" y="56" width="36" height="36" rx="5" fill="#5CC8FF"/><rect x="28" y="20" width="36" height="36" rx="5" fill="#FFD34E"/>'),
     basket: sv('<path d="M10 40H90L80 90H20Z" fill="#E9B068" stroke="#C98A3F" stroke-width="5" stroke-linejoin="round"/><path d="M26 40V90M42 40V90M58 40V90M74 40V90" stroke="#C98A3F" stroke-width="3"/>'),
+    slide: sv('<path d="M10 92V18M28 92V18M10 34H28M10 52H28M10 70H28" stroke="#8FA0D8" stroke-width="5" stroke-linecap="round"/><path d="M30 20H46Q82 30 94 84L80 86Q70 46 46 36H30Z" fill="#FFC83D" stroke="#E2A21B" stroke-width="3" stroke-linejoin="round"/>'),
+    tower: sv('<rect x="30" y="72" width="40" height="22" rx="4" fill="#F2658E"/><rect x="30" y="50" width="40" height="22" rx="4" fill="#5CC8FF"/><rect x="30" y="28" width="40" height="22" rx="4" fill="#FFD34E"/><rect x="30" y="6" width="40" height="22" rx="4" fill="#2DBE7E"/>'),
+    pile: sv('<rect x="8" y="70" width="30" height="24" rx="4" fill="#F2658E" transform="rotate(-14 23 82)"/><rect x="40" y="76" width="30" height="20" rx="4" fill="#5CC8FF" transform="rotate(10 55 86)"/><rect x="62" y="64" width="28" height="24" rx="4" fill="#FFD34E" transform="rotate(24 76 76)"/><rect x="24" y="54" width="26" height="20" rx="4" fill="#2DBE7E" transform="rotate(-30 37 64)"/>'),
+    vase: sv('<path d="M34 90H66L72 56Q76 44 62 38V28H38V38Q24 44 28 56Z" fill="#5CC8FF" stroke="#2468D1" stroke-width="4" stroke-linejoin="round"/><path d="M50 28Q40 10 30 14M50 28Q58 6 70 12" stroke="#2DBE7E" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="30" cy="14" r="7" fill="#F2658E"/><circle cx="70" cy="12" r="7" fill="#FFD34E"/>'),
+    vaseBroken: sv('<path d="M10 90L24 60L36 84Z" fill="#5CC8FF" stroke="#2468D1" stroke-width="3" stroke-linejoin="round"/><path d="M40 92L52 56L66 88Z" fill="#5CC8FF" stroke="#2468D1" stroke-width="3" stroke-linejoin="round"/><path d="M68 90L80 70L92 92Z" fill="#5CC8FF" stroke="#2468D1" stroke-width="3" stroke-linejoin="round"/><circle cx="34" cy="50" r="6" fill="#F2658E"/><circle cx="76" cy="58" r="6" fill="#FFD34E"/>'),
     shelf: sv('<rect x="6" y="14" width="88" height="10" rx="3" fill="#B67B4D"/><rect x="6" y="52" width="88" height="10" rx="3" fill="#B67B4D"/><rect x="6" y="88" width="88" height="8" rx="3" fill="#B67B4D"/><rect x="6" y="14" width="8" height="82" fill="#8A5A33"/><rect x="86" y="14" width="8" height="82" fill="#8A5A33"/>')
   };
   function face(kind) {   // وجه دائري: سعيد / حزين / متعجب
@@ -8322,6 +8334,106 @@ html.night .tabbar { background: rgba(30, 36, 90, .75); } html.night .tab-btn { 
         { t: 'talk', q: 'متى نغلق الصنبور؟ ولماذا نحافظ على الماء؟' }
       ],
       mission: 'أغلق الصنبور اليوم أثناء وضع الصابون على يديك.'
+    },
+    {
+      id: 'turn', title: 'لكل واحد دور', cover: ['svg:slide', 'duck'], value: 'انتظار الدور', sticker: 'صديق صبور', bgc: '#FFC83D',
+      tip: 'اقرؤوا عبارة «وأنا أيضًا!» بنبرة متسرّعة، ثم «ما رأيكما أن ينتظر كل واحد دوره؟» بنبرة هادئة. دعوا الطفل يضغط الأرنب ثم البطة لينزلقا بالدور.',
+      why: 'حين ننتظر دورنا يلعب الجميع بسلام، ونصير أحب إلى أصدقائنا.',
+      scenes: [
+        { bg: 'day', text: 'وصل الأرنب والبطة إلى الحديقة، وكلاهما يريد الزحليقة.', say: [{ w: 1, t: 'أريد أن ألعب أولًا!' }, { w: 2, t: 'وأنا أيضًا!' }],
+          ch: [{ k: 'svg:slide', x: 52, y: 4, s: 30 }, { k: 'rabbit', x: 16, y: 5, s: 22, tilt: 8, eff: ['bang'] }, { k: 'duck', x: 88, y: 5, s: 18, tilt: -8, eff: ['bang'] }] },
+        { bg: 'day', text: 'نظرا إلى بعضهما، ولم يعرفا من يبدأ.', say: [{ w: 3, t: 'ما رأيكما أن ينتظر كل واحد دوره؟' }],
+          ch: [{ k: 'svg:slide', x: 52, y: 4, s: 26 }, { k: 'rabbit', x: 14, y: 5, s: 20, eff: ['q'] }, { k: 'duck', x: 88, y: 5, s: 16, eff: ['q'] }, { k: 'turtle', x: 36, y: 4, s: 18, fx: 'hop' }] },
+        { bg: 'day', text: 'اتفقا أن يبدأ الأرنب، وتنتظر البطة.', say: [{ w: 1, t: 'سأبدأ أنا، ثم يأتي دورك يا بطة.' }],
+          ch: [{ k: 'svg:slide', x: 54, y: 4, s: 30 }, { k: 'rabbit', x: 40, y: 34, s: 15, tilt: 25, tap: 'whoosh', note: 'اضغط الأرنب لينزلق' }, { k: 'duck', x: 12, y: 5, s: 18, fx: 'sway' }] },
+        { bg: 'day', text: 'جاء دور البطة، وصفّق الأرنب لها.', say: [{ w: 2, t: 'شكرًا لأنك انتظرت دوري!' }],
+          ch: [{ k: 'svg:slide', x: 54, y: 4, s: 30 }, { k: 'duck', x: 40, y: 34, s: 14, tilt: 25, tap: 'whoosh', note: 'اضغط البطة لتنزلق' }, { k: 'rabbit', x: 88, y: 5, s: 20, eff: ['joy'] }] },
+        { bg: 'evening', text: 'ثم لعب الأصدقاء جميعًا بفرح.',
+          ch: [{ k: 'rabbit', x: 22, y: 5, s: 22, fx: 'hop', eff: ['joy'] }, { k: 'turtle', x: 50, y: 4, s: 18, fx: 'hop' }, { k: 'duck', x: 78, y: 5, s: 20, fx: 'hop', eff: ['joy'] }] }
+      ],
+      acts: [
+        { t: 'pick', q: 'من لعب أولًا؟', opts: [{ k: 'rabbit', ok: 1 }, { k: 'duck' }], hint: 'اتفقا أن يبدأ صاحب الأذنين الطويلتين.' },
+        { t: 'pick', q: 'ماذا فعل الأرنب حين جاء دور البطة؟', opts: [{ k: 'heart', t: 'صفّق لها وانتظر', ok: 1 }, { k: 'svg:slide', t: 'أخذ مكانها' }], hint: 'الصديق الطيب يفرح لصديقه.' },
+        { t: 'feel', q: 'كيف شعرت البطة لمّا انتظر الأرنب دورها؟', ans: 'happy' },
+        { t: 'order', q: 'رتّب القصة:', items: [{ k: 'svg:slide', t: 'اختلفا على الزحليقة' }, { k: 'turtle', t: 'اقترحت السلحفاة الانتظار' }, { k: 'heart', t: 'لعبا بالدور' }] },
+        { t: 'talk', q: 'متى انتظرتَ دورك؟ وماذا فعلت وأنت تنتظر؟' }
+      ],
+      mission: 'اليوم انتظر دورك في اللعب أو الكلام، وقل لمن ينتظرك: تفضّل.'
+    },
+    {
+      id: 'sorry', title: 'آسف، سأصلح ما فعلت', cover: ['svg:tower', 'fox'], value: 'الاعتذار وإصلاح الخطأ', sticker: 'صديق شجاع', bgc: '#FF9A5C',
+      tip: 'اقرؤوا «أوه! لم أنتبه!» بدهشة، و«أنا آسف» بصوت صادق هادئ. اسألوا الطفل: ماذا نفعل بعد أن نقول آسف؟',
+      why: 'إذا أخطأنا دون قصد نعتذر، ونساعد في إصلاح ما حدث؛ فالاعتذار بالكلام والفعل.',
+      scenes: [
+        { bg: 'room', text: 'كان الدب يبني برجًا عاليًا من المكعبات.', say: [{ w: 0, t: 'ما أجمل برجي!' }],
+          ch: [{ k: 'bear', x: 28, y: 5, s: 30, fx: 'hop', eff: ['joy'] }, { k: 'svg:tower', x: 70, y: 4, s: 22 }] },
+        { bg: 'room', text: 'جاء الثعلب مسرعًا فاصطدم بالبرج دون قصد!', say: [{ w: 1, t: 'أوه! لم أنتبه!' }],
+          ch: [{ k: 'svg:pile', x: 74, y: 4, s: 24 }, { k: 'fox', x: 50, y: 5, s: 26, tilt: 22, eff: ['bang'] }, { k: 'bear', x: 20, y: 5, s: 26, eff: ['sad'] }] },
+        { bg: 'room', text: 'توقف الثعلب ونظر إلى الدب الحزين.', say: [{ w: 0, t: 'أنا آسف يا دبدوب، لم أقصد. هل أساعدك؟' }],
+          ch: [{ k: 'fox', x: 30, y: 5, s: 28, eff: ['sweat'] }, { k: 'bear', x: 68, y: 5, s: 28, eff: ['sad'] }, { k: 'svg:pile', x: 90, y: 4, s: 14 }] },
+        { bg: 'room', text: 'ابتسم الدب، وبدآ معًا يجمعان المكعبات.', say: [{ w: 1, t: 'شكرًا! هيا نبنيه من جديد.' }],
+          ch: [{ k: 'svg:pile', x: 50, y: 4, s: 22, tap: 'place', note: 'اضغط لترتيبها' }, { k: 'fox', x: 20, y: 5, s: 24, hold: 0, eff: ['effort'] }, { k: 'bear', x: 80, y: 5, s: 24, flip: true, hold: 0 }] },
+        { bg: 'room', text: 'وعاد البرج جميلًا، وفرح الصديقان.', say: [{ w: 0, t: 'سأنتبه أكثر في المرة القادمة.' }],
+          ch: [{ k: 'fox', x: 24, y: 5, s: 26, fx: 'hop', eff: ['joy'] }, { k: 'svg:tower', x: 52, y: 4, s: 24 }, { k: 'bear', x: 80, y: 5, s: 26, fx: 'hop' }] }
+      ],
+      acts: [
+        { t: 'pick', q: 'ماذا حدث للبرج؟', opts: [{ k: 'svg:pile', t: 'سقط', ok: 1 }, { k: 'svg:tower', t: 'بقي عاليًا' }], hint: 'اصطدم به الثعلب فتساقطت المكعبات.' },
+        { t: 'pick', q: 'ماذا قال الثعلب للدب؟', opts: [{ k: 'heart', t: 'أنا آسف وسأساعدك', ok: 1 }, { k: 'tree', t: 'ليس خطئي' }], hint: 'الثعلب كان لطيفًا وصادقًا.' },
+        { t: 'feel', q: 'كيف شعر الدب بعد اعتذار الثعلب؟', ans: 'happy' },
+        { t: 'order', q: 'رتّب القصة:', items: [{ k: 'svg:tower', t: 'بنى الدب البرج' }, { k: 'svg:pile', t: 'سقط البرج' }, { k: 'heart', t: 'أصلحاه معًا' }] },
+        { t: 'talk', q: 'متى قلتَ «آسف» لأحد؟ وماذا فعلتَ بعدها؟' }
+      ],
+      mission: 'إذا أخطأتَ مع أحد اليوم، قل: أنا آسف، واسأله: كيف أساعدك؟'
+    },
+    {
+      id: 'truth', title: 'الإناء المكسور', cover: ['svg:vase', 'owl'], value: 'الصدق', sticker: 'صديق صادق', bgc: '#7C8CF0',
+      tip: 'اقرؤوا مشهد الاختباء بصوت خافت يوحي بالخوف، ثم ارفعوا الصوت بفرح عند «شكرًا لأنك صدقت!». ناقشوا: لماذا ارتاح الثعلب بعد قول الحقيقة؟',
+      why: 'قد نخاف حين نخطئ، لكن قول الحقيقة أجمل وأريح، والناس يحبون الصادق ويثقون به.',
+      scenes: [
+        { bg: 'room', text: 'كان الثعلب يلعب بالكرة داخل البيت.', say: [{ w: 0, t: 'ما أمتع هذه الكرة!' }],
+          ch: [{ k: 'fox', x: 28, y: 5, s: 28, fx: 'hop' }, { k: 'ball', x: 52, y: 20, s: 12, fx: 'hop' }, { k: 'svg:vase', x: 84, y: 22, s: 14 }, { k: 'svg:shelf', x: 84, y: 4, s: 22 }] },
+        { bg: 'room', text: 'فارتطمت الكرة بالإناء… وانكسر!', say: [{ w: 0, t: 'يا إلهي!' }],
+          ch: [{ k: 'fox', x: 30, y: 5, s: 28, eff: ['bang'] }, { k: 'ball', x: 56, y: 6, s: 12 }, { k: 'svg:vaseBroken', x: 82, y: 4, s: 22 }] },
+        { bg: 'day', text: 'خاف الثعلب، فاختبأ خلف الشجرة.', say: [{ w: 0, t: 'آه… ماذا أفعل؟' }],
+          ch: [{ k: 'fox', x: 48, y: 5, s: 22, eff: ['sweat'] }, { k: 'tree', x: 56, y: 5, s: 34, fx: 'sway' }, { k: 'svg:vaseBroken', x: 16, y: 4, s: 14 }] },
+        { bg: 'day', text: 'جاءت البومة وسألت بلطف.', say: [{ w: 0, t: 'من كسر الإناء يا أصدقاء؟' }, { w: 1, t: 'أنا كسرته، وأنا آسف.' }],
+          ch: [{ k: 'owl', x: 26, y: 5, s: 26, fx: 'sway', eff: ['q'] }, { k: 'fox', x: 66, y: 5, s: 26, eff: ['sad'] }, { k: 'svg:vaseBroken', x: 90, y: 4, s: 14 }] },
+        { bg: 'evening', text: 'شكرت البومة الثعلب على صدقه، وأصلحا الإناء معًا.', say: [{ w: 0, t: 'شكرًا لأنك صدقت! ما أجمل الصدق.' }],
+          ch: [{ k: 'owl', x: 24, y: 5, s: 26, hold: 2, eff: ['joy'] }, { k: 'fox', x: 76, y: 5, s: 26, flip: true, hold: 2 }, { k: 'svg:vase', x: 50, y: 6, s: 18, tap: 'sparkle', note: 'اضغط الإناء' }] }
+      ],
+      acts: [
+        { t: 'pick', q: 'ماذا انكسر؟', opts: [{ k: 'svg:vase', ok: 1 }, { k: 'ball' }], hint: 'ارتطمت به الكرة وكان فوق الرف.' },
+        { t: 'pick', q: 'ماذا فعل الثعلب في النهاية؟', opts: [{ k: 'heart', t: 'قال الحقيقة', ok: 1 }, { k: 'tree', t: 'بقي مختبئًا' }], hint: 'خرج وقال: أنا كسرته.' },
+        { t: 'feel', q: 'كيف شعرت البومة من صدق الثعلب؟', ans: 'happy' },
+        { t: 'order', q: 'رتّب القصة:', items: [{ k: 'ball', t: 'لعب بالكرة' }, { k: 'svg:vaseBroken', t: 'انكسر الإناء' }, { k: 'heart', t: 'قال الحقيقة' }] },
+        { t: 'talk', q: 'ماذا تفعل لو كسرتَ شيئًا بالخطأ؟' }
+      ],
+      mission: 'قل الحقيقة اليوم حتى لو أخطأتَ؛ فالصدق يجعل الناس يحبونك.'
+    },
+    {
+      id: 'thanks', title: 'المظلة', cover: ['umbrella', 'fox'], value: 'الشكر والامتنان', sticker: 'صديق شاكر', bgc: '#6AD0A0',
+      tip: 'اقرؤوا «شكرًا… جزاك الله خيرًا» بدفء. دعوا الطفل يكررها معكم، وأخبروه أن «جزاك الله خيرًا» دعاء جميل لمن يساعدنا.',
+      why: 'حين يساعدنا أحد نقول له شكرًا ونفرح به، فالشكر يجعل القلوب قريبة. ونحمد الله على نعمه.',
+      scenes: [
+        { bg: 'day', text: 'نزل المطر، وأرنوب بلا مظلة.', say: [{ w: 1, t: 'يا لها من أمطار! أنا مبلل!' }],
+          ch: [{ k: 'cloud', x: 50, y: 56, s: 34, fx: 'sway' }, { k: 'rabbit', x: 50, y: 5, s: 28, eff: ['sad'] }, { k: 'rain', x: 80, y: 30, s: 14 }, { k: 'rain', x: 20, y: 28, s: 14 }] },
+        { bg: 'day', text: 'مرّ الثعلب ومعه مظلة، فرأى أرنوب.', say: [{ w: 0, t: 'تعال تحت مظلتي يا أرنوب!' }],
+          ch: [{ k: 'fox', x: 30, y: 5, s: 26, hold: 1, fx: 'hop' }, { k: 'umbrella', x: 48, y: 28, s: 20, fx: 'sway' }, { k: 'rabbit', x: 78, y: 5, s: 22, eff: ['sad'] }] },
+        { bg: 'day', text: 'وقف أرنوب تحت المظلة، وفرح كثيرًا.', say: [{ w: 1, t: 'شكرًا يا ثعلوب! جزاك الله خيرًا.' }, { w: 0, t: 'العفو يا صديقي!' }],
+          ch: [{ k: 'fox', x: 36, y: 5, s: 24, hold: 2 }, { k: 'umbrella', x: 52, y: 36, s: 28 }, { k: 'rabbit', x: 66, y: 5, s: 24, eff: ['joy'] }] },
+        { bg: 'morning', text: 'خرجت الشمس، فأراد أرنوب أن يشكر صديقه.', say: [{ w: 1, t: 'خذ هذه التفاحة هدية شكر.' }],
+          ch: [{ k: 'sun', x: 84, y: 54, s: 20, fx: 'spin' }, { k: 'rabbit', x: 30, y: 5, s: 26, hold: 1, eff: ['joy'] }, { k: 'apple', x: 52, y: 12, s: 12, tap: 'pop', note: 'اضغط التفاحة' }, { k: 'fox', x: 76, y: 5, s: 24, flip: true }] },
+        { bg: 'evening', text: 'ضحك الاثنان، وقال أرنوب: الحمد لله على الأصدقاء الطيبين.', say: [{ w: 0, t: 'الحمد لله على الأصدقاء الطيبين!' }],
+          ch: [{ k: 'rabbit', x: 30, y: 5, s: 28, fx: 'hop', eff: ['joy'] }, { k: 'heart', x: 52, y: 52, s: 12, fx: 'pop' }, { k: 'fox', x: 74, y: 5, s: 26, fx: 'hop' }] }
+      ],
+      acts: [
+        { t: 'pick', q: 'من أعطى أرنوب المظلة؟', opts: [{ k: 'fox', ok: 1 }, { k: 'owl' }], hint: 'جاء صديق برتقالي وله ذيل كبير.' },
+        { t: 'pick', q: 'ماذا قال أرنوب للثعلب؟', opts: [{ k: 'heart', t: 'شكرًا يا صديقي', ok: 1 }, { k: 'tree', t: 'لا شيء' }], hint: 'نقول كلمة جميلة لمن يساعدنا.' },
+        { t: 'feel', q: 'كيف شعر الثعلب حين شكره أرنوب؟', ans: 'happy' },
+        { t: 'order', q: 'رتّب القصة:', items: [{ k: 'rain', t: 'نزل المطر' }, { k: 'umbrella', t: 'أعطاه المظلة' }, { k: 'apple', t: 'أهداه تفاحة' }] },
+        { t: 'talk', q: 'من ساعدك اليوم؟ وماذا قلتَ له؟' }
+      ],
+      mission: 'قل «شكرًا، جزاك الله خيرًا» لشخص ساعدك اليوم.'
     }
   ];
   var BYID = {}; STORIES.forEach(function (s) { BYID[s.id] = s; });
@@ -8383,14 +8495,19 @@ html.night .tabbar { background: rgba(30, 36, 90, .75); } html.night .tab-btn { 
       arms += '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" stroke="' + col + '" stroke-width="' + sw + '" stroke-linecap="round"/><circle cx="' + x2 + '" cy="' + y2 + '" r="' + (sw * 0.85) + '" fill="' + col + '" stroke="#fff" stroke-width="0.7"/>';
     });
     if (arms) s.appendChild(h('div', { class: 'st-arms', html: '<svg viewBox="0 0 100 75" preserveAspectRatio="xMidYMid meet">' + arms + '</svg>' }));
-    if (withSay !== false) (p.say || []).forEach(function (b, bi) {
-      var c = chs[b.w] || { x: 50, y: 20, s: 20, k: 'rabbit' };
-      var left = Math.max(27, Math.min(73, c.x));
-      var top = c.y + c.s / 0.75;
-      var dx = (c.x - left) / 0.46;
-      var bub = h('div', { class: 'st-bub', style: { left: left + '%', bottom: Math.min(80, top + 3 + (p.say.length > 1 ? (bi % 2) * 14 : 0)) + '%', background: BCOL[c.k] || '#fff', '--dx': dx + '%' } }, h('span', { text: b.t }));
-      s.appendChild(bub);
-    });
+    if (withSay !== false) {
+      var says = p.say || [], many = says.length > 1, stack = many ? h('div', { class: 'st-says' }) : null;
+      says.forEach(function (b, bi) {
+        var c = chs[b.w] || { x: 50, y: 20, s: 20, k: 'rabbit' };
+        var left = many ? Math.max(34, Math.min(66, c.x)) : Math.max(27, Math.min(73, c.x));
+        var wPct = many ? 0.6 : 0.46;
+        var st = { left: left + '%', background: BCOL[c.k] || '#fff', '--dx': ((c.x - left) / wPct) + '%', animationDelay: (bi * 0.9) + 's' };
+        if (!many) st.bottom = Math.min(80, c.y + c.s / 0.75 + 3) + '%';
+        var bub = h('div', { class: 'st-bub' + (many ? ' stack' : ''), style: st }, many ? h('em', { class: 'st-bn', text: UI.num(bi + 1) }) : null, h('span', { text: b.t }));
+        (many ? stack : s).appendChild(bub);
+      });
+      if (stack) s.appendChild(stack);
+    }
     return s;
   }
 
