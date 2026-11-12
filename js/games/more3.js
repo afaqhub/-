@@ -303,11 +303,11 @@
       var was = down; down = false;
       if (was && !moved && ev === 'pointerup' && !busy) { var rc = cellAt(e); if (rc) stepToward(rc); }   // لمسة: خطوة واحدة نحو الخانة، ولا يخترق سياجاً
     }); });
-    function stepToward(rc) {
+    function stepToward(rc) {   // لمسة: يتحرك فقط إن كانت الخانة المجاورة المفتوحة مباشرة، وإلا يهتز الأرنب
       if (rc[0] === pos[0] && rc[1] === pos[1]) return;
       var dist = Math.abs(rc[0] - pos[0]) + Math.abs(rc[1] - pos[1]);
-      if (dist === 1 && !openDir(w, pos, rc)) { errors++; kit.wrong(bun); help(); return; }   // سياج مباشر: اهتزاز لطيف
-      var p = bfs(w, n, pos, rc); if (p && p.length > 1) step(p[1]);
+      if (dist === 1 && openDir(w, pos, rc)) { step(rc); return; }
+      errors++; kit.wrong(bun); help();
     }
     function help() {
       if (errors === 3) showHint();

@@ -6,7 +6,7 @@
   B.S = {
     appName: 'بستان الصغار',
 
-    zones: { solo: 'وحدي', together: 'معك', create: 'إبداع' },
+    zones: { all: 'الكل', solo: 'وحدي', together: 'مع أبي وأمي', create: 'إبداع' },
 
     games: {
       train: 'قطار الإشارة',

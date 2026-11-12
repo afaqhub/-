@@ -155,7 +155,7 @@
     ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (ev) { btn.addEventListener(ev, cancel); });
   }
 
-  var tabNow = 'solo';
+  var tabNow = 'all';
   function build() {
     var locked = B.storage.soloLocked();
     var logo = h('button', { class: 'logo-corner', type: 'button', 'aria-label': B.S.appName },
@@ -179,7 +179,7 @@
 
     var chips = chipsRow(locked);
     var zones = h('main', { class: 'zones scrollable', 'data-tab': tabNow }, h('div', { class: 'home-top' }, gardenRow(locked), chips), zone('solo', locked), zone('together', false), zone('create', false));
-    var tabbar = h('nav', { class: 'tabbar', role: 'tablist' }, ['solo', 'together', 'create'].map(function (id) {
+    var tabbar = h('nav', { class: 'tabbar', role: 'tablist' }, ['all', 'solo', 'together', 'create'].map(function (id) {
       var b = h('button', { class: 'tab-btn tab-' + id + (id === tabNow ? ' on' : ''), type: 'button', role: 'tab', 'data-tab': id, 'aria-label': B.S.zones[id] },
         h('span', { class: 'tab-ic', html: art.zoneBadge(id) }), h('b', { text: B.S.zones[id] }));
       b.addEventListener('click', function () { setTab(id); });

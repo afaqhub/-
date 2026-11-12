@@ -602,8 +602,11 @@
     if (zone === 'solo') {
       return svg('0 0 100 100', '<g transform="translate(6 6) scale(.88)">' + ANIMALS.bear() + '</g>', 'zone-badge');
     }
-    if (zone === 'create') {
-      return svg('0 0 100 100', '<path d="M50 6q7 34 44 44q-37 10-44 44q-7-34-44-44q37-10 44-44z" fill="#FFD34E" stroke="#E2A21B" stroke-width="4" stroke-linejoin="round"/><circle cx="80" cy="18" r="7" fill="#F2658E"/><circle cx="18" cy="80" r="6" fill="#5CC8FF"/>', 'zone-badge');
+    if (zone === 'create') { // نجمة ثمانية (خاتم) بسيطة
+      return svg('0 0 100 100', '<rect x="16" y="16" width="68" height="68" rx="5" fill="#FFD34E" stroke="#E2A21B" stroke-width="4" stroke-linejoin="round"/><rect x="16" y="16" width="68" height="68" rx="5" fill="#FFD34E" stroke="#E2A21B" stroke-width="4" stroke-linejoin="round" transform="rotate(45 50 50)"/><circle cx="50" cy="50" r="13" fill="#F2658E"/><circle cx="50" cy="50" r="5" fill="#fff"/>', 'zone-badge');
+    }
+    if (zone === 'all') { // كل الألعاب: أربع مربعات ملوّنة
+      return svg('0 0 100 100', '<rect x="10" y="10" width="38" height="38" rx="10" fill="#3FDCBC"/><rect x="52" y="10" width="38" height="38" rx="10" fill="#FF93B3"/><rect x="10" y="52" width="38" height="38" rx="10" fill="#B79BFF"/><rect x="52" y="52" width="38" height="38" rx="10" fill="#FFC83D"/>', 'zone-badge');
     }
     return svg('0 0 120 100',
       '<g transform="translate(2 2) scale(.86)">' + ANIMALS.rabbit() + '</g>' +

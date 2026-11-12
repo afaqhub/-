@@ -690,3 +690,6 @@ html.night::after { content: ''; position: fixed; inset: 0; z-index: 900; pointe
 .gl-yes, .gl-no { min-width: 120px; min-height: 80px; border: 0; border-radius: 20px; font-family: inherit; font-size: 20px; font-weight: 800; cursor: pointer; } .gl-yes { background: #FFE1A8; box-shadow: 0 5px 0 #E2A21B; } .gl-no { background: #CFF5E2; box-shadow: 0 5px 0 #2DBE7E; }
 .tab-btn { min-height: max(76px, var(--tap)); }
 @media (orientation: landscape) { .tabbar { width: calc(var(--tap) + 24px); } .tab-btn { min-height: max(84px, var(--tap)); } .zones { inset: calc(var(--tap) * .6 + 24px + var(--safe-t)) calc(var(--tap) + 44px + var(--safe-r)) calc(10px + var(--safe-b)) calc(14px + var(--safe-l)) !important; } }
+.tab-btn b { font-size: 16px; line-height: 1.1; text-align: center; } .tab-btn { padding: 2px; min-width: 0; }
+.tab-all.on { background: linear-gradient(160deg, #6AB7FF, #3D8BFD); }
+.tab-all .tab-ic svg { height: 32px; }
