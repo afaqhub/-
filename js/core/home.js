@@ -52,7 +52,7 @@
       ),
       zoneId === 'solo'
         ? h('div', { class: 'groups' }, ['watch', 'num', 'move', 'know'].map(function (cat) {
-            return h('div', { class: 'group' },
+            return h('div', { class: 'group g-' + cat },
               h('div', { class: 'group-label', text: S.cats[cat] }),
               h('div', { class: 'tiles' }, items.filter(function (c) { return c.cat === cat; }).map(function (it) { return tile(it, locked); })));
           }))
@@ -191,11 +191,20 @@
       h('div', { class: 'home-cloud c1', html: art.cloud() }),
       h('div', { class: 'home-cloud c2', html: art.cloud() }),
       h('div', { class: 'home-cloud c3', html: art.cloud() }),
+      h('div', { class: 'home-cloud c4', html: art.cloud() }),
       h('div', { class: 'home-balloon hb1', html: art.balloon('#F2658E', '#FFD34E') }),
       h('div', { class: 'home-balloon hb2', html: art.balloon('#8E5CF0', '#5CC8FF') }),
       h('div', { class: 'home-bird', html: art.bird('#FF8A3D') }),
-      h('div', { class: 'home-hills far', html: art.sceneTile('far', vp.W, Math.round(vp.H * 0.38)) }),
-      h('div', { class: 'home-hills mid', html: art.sceneTile('mid', vp.W, Math.round(vp.H * 0.3)) })
+      h('div', { class: 'home-bird b2', html: art.bird('#8E5CF0') }),
+      h('div', { class: 'home-hills far', html: art.sceneTile('gfar', vp.W, Math.round(vp.H * 0.4)) }),
+      h('div', { class: 'sc-windmill', html: B.pics.draw('windmill') }),
+      h('div', { class: 'home-hills mid', html: art.sceneTile('gmid', vp.W, Math.round(vp.H * 0.3)) }),
+      h('div', { class: 'sc-house', html: B.pics.draw('house') }),
+      h('div', { class: 'sc-bunny', html: B.pics.draw('rabbit') }),
+      h('div', { class: 'home-hills fore', html: art.sceneTile('fore', vp.W, Math.round(vp.H * 0.14)) }),
+      h('div', { class: 'sc-fly bf1', html: B.pics.draw('butterfly') }),
+      h('div', { class: 'sc-fly bf2', html: B.pics.draw('butterfly') }),
+      h('div', { class: 'sc-fly bee', html: B.pics.draw('bee') })
     );
 
     var chips = chipsRow(locked);

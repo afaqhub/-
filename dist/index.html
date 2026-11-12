@@ -1230,6 +1230,44 @@ html.night::after { content: ''; position: fixed; inset: 0; z-index: 900; pointe
 .tabbar { gap: 4px; padding-inline: 6px; } .tab-btn { min-width: 72px; } .parent-btn.in-tabbar { flex: 0 0 54px; } .parent-btn .pb-tx { font-size: 12px; }
 @media (orientation: landscape) { .tab-btn { min-width: 0; } .parent-btn .pb-tx { font-size: 16px; } }
 
+/* ═════════ بستان غني + حاويات زجاجية (7.2) ═════════ */
+.home { background: linear-gradient(180deg, #74C7F4 0%, #AFE0FF 34%, #DFF3FF 58%, #F2FADD 100%); }
+.home-hills.far { height: 40%; } .home-hills.mid { height: 30%; z-index: 1; } .home-hills.fore { height: 14%; z-index: 2; transform-origin: 50% 100%; animation: foreSway 7s ease-in-out infinite; }
+@keyframes foreSway { 0%, 100% { transform: skewX(0deg); } 50% { transform: skewX(.7deg); } }
+.home-cloud.c4 { top: 36%; width: clamp(70px, 12vmin, 120px); animation-duration: 130s; animation-delay: -60s; opacity: .7; }
+.home-bird.b2 { top: 30%; width: clamp(20px, 3.6vmin, 32px); animation-duration: 36s; animation-delay: -14s; }
+.sc-windmill { position: absolute; right: 7%; bottom: 33%; width: clamp(56px, 12vmin, 104px); z-index: 0; opacity: .95; }
+.sc-house { position: absolute; left: 4%; bottom: 20%; width: clamp(52px, 11vmin, 92px); z-index: 1; }
+.sc-bunny { position: absolute; right: 14%; bottom: 9%; width: clamp(36px, 7.5vmin, 62px); z-index: 1; animation: bunnyPeek 26s ease-in-out infinite; }
+@keyframes bunnyPeek { 0%, 68% { transform: translateY(46px); opacity: 0; } 72%, 86% { transform: translateY(0); opacity: 1; } 92%, 100% { transform: translateY(46px); opacity: 0; } }
+.sc-fly { position: absolute; left: 0; top: 0; width: clamp(26px, 5.2vmin, 46px); z-index: 3; will-change: transform; }
+.sc-fly svg { width: 100%; height: auto; overflow: visible; animation: wingFlap .32s ease-in-out infinite alternate; transform-origin: 50% 60%; }
+@keyframes wingFlap { from { transform: scaleX(.78); } to { transform: scaleX(1); } }
+.sc-fly.bf1 { animation: flyA 42s linear infinite; } .sc-fly.bf2 { width: clamp(20px, 4vmin, 36px); animation: flyB 52s linear infinite; animation-delay: -20s; } .sc-fly.bee { width: clamp(22px, 4.2vmin, 38px); animation: flyC 34s linear infinite; animation-delay: -9s; }
+@keyframes flyA { 0% { transform: translate(-12vw, 62vh); } 25% { transform: translate(28vw, 48vh); } 50% { transform: translate(55vw, 66vh); } 75% { transform: translate(82vw, 50vh); } 100% { transform: translate(112vw, 58vh); } }
+@keyframes flyB { 0% { transform: translate(112vw, 40vh); } 30% { transform: translate(70vw, 55vh); } 60% { transform: translate(36vw, 42vh); } 100% { transform: translate(-12vw, 60vh); } }
+@keyframes flyC { 0% { transform: translate(-10vw, 74vh); } 20% { transform: translate(20vw, 70vh); } 22% { transform: translate(22vw, 72vh); } 45% { transform: translate(52vw, 68vh); } 47% { transform: translate(50vw, 70vh); } 75% { transform: translate(86vw, 72vh); } 100% { transform: translate(112vw, 70vh); } }
+@media (prefers-reduced-motion: reduce) { .sc-fly, .sc-bunny, .home-hills.fore { animation: none !important; } .sc-fly svg { animation: none !important; } .sc-bunny { opacity: 1; transform: none; } }
+
+/* حاويات: لوحة زجاجية خفيفة لكل مجموعة، بشريط عنوان ملوّن بارز */
+.zones .zone { background: none !important; border: 0 !important; box-shadow: none !important; padding: 0 !important; backdrop-filter: none !important; }
+.zones .zone-head { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 14px !important; padding: 3px 18px 3px 5px; border-radius: 999px; background: linear-gradient(160deg, var(--z1), var(--z2)); box-shadow: 0 5px 0 var(--zd), 0 9px 14px rgba(31, 42, 90, .2); }
+.zones .zone-badge { width: 44px !important; height: 38px !important; border-radius: 16px !important; } .zones .zone-name { font-size: 24px !important; }
+.zones .groups { gap: 20px; }
+.zones .group, .zones .zone-together > .tiles, .zones .zone-create > .tiles {
+  position: relative; background: linear-gradient(160deg, rgba(255, 255, 255, .46), rgba(255, 255, 255, .24)); backdrop-filter: blur(2.5px) saturate(1.3); -webkit-backdrop-filter: blur(2.5px) saturate(1.3);
+  border: 2px solid rgba(255, 255, 255, .85); border-radius: 28px; padding: 22px 10px 14px; box-shadow: 0 8px 22px rgba(31, 42, 90, .14), inset 0 1px 0 rgba(255, 255, 255, .95); }
+.zones .zone-together > .tiles { --ga: #FF7FA6; --gd: #D14E78; margin-top: 4px; } .zones .zone-create > .tiles { --ga: #A07CF5; --gd: #6B3CC9; margin-top: 4px; }
+.g-watch { --ga: #8E5CF0; --gd: #6B3CC9; } .g-num { --ga: #FF8A3D; --gd: #C9611F; } .g-move { --ga: #2DBE7E; --gd: #1C8F5C; } .g-know { --ga: #3D8BFD; --gd: #2468D1; }
+.zones .group-label { position: absolute; top: -13px; inset-inline-start: 14px; margin: 0; padding: 3px 16px; font-size: 15px; background: var(--ga); color: #fff; box-shadow: 0 3px 0 var(--gd); text-shadow: 0 1px 0 rgba(0, 0, 0, .2); z-index: 1; }
+.zones .tile-art { box-shadow: 0 6px 0 var(--gd, #9FB3E0), 0 12px 16px rgba(31, 42, 90, .18) !important; }
+.zones .tile.pressed .tile-art, .zones .tile:active .tile-art { transform: translateY(5px); box-shadow: 0 1px 0 var(--gd, #9FB3E0) !important; }
+.zones .tile-name { color: var(--night) !important; text-shadow: 0 1px 0 rgba(255, 255, 255, .85) !important; }
+.tabbar { background: rgba(255, 255, 255, .72); backdrop-filter: blur(8px) saturate(1.2); -webkit-backdrop-filter: blur(8px) saturate(1.2); }
+html.night .zones .group, html.night .zones .zone-together > .tiles, html.night .zones .zone-create > .tiles { background: linear-gradient(160deg, rgba(30, 36, 90, .62), rgba(30, 36, 90, .4)); border-color: rgba(255, 255, 255, .22); }
+html.night .zones .tile-name { color: #fff !important; text-shadow: 0 1px 0 rgba(0, 0, 0, .5) !important; }
+html.night .tabbar { background: rgba(30, 36, 90, .75); } html.night .tab-btn { color: #cfd6ff; }
+
 </style>
 </head>
 <body>
@@ -2308,6 +2346,19 @@ html.night::after { content: ''; position: fixed; inset: 0; z-index: 900; pointe
       s += tree(w * 0.1, at(0.1), 1.1, '#2FA886') + tree(w * 0.17, at(0.17), 0.8, '#3DB993') +
         tree(w * 0.5, at(0.5), 1.25, '#2FA886') + bush(w * 0.68, at(0.68), 1.2, '#3DB993') +
         tree(w * 0.86, at(0.86), 0.95, '#2FA886') + bush(w * 0.33, at(0.33), 1, '#3DB993');
+    } else if (kind === 'gfar') {   // تلال بعيدة خضراء فاتحة بأشجار صغيرة
+      fn = hillFn(w, h * 0.78, [{ a: h * 0.42, k: 2, p: 0.6 }, { a: h * 0.12, k: 5, p: 2.0 }]);
+      s = '<path d="' + hillPath(w, h, fn) + '" fill="#BFEFB4"/>';
+      var af = function (f) { return fn(w * f) + 3; };
+      s += tree(w * 0.2, af(0.2), 0.55, '#9ADB93') + tree(w * 0.26, af(0.26), 0.45, '#8AD18A') + tree(w * 0.72, af(0.72), 0.6, '#9ADB93') + bush(w * 0.5, af(0.5), 0.7, '#8AD18A');
+    } else if (kind === 'gmid') {   // تلال أمامية بأشجار متنوعة وزهور
+      fn = hillFn(w, h * 0.9, [{ a: h * 0.4, k: 3, p: 1.7 }, { a: h * 0.1, k: 7, p: 0.4 }]);
+      s = '<path d="' + hillPath(w, h, fn) + '" fill="#79D679"/>';
+      var am = function (f) { return fn(w * f) + 4; };
+      s += tree(w * 0.07, am(0.07), 1.2, '#3FAE5E') + tree(w * 0.15, am(0.15), 0.85, '#5CC56E') + tree(w * 0.38, am(0.38), 0.9, '#F7A3C0') +
+        bush(w * 0.55, am(0.55), 1.1, '#3FAE5E') + tree(w * 0.64, am(0.64), 1.05, '#5CC56E') + tree(w * 0.93, am(0.93), 1.3, '#3FAE5E') + bush(w * 0.8, am(0.8), 0.9, '#58C46A');
+      var fc = ['#FFD34E', '#F2658E', '#FFFFFF', '#B79BFF', '#FF8A3D'];
+      for (var q = 0; q < 16; q++) { var fx = (0.03 + q * 0.061 + (q % 3) * 0.01); s += flower(w * fx, fn(w * fx) + 14 + (q % 3) * 7, fc[q % 5]); }
     } else if (kind === 'clouds') {
       var c = '<g transform="translate(%X %Y) scale(%S)">' + cloud().replace(/<svg[^>]*>|<\/svg>/g, '') + '</g>';
       s = c.replace('%X', w * 0.05).replace('%Y', h * 0.15).replace('%S', 0.9) +
@@ -3395,7 +3446,7 @@ html.night::after { content: ''; position: fixed; inset: 0; z-index: 900; pointe
       ),
       zoneId === 'solo'
         ? h('div', { class: 'groups' }, ['watch', 'num', 'move', 'know'].map(function (cat) {
-            return h('div', { class: 'group' },
+            return h('div', { class: 'group g-' + cat },
               h('div', { class: 'group-label', text: S.cats[cat] }),
               h('div', { class: 'tiles' }, items.filter(function (c) { return c.cat === cat; }).map(function (it) { return tile(it, locked); })));
           }))
@@ -3534,11 +3585,20 @@ html.night::after { content: ''; position: fixed; inset: 0; z-index: 900; pointe
       h('div', { class: 'home-cloud c1', html: art.cloud() }),
       h('div', { class: 'home-cloud c2', html: art.cloud() }),
       h('div', { class: 'home-cloud c3', html: art.cloud() }),
+      h('div', { class: 'home-cloud c4', html: art.cloud() }),
       h('div', { class: 'home-balloon hb1', html: art.balloon('#F2658E', '#FFD34E') }),
       h('div', { class: 'home-balloon hb2', html: art.balloon('#8E5CF0', '#5CC8FF') }),
       h('div', { class: 'home-bird', html: art.bird('#FF8A3D') }),
-      h('div', { class: 'home-hills far', html: art.sceneTile('far', vp.W, Math.round(vp.H * 0.38)) }),
-      h('div', { class: 'home-hills mid', html: art.sceneTile('mid', vp.W, Math.round(vp.H * 0.3)) })
+      h('div', { class: 'home-bird b2', html: art.bird('#8E5CF0') }),
+      h('div', { class: 'home-hills far', html: art.sceneTile('gfar', vp.W, Math.round(vp.H * 0.4)) }),
+      h('div', { class: 'sc-windmill', html: B.pics.draw('windmill') }),
+      h('div', { class: 'home-hills mid', html: art.sceneTile('gmid', vp.W, Math.round(vp.H * 0.3)) }),
+      h('div', { class: 'sc-house', html: B.pics.draw('house') }),
+      h('div', { class: 'sc-bunny', html: B.pics.draw('rabbit') }),
+      h('div', { class: 'home-hills fore', html: art.sceneTile('fore', vp.W, Math.round(vp.H * 0.14)) }),
+      h('div', { class: 'sc-fly bf1', html: B.pics.draw('butterfly') }),
+      h('div', { class: 'sc-fly bf2', html: B.pics.draw('butterfly') }),
+      h('div', { class: 'sc-fly bee', html: B.pics.draw('bee') })
     );
 
     var chips = chipsRow(locked);

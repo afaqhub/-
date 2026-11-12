@@ -419,6 +419,19 @@
       s += tree(w * 0.1, at(0.1), 1.1, '#2FA886') + tree(w * 0.17, at(0.17), 0.8, '#3DB993') +
         tree(w * 0.5, at(0.5), 1.25, '#2FA886') + bush(w * 0.68, at(0.68), 1.2, '#3DB993') +
         tree(w * 0.86, at(0.86), 0.95, '#2FA886') + bush(w * 0.33, at(0.33), 1, '#3DB993');
+    } else if (kind === 'gfar') {   // تلال بعيدة خضراء فاتحة بأشجار صغيرة
+      fn = hillFn(w, h * 0.78, [{ a: h * 0.42, k: 2, p: 0.6 }, { a: h * 0.12, k: 5, p: 2.0 }]);
+      s = '<path d="' + hillPath(w, h, fn) + '" fill="#BFEFB4"/>';
+      var af = function (f) { return fn(w * f) + 3; };
+      s += tree(w * 0.2, af(0.2), 0.55, '#9ADB93') + tree(w * 0.26, af(0.26), 0.45, '#8AD18A') + tree(w * 0.72, af(0.72), 0.6, '#9ADB93') + bush(w * 0.5, af(0.5), 0.7, '#8AD18A');
+    } else if (kind === 'gmid') {   // تلال أمامية بأشجار متنوعة وزهور
+      fn = hillFn(w, h * 0.9, [{ a: h * 0.4, k: 3, p: 1.7 }, { a: h * 0.1, k: 7, p: 0.4 }]);
+      s = '<path d="' + hillPath(w, h, fn) + '" fill="#79D679"/>';
+      var am = function (f) { return fn(w * f) + 4; };
+      s += tree(w * 0.07, am(0.07), 1.2, '#3FAE5E') + tree(w * 0.15, am(0.15), 0.85, '#5CC56E') + tree(w * 0.38, am(0.38), 0.9, '#F7A3C0') +
+        bush(w * 0.55, am(0.55), 1.1, '#3FAE5E') + tree(w * 0.64, am(0.64), 1.05, '#5CC56E') + tree(w * 0.93, am(0.93), 1.3, '#3FAE5E') + bush(w * 0.8, am(0.8), 0.9, '#58C46A');
+      var fc = ['#FFD34E', '#F2658E', '#FFFFFF', '#B79BFF', '#FF8A3D'];
+      for (var q = 0; q < 16; q++) { var fx = (0.03 + q * 0.061 + (q % 3) * 0.01); s += flower(w * fx, fn(w * fx) + 14 + (q % 3) * 7, fc[q % 5]); }
     } else if (kind === 'clouds') {
       var c = '<g transform="translate(%X %Y) scale(%S)">' + cloud().replace(/<svg[^>]*>|<\/svg>/g, '') + '</g>';
       s = c.replace('%X', w * 0.05).replace('%Y', h * 0.15).replace('%S', 0.9) +
