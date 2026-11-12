@@ -231,16 +231,16 @@ for r in range(2, DROWS + 2):
         38: f'=IF(OR(NOT(AB{r}),{isQ}),"",{INQ("H5")})',
         39: f'=IF(OR(NOT(AB{r}),{isQ}),"",{INQ("I5")})',
         41: f'=IF(T{r}="","",IF({isQ},A{r},AA{r}))',
-        42: f'=IF(T{r}="","",IF({isQ},P{r},A{r}))',
+        42: f'=IF(T{r}="","",IF({isQ},P{r}&"",A{r}))',
         43: f'=AND(A{r}<>"",{act})',
     }
     helpers[40] = (f'=IF(OR(A{r}="",NOT({act})),"",IF(NOT(AB{r}),"⚠ ورقة ناقصة: "&A{r},TRIM('
                    f'IF(AND(ISNUMBER(U{r}),U{r}>TODAY()),"لم يبدأ  ","")'
                    f'&IF(AND(P{r}<>"",ISNUMBER(Q{r})),IF(Q{r}<=TODAY(),"⚠ حان انتقاله إلى "&P{r}&"  ",""),"")'
                    f'&IF(AG{r}>0,"⚠ متخطاة "&AG{r}&"  ","")'
-                   f'&IF(AND(ISNUMBER(X{r}),X{r}-AI{r}>=CFG_Behind),"⚠ متأخر "&(X{r}-AI{r})&" حصة  ","")'
+                   f'&IF(ISNUMBER(X{r}),IF(X{r}-AI{r}>=CFG_Behind,"⚠ متأخر "&(X{r}-AI{r})&" حصة  ",""),"")'
                    f'&IF(AH{r}="بديل","(آخر حصة بديل)  ","")'
-                   f'&IF(AND(ISNUMBER(AD{r}),TODAY()-AD{r}>CFG_Stale,OR(NOT(ISNUMBER(V{r})),TODAY()<=V{r})),"⚠ لا حصة منذ "&(TODAY()-AD{r})&" يومًا  ","")'
+                   f'&IF(ISNUMBER(AD{r}),IF(AND(AD{r}>0,TODAY()-AD{r}>CFG_Stale,OR(NOT(ISNUMBER(V{r})),TODAY()<=V{r})),"⚠ لا حصة منذ "&(TODAY()-AD{r})&" يومًا  ",""),"")'
                    f'&IF(AND(NOT({isQ}),ISNUMBER(M{r})),IF(AND(M{r}>=TODAY(),M{r}-TODAY()<=CFG_ReviewDays,AL{r}<>"نعم"),"⚠ مراجعة العقيدة  ",""),"")'
                    f'&IF(AND(NOT({isQ}),ISNUMBER(N{r})),IF(AND(N{r}>=TODAY(),N{r}-TODAY()<=CFG_ReviewDays,AM{r}<>"نعم"),"⚠ مراجعة الفقه  ",""),"")'
                    f')))')
@@ -357,7 +357,7 @@ def make_lessons(ws, nm=None, rec=None):
              ('F3', lk(15)), ('G3', lk(13)), ('H3', lk(14)), ('I3', lk(21)), ('J3', lk(22))], s_val(SAND))
     for a in ('G3', 'H3', 'I3', 'J3'): ws[a].number_format = DF
     Fr, Dr, Cr, Gr, Hr, Ar = (f'${c}${R0}:${c}${R1}' for c in 'FDCGHA')
-    MX = f'_xlfn.AGGREGATE(14,6,{Fr}/({Fr}<=TODAY()),1)'
+    MX = f'_xlfn.AGGREGATE(14,6,{Fr}/(({Fr}>0)*({Fr}<=TODAY())),1)'
     K = f'LOOKUP(2,1/({Fr}=$E$5),ROW({Fr})-{R0-1})'
     def sub(c): return f'INDEX(${c}${R0}:${c}${R1},1):INDEX(${c}${R0}:${c}${R1},{K})'
     put(ws, [('A4', 'المنفَّذ'), ('B4:C4', 'دروس متخطاة'), ('D4', 'آخر درس منفذ'), ('E4', 'تاريخه'), ('F4', 'بديل؟'),
@@ -425,7 +425,7 @@ def make_quran(ws, nm=None, students=None):
              ('F3:G3', f'=COUNTA($B${S0}:$B${S1})'), ('H3:I3', lk(21)), ('J3:K3', lk(22)), ('L3:M3', lk(16, True)), ('N3:O3', lk(17))], s_val(SAND))
     for a in ('H3', 'J3', 'N3'): ws[a].number_format = DF
     Dt, Lb, Ex = (f'${QA}${r}:${QZ}${r}' for r in (8, 7, 9)); Av = f'$D${S0}:$D${S1}'
-    MX = f'_xlfn.AGGREGATE(14,6,{Dt}/({Dt}<=TODAY()),1)'
+    MX = f'_xlfn.AGGREGATE(14,6,{Dt}/(({Dt}>0)*({Dt}<=TODAY())),1)'
     K = f'LOOKUP(2,1/({Dt}=$D$5),COLUMN({Dt})-{Q0-1})'
     def sub(r): return f'INDEX(${QA}${r}:${QZ}${r},1):INDEX(${QA}${r}:${QZ}${r},{K})'
     put(ws, [('A4:B4', 'المقاطع المنفذة'), ('C4', 'آخر مقطع منفذ'), ('D4:E4', 'تاريخه'), ('F4:G4', 'بواسطة'),

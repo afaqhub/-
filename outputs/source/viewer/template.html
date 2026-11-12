@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>عارض خطة التدريس</title>
+<style>/*CSS*/</style>
+</head>
+<body>
+<header class="top"><div class="in">
+  <div><h1>عارض خطة التدريس</h1><div class="sub">للقراءة والمتابعة فقط — لا يغيّر شيئًا في ملف Excel</div></div>
+  <span class="grow"></span>
+  <span class="pill keep hidden" id="fname-wrap"></span>
+  <span class="pill keep" id="fname" style="display:none"></span>
+  <span class="pill" id="fsaved"></span><span class="pill keep" id="ftoday"></span>
+  <button class="btn ghost" id="again">اختيار ملف آخر</button>
+</div></header>
+<section class="welcome" id="welcome">
+  <div class="drop" id="drop"><div class="ico">📂</div><div class="big">اسحب ملف Excel هنا</div><div class="small">أو اضغط لاختيار الملف (ملف خطة التدريس)</div></div>
+  <div class="err hidden" id="err"></div>
+  <div class="notes"><div>يعمل بدون إنترنت وبدون أي تثبيت أو صلاحيات، ولا يرسل بياناتك إلى أي مكان.</div>
+  <div>يقرأ الملف الذي تختاره فقط ولا يكتب فيه. الأرقام تعكس آخر حفظ للملف.</div>
+  <div>إن تعذّر فتح الملف وهو مفتوح عند الآخرين، انسخه أولًا ثم اختر النسخة.</div></div>
+</section>
+<main class="wrap hidden" id="app"><div id="main"></div><div class="footer">عارض خطة التدريس · قراءة فقط</div></main>
+<input type="file" id="file" accept=".xlsx,.xlsm,.xls" class="hidden">
+<script>/*XLSX*/</script>
+<script>/*APP*/</script>
+</body>
+</html>
