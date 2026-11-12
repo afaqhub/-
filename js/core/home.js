@@ -106,7 +106,8 @@
       var dd = new Date(), today = dd.getFullYear() + '-' + ('0' + (dd.getMonth() + 1)).slice(-2) + '-' + ('0' + dd.getDate()).slice(-2), g = data.games && data.games[pick];
       chip('daily', H.daily, pick, !!(g && g.last === today));
     }
-    return row.childNodes.length ? row : null;
+    row.__mascotSlot = true;
+    return row;
   }
   function mascot(zonesEl) {
     var m = h('button', { class: 'mascot', type: 'button', 'aria-label': B.S.home.mascotHi, html: B.pics.draw('rabbit') });
@@ -154,6 +155,7 @@
     ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (ev) { btn.addEventListener(ev, cancel); });
   }
 
+  var tabNow = 'solo';
   function build() {
     var locked = B.storage.soloLocked();
     var logo = h('button', { class: 'logo-corner', type: 'button', 'aria-label': B.S.appName },
@@ -176,13 +178,27 @@
     );
 
     var chips = chipsRow(locked);
-    var zones = h('main', { class: 'zones scrollable' }, gardenRow(locked), chips, zone('solo', locked), zone('together', false), zone('create', false));
+    var zones = h('main', { class: 'zones scrollable', 'data-tab': tabNow }, h('div', { class: 'home-top' }, gardenRow(locked), chips), zone('solo', locked), zone('together', false), zone('create', false));
+    var tabbar = h('nav', { class: 'tabbar', role: 'tablist' }, ['solo', 'together', 'create'].map(function (id) {
+      var b = h('button', { class: 'tab-btn tab-' + id + (id === tabNow ? ' on' : ''), type: 'button', role: 'tab', 'data-tab': id, 'aria-label': B.S.zones[id] },
+        h('span', { class: 'tab-ic', html: art.zoneBadge(id) }), h('b', { text: B.S.zones[id] }));
+      b.addEventListener('click', function () { setTab(id); });
+      return b;
+    }));
+    function setTab(id) {
+      tabNow = id; zones.setAttribute('data-tab', id);
+      tabbar.querySelectorAll('.tab-btn').forEach(function (x) { x.classList.toggle('on', x.getAttribute('data-tab') === id); });
+      zones.scrollTop = 0;
+      if (B.audio) B.audio.play('pick');
+    }
+    B.home._setTab = setTab;
     var fbPill = h('div', { class: 'fb-pill', role: 'button', tabindex: '0', text: B.S.feedback.pill });
     fbPill.addEventListener('click', function () { B.feedback.open(); });
     var dot = h('div', { class: 'adm-dot', role: 'button', tabindex: '0', 'aria-label': B.S.admin.dot, text: '·' });
     dot.addEventListener('click', function () { B.admin.open(); });
-    var mas = mascot();
-    var el = h('div', { class: 'screen home' }, sky, zones, logo, tools(), fbPill, dot, mas);
+    var mas = mascot(); if (chips) chips.appendChild(mas);
+    var el = h('div', { class: 'screen home' }, sky, zones, tabbar, logo, tools());
+    zones.appendChild(fbPill); zones.appendChild(dot);
     // الأرنب يقفز وحده أحياناً ويلفت النظر إلى «فاجئني»
     var idle = setInterval(function () {
       if (!document.body.contains(el)) { clearInterval(idle); return; }
@@ -222,6 +238,7 @@
 
   B.home = {
     show: function () { return UI.go(build()); },
+    tab: function (id) { if (B.home._setTab) B.home._setTab(id); },
     build: build
   };
 })();

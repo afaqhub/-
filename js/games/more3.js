@@ -137,95 +137,82 @@
   function canSvg() { return art.svg('0 0 110 90', '<path d="M14 30H78L72 80Q71 86 65 86H28Q22 86 21 80Z" fill="#5CC8FF" stroke="#2468D1" stroke-width="4" stroke-linejoin="round"/><path d="M78 40L104 22" stroke="#2468D1" stroke-width="9" stroke-linecap="round"/><path d="M98 14L108 26" stroke="#2468D1" stroke-width="12" stroke-linecap="round"/><path d="M14 40Q-4 42 4 58Q10 64 20 58" fill="none" stroke="#2468D1" stroke-width="6" stroke-linecap="round"/><ellipse cx="42" cy="30" rx="26" ry="5" fill="#9FE0FF" stroke="#2468D1" stroke-width="3"/>', 'wt-can-svg'); }
   function seedSvg() { return art.svg('0 0 60 60', '<ellipse cx="30" cy="32" rx="14" ry="20" fill="#8A5A33" transform="rotate(25 30 32)"/><ellipse cx="25" cy="24" rx="4" ry="8" fill="#B67B4D" transform="rotate(25 25 24)"/>', 'wt-seed-svg'); }
 
+  function dropSvg() { return art.svg('0 0 40 56', '<path d="M20 4Q4 28 4 38a16 16 0 0 0 32 0Q36 28 20 4Z" fill="#5CC8FF" stroke="#2468D1" stroke-width="3"/><ellipse cx="14" cy="36" rx="4" ry="6" fill="#fff" opacity=".6"/>', 'wt-drop-svg'); }
+  var WSEQ = { 1: ['seed', 'water'], 2: ['seed', 'water', 'sun'], 3: ['seed', 'water', 'sun', 'water'], 4: ['seed', 'sun', 'water', 'water', 'sun'], 5: ['seed', 'water', 'sun', 'water', 'sun', 'water'] };
+  var WDIST = ['apple', 'ball', 'key', 'book', 'umbrella', 'carrot'];
   mini('water', 'wt-stage', 'rabbit', async function (ctx, st, level, demo, alive, setCur) {
-    var waters = level <= 1 ? 1 : level <= 3 ? 2 : 3, sun = level >= 4;
-    var steps = ['seed']; for (var w = 0; w < waters; w++) steps.push('can'); if (sun) steps.push('sun');
-    var col = kit.pick(BLOOMS);
+    var steps = WSEQ[level] || WSEQ[1], col = kit.pick(BLOOMS), done = 0, errors = 0;
     st.top.innerHTML = ''; st.tray.innerHTML = '';
     var scene = h('div', { class: 'wt-scene' });
     var plant = h('div', { class: 'wt-plant' }); var pot = h('div', { class: 'wt-pot', html: potSvg() });
-    var seed = h('button', { class: 'wt-tool wt-seed', type: 'button', 'aria-label': 'seed', html: seedSvg() });
-    var can = h('button', { class: 'wt-tool wt-can', type: 'button', 'aria-label': 'can', html: canSvg() });
-    var sunB = h('button', { class: 'wt-tool wt-sun', type: 'button', 'aria-label': 'sun', html: art.sun() });
-    scene.appendChild(plant); scene.appendChild(pot); scene.appendChild(seed);
+    var bubble = h('div', { class: 'wt-bubble' });
+    scene.appendChild(plant); scene.appendChild(pot); scene.appendChild(bubble);
     st.top.appendChild(scene);
-    var tools = { seed: seed, can: can, sun: sunB };
-    steps.forEach(function (s) { if (s !== 'seed' && !scene.contains(tools[s])) scene.appendChild(tools[s]); });
-    steps.forEach(function (s) { tools[s].style.display = s === 'seed' ? '' : 'none'; });
-    var cur = 0, errors = 0, idle = 0, busy = false, done, fin = new Promise(function (r) { done = r; });
-    function target() { return tools[steps[cur]]; }
-    function showStep() {
-      var t = target(); if (!t) return; t.style.display = ''; t.classList.add('wt-next');
-      UI.anim(t, [{ opacity: 0, transform: 'scale(.4)' }, { opacity: 1, transform: 'none' }], { dur: 420, easing: UI.SPRING, fill: 'backwards' });
-      idle = 0;
-    }
     UI.anim(scene, [{ opacity: 0, transform: 'scale(.8)' }, { opacity: 1, transform: 'none' }], { dur: 450, easing: UI.SPRING, fill: 'backwards' });
     if (B.audio) B.audio.play('card');
+    function stageNow() { var total = steps.length - 1, p = done / total; return done === 0 ? 0 : Math.min(3, Math.max(1, Math.ceil(p * 3))); }
     function grow() {
-      var total = steps.length - 1, p = (cur) / total;      // cur = عدد الخطوات المنجزة بعد البذرة
-      var stg = cur === 0 ? 0 : Math.min(3, Math.ceil(p * 3));
-      plant.innerHTML = plantSvg(stg, col);
+      plant.innerHTML = plantSvg(stageNow(), col);
       var s = plant.firstChild; if (s) UI.anim(s, [{ transform: 'scaleY(.3)', transformOrigin: '50% 100%' }, { transform: 'scaleY(1.08)', transformOrigin: '50% 100%' }, { transform: 'scaleY(1)', transformOrigin: '50% 100%' }], { dur: 700, easing: UI.SPRING, fill: 'none' });
     }
-    async function act() {
-      if (busy) return; busy = true;
-      var step = steps[cur], t = target(); if (!t) { busy = false; return; } t.classList.remove('wt-next', 'pulse-hint');
-      if (step === 'seed') {
-        var a = kit.center(t, ctx.stage), b = kit.center(pot, ctx.stage);
-        await ctx.anim(t, [{ transform: 'translate(0,0)' }, { transform: 'translate(' + (b.x - a.x) * 0.5 + 'px,' + (b.y - a.y - 80) + 'px)', offset: 0.5 }, { transform: 'translate(' + (b.x - a.x) + 'px,' + (b.y - a.y - 10) + 'px)', opacity: 0 }], { dur: 700, easing: 'ease-in', fill: 'forwards' });
-        if (B.audio) B.audio.play('place');
-        pot.querySelector('.wt-soil').setAttribute('fill', '#6B4426');
-      } else if (step === 'can') {
-        await ctx.anim(t, [{ transform: 'rotate(0)' }, { transform: 'rotate(-25deg) translateY(-10px)' }], { dur: 350, fill: 'forwards' });
-        var pr = pot.getBoundingClientRect(), sr = ctx.stage.getBoundingClientRect(), cr = t.getBoundingClientRect();
-        for (var i = 0; i < 7; i++) {
-          var d = h('span', { class: 'wt-drop', style: { left: cr.left - sr.left + 6 + i * 3 + 'px', top: cr.top - sr.top + cr.height * 0.45 + 'px' } });
-          ctx.stage.appendChild(d);
-          UI.anim(d, [{ transform: 'translateY(0)', opacity: 1 }, { transform: 'translateY(' + (pr.top - cr.top + 4) + 'px)', opacity: 1, offset: 0.85 }, { transform: 'translateY(' + (pr.top - cr.top + 14) + 'px)', opacity: 0 }], { dur: 700, delay: i * 70, easing: 'ease-in' }).then((function (x) { return function () { x.remove(); }; })(d));
+    function toolHtml(k) { return k === 'seed' ? seedSvg() : k === 'water' ? canSvg() : k === 'sun' ? art.sun() : pic(k); }
+    function needHtml(k) { return k === 'seed' ? pic('leaf') : k === 'water' ? dropSvg() : pic('sun'); }
+    function sceneXY(el) { var c = kit.center(el, ctx.stage), s = kit.center(scene, ctx.stage); return { x: c.x, y: c.y, sx: s.x, sy: s.y }; }
+    async function effect(k, btn) {
+      var potC = kit.center(pot, ctx.stage), from = kit.center(btn, ctx.stage), sr = scene.getBoundingClientRect(), stg = ctx.stage.getBoundingClientRect();
+      if (k === 'seed') {
+        var f = h('div', { class: 'wt-fly', style: { left: from.x - 30 + 'px', top: from.y - 30 + 'px' }, html: seedSvg() }); ctx.stage.appendChild(f);
+        await ctx.anim(f, [{ transform: 'translate(0,0)' }, { transform: 'translate(' + (potC.x - from.x) * 0.5 + 'px,' + (potC.y - from.y - 120) + 'px)', offset: 0.5 }, { transform: 'translate(' + (potC.x - from.x) + 'px,' + (potC.y - from.y - 20) + 'px) scale(.5)', opacity: 0.2 }], { dur: 750, easing: 'ease-in' });
+        f.remove(); if (B.audio) B.audio.play('place'); pot.querySelector('.wt-soil').setAttribute('fill', '#6B4426');
+      } else if (k === 'water') {
+        // الإبريق يقف على يسار الأصيص ومَصبّه نحو النبتة، ثم يميل ويصبّ
+        var cn = h('div', { class: 'wt-can-fly', html: canSvg() }); scene.appendChild(cn);
+        await ctx.anim(cn, [{ opacity: 0, transform: 'translate(-40px,30px) rotate(0)' }, { opacity: 1, transform: 'translate(0,0) rotate(0)' }], { dur: 350, easing: UI.SPRING, fill: 'forwards' });
+        await ctx.anim(cn, [{ transform: 'translate(0,0) rotate(0)' }, { transform: 'translate(0,-6px) rotate(32deg)' }], { dur: 350, fill: 'forwards' });
+        var cr = cn.getBoundingClientRect(), pr = pot.getBoundingClientRect();
+        var sx0 = cr.right - sr.left - cr.width * 0.12, sy0 = cr.top - sr.top + cr.height * 0.55;
+        for (var i = 0; i < 8; i++) {
+          var d = h('span', { class: 'wt-drop', style: { left: sx0 + (i % 2) * 6 + 'px', top: sy0 + 'px' } }); scene.appendChild(d);
+          UI.anim(d, [{ transform: 'translate(0,0)', opacity: 1 }, { transform: 'translate(' + (pr.left + pr.width * 0.3 - sr.left - sx0) + 'px,' + (pr.top - sr.top - sy0 + 6) + 'px)', opacity: 1, offset: 0.85 }, { transform: 'translate(' + (pr.left + pr.width * 0.3 - sr.left - sx0) + 'px,' + (pr.top - sr.top - sy0 + 18) + 'px)', opacity: 0 }], { dur: 650, delay: i * 80, easing: 'ease-in' }).then((function (x) { return function () { x.remove(); }; })(d));
         }
         if (B.audio) B.audio.play('splash');
-        await ctx.sleep(900);
+        await ctx.sleep(1000);
         pot.querySelector('.wt-soil').setAttribute('fill', '#4A2E18');
-        await ctx.anim(t, [{ transform: 'rotate(-25deg) translateY(-10px)' }, { transform: 'rotate(0)' }], { dur: 350, fill: 'forwards' });
-        t.style.display = 'none';
-      } else { // sun
-        t.classList.add('shine');
+        await ctx.anim(cn, [{ transform: 'translate(0,-6px) rotate(32deg)', opacity: 1 }, { transform: 'translate(-30px,20px) rotate(0)', opacity: 0 }], { dur: 350, fill: 'forwards' });
+        cn.remove();
+      } else { // الشمس
+        var sn = h('div', { class: 'wt-sun-fly', html: art.sun() }); scene.appendChild(sn);
+        await ctx.anim(sn, [{ opacity: 0, transform: 'translate(-60px,-60px) scale(.5)' }, { opacity: 1, transform: 'translate(0,0) scale(1)' }], { dur: 600, easing: UI.SPRING, fill: 'forwards' });
         if (B.audio) B.audio.play('sparkle');
-        await ctx.sleep(1000); t.style.display = 'none';
+        UI.burst(ctx.stage, kit.center(plant, ctx.stage).x, kit.center(plant, ctx.stage).y - 40, { n: 12, spread: 90, dur: 900, colors: ['#FFD34E', '#FFF0A6'] });
+        await ctx.anim(sn, [{ transform: 'translate(0,0) scale(1) rotate(0)' }, { transform: 'translate(0,0) scale(1.15) rotate(90deg)' }], { dur: 900, fill: 'forwards' });
+        await ctx.anim(sn, [{ opacity: 1 }, { opacity: 0 }], { dur: 300, fill: 'forwards' }); sn.remove();
       }
-      cur++; grow();
-      if (B.audio) B.audio.play('pop');
-      busy = false;
-      if (cur >= steps.length) { done(true); return; }
-      showStep();
     }
-    steps.forEach(function (s) { UI.bindPress(tools[s], function () { if (!busy && steps[cur] === s && !ctx.paused) act(); }); });
-    st.solve = function () { if (busy || cur >= steps.length) return false; act(); return true; };
-    st.stop = function () { done(false); };
-    seed.classList.add('wt-next');
-    await ctx.sleep(600); if (!alive()) return;
-    // سلّم المساعدة: نبض بعد ٦ ثوانٍ بلا لمس، ثم الكفّ بعد ١٢
-    (async function watch() {
-      while (alive() && cur < steps.length) {
-        await ctx.sleep(1000); if (ctx.paused || busy) continue;
-        if (cur >= steps.length || !target()) break;
-        idle++;
-        if (idle === 6) { target().classList.add('pulse-hint'); errors++; }
-        if (idle >= 12 || (demo && idle >= 2)) {
-          var t = target(); if (!t) break; var c = kit.center(t, ctx.stage), hd = kit.hand(ctx.stage, c.x, c.y + c.h * 0.1);
-          await ctx.sleep(600); await hd.tap(); hd.el.remove(); idle = 0; if (cur >= steps.length) break; if (!busy && cur < steps.length) act();
-        }
-      }
-    })();
-    await fin; st.solve = null;
-    if (!alive()) return;
-    // الزهرة تتفتح وتُزرع في «بستاني»، وفراشة تزورها
+    st.solve = null;
+    await ctx.sleep(500); if (!alive()) return;
+    for (var si = 0; si < steps.length; si++) {
+      var k = steps[si];
+      bubble.innerHTML = needHtml(k); bubble.style.display = '';
+      UI.anim(bubble, [{ opacity: 0, transform: 'scale(.3)' }, { opacity: 1, transform: 'none' }], { dur: 420, easing: UI.SPRING, fill: 'backwards' });
+      var dist = kit.shuffle(WDIST.slice()).slice(0, 2), keys = kit.shuffle([k].concat(dist));
+      var btns = addBtns(st, keys.map(toolHtml));
+      var res = await ask(ctx, st, btns, keys.indexOf(k), demo, alive, setCur); if (!res) return;
+      errors += res.errors || 0;
+      btns.forEach(function (b, i) { if (i !== keys.indexOf(k)) b.classList.add('faded'); });
+      bubble.style.display = 'none';
+      await effect(k, btns[keys.indexOf(k)]); if (!alive()) return;
+      done++; if (k !== 'seed' || true) grow();
+      if (B.audio) B.audio.play('pop');
+      await ctx.sleep(350); if (!alive()) return;
+    }
+    // الزهرة تتفتح، وفراشة تزورها
     var pc = kit.center(plant, ctx.stage);
     UI.burst(ctx.stage, pc.x, pc.y - 40, { n: 24, spread: 150, dur: 1500, colors: [col[0], col[1], '#fff', '#FFD34E'] });
     if (B.audio) B.audio.play('cheer');
     var bf = h('div', { class: 'wt-bf', html: art.gameIcon('mirror') }); scene.appendChild(bf);
-    UI.anim(bf, [{ transform: 'translate(-120%,-80%) scale(.5)', opacity: 0 }, { transform: 'translate(0,-30%) scale(1)', opacity: 1, offset: 0.4 }, { transform: 'translate(20%,-60%) scale(1)', offset: 0.7 }, { transform: 'translate(140%,-140%) scale(.6)', opacity: 0 }], { dur: 2000, easing: 'ease-in-out' });
-    UI.anim(plant, [{ transform: 'rotate(0)' }, { transform: 'rotate(-5deg)' }, { transform: 'rotate(5deg)' }, { transform: 'rotate(0)' }], { dur: 1400, fill: 'none' });
+    UI.anim(bf, [{ transform: 'translate(-120%,-80%) scale(.5)', opacity: 0 }, { transform: 'translate(0,-30%) scale(1)', opacity: 1, offset: 0.4 }, { transform: 'translate(20%,-60%) scale(1)', offset: 0.7 }, { transform: 'translate(160%,-120%) scale(.6)', opacity: 0 }], { dur: 2000, fill: 'none' });
+    UI.anim(plant, [{ transform: 'translateX(-50%) rotate(0)' }, { transform: 'translateX(-50%) rotate(-5deg)' }, { transform: 'translateX(-50%) rotate(5deg)' }, { transform: 'translateX(-50%) rotate(0)' }], { dur: 1400, fill: 'none' });
     await ctx.sleep(2100); if (!alive()) return;
     return { errors: demo ? 0 : Math.min(errors, 4) };
   });
@@ -307,20 +294,20 @@
       if (dist === 1) {
         if (openDir(w, pos, rc)) step(rc);
         else { var key = rc.join() + '>' + pos.join(); if (key !== bumpKey) { bumpKey = key; errors++; kit.wrong(bun); help(); } }
-      } else { var p = bfs(w, n, pos, rc); if (p && p.length <= 4) p.slice(1).forEach(step); }
+      }
     }
     var sx = 0, sy = 0, moved = false;
     board.addEventListener('pointerdown', function (e) { if (busy || ctx.paused) return; down = true; sx = e.clientX; sy = e.clientY; moved = false; try { board.setPointerCapture(e.pointerId); } catch (x) {} });
     board.addEventListener('pointermove', function (e) { if (Math.abs(e.clientX - sx) + Math.abs(e.clientY - sy) > 10) moved = true; move(e); });
     ['pointerup', 'pointercancel'].forEach(function (ev) { board.addEventListener(ev, function (e) {
       var was = down; down = false;
-      if (was && !moved && ev === 'pointerup' && !busy) { var rc = cellAt(e); if (rc) walkTo(rc); }   // لمسة: يمشي الأرنب إلى الخانة
+      if (was && !moved && ev === 'pointerup' && !busy) { var rc = cellAt(e); if (rc) stepToward(rc); }   // لمسة: خطوة واحدة نحو الخانة، ولا يخترق سياجاً
     }); });
-    async function walkTo(rc) {
-      var p = bfs(w, n, pos, rc); if (!p || p.length < 2) return;
-      busy = true;
-      for (var i = 1; i < p.length && alive(); i++) { step(p[i]); await ctx.sleep(170); }
-      busy = false;
+    function stepToward(rc) {
+      if (rc[0] === pos[0] && rc[1] === pos[1]) return;
+      var dist = Math.abs(rc[0] - pos[0]) + Math.abs(rc[1] - pos[1]);
+      if (dist === 1 && !openDir(w, pos, rc)) { errors++; kit.wrong(bun); help(); return; }   // سياج مباشر: اهتزاز لطيف
+      var p = bfs(w, n, pos, rc); if (p && p.length > 1) step(p[1]);
     }
     function help() {
       if (errors === 3) showHint();

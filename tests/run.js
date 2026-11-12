@@ -47,6 +47,14 @@ function serve() {
 }
 
 /* ───── أدوات الصفحة ───── */
+async function tapTile(page, g) {
+  await page.evaluate((g) => { const it = Bustan.catalog.filter((c) => c.id === g)[0]; if (it) Bustan.home.tab(it.zone); }, g);
+  await page.waitForTimeout(250);
+  await page.evaluate((g) => { const t = document.querySelector('.tile[data-game=' + g + ']'); t.scrollIntoView({ block: 'center' }); }, g);
+  await page.waitForTimeout(150);
+  await page.tap('.tile[data-game=' + g + ']');
+}
+
 async function newPage(browser, vp, base, opts = {}) {
   const ctx = await browser.newContext({
     viewport: { width: vp.width, height: vp.height }, deviceScaleFactor: 1, hasTouch: true,
@@ -72,7 +80,7 @@ async function newPage(browser, vp, base, opts = {}) {
 }
 async function open(page, base, query = '', opts = {}) {
   await page.goto(base + 'index.html' + query);
-  await page.waitForSelector('.tile', { timeout: 8000 });
+  await page.waitForSelector('.tab-btn', { timeout: 8000 });
   await page.waitForTimeout(3200); // حتى تنتهي حركة ظهور الأيقونات (٢٠ أيقونة متتابعة)
   if (!opts.keepWelcome) { const gg = await page.$('.guide-go'); if (gg) { await gg.click(); await page.waitForTimeout(500); } } // شاشة الترحيب
 }
@@ -90,6 +98,7 @@ async function checkScreen(page, vp, label) {
       const cs = getComputedStyle(b);
       if (cs.display === 'none' || cs.visibility === 'hidden' || b.disabled) return;
       const r = b.getBoundingClientRect();
+      if (r.width === 0 && r.height === 0) return; // مخفي (تبويب غير مختار)
       if (Math.min(r.width, r.height) < tapMin - 0.5) out.small.push((b.className || b.tagName) + ' ' + Math.round(r.width) + 'x' + Math.round(r.height));
     });
     out.text = (document.body.innerText || '') + ' ' + document.title;
@@ -130,7 +139,7 @@ async function playBot(page, o = {}) {
 }
 
 async function startTrain(page) {
-  await page.tap('.tile[data-game=train]');
+  await tapTile(page, 'train');
   await page.waitForSelector('.game-screen .stop-btn', { timeout: 6000 });
 }
 async function waitPlay(page, ms = 20000) {
@@ -388,7 +397,7 @@ async function seeDemoThrough(page) {
       ok(page.__log.external.length === 0, 'لا طلبات خارجية طوال الجلسة');
       // العودة للرئيسية
       await page.tap('.end-home');
-      await page.waitForSelector('.home .tile', { timeout: 4000 });
+      await page.waitForSelector('.home .tab-btn', { timeout: 4000 });
       ok(true, 'زر العودة يعيد إلى الرئيسية');
       await page.__ctx.close();
     }
@@ -485,7 +494,7 @@ async function seeDemoThrough(page) {
       await startTrain(page);
       await waitPlay(page);
       ok((await page.evaluate(() => !document.querySelector('.game-screen .replay-btn') && document.querySelectorAll('.game-screen .hud-btn').length === 2)), 'لا سهم إعادة في الشريط العلوي (الرئيسية والإيقاف فقط)');
-      await page.tap('.home-btn'); await page.waitForSelector('.home .tile');
+      await page.tap('.home-btn'); await page.waitForSelector('.home .tab-btn');
       const box = await page.locator('.logo-corner').boundingBox();
       await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2); await page.mouse.down(); await page.waitForTimeout(3300); await page.mouse.up();
       await page.waitForSelector('.parent-overlay');
@@ -570,7 +579,7 @@ async function seeDemoThrough(page) {
       const page = await newPage(browser, VIEWPORTS['جوال-عمودي'], base);
       await open(page, base, '?ts=3');
       await page.evaluate(() => Bustan.storage.markDemoSeen('pattern'));
-      await page.tap('.tile[data-game=pattern]');
+      await tapTile(page, 'pattern');
       await page.waitForSelector('.g-tray .g-choice', { timeout: 15000 });
       await page.waitForTimeout(900);
       // ننقر خياراً خاطئاً ثلاث مرات
@@ -597,7 +606,7 @@ async function seeDemoThrough(page) {
     const vp = VIEWPORTS[vpName];
     const page = await newPage(browser, vp, base);
     await open(page, base);
-    await page.tap('.tile[data-game=workshop]');
+    await tapTile(page, 'workshop');
     await page.waitForSelector('.free-screen .ws-piece-btn'); await page.waitForTimeout(800);
     await checkScreen(page, vp, vpName + ' / الورشة');
     await shot(page, 'workshop-' + vpName);
@@ -616,8 +625,8 @@ async function seeDemoThrough(page) {
     while (await page.evaluate(() => Bustan.free.workshop._solve())) await page.waitForTimeout(120);
     await page.waitForTimeout(1800);
     ok(await page.evaluate(() => document.querySelector('.ws-next').classList.contains('ready')), `${vpName}: اكتمال الصورة يُحييها ويُظهر زر الصورة التالية`);
-    await page.tap('.home-btn'); await page.waitForSelector('.home .tile'); await page.waitForTimeout(400);
-    await page.tap('.tile[data-game=coloring]');
+    await page.tap('.home-btn'); await page.waitForSelector('.home .tab-btn'); await page.waitForTimeout(400);
+    await tapTile(page, 'coloring');
     await page.waitForSelector('.cl-svg .rg'); await page.waitForTimeout(600);
     await page.tap('.cl-color >> nth=2');
     await page.dispatchEvent('.cl-svg .rg >> nth=0', 'pointerdown');
@@ -634,7 +643,7 @@ async function seeDemoThrough(page) {
     await open(page, base);
     await page.click('.hdr-tool >> nth=0'); await page.waitForTimeout(300);
     ok(await page.evaluate(() => document.documentElement.classList.contains('night') && Bustan.storage.data().settings.night === true), 'زر الوضع الليلي يعمل ويُحفظ');
-    await page.reload(); await page.waitForSelector('.tile');
+    await page.reload(); await page.waitForSelector('.tab-btn');
     ok(await page.evaluate(() => document.documentElement.classList.contains('night')), 'الوضع الليلي يبقى بعد إعادة التحميل');
     await page.click('.hdr-tool >> nth=0');
     ok(!(await page.evaluate(() => document.documentElement.classList.contains('night'))), 'وزر النهار يعيده');
@@ -652,18 +661,18 @@ async function seeDemoThrough(page) {
     ok(!/علاج|صعوبات|اضطراب|تشخيص/.test(await page.evaluate(() => document.body.innerText)), 'لا إشارة إلى علاج أو صعوبات تعلم');
     await page.click('.guide-go'); await page.waitForTimeout(500);
     ok(!(await page.$('.guide-layer')) && (await page.evaluate(() => Bustan.storage.data().welcomed)), 'يُغلق الترحيب ولا يعود');
-    await page.reload(); await page.waitForSelector('.tile'); await page.waitForTimeout(800);
+    await page.reload(); await page.waitForSelector('.tab-btn'); await page.waitForTimeout(800);
     ok(!(await page.$('.guide-layer')), 'لا يظهر الترحيب مرة ثانية');
     await page.waitForTimeout(1800);
     // الرسم الحر
-    await page.tap('.tile[data-game=drawing]'); await page.waitForSelector('.dr-canvas'); await page.waitForTimeout(600);
+    await tapTile(page, 'drawing'); await page.waitForSelector('.dr-canvas'); await page.waitForTimeout(600);
     const c = await page.evaluate(() => { const r = document.querySelector('.dr-canvas').getBoundingClientRect(); return [r.left, r.top, r.width, r.height]; });
     await page.mouse.move(c[0] + 40, c[1] + 60); await page.mouse.down(); await page.mouse.move(c[0] + c[2] - 40, c[1] + c[3] - 60, { steps: 10 }); await page.mouse.up();
     ok(await page.evaluate(() => { const cv = document.querySelector('.dr-canvas'); const d = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height).data; for (let i = 0; i < d.length; i += 4) if (d[i + 2] < 200) return true; return false; }), 'الرسم بالإصبع يترك أثراً على اللوحة');
     await page.tap('.dr-mix'); await page.tap('.dr-tray .cl-color >> nth=0', { force: true }); await page.tap('.dr-tray .cl-color >> nth=2', { force: true });
     ok(await page.evaluate(() => getComputedStyle(document.querySelector('.dr-mixdot')).display !== 'none'), 'خلط لونين يُنتج لوناً جديداً في الوعاء');
     await checkScreen(page, VIEWPORTS['جوال-عمودي'], 'الرسم الحر');
-    await page.tap('.home-btn'); await page.waitForSelector('.home .tile'); await page.waitForTimeout(400);
+    await page.tap('.home-btn'); await page.waitForSelector('.home .tab-btn'); await page.waitForTimeout(400);
     // البستان
     await page.evaluate(() => { Bustan.garden.plant(); Bustan.garden.plant(); Bustan.garden.plant(); });
     await page.tap('.gd-banner'); await page.waitForSelector('.gd-item'); await page.waitForTimeout(700);
@@ -687,7 +696,7 @@ async function seeDemoThrough(page) {
     const locked = await page.evaluate(() => ({ z: !!document.querySelector('.zone-solo.is-locked'), s: !!document.querySelector('.sleepy'), t: !!document.querySelector('.zone-together.is-locked') }));
     ok(locked.z && locked.s && !locked.t, 'عند بلوغ الحد: تنام الشخصية وتُغلق «وحدي» فقط');
     await shot(page, 'home-locked');
-    await page.tap('.tile[data-game=train]');
+    await tapTile(page, 'train');
     await page.waitForTimeout(900);
     ok(!(await page.evaluate(() => !!document.querySelector('.game-screen'))), 'النقر على لعبة مقفلة لا يبدأها (يهتز فقط)');
     // الوالد يفتحها
@@ -771,14 +780,14 @@ async function seeDemoThrough(page) {
     page.on('console', (m) => { if (m.type() === 'error') errs.push(m.text()); });
     page.on('pageerror', (e) => errs.push(e.message));
     await page.goto('file://' + path.join(ROOT, 'index.html') + '?ts=4');
-    await page.waitForSelector('.tile', { timeout: 6000 });
+    await page.waitForSelector('.tab-btn', { timeout: 6000 });
     await page.waitForTimeout(800);
     ok((await page.evaluate(async () => {
       const r = await Promise.all(['400', '700', '800'].map((w) => document.fonts.load(w + ' 20px Tajawal', 'بستان')));
       return r.every((a) => a.length > 0 && a[0].status === 'loaded');
     })), 'file://: الخط المحلي يُحمَّل');
     { const gg = await page.$('.guide-go'); if (gg) { await gg.click(); await page.waitForTimeout(400); } }
-    await page.tap('.tile[data-game=train]');
+    await tapTile(page, 'train');
     await page.waitForSelector('.stop-btn', { timeout: 6000 });
     await page.waitForTimeout(2500);
     ok(errs.length === 0, 'file://: لا أخطاء' + (errs.length ? ' — ' + errs[0] : ''));
@@ -791,7 +800,7 @@ async function seeDemoThrough(page) {
     const vp = VIEWPORTS['جوال-عمودي'];
     const page = await newPage(browser, vp, base, { sw: true });
     await page.goto(base + 'index.html');
-    await page.waitForSelector('.tile');
+    await page.waitForSelector('.tab-btn');
     const ready = await page.evaluate(async () => { const r = await navigator.serviceWorker.ready; return !!r.active; });
     ok(ready, 'تسجّل Service Worker وتفعّل');
     await page.waitForTimeout(1200);
@@ -802,9 +811,9 @@ async function seeDemoThrough(page) {
     await page.evaluate(() => { Bustan.storage.data().welcomed = true; Bustan.storage.save(); });
     await page.__ctx.setOffline(true);
     await page.reload();
-    await page.waitForSelector('.tile', { timeout: 8000 });
+    await page.waitForSelector('.tab-btn', { timeout: 8000 });
     ok(true, 'يعمل بعد قطع الإنترنت وإعادة التحميل');
-    await page.tap('.tile[data-game=train]');
+    await tapTile(page, 'train');
     await page.waitForSelector('.stop-btn', { timeout: 6000 });
     ok(true, 'تبدأ اللعبة دون إنترنت');
     await page.__ctx.close();

@@ -1144,6 +1144,64 @@ html.night::after { content: ''; position: fixed; inset: 0; z-index: 900; pointe
 .wt-seed { width: 24%; min-width: calc(var(--tap) + 8px); min-height: calc(var(--tap) + 8px); }
 .wt-seed { width: 30%; min-width: calc(var(--tap) + 30px); min-height: calc(var(--tap) + 30px); }
 .ms-stage .mg-tray .g-choice { min-width: calc(var(--tap) + 28px); min-height: calc(var(--tap) + 28px); }
+/* ═════════ الرئيسية بتبويبات سفلية وبطاقات كبيرة ═════════ */
+.zones { display: flex !important; flex-wrap: nowrap !important; flex-direction: column !important; justify-content: flex-start !important; align-items: stretch !important; gap: 12px !important; overflow-y: auto; overflow-x: hidden;
+  inset: calc(var(--tap) + 24px + var(--safe-t)) calc(14px + var(--safe-r)) calc(96px + var(--safe-b)) calc(14px + var(--safe-l)) !important; padding: 0 0 12px !important; }
+.zones > * { flex: none; }
+.zones[data-tab="solo"] .zone:not(.zone-solo), .zones[data-tab="together"] .zone:not(.zone-together), .zones[data-tab="create"] .zone:not(.zone-create) { display: none !important; }
+.zones .zone { flex: none !important; padding: 12px 12px 16px !important; }
+.zones .groups { display: flex; flex-direction: column; gap: 10px; }
+.zones .tiles, .zones .group .tiles { display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 10px; }
+.zones .tile, .zones .group .tile { max-width: none !important; width: 100%; flex: none !important; margin: 0; gap: 6px; }
+.zones .tile-art { padding: 9%; border-radius: 28%; }
+.zones .tile-name { font-size: clamp(17px, 4.4vw, 22px) !important; }
+.zones .group-label { font-size: 15px; padding: 2px 14px; }
+.zones .zone-head { margin-bottom: 8px; } .zones .zone-name { font-size: 28px; }
+.zones .fb-pill, .zones .adm-dot { position: static; flex: none; align-self: center; }
+.zones .adm-dot { margin: 0 auto; width: 44px; }
+.tabbar { position: absolute; z-index: 20; inset-inline: 0; bottom: 0; display: flex; gap: 8px; padding: 8px calc(12px + var(--safe-r)) calc(8px + var(--safe-b)) calc(12px + var(--safe-l));
+  background: rgba(255, 255, 255, .92); border-radius: 28px 28px 0 0; box-shadow: 0 -6px 18px rgba(31, 42, 90, .16); }
+.tab-btn { flex: 1 1 0; min-height: 76px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border: 0; border-radius: 22px; background: transparent; font-family: inherit; color: var(--night-soft); cursor: pointer; }
+.tab-btn b { font-size: 19px; font-weight: 800; } .tab-ic { width: 46px; height: 36px; display: grid; place-items: center; filter: grayscale(.5); opacity: .8; } .tab-ic svg { height: 100%; width: auto; max-width: 100%; }
+.tab-btn.on { color: #fff; box-shadow: 0 5px 0 rgba(0, 0, 0, .18); } .tab-btn.on .tab-ic { filter: none; opacity: 1; }
+.tab-solo.on { background: linear-gradient(160deg, #3FDCBC, #17A98B); } .tab-together.on { background: linear-gradient(160deg, #FF93B3, #EE5883); } .tab-create.on { background: linear-gradient(160deg, #B38CFF, #8E5CF0); }
+.mascot { bottom: calc(100px + var(--safe-b)); left: 8px; }
+@media (orientation: landscape) {
+  .zones { inset: calc(var(--tap) * .6 + 24px + var(--safe-t)) calc(120px + var(--safe-r)) calc(10px + var(--safe-b)) calc(14px + var(--safe-l)) !important; }
+  .tabbar { inset: calc(var(--tap) * .6 + 24px + var(--safe-t)) 0 0 auto; inset-inline: auto 0; right: 0; left: auto; width: 108px; flex-direction: column; padding: 10px 8px; border-radius: 28px 0 0 28px; box-shadow: -6px 0 18px rgba(31, 42, 90, .16); }
+  .tab-btn { min-height: 84px; }
+  .zones .tiles, .zones .group .tiles { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .zones .tile-name { font-size: 16px !important; }
+  .mascot { bottom: 8px; left: 8px; }
+}
+@media (min-width: 700px) and (orientation: portrait) { .zones .tiles, .zones .group .tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); } .zones .tile-name { font-size: 22px !important; } }
+.wt-bubble { position: absolute; right: 4%; top: 6%; width: 26%; aspect-ratio: 1; padding: 5%; border-radius: 50%; background: #fff; box-shadow: 0 6px 0 #8E5CF0, 0 10px 14px rgba(0, 0, 0, .15); display: grid; place-items: center; z-index: 5; }
+.wt-bubble::after { content: ''; position: absolute; left: 6%; bottom: -8%; width: 22%; aspect-ratio: 1; border-radius: 50%; background: #fff; box-shadow: -10px 10px 0 -4px #fff; }
+.wt-bubble svg { width: 100%; height: 100%; }
+.wt-fly { position: absolute; z-index: 40; width: 60px; pointer-events: none; } .wt-fly svg { width: 100%; height: auto; }
+.wt-can-fly { position: absolute; z-index: 20; left: 0; top: 34%; width: 38%; transform-origin: 70% 60%; pointer-events: none; opacity: 0; } .wt-can-fly svg { width: 100%; height: auto; overflow: visible; }
+.wt-sun-fly { position: absolute; z-index: 20; left: 12%; top: 0; width: 30%; pointer-events: none; opacity: 0; } .wt-sun-fly svg { width: 100%; height: auto; }
+.home-top { display: flex; flex-direction: column; gap: 10px; flex: none; }
+.home-top .gd-row, .home-top .chips-row { flex: none; margin: 0; }
+.chips-row { flex-wrap: nowrap; align-items: stretch; }
+.chips-row .home-chip { flex: 1 1 0; min-width: 0; padding: 6px 8px; } .chips-row .hc-ic { width: 38px; flex-basis: 38px; } .chips-row .hc-tx b { font-size: 15px; }
+.chips-row .mascot { position: relative; inset: auto; flex: none; width: var(--tap); height: var(--tap); align-self: center; z-index: 1; }
+@media (orientation: landscape) {
+  .home-top { flex-direction: row; align-items: stretch; } .home-top .gd-row { flex: 1 1 0; } .home-top .chips-row { flex: 1.3 1 0; }
+  .gb-prev, .gb-title small { display: none; }
+}
+/* من يعيش هنا؟ — بيوت كبيرة وواضحة تتناسب مع الحيوان */
+.hb-btn { --cs: clamp(var(--tap), min(40vw, 22vh), 210px) !important; padding: 3% !important; }
+.hb-stage .mg-tray { flex-wrap: wrap; flex-direction: row; justify-content: center; gap: 14px; align-content: center; }
+.hb-stage .fd-animal { width: clamp(140px, min(46vw, 26vh), 260px); }
+@media (max-height: 500px) { .hb-btn { --cs: clamp(var(--tap), min(22vw, 42vh), 190px) !important; } .hb-stage .fd-animal { width: clamp(120px, 40vh, 220px); } }
+.gl-big { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; }
+.gl-big img { max-height: 62%; }
+.gl-del { min-width: 120px; min-height: 96px; border: 0; border-radius: 24px; background: #fff; display: grid; place-items: center; font-family: inherit; box-shadow: 0 6px 0 #8FA0D8; cursor: pointer; } .gl-del svg { width: 44px; height: 44px; } .gl-del small { font-size: 18px; font-weight: 800; color: var(--night); }
+.gl-ask { background: #fff; border-radius: 24px; padding: 12px 16px; text-align: center; font-size: 20px; display: grid; gap: 10px; } .gl-ask-row { display: flex; gap: 12px; justify-content: center; }
+.gl-yes, .gl-no { min-width: 120px; min-height: 80px; border: 0; border-radius: 20px; font-family: inherit; font-size: 20px; font-weight: 800; cursor: pointer; } .gl-yes { background: #FFE1A8; box-shadow: 0 5px 0 #E2A21B; } .gl-no { background: #CFF5E2; box-shadow: 0 5px 0 #2DBE7E; }
+.tab-btn { min-height: max(76px, var(--tap)); }
+@media (orientation: landscape) { .tabbar { width: calc(var(--tap) + 24px); } .tab-btn { min-height: max(84px, var(--tap)); } .zones { inset: calc(var(--tap) * .6 + 24px + var(--safe-t)) calc(var(--tap) + 44px + var(--safe-r)) calc(10px + var(--safe-b)) calc(14px + var(--safe-l)) !important; } }
 
 </style>
 </head>
@@ -1232,7 +1290,7 @@ html.night::after { content: ''; position: fixed; inset: 0; z-index: 900; pointe
     cats: { watch: 'ملاحظة وذاكرة', num: 'أرقام وأشكال', move: 'حروف وحركة', know: 'معرفة وتصنيف' },
     home: { garden: 'بستاني', gardenNote: 'ما زرعتَه بإكمال ألعابك', surprise: 'فاجئني بلعبة', cont: 'أكمل لعبتك', daily: 'تحدي اليوم', mascotHi: 'أرنوب', night: 'الوضع الليلي', day: 'الوضع النهاري', full: 'ملء الشاشة', exitFull: 'إنهاء ملء الشاشة' },
     summary: { title: 'ملخّص', favorite: 'اللعبة الأكثر لعباً', suggest: 'اقتراح للعب الآن', planted: 'ما زُرع في البستان', sessionsAll: 'جلسات مكتملة', none: 'لم يلعب بعد' },
-    create: { save: 'حفظ', saved: 'تم الحفظ', galleryEmpty: 'لم تحفظ شيئاً بعد', tMix: 'خلط', tSize: 'حجم', tErase: 'ممحاة', tClear: 'مسح', color: 'تغيير اللون', clear: 'تنظيف اللوحة', next: 'رسمة أخرى', mix: 'وعاء خلط الألوان', size: 'حجم الفرشاة', erase: 'ممحاة' },
+    create: { del: 'حذف', delAsk: 'حذف هذه الصورة؟', delYes: 'نعم، احذفها', delNo: 'أبقيها', save: 'حفظ', saved: 'تم الحفظ', galleryEmpty: 'لم تحفظ شيئاً بعد', tMix: 'خلط', tSize: 'حجم', tErase: 'ممحاة', tClear: 'مسح', color: 'تغيير اللون', clear: 'تنظيف اللوحة', next: 'رسمة أخرى', mix: 'وعاء خلط الألوان', size: 'حجم الفرشاة', erase: 'ممحاة' },
 
     buttons: {
       home: 'الرئيسية',
@@ -1779,6 +1837,7 @@ html.night::after { content: ''; position: fixed; inset: 0; z-index: 900; pointe
       if (!B.storage.isPersistent() && g.length > 6) g.shift();
       return g.length;
     },
+    remove: function (i) { var g = B.storage.data().gallery; if (i >= 0 && i < g.length) { g.splice(i, 1); B.storage.save(); } },
     clear: function () { B.storage.data().gallery = []; B.storage.save(); }
   };
 
@@ -2090,7 +2149,7 @@ html.night::after { content: ''; position: fixed; inset: 0; z-index: 900; pointe
     return svg('0 0 48 48', '<path d="M6 18V6h12M30 6h12v12M42 30v12H30M18 42H6V30" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>', 'icon-svg');
   }
   function diceIcon() {
-    return svg('0 0 48 48', '<rect x="6" y="6" width="36" height="36" rx="9" fill="currentColor"/><circle cx="17" cy="17" r="3.4" fill="#fff"/><circle cx="31" cy="17" r="3.4" fill="#fff"/><circle cx="24" cy="24" r="3.4" fill="#fff"/><circle cx="17" cy="31" r="3.4" fill="#fff"/><circle cx="31" cy="31" r="3.4" fill="#fff"/>', 'icon-svg');
+    return svg('0 0 48 48', '<rect x="6" y="6" width="36" height="36" rx="9" fill="#fff"/><circle cx="17" cy="17" r="3.4" fill="#8E5CF0"/><circle cx="31" cy="17" r="3.4" fill="#8E5CF0"/><circle cx="24" cy="24" r="3.4" fill="#8E5CF0"/><circle cx="17" cy="31" r="3.4" fill="#8E5CF0"/><circle cx="31" cy="31" r="3.4" fill="#8E5CF0"/>', 'icon-svg');
   }
   /* أدوات الرسم: أيقونات واضحة */
   function mixIcon() { // دائرتان متداخلتان تتولد منهما ثالثة
@@ -2101,6 +2160,9 @@ html.night::after { content: ''; position: fixed; inset: 0; z-index: 900; pointe
   }
   function eraserIcon() {
     return svg('0 0 100 100', '<g transform="rotate(-30 50 50)"><rect x="14" y="30" width="72" height="40" rx="10" fill="#FF9DB3" stroke="#C23C69" stroke-width="5"/><rect x="14" y="30" width="26" height="40" rx="10" fill="#8FD3F4" stroke="#2468D1" stroke-width="5"/></g>', 'tool-svg');
+  }
+  function trashIcon() {
+    return svg('0 0 100 100', '<path d="M24 30H76L70 88Q69 92 65 92H35Q31 92 30 88Z" fill="#B8C4E8" stroke="#6B7BB8" stroke-width="5" stroke-linejoin="round"/><rect x="16" y="20" width="68" height="10" rx="5" fill="#8FA0D8" stroke="#6B7BB8" stroke-width="5"/><rect x="38" y="10" width="24" height="10" rx="4" fill="#8FA0D8" stroke="#6B7BB8" stroke-width="4"/><path d="M40 42V80M50 42V80M60 42V80" stroke="#6B7BB8" stroke-width="5" stroke-linecap="round"/>', 'tool-svg');
   }
   function saveIcon() {
     return svg('0 0 100 100', '<rect x="10" y="16" width="80" height="68" rx="9" fill="#FAFCFF" stroke="#8E5CF0" stroke-width="6"/><path d="M16 74L38 48L54 64L66 52L84 74Z" fill="#2DBE7E"/><circle cx="70" cy="34" r="9" fill="#FFD34E"/><path d="M50 90v-10M44 86h12" stroke="#F2658E" stroke-width="6" stroke-linecap="round"/>', 'tool-svg');
@@ -2437,7 +2499,7 @@ html.night::after { content: ''; position: fixed; inset: 0; z-index: 900; pointe
     house: house,
     replayIcon: replayIcon,
     pauseIcon: pauseIcon,
-    moonBtn: moonIcon, sunBtn: sunIcon, full: fullIcon, dice: diceIcon, toolMix: mixIcon, toolSize: sizeIcon, toolErase: eraserIcon, toolClear: broomIcon, toolSave: saveIcon,
+    moonBtn: moonIcon, sunBtn: sunIcon, full: fullIcon, dice: diceIcon, toolMix: mixIcon, toolSize: sizeIcon, toolErase: eraserIcon, toolClear: broomIcon, toolSave: saveIcon, trash: trashIcon,
     check: check,
     playIcon: playIcon,
     bulb: bulb,
@@ -3353,7 +3415,8 @@ html.night::after { content: ''; position: fixed; inset: 0; z-index: 900; pointe
       var dd = new Date(), today = dd.getFullYear() + '-' + ('0' + (dd.getMonth() + 1)).slice(-2) + '-' + ('0' + dd.getDate()).slice(-2), g = data.games && data.games[pick];
       chip('daily', H.daily, pick, !!(g && g.last === today));
     }
-    return row.childNodes.length ? row : null;
+    row.__mascotSlot = true;
+    return row;
   }
   function mascot(zonesEl) {
     var m = h('button', { class: 'mascot', type: 'button', 'aria-label': B.S.home.mascotHi, html: B.pics.draw('rabbit') });
@@ -3401,6 +3464,7 @@ html.night::after { content: ''; position: fixed; inset: 0; z-index: 900; pointe
     ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (ev) { btn.addEventListener(ev, cancel); });
   }
 
+  var tabNow = 'solo';
   function build() {
     var locked = B.storage.soloLocked();
     var logo = h('button', { class: 'logo-corner', type: 'button', 'aria-label': B.S.appName },
@@ -3423,13 +3487,27 @@ html.night::after { content: ''; position: fixed; inset: 0; z-index: 900; pointe
     );
 
     var chips = chipsRow(locked);
-    var zones = h('main', { class: 'zones scrollable' }, gardenRow(locked), chips, zone('solo', locked), zone('together', false), zone('create', false));
+    var zones = h('main', { class: 'zones scrollable', 'data-tab': tabNow }, h('div', { class: 'home-top' }, gardenRow(locked), chips), zone('solo', locked), zone('together', false), zone('create', false));
+    var tabbar = h('nav', { class: 'tabbar', role: 'tablist' }, ['solo', 'together', 'create'].map(function (id) {
+      var b = h('button', { class: 'tab-btn tab-' + id + (id === tabNow ? ' on' : ''), type: 'button', role: 'tab', 'data-tab': id, 'aria-label': B.S.zones[id] },
+        h('span', { class: 'tab-ic', html: art.zoneBadge(id) }), h('b', { text: B.S.zones[id] }));
+      b.addEventListener('click', function () { setTab(id); });
+      return b;
+    }));
+    function setTab(id) {
+      tabNow = id; zones.setAttribute('data-tab', id);
+      tabbar.querySelectorAll('.tab-btn').forEach(function (x) { x.classList.toggle('on', x.getAttribute('data-tab') === id); });
+      zones.scrollTop = 0;
+      if (B.audio) B.audio.play('pick');
+    }
+    B.home._setTab = setTab;
     var fbPill = h('div', { class: 'fb-pill', role: 'button', tabindex: '0', text: B.S.feedback.pill });
     fbPill.addEventListener('click', function () { B.feedback.open(); });
     var dot = h('div', { class: 'adm-dot', role: 'button', tabindex: '0', 'aria-label': B.S.admin.dot, text: '·' });
     dot.addEventListener('click', function () { B.admin.open(); });
-    var mas = mascot();
-    var el = h('div', { class: 'screen home' }, sky, zones, logo, tools(), fbPill, dot, mas);
+    var mas = mascot(); if (chips) chips.appendChild(mas);
+    var el = h('div', { class: 'screen home' }, sky, zones, tabbar, logo, tools());
+    zones.appendChild(fbPill); zones.appendChild(dot);
     // الأرنب يقفز وحده أحياناً ويلفت النظر إلى «فاجئني»
     var idle = setInterval(function () {
       if (!document.body.contains(el)) { clearInterval(idle); return; }
@@ -3469,6 +3547,7 @@ html.night::after { content: ''; position: fixed; inset: 0; z-index: 900; pointe
 
   B.home = {
     show: function () { return UI.go(build()); },
+    tab: function (id) { if (B.home._setTab) B.home._setTab(id); },
     build: build
   };
 })();
@@ -6808,95 +6887,82 @@ html.night::after { content: ''; position: fixed; inset: 0; z-index: 900; pointe
   function canSvg() { return art.svg('0 0 110 90', '<path d="M14 30H78L72 80Q71 86 65 86H28Q22 86 21 80Z" fill="#5CC8FF" stroke="#2468D1" stroke-width="4" stroke-linejoin="round"/><path d="M78 40L104 22" stroke="#2468D1" stroke-width="9" stroke-linecap="round"/><path d="M98 14L108 26" stroke="#2468D1" stroke-width="12" stroke-linecap="round"/><path d="M14 40Q-4 42 4 58Q10 64 20 58" fill="none" stroke="#2468D1" stroke-width="6" stroke-linecap="round"/><ellipse cx="42" cy="30" rx="26" ry="5" fill="#9FE0FF" stroke="#2468D1" stroke-width="3"/>', 'wt-can-svg'); }
   function seedSvg() { return art.svg('0 0 60 60', '<ellipse cx="30" cy="32" rx="14" ry="20" fill="#8A5A33" transform="rotate(25 30 32)"/><ellipse cx="25" cy="24" rx="4" ry="8" fill="#B67B4D" transform="rotate(25 25 24)"/>', 'wt-seed-svg'); }
 
+  function dropSvg() { return art.svg('0 0 40 56', '<path d="M20 4Q4 28 4 38a16 16 0 0 0 32 0Q36 28 20 4Z" fill="#5CC8FF" stroke="#2468D1" stroke-width="3"/><ellipse cx="14" cy="36" rx="4" ry="6" fill="#fff" opacity=".6"/>', 'wt-drop-svg'); }
+  var WSEQ = { 1: ['seed', 'water'], 2: ['seed', 'water', 'sun'], 3: ['seed', 'water', 'sun', 'water'], 4: ['seed', 'sun', 'water', 'water', 'sun'], 5: ['seed', 'water', 'sun', 'water', 'sun', 'water'] };
+  var WDIST = ['apple', 'ball', 'key', 'book', 'umbrella', 'carrot'];
   mini('water', 'wt-stage', 'rabbit', async function (ctx, st, level, demo, alive, setCur) {
-    var waters = level <= 1 ? 1 : level <= 3 ? 2 : 3, sun = level >= 4;
-    var steps = ['seed']; for (var w = 0; w < waters; w++) steps.push('can'); if (sun) steps.push('sun');
-    var col = kit.pick(BLOOMS);
+    var steps = WSEQ[level] || WSEQ[1], col = kit.pick(BLOOMS), done = 0, errors = 0;
     st.top.innerHTML = ''; st.tray.innerHTML = '';
     var scene = h('div', { class: 'wt-scene' });
     var plant = h('div', { class: 'wt-plant' }); var pot = h('div', { class: 'wt-pot', html: potSvg() });
-    var seed = h('button', { class: 'wt-tool wt-seed', type: 'button', 'aria-label': 'seed', html: seedSvg() });
-    var can = h('button', { class: 'wt-tool wt-can', type: 'button', 'aria-label': 'can', html: canSvg() });
-    var sunB = h('button', { class: 'wt-tool wt-sun', type: 'button', 'aria-label': 'sun', html: art.sun() });
-    scene.appendChild(plant); scene.appendChild(pot); scene.appendChild(seed);
+    var bubble = h('div', { class: 'wt-bubble' });
+    scene.appendChild(plant); scene.appendChild(pot); scene.appendChild(bubble);
     st.top.appendChild(scene);
-    var tools = { seed: seed, can: can, sun: sunB };
-    steps.forEach(function (s) { if (s !== 'seed' && !scene.contains(tools[s])) scene.appendChild(tools[s]); });
-    steps.forEach(function (s) { tools[s].style.display = s === 'seed' ? '' : 'none'; });
-    var cur = 0, errors = 0, idle = 0, busy = false, done, fin = new Promise(function (r) { done = r; });
-    function target() { return tools[steps[cur]]; }
-    function showStep() {
-      var t = target(); if (!t) return; t.style.display = ''; t.classList.add('wt-next');
-      UI.anim(t, [{ opacity: 0, transform: 'scale(.4)' }, { opacity: 1, transform: 'none' }], { dur: 420, easing: UI.SPRING, fill: 'backwards' });
-      idle = 0;
-    }
     UI.anim(scene, [{ opacity: 0, transform: 'scale(.8)' }, { opacity: 1, transform: 'none' }], { dur: 450, easing: UI.SPRING, fill: 'backwards' });
     if (B.audio) B.audio.play('card');
+    function stageNow() { var total = steps.length - 1, p = done / total; return done === 0 ? 0 : Math.min(3, Math.max(1, Math.ceil(p * 3))); }
     function grow() {
-      var total = steps.length - 1, p = (cur) / total;      // cur = عدد الخطوات المنجزة بعد البذرة
-      var stg = cur === 0 ? 0 : Math.min(3, Math.ceil(p * 3));
-      plant.innerHTML = plantSvg(stg, col);
+      plant.innerHTML = plantSvg(stageNow(), col);
       var s = plant.firstChild; if (s) UI.anim(s, [{ transform: 'scaleY(.3)', transformOrigin: '50% 100%' }, { transform: 'scaleY(1.08)', transformOrigin: '50% 100%' }, { transform: 'scaleY(1)', transformOrigin: '50% 100%' }], { dur: 700, easing: UI.SPRING, fill: 'none' });
     }
-    async function act() {
-      if (busy) return; busy = true;
-      var step = steps[cur], t = target(); if (!t) { busy = false; return; } t.classList.remove('wt-next', 'pulse-hint');
-      if (step === 'seed') {
-        var a = kit.center(t, ctx.stage), b = kit.center(pot, ctx.stage);
-        await ctx.anim(t, [{ transform: 'translate(0,0)' }, { transform: 'translate(' + (b.x - a.x) * 0.5 + 'px,' + (b.y - a.y - 80) + 'px)', offset: 0.5 }, { transform: 'translate(' + (b.x - a.x) + 'px,' + (b.y - a.y - 10) + 'px)', opacity: 0 }], { dur: 700, easing: 'ease-in', fill: 'forwards' });
-        if (B.audio) B.audio.play('place');
-        pot.querySelector('.wt-soil').setAttribute('fill', '#6B4426');
-      } else if (step === 'can') {
-        await ctx.anim(t, [{ transform: 'rotate(0)' }, { transform: 'rotate(-25deg) translateY(-10px)' }], { dur: 350, fill: 'forwards' });
-        var pr = pot.getBoundingClientRect(), sr = ctx.stage.getBoundingClientRect(), cr = t.getBoundingClientRect();
-        for (var i = 0; i < 7; i++) {
-          var d = h('span', { class: 'wt-drop', style: { left: cr.left - sr.left + 6 + i * 3 + 'px', top: cr.top - sr.top + cr.height * 0.45 + 'px' } });
-          ctx.stage.appendChild(d);
-          UI.anim(d, [{ transform: 'translateY(0)', opacity: 1 }, { transform: 'translateY(' + (pr.top - cr.top + 4) + 'px)', opacity: 1, offset: 0.85 }, { transform: 'translateY(' + (pr.top - cr.top + 14) + 'px)', opacity: 0 }], { dur: 700, delay: i * 70, easing: 'ease-in' }).then((function (x) { return function () { x.remove(); }; })(d));
+    function toolHtml(k) { return k === 'seed' ? seedSvg() : k === 'water' ? canSvg() : k === 'sun' ? art.sun() : pic(k); }
+    function needHtml(k) { return k === 'seed' ? pic('leaf') : k === 'water' ? dropSvg() : pic('sun'); }
+    function sceneXY(el) { var c = kit.center(el, ctx.stage), s = kit.center(scene, ctx.stage); return { x: c.x, y: c.y, sx: s.x, sy: s.y }; }
+    async function effect(k, btn) {
+      var potC = kit.center(pot, ctx.stage), from = kit.center(btn, ctx.stage), sr = scene.getBoundingClientRect(), stg = ctx.stage.getBoundingClientRect();
+      if (k === 'seed') {
+        var f = h('div', { class: 'wt-fly', style: { left: from.x - 30 + 'px', top: from.y - 30 + 'px' }, html: seedSvg() }); ctx.stage.appendChild(f);
+        await ctx.anim(f, [{ transform: 'translate(0,0)' }, { transform: 'translate(' + (potC.x - from.x) * 0.5 + 'px,' + (potC.y - from.y - 120) + 'px)', offset: 0.5 }, { transform: 'translate(' + (potC.x - from.x) + 'px,' + (potC.y - from.y - 20) + 'px) scale(.5)', opacity: 0.2 }], { dur: 750, easing: 'ease-in' });
+        f.remove(); if (B.audio) B.audio.play('place'); pot.querySelector('.wt-soil').setAttribute('fill', '#6B4426');
+      } else if (k === 'water') {
+        // الإبريق يقف على يسار الأصيص ومَصبّه نحو النبتة، ثم يميل ويصبّ
+        var cn = h('div', { class: 'wt-can-fly', html: canSvg() }); scene.appendChild(cn);
+        await ctx.anim(cn, [{ opacity: 0, transform: 'translate(-40px,30px) rotate(0)' }, { opacity: 1, transform: 'translate(0,0) rotate(0)' }], { dur: 350, easing: UI.SPRING, fill: 'forwards' });
+        await ctx.anim(cn, [{ transform: 'translate(0,0) rotate(0)' }, { transform: 'translate(0,-6px) rotate(32deg)' }], { dur: 350, fill: 'forwards' });
+        var cr = cn.getBoundingClientRect(), pr = pot.getBoundingClientRect();
+        var sx0 = cr.right - sr.left - cr.width * 0.12, sy0 = cr.top - sr.top + cr.height * 0.55;
+        for (var i = 0; i < 8; i++) {
+          var d = h('span', { class: 'wt-drop', style: { left: sx0 + (i % 2) * 6 + 'px', top: sy0 + 'px' } }); scene.appendChild(d);
+          UI.anim(d, [{ transform: 'translate(0,0)', opacity: 1 }, { transform: 'translate(' + (pr.left + pr.width * 0.3 - sr.left - sx0) + 'px,' + (pr.top - sr.top - sy0 + 6) + 'px)', opacity: 1, offset: 0.85 }, { transform: 'translate(' + (pr.left + pr.width * 0.3 - sr.left - sx0) + 'px,' + (pr.top - sr.top - sy0 + 18) + 'px)', opacity: 0 }], { dur: 650, delay: i * 80, easing: 'ease-in' }).then((function (x) { return function () { x.remove(); }; })(d));
         }
         if (B.audio) B.audio.play('splash');
-        await ctx.sleep(900);
+        await ctx.sleep(1000);
         pot.querySelector('.wt-soil').setAttribute('fill', '#4A2E18');
-        await ctx.anim(t, [{ transform: 'rotate(-25deg) translateY(-10px)' }, { transform: 'rotate(0)' }], { dur: 350, fill: 'forwards' });
-        t.style.display = 'none';
-      } else { // sun
-        t.classList.add('shine');
+        await ctx.anim(cn, [{ transform: 'translate(0,-6px) rotate(32deg)', opacity: 1 }, { transform: 'translate(-30px,20px) rotate(0)', opacity: 0 }], { dur: 350, fill: 'forwards' });
+        cn.remove();
+      } else { // الشمس
+        var sn = h('div', { class: 'wt-sun-fly', html: art.sun() }); scene.appendChild(sn);
+        await ctx.anim(sn, [{ opacity: 0, transform: 'translate(-60px,-60px) scale(.5)' }, { opacity: 1, transform: 'translate(0,0) scale(1)' }], { dur: 600, easing: UI.SPRING, fill: 'forwards' });
         if (B.audio) B.audio.play('sparkle');
-        await ctx.sleep(1000); t.style.display = 'none';
+        UI.burst(ctx.stage, kit.center(plant, ctx.stage).x, kit.center(plant, ctx.stage).y - 40, { n: 12, spread: 90, dur: 900, colors: ['#FFD34E', '#FFF0A6'] });
+        await ctx.anim(sn, [{ transform: 'translate(0,0) scale(1) rotate(0)' }, { transform: 'translate(0,0) scale(1.15) rotate(90deg)' }], { dur: 900, fill: 'forwards' });
+        await ctx.anim(sn, [{ opacity: 1 }, { opacity: 0 }], { dur: 300, fill: 'forwards' }); sn.remove();
       }
-      cur++; grow();
-      if (B.audio) B.audio.play('pop');
-      busy = false;
-      if (cur >= steps.length) { done(true); return; }
-      showStep();
     }
-    steps.forEach(function (s) { UI.bindPress(tools[s], function () { if (!busy && steps[cur] === s && !ctx.paused) act(); }); });
-    st.solve = function () { if (busy || cur >= steps.length) return false; act(); return true; };
-    st.stop = function () { done(false); };
-    seed.classList.add('wt-next');
-    await ctx.sleep(600); if (!alive()) return;
-    // سلّم المساعدة: نبض بعد ٦ ثوانٍ بلا لمس، ثم الكفّ بعد ١٢
-    (async function watch() {
-      while (alive() && cur < steps.length) {
-        await ctx.sleep(1000); if (ctx.paused || busy) continue;
-        if (cur >= steps.length || !target()) break;
-        idle++;
-        if (idle === 6) { target().classList.add('pulse-hint'); errors++; }
-        if (idle >= 12 || (demo && idle >= 2)) {
-          var t = target(); if (!t) break; var c = kit.center(t, ctx.stage), hd = kit.hand(ctx.stage, c.x, c.y + c.h * 0.1);
-          await ctx.sleep(600); await hd.tap(); hd.el.remove(); idle = 0; if (cur >= steps.length) break; if (!busy && cur < steps.length) act();
-        }
-      }
-    })();
-    await fin; st.solve = null;
-    if (!alive()) return;
-    // الزهرة تتفتح وتُزرع في «بستاني»، وفراشة تزورها
+    st.solve = null;
+    await ctx.sleep(500); if (!alive()) return;
+    for (var si = 0; si < steps.length; si++) {
+      var k = steps[si];
+      bubble.innerHTML = needHtml(k); bubble.style.display = '';
+      UI.anim(bubble, [{ opacity: 0, transform: 'scale(.3)' }, { opacity: 1, transform: 'none' }], { dur: 420, easing: UI.SPRING, fill: 'backwards' });
+      var dist = kit.shuffle(WDIST.slice()).slice(0, 2), keys = kit.shuffle([k].concat(dist));
+      var btns = addBtns(st, keys.map(toolHtml));
+      var res = await ask(ctx, st, btns, keys.indexOf(k), demo, alive, setCur); if (!res) return;
+      errors += res.errors || 0;
+      btns.forEach(function (b, i) { if (i !== keys.indexOf(k)) b.classList.add('faded'); });
+      bubble.style.display = 'none';
+      await effect(k, btns[keys.indexOf(k)]); if (!alive()) return;
+      done++; if (k !== 'seed' || true) grow();
+      if (B.audio) B.audio.play('pop');
+      await ctx.sleep(350); if (!alive()) return;
+    }
+    // الزهرة تتفتح، وفراشة تزورها
     var pc = kit.center(plant, ctx.stage);
     UI.burst(ctx.stage, pc.x, pc.y - 40, { n: 24, spread: 150, dur: 1500, colors: [col[0], col[1], '#fff', '#FFD34E'] });
     if (B.audio) B.audio.play('cheer');
     var bf = h('div', { class: 'wt-bf', html: art.gameIcon('mirror') }); scene.appendChild(bf);
-    UI.anim(bf, [{ transform: 'translate(-120%,-80%) scale(.5)', opacity: 0 }, { transform: 'translate(0,-30%) scale(1)', opacity: 1, offset: 0.4 }, { transform: 'translate(20%,-60%) scale(1)', offset: 0.7 }, { transform: 'translate(140%,-140%) scale(.6)', opacity: 0 }], { dur: 2000, easing: 'ease-in-out' });
-    UI.anim(plant, [{ transform: 'rotate(0)' }, { transform: 'rotate(-5deg)' }, { transform: 'rotate(5deg)' }, { transform: 'rotate(0)' }], { dur: 1400, fill: 'none' });
+    UI.anim(bf, [{ transform: 'translate(-120%,-80%) scale(.5)', opacity: 0 }, { transform: 'translate(0,-30%) scale(1)', opacity: 1, offset: 0.4 }, { transform: 'translate(20%,-60%) scale(1)', offset: 0.7 }, { transform: 'translate(160%,-120%) scale(.6)', opacity: 0 }], { dur: 2000, fill: 'none' });
+    UI.anim(plant, [{ transform: 'translateX(-50%) rotate(0)' }, { transform: 'translateX(-50%) rotate(-5deg)' }, { transform: 'translateX(-50%) rotate(5deg)' }, { transform: 'translateX(-50%) rotate(0)' }], { dur: 1400, fill: 'none' });
     await ctx.sleep(2100); if (!alive()) return;
     return { errors: demo ? 0 : Math.min(errors, 4) };
   });
@@ -6978,20 +7044,20 @@ html.night::after { content: ''; position: fixed; inset: 0; z-index: 900; pointe
       if (dist === 1) {
         if (openDir(w, pos, rc)) step(rc);
         else { var key = rc.join() + '>' + pos.join(); if (key !== bumpKey) { bumpKey = key; errors++; kit.wrong(bun); help(); } }
-      } else { var p = bfs(w, n, pos, rc); if (p && p.length <= 4) p.slice(1).forEach(step); }
+      }
     }
     var sx = 0, sy = 0, moved = false;
     board.addEventListener('pointerdown', function (e) { if (busy || ctx.paused) return; down = true; sx = e.clientX; sy = e.clientY; moved = false; try { board.setPointerCapture(e.pointerId); } catch (x) {} });
     board.addEventListener('pointermove', function (e) { if (Math.abs(e.clientX - sx) + Math.abs(e.clientY - sy) > 10) moved = true; move(e); });
     ['pointerup', 'pointercancel'].forEach(function (ev) { board.addEventListener(ev, function (e) {
       var was = down; down = false;
-      if (was && !moved && ev === 'pointerup' && !busy) { var rc = cellAt(e); if (rc) walkTo(rc); }   // لمسة: يمشي الأرنب إلى الخانة
+      if (was && !moved && ev === 'pointerup' && !busy) { var rc = cellAt(e); if (rc) stepToward(rc); }   // لمسة: خطوة واحدة نحو الخانة، ولا يخترق سياجاً
     }); });
-    async function walkTo(rc) {
-      var p = bfs(w, n, pos, rc); if (!p || p.length < 2) return;
-      busy = true;
-      for (var i = 1; i < p.length && alive(); i++) { step(p[i]); await ctx.sleep(170); }
-      busy = false;
+    function stepToward(rc) {
+      if (rc[0] === pos[0] && rc[1] === pos[1]) return;
+      var dist = Math.abs(rc[0] - pos[0]) + Math.abs(rc[1] - pos[1]);
+      if (dist === 1 && !openDir(w, pos, rc)) { errors++; kit.wrong(bun); help(); return; }   // سياج مباشر: اهتزاز لطيف
+      var p = bfs(w, n, pos, rc); if (p && p.length > 1) step(p[1]);
     }
     function help() {
       if (errors === 3) showHint();
@@ -7490,11 +7556,20 @@ html.night::after { content: ''; position: fixed; inset: 0; z-index: 900; pointe
         grid.classList.add('empty');
         grid.appendChild(h('div', { class: 'gl-empty' }, h('div', { class: 'gl-empty-ic', html: art.toolSave() }), h('div', { text: B.S.create.galleryEmpty })));
       }
+      function render() { stage.innerHTML = ''; B.free.gallery.open(ctx); }
       list.slice().reverse().forEach(function (src, i) {
+        var idx = list.length - 1 - i;
         var card = h('div', { class: 'gl-card', role: 'button', tabindex: '0' }, h('img', { src: src, alt: '' }));
         UI.anim(card, [{ opacity: 0, transform: 'scale(.6)' }, { opacity: 1, transform: 'none' }], { dur: 400, delay: Math.min(1200, i * 50), easing: UI.SPRING, fill: 'backwards' });
         card.addEventListener('click', function () {
-          big.innerHTML = ''; big.appendChild(h('img', { src: src, alt: '' }));
+          big.innerHTML = '';
+          var del = h('button', { class: 'gl-del', type: 'button', 'aria-label': B.S.create.del, html: art.trash() }, h('small', { text: B.S.create.del }));
+          var ask = h('div', { class: 'gl-ask', style: { display: 'none' } }, h('b', { text: B.S.create.delAsk }),
+            h('div', { class: 'gl-ask-row' }, h('button', { class: 'gl-yes', type: 'button', text: B.S.create.delYes }), h('button', { class: 'gl-no', type: 'button', text: B.S.create.delNo })));
+          del.addEventListener('click', function (e) { e.stopPropagation(); del.style.display = 'none'; ask.style.display = ''; });
+          ask.querySelector('.gl-no').addEventListener('click', function (e) { e.stopPropagation(); ask.style.display = 'none'; del.style.display = ''; });
+          ask.querySelector('.gl-yes').addEventListener('click', function (e) { e.stopPropagation(); B.gallery.remove(idx); if (B.audio) B.audio.play('sweep'); render(); });
+          big.appendChild(h('img', { src: src, alt: '' })); big.appendChild(del); big.appendChild(ask);
           big.style.display = ''; UI.anim(big, [{ opacity: 0, transform: 'scale(.8)' }, { opacity: 1, transform: 'none' }], { dur: 350, easing: UI.SPRING, fill: 'none' });
           if (B.audio) B.audio.play('pick');
         });

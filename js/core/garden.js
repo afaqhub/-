@@ -17,6 +17,7 @@
       if (!B.storage.isPersistent() && g.length > 6) g.shift();
       return g.length;
     },
+    remove: function (i) { var g = B.storage.data().gallery; if (i >= 0 && i < g.length) { g.splice(i, 1); B.storage.save(); } },
     clear: function () { B.storage.data().gallery = []; B.storage.save(); }
   };
 

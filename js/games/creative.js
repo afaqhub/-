@@ -459,11 +459,20 @@
         grid.classList.add('empty');
         grid.appendChild(h('div', { class: 'gl-empty' }, h('div', { class: 'gl-empty-ic', html: art.toolSave() }), h('div', { text: B.S.create.galleryEmpty })));
       }
+      function render() { stage.innerHTML = ''; B.free.gallery.open(ctx); }
       list.slice().reverse().forEach(function (src, i) {
+        var idx = list.length - 1 - i;
         var card = h('div', { class: 'gl-card', role: 'button', tabindex: '0' }, h('img', { src: src, alt: '' }));
         UI.anim(card, [{ opacity: 0, transform: 'scale(.6)' }, { opacity: 1, transform: 'none' }], { dur: 400, delay: Math.min(1200, i * 50), easing: UI.SPRING, fill: 'backwards' });
         card.addEventListener('click', function () {
-          big.innerHTML = ''; big.appendChild(h('img', { src: src, alt: '' }));
+          big.innerHTML = '';
+          var del = h('button', { class: 'gl-del', type: 'button', 'aria-label': B.S.create.del, html: art.trash() }, h('small', { text: B.S.create.del }));
+          var ask = h('div', { class: 'gl-ask', style: { display: 'none' } }, h('b', { text: B.S.create.delAsk }),
+            h('div', { class: 'gl-ask-row' }, h('button', { class: 'gl-yes', type: 'button', text: B.S.create.delYes }), h('button', { class: 'gl-no', type: 'button', text: B.S.create.delNo })));
+          del.addEventListener('click', function (e) { e.stopPropagation(); del.style.display = 'none'; ask.style.display = ''; });
+          ask.querySelector('.gl-no').addEventListener('click', function (e) { e.stopPropagation(); ask.style.display = 'none'; del.style.display = ''; });
+          ask.querySelector('.gl-yes').addEventListener('click', function (e) { e.stopPropagation(); B.gallery.remove(idx); if (B.audio) B.audio.play('sweep'); render(); });
+          big.appendChild(h('img', { src: src, alt: '' })); big.appendChild(del); big.appendChild(ask);
           big.style.display = ''; UI.anim(big, [{ opacity: 0, transform: 'scale(.8)' }, { opacity: 1, transform: 'none' }], { dur: 350, easing: UI.SPRING, fill: 'none' });
           if (B.audio) B.audio.play('pick');
         });

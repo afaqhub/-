@@ -288,7 +288,7 @@
     return svg('0 0 48 48', '<path d="M6 18V6h12M30 6h12v12M42 30v12H30M18 42H6V30" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>', 'icon-svg');
   }
   function diceIcon() {
-    return svg('0 0 48 48', '<rect x="6" y="6" width="36" height="36" rx="9" fill="currentColor"/><circle cx="17" cy="17" r="3.4" fill="#fff"/><circle cx="31" cy="17" r="3.4" fill="#fff"/><circle cx="24" cy="24" r="3.4" fill="#fff"/><circle cx="17" cy="31" r="3.4" fill="#fff"/><circle cx="31" cy="31" r="3.4" fill="#fff"/>', 'icon-svg');
+    return svg('0 0 48 48', '<rect x="6" y="6" width="36" height="36" rx="9" fill="#fff"/><circle cx="17" cy="17" r="3.4" fill="#8E5CF0"/><circle cx="31" cy="17" r="3.4" fill="#8E5CF0"/><circle cx="24" cy="24" r="3.4" fill="#8E5CF0"/><circle cx="17" cy="31" r="3.4" fill="#8E5CF0"/><circle cx="31" cy="31" r="3.4" fill="#8E5CF0"/>', 'icon-svg');
   }
   /* أدوات الرسم: أيقونات واضحة */
   function mixIcon() { // دائرتان متداخلتان تتولد منهما ثالثة
@@ -299,6 +299,9 @@
   }
   function eraserIcon() {
     return svg('0 0 100 100', '<g transform="rotate(-30 50 50)"><rect x="14" y="30" width="72" height="40" rx="10" fill="#FF9DB3" stroke="#C23C69" stroke-width="5"/><rect x="14" y="30" width="26" height="40" rx="10" fill="#8FD3F4" stroke="#2468D1" stroke-width="5"/></g>', 'tool-svg');
+  }
+  function trashIcon() {
+    return svg('0 0 100 100', '<path d="M24 30H76L70 88Q69 92 65 92H35Q31 92 30 88Z" fill="#B8C4E8" stroke="#6B7BB8" stroke-width="5" stroke-linejoin="round"/><rect x="16" y="20" width="68" height="10" rx="5" fill="#8FA0D8" stroke="#6B7BB8" stroke-width="5"/><rect x="38" y="10" width="24" height="10" rx="4" fill="#8FA0D8" stroke="#6B7BB8" stroke-width="4"/><path d="M40 42V80M50 42V80M60 42V80" stroke="#6B7BB8" stroke-width="5" stroke-linecap="round"/>', 'tool-svg');
   }
   function saveIcon() {
     return svg('0 0 100 100', '<rect x="10" y="16" width="80" height="68" rx="9" fill="#FAFCFF" stroke="#8E5CF0" stroke-width="6"/><path d="M16 74L38 48L54 64L66 52L84 74Z" fill="#2DBE7E"/><circle cx="70" cy="34" r="9" fill="#FFD34E"/><path d="M50 90v-10M44 86h12" stroke="#F2658E" stroke-width="6" stroke-linecap="round"/>', 'tool-svg');
@@ -635,7 +638,7 @@
     house: house,
     replayIcon: replayIcon,
     pauseIcon: pauseIcon,
-    moonBtn: moonIcon, sunBtn: sunIcon, full: fullIcon, dice: diceIcon, toolMix: mixIcon, toolSize: sizeIcon, toolErase: eraserIcon, toolClear: broomIcon, toolSave: saveIcon,
+    moonBtn: moonIcon, sunBtn: sunIcon, full: fullIcon, dice: diceIcon, toolMix: mixIcon, toolSize: sizeIcon, toolErase: eraserIcon, toolClear: broomIcon, toolSave: saveIcon, trash: trashIcon,
     check: check,
     playIcon: playIcon,
     bulb: bulb,
