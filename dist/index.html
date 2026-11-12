@@ -1109,8 +1109,8 @@ html.night::after { content: ''; position: fixed; inset: 0; z-index: 900; pointe
 .mz-cell { background: #D9F5C6; box-sizing: border-box; } .mz-cell.alt { background: #CBEFB5; }
 .mz-cell.wt { border-top: 6px solid #1C8F5C; } .mz-cell.wl { border-left: 6px solid #1C8F5C; } .mz-cell.wr { border-right: 6px solid #1C8F5C; } .mz-cell.wb { border-bottom: 6px solid #1C8F5C; }
 .mz-cell.hint { background: #FFE58A; animation: gapPulse 1s ease-in-out infinite; }
-.mz-item, .mz-rabbit { position: absolute; padding: 12%; box-sizing: border-box; pointer-events: none; transition: left .15s linear, top .15s linear; }
-.mz-item svg, .mz-rabbit svg { width: 100%; height: 100%; filter: drop-shadow(0 3px 0 rgba(0, 0, 0, .15)); } .mz-goal { transition: none; } .mz-rabbit { z-index: 3; }
+.mz-item, .mz-rabbit { position: absolute; padding: 0; display: grid; place-items: center; box-sizing: border-box; pointer-events: none; transition: left .15s linear, top .15s linear; }
+.mz-item svg, .mz-rabbit svg { width: 78%; height: 78%; filter: drop-shadow(0 3px 0 rgba(0, 0, 0, .15)); } .mz-goal { transition: none; } .mz-rabbit { z-index: 3; }
 @media (max-height: 500px) { .mz-board { width: min(76vh, 60vw); } }
 /* ═════════ إبداعاتي + علامة الحفظ ═════════ */
 .saved-mark { position: absolute; z-index: 80; left: 50%; top: 40%; width: 120px; margin: -60px 0 0 -60px; pointer-events: none; } .saved-mark svg { width: 100%; height: auto; filter: drop-shadow(0 8px 10px rgba(0, 0, 0, .25)); }
