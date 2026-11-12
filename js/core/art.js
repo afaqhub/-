@@ -618,8 +618,8 @@
     if (zone === 'solo') {
       return svg('0 0 100 100', '<g transform="translate(6 6) scale(.88)">' + ANIMALS.bear() + '</g>', 'zone-badge');
     }
-    if (zone === 'create') { // نجمة ثمانية (خاتم) بسيطة
-      return svg('0 0 100 100', '<rect x="16" y="16" width="68" height="68" rx="5" fill="#FFD34E" stroke="#E2A21B" stroke-width="4" stroke-linejoin="round"/><rect x="16" y="16" width="68" height="68" rx="5" fill="#FFD34E" stroke="#E2A21B" stroke-width="4" stroke-linejoin="round" transform="rotate(45 50 50)"/><circle cx="50" cy="50" r="13" fill="#F2658E"/><circle cx="50" cy="50" r="5" fill="#fff"/>', 'zone-badge');
+    if (zone === 'create') { // قلم تلوين ملوّن وخطّة ملونة
+      return svg('0 0 100 100', '<path d="M14 80Q30 62 44 74T70 70" stroke="#5CC8FF" stroke-width="7" fill="none" stroke-linecap="round"/><g transform="rotate(40 50 46)"><rect x="38" y="10" width="24" height="56" rx="5" fill="#FF8A3D" stroke="#C9611F" stroke-width="3"/><rect x="38" y="24" width="24" height="10" fill="#FFD34E"/><path d="M38 66L50 90L62 66Z" fill="#F7D9A8" stroke="#C9611F" stroke-width="3" stroke-linejoin="round"/><path d="M45 80L50 90L55 80Z" fill="#F2658E"/></g>', 'zone-badge');
     }
     if (zone === 'all') { // كل الألعاب: أربع مربعات ملوّنة
       return svg('0 0 100 100', '<rect x="10" y="10" width="38" height="38" rx="10" fill="#3FDCBC"/><rect x="52" y="10" width="38" height="38" rx="10" fill="#FF93B3"/><rect x="10" y="52" width="38" height="38" rx="10" fill="#B79BFF"/><rect x="52" y="52" width="38" height="38" rx="10" fill="#FFC83D"/>', 'zone-badge');

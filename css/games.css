@@ -761,3 +761,6 @@ html.night .tabbar { background: rgba(30, 36, 90, .75); } html.night .tab-btn { 
 .mz-goal.locked { opacity: .4; filter: grayscale(.9); }
 .logo-name { font-size: min(5.6vw, 34px) !important; }
 @media (min-width: 700px) { .logo-name { font-size: clamp(24px, 4.4vmin, 34px) !important; } }
+/* الشمس خلف العنوان في وسط الأعلى، فلا تغطيها أزرار الأدوات في الزاوية */
+.home-sun { left: 36%; top: 0%; width: clamp(96px, 20vmin, 160px); z-index: 0; }
+@media (orientation: landscape) { .home-sun { left: 38%; top: 0%; } }
