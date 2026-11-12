@@ -8,6 +8,15 @@
   var UI = B.UI, h = UI.h, art = B.art, kit = B.kit;
   B.free = B.free || {};
 
+  /* «تم الحفظ»: علامة ✓ تقفز وسط الشاشة */
+  function savedMark(stage) {
+    var m = h('div', { class: 'saved-mark', html: art.check() });
+    stage.appendChild(m);
+    if (B.audio) B.audio.play('place');
+    UI.anim(m, [{ opacity: 0, transform: 'scale(.3)' }, { opacity: 1, transform: 'scale(1.15)', offset: 0.35 }, { opacity: 1, transform: 'scale(1)', offset: 0.75 }, { opacity: 0, transform: 'scale(.9) translateY(-20px)' }], { dur: 1100 }).then(function () { m.remove(); });
+  }
+  function saveToGallery(stage, src) { B.gallery.add(src); savedMark(stage); }
+
   var COLS = ['#F2658E', '#FFC83D', '#2DBE7E', '#3D8BFD', '#8E5CF0', '#FF8A3D', '#5CC8FF', '#F0485A'];
 
   /* ═════════ ورشة الأشكال: ابنِ الصورة ═════════
@@ -200,6 +209,10 @@
         var c = kit.center(board, stage);
         UI.burst(stage, c.x, c.y, { n: 26, spread: 170, dur: 1500 });
         board.classList.add('done'); ws.done++;
+        // تُحفظ الصورة المكتملة تلقائياً في «إبداعاتي»
+        var svgStr = '<svg xmlns="http://www.w3.org/2000/svg" width="260" height="260" viewBox="0 0 100 100"><rect width="100" height="100" rx="8" fill="#fff"/>' +
+          pic.parts.map(function (pt) { return '<svg x="' + pt.x + '" y="' + pt.y + '" width="' + pt.w + '" height="' + pt.h + '" viewBox="0 0 100 100" preserveAspectRatio="none"><g fill="' + pt.c + '" stroke="rgba(31,42,90,.35)" stroke-width="3" vector-effect="non-scaling-stroke">' + shapePath(pt.s) + '</g></svg>'; }).join('') + '</svg>';
+        B.gallery.add('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgStr));
         if (pic.live === 'fly') {
           if (B.audio) B.audio.play('whoosh');
           UI.anim(art, [{ transform: 'translateY(0)' }, { transform: 'translateY(8px)', offset: 0.15 }, { transform: 'translateY(-120%)', offset: 0.6 }, { transform: 'translateY(-120%)', offset: 0.61, opacity: 0 }, { transform: 'translateY(30%)', opacity: 0, offset: 0.62 }, { transform: 'translateY(0)', opacity: 1 }], { dur: 2600, easing: 'ease-in-out', fill: 'none' });
@@ -294,6 +307,13 @@
       var next = h('button', { class: 'g-choice cl-next', type: 'button', 'aria-label': B.S.create.next, html: art.svg('0 0 100 100', '<rect x="22" y="14" width="56" height="72" rx="8" fill="#FAFCFF" stroke="#1F2A5A" stroke-width="5"/><path d="M60 40L40 50L60 60" fill="none" stroke="#F2658E" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>') });
       UI.bindPress(next, function () { page = (page + 1) % PAGES.length; if (B.audio) B.audio.play('whoosh'); show(); });
       tray.appendChild(next);
+      var csave = h('button', { class: 'g-choice dr-tool cl-save', type: 'button', 'aria-label': B.S.create.save, html: art.toolSave() }, h('small', { text: B.S.create.save }));
+      UI.bindPress(csave, function () {
+        var s = paper.querySelector('svg'); if (!s) return;
+        var xml = new XMLSerializer().serializeToString(s).replace('<svg ', '<svg width="300" height="300" style="background:#fff" ');
+        saveToGallery(stage, 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(xml));
+      });
+      tray.appendChild(csave);
       stage.appendChild(h('div', { class: 'g-main' }, paper));
       stage.appendChild(tray);
       show();
@@ -380,9 +400,14 @@
       var mixBtn = tool('dr-mix', art.toolMix(), B.S.create.tMix, function () { dr.mixing = !dr.mixing; dr.mixSel = null; refresh(); if (B.audio) B.audio.play('pick'); });
       mixBtn.appendChild(mixDot);
       var sizeBtn = tool('dr-size', art.toolSize(), B.S.create.tSize, function () { dr.size = (dr.size + 1) % 3; refresh(); if (B.audio) B.audio.play('pick'); });
+      var saveBtn = tool('dr-save', art.toolSave(), B.S.create.save, function () {
+        var w0 = 260, h0 = Math.round(w0 * canvas.height / canvas.width), c2 = document.createElement('canvas'); c2.width = w0; c2.height = h0;
+        var x = c2.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, w0, h0); x.drawImage(canvas, 0, 0, w0, h0);
+        saveToGallery(stage, c2.toDataURL('image/jpeg', 0.72));
+      });
       var eraseBtn = tool('dr-erase', art.toolErase(), B.S.create.tErase, function () { dr.eraser = !dr.eraser; refresh(); });
       var broom = tool('dr-broom', art.toolClear(), B.S.create.tClear, function () { var r = wrap.getBoundingClientRect(); g.fillStyle = '#FFFFFF'; g.fillRect(0, 0, r.width, r.height); if (B.audio) B.audio.play('sweep'); });
-      [mixBtn, sizeBtn, eraseBtn, broom].forEach(function (b) { tray.appendChild(b); });
+      [mixBtn, sizeBtn, eraseBtn, broom, saveBtn].forEach(function (b) { tray.appendChild(b); });
       // فاصل واضح بين الألوان والأدوات
       tray.insertBefore(h('span', { class: 'dr-sep' }), mixBtn);
       requestAnimationFrame(function () { fitCanvas(); g.fillStyle = '#FFFFFF'; g.fillRect(0, 0, canvas.width, canvas.height); refresh(); });
@@ -419,6 +444,33 @@
           UI.anim(el, [{ transform: 'rotate(0) scale(1)' }, { transform: 'rotate(-10deg) scale(1.2)' }, { transform: 'rotate(10deg) scale(1.2)' }, { transform: 'rotate(0) scale(1)' }], { dur: 500, fill: 'none' });
         });
       });
+    },
+    destroy: function () {}
+  };
+
+  /* ═════════ إبداعاتي (المعرض) ═════════ */
+  B.free.gallery = {
+    open: function (ctx) {
+      var stage = ctx.stage, list = B.gallery.list();
+      stage.classList.add('g-stage', 'gl-stage');
+      var grid = h('div', { class: 'gl-grid scrollable' });
+      var big = h('div', { class: 'gl-big', style: { display: 'none' } });
+      if (!list.length) {
+        grid.classList.add('empty');
+        grid.appendChild(h('div', { class: 'gl-empty' }, h('div', { class: 'gl-empty-ic', html: art.toolSave() }), h('div', { text: B.S.create.galleryEmpty })));
+      }
+      list.slice().reverse().forEach(function (src, i) {
+        var card = h('div', { class: 'gl-card', role: 'button', tabindex: '0' }, h('img', { src: src, alt: '' }));
+        UI.anim(card, [{ opacity: 0, transform: 'scale(.6)' }, { opacity: 1, transform: 'none' }], { dur: 400, delay: Math.min(1200, i * 50), easing: UI.SPRING, fill: 'backwards' });
+        card.addEventListener('click', function () {
+          big.innerHTML = ''; big.appendChild(h('img', { src: src, alt: '' }));
+          big.style.display = ''; UI.anim(big, [{ opacity: 0, transform: 'scale(.8)' }, { opacity: 1, transform: 'none' }], { dur: 350, easing: UI.SPRING, fill: 'none' });
+          if (B.audio) B.audio.play('pick');
+        });
+        grid.appendChild(card);
+      });
+      big.addEventListener('click', function () { big.style.display = 'none'; });
+      stage.appendChild(grid); stage.appendChild(big);
     },
     destroy: function () {}
   };

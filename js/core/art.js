@@ -300,6 +300,9 @@
   function eraserIcon() {
     return svg('0 0 100 100', '<g transform="rotate(-30 50 50)"><rect x="14" y="30" width="72" height="40" rx="10" fill="#FF9DB3" stroke="#C23C69" stroke-width="5"/><rect x="14" y="30" width="26" height="40" rx="10" fill="#8FD3F4" stroke="#2468D1" stroke-width="5"/></g>', 'tool-svg');
   }
+  function saveIcon() {
+    return svg('0 0 100 100', '<rect x="10" y="16" width="80" height="68" rx="9" fill="#FAFCFF" stroke="#8E5CF0" stroke-width="6"/><path d="M16 74L38 48L54 64L66 52L84 74Z" fill="#2DBE7E"/><circle cx="70" cy="34" r="9" fill="#FFD34E"/><path d="M50 90v-10M44 86h12" stroke="#F2658E" stroke-width="6" stroke-linecap="round"/>', 'tool-svg');
+  }
   function broomIcon() {
     return svg('0 0 100 100', '<path d="M62 8L44 52" stroke="#8A5A33" stroke-width="9" stroke-linecap="round"/><path d="M26 50L62 60L56 92Q36 96 16 84Z" fill="#FFD34E" stroke="#E2A21B" stroke-width="4" stroke-linejoin="round"/><path d="M30 64l-4 22M42 66l-2 24M52 68l-1 22" stroke="#E2A21B" stroke-width="3" stroke-linecap="round"/>', 'tool-svg');
   }
@@ -556,6 +559,24 @@
       '<rect x="52" y="8" width="42" height="42" rx="10" fill="#BFEAD0"/><circle cx="66" cy="28" r="12" fill="#2DBE7E"/><rect x="63" y="34" width="5" height="12" fill="#8A5A33"/>' +
       '<g transform="translate(22 52) scale(.5)">' + ANIMALS.frog(false) + '</g>';
   };
+  GAME_ICONS.missing = function () {
+    return '<rect x="8" y="40" width="84" height="28" rx="9" fill="#F0485A"/><path d="M26 40L36 20H66L78 40Z" fill="#F0485A"/><path d="M34 38L40 24H49V38ZM53 38V24H64L72 38Z" fill="#D6EEFF"/>' +
+      '<circle cx="28" cy="70" r="12" fill="#1F2A5A"/><circle cx="28" cy="70" r="5" fill="#8FA0D8"/><circle cx="72" cy="70" r="12" fill="none" stroke="#8FA0D8" stroke-width="4" stroke-dasharray="5 5"/>';
+  };
+  GAME_ICONS.water = function () {
+    return '<path d="M30 70H70L64 94H36Z" fill="#E07A4F" stroke="#B85A33" stroke-width="3" stroke-linejoin="round"/><rect x="26" y="62" width="48" height="12" rx="6" fill="#F08F63"/>' +
+      '<path d="M50 60V36" stroke="#1C8F5C" stroke-width="5" stroke-linecap="round"/><path d="M50 46Q34 38 28 48Q42 56 50 46Z" fill="#2DBE7E"/><circle cx="50" cy="26" r="11" fill="#F2658E"/><circle cx="50" cy="26" r="4.5" fill="#FFD34E"/>' +
+      '<path d="M74 22L90 14M82 28q6 6 4 12" stroke="#2468D1" stroke-width="5" fill="none" stroke-linecap="round"/><circle cx="84" cy="48" r="3" fill="#5CC8FF"/><circle cx="90" cy="58" r="3" fill="#5CC8FF"/>';
+  };
+  GAME_ICONS.maze = function () {
+    return '<rect x="8" y="8" width="84" height="84" rx="10" fill="#CFF0C0"/><path d="M8 34H58M34 34V62M58 62H92M58 8V34M34 62H8M70 62V92M20 92V78" stroke="#1C8F5C" stroke-width="6" stroke-linecap="round" fill="none"/>' +
+      '<g transform="translate(10 12) scale(.26)"><circle cx="50" cy="55" r="36" fill="#fff" stroke="#D5CEEA" stroke-width="3"/><ellipse cx="35" cy="22" rx="9" ry="22" fill="#fff" stroke="#D5CEEA" stroke-width="3"/><ellipse cx="65" cy="22" rx="9" ry="22" fill="#fff" stroke="#D5CEEA" stroke-width="3"/></g>' +
+      '<path d="M76 76Q88 66 86 82Q80 92 70 84Z" fill="#FF8A3D"/>';
+  };
+  GAME_ICONS.gallery = function () {
+    return '<rect x="10" y="14" width="80" height="68" rx="8" fill="#FAFCFF" stroke="#8E5CF0" stroke-width="6"/><path d="M16 74L38 48L54 64L66 52L84 74Z" fill="#2DBE7E"/><circle cx="70" cy="34" r="9" fill="#FFD34E"/>' +
+      '<path d="M28 90H72" stroke="#8E5CF0" stroke-width="6" stroke-linecap="round"/>';
+  };
   GAME_ICONS.workshop = function () {
     return '<rect x="10" y="50" width="38" height="38" rx="6" fill="#3D8BFD" fill-opacity=".8" stroke="#3D8BFD" stroke-width="4"/>' +
       '<polygon points="50,10 74,50 26,50" fill="#F2658E" fill-opacity=".8" stroke="#F2658E" stroke-width="4" stroke-linejoin="round"/>' +
@@ -614,7 +635,7 @@
     house: house,
     replayIcon: replayIcon,
     pauseIcon: pauseIcon,
-    moonBtn: moonIcon, sunBtn: sunIcon, full: fullIcon, dice: diceIcon, toolMix: mixIcon, toolSize: sizeIcon, toolErase: eraserIcon, toolClear: broomIcon,
+    moonBtn: moonIcon, sunBtn: sunIcon, full: fullIcon, dice: diceIcon, toolMix: mixIcon, toolSize: sizeIcon, toolErase: eraserIcon, toolClear: broomIcon, toolSave: saveIcon,
     check: check,
     playIcon: playIcon,
     bulb: bulb,

@@ -6,7 +6,7 @@
 
   var KEY = 'bustan.progress';
   var SCHEMA = 3;
-  var GAME_IDS = ['train', 'mirror', 'pattern', 'fruits', 'letters', 'memory', 'shadows', 'more', 'odd', 'tracing', 'feed', 'hide', 'vanish', 'order', 'habitat', 'firstsound', 'bridge'];
+  var GAME_IDS = ['train', 'mirror', 'pattern', 'fruits', 'letters', 'memory', 'shadows', 'more', 'odd', 'tracing', 'feed', 'hide', 'vanish', 'order', 'habitat', 'missing', 'water', 'maze', 'firstsound', 'bridge'];
   var MAX_DAYS = 60;
 
   var data = null;
@@ -28,6 +28,8 @@
       lock: { soloOpenDate: '' }, // تاريخ اليوم الذي فتح فيه الوالد «وحدي» رغم الحد
       demoSeen: {},      // id -> true
       garden: [],        // أنواع ما زُرع في «بستاني»
+      gallery: [],       // صور «إبداعاتي» (روابط data)
+      last: '',          // آخر لعبة لُعبت (لبطاقة «أكمل»)
       welcomed: false    // هل عُرضت شاشة الترحيب
     };
   }
@@ -147,6 +149,7 @@
 
     recordRound: function (id) {
       var g = data.games[id];
+      data.last = id;
       g.rounds++;
       g.last = todayKey();
       var d = day();

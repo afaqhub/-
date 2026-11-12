@@ -23,6 +23,7 @@
     { id: 'odd', zone: 'solo', rounds: 10, cat: 'watch' },
     { id: 'hide', zone: 'solo', rounds: 10, cat: 'watch' },
     { id: 'vanish', zone: 'solo', rounds: 10, cat: 'watch' },
+    { id: 'missing', zone: 'solo', rounds: 10, cat: 'watch' },
     { id: 'fruits', zone: 'solo', rounds: 10, cat: 'num' },
     { id: 'more', zone: 'solo', rounds: 10, cat: 'num' },
     { id: 'order', zone: 'solo', rounds: 10, cat: 'num' },
@@ -33,12 +34,15 @@
     { id: 'train', zone: 'solo', rounds: 10, cat: 'move' },
     { id: 'feed', zone: 'solo', rounds: 10, cat: 'know' },
     { id: 'habitat', zone: 'solo', rounds: 10, cat: 'know' },
+    { id: 'water', zone: 'solo', rounds: 10, cat: 'know' },
+    { id: 'maze', zone: 'solo', rounds: 10, cat: 'move' },
     { id: 'firstsound', zone: 'together', rounds: 8 },
     { id: 'bridge', zone: 'together', rounds: 8 },
     // القسم الإبداعي: لعب حرّ بلا جولات ولا مصابيح
     { id: 'workshop', zone: 'create', free: true },
     { id: 'coloring', zone: 'create', free: true },
     { id: 'drawing', zone: 'create', free: true },
+    { id: 'gallery', zone: 'create', free: true },
     { id: 'garden', zone: 'garden', free: true }
   ];
   B.free = B.free || {};

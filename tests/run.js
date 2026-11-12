@@ -320,7 +320,7 @@ async function seeDemoThrough(page) {
       dir: document.documentElement.dir, lang: document.documentElement.lang,
       digits: !/[0-9]/.test(document.body.innerText)
     }));
-    ok(info.zones === 3 && info.tiles === 20 && !!(await page.$('.gd-banner')), `${name}: ثلاث مناطق و٢٠ نشاطاً وبطاقة «بستاني» مستقلة`);
+    ok(info.zones === 3 && info.tiles === 24 && !!(await page.$('.gd-banner')), `${name}: ثلاث مناطق و٢٤ نشاطاً وبطاقة «بستاني» مستقلة`);
     ok(info.sleeping === 0, `${name}: كل الألعاب متاحة (لا أيقونات نائمة)`);
     const fontOk = await page.evaluate(async () => {
       const r = await Promise.all(['400', '700', '800'].map((w) => document.fonts.load(w + ' 20px Tajawal', 'بستان')));
@@ -511,7 +511,7 @@ async function seeDemoThrough(page) {
 
   /* ───── الألعاب الأربع الجديدة: جلسة كاملة آلياً ───── */
   if (!QUICK) {
-    const NAMES = { feed: 'أطعم الحيوان', hide: 'أين يختبئ؟', vanish: 'من اختفى؟', order: 'رتّب الأحجام', habitat: 'من يعيش هنا؟', tracing: 'ارسم الطريق', shadows: 'لعبة الظلال', more: 'أين الأكثر؟', odd: 'أين المختلف؟', memory: 'بطاقات الذاكرة', fruits: 'سلة الفواكه', letters: 'صيد الحروف', mirror: 'مرآة الأشكال', pattern: 'صانعة الأنماط', firstsound: 'أول صوت', bridge: 'جسر الروابط' };
+    const NAMES = { feed: 'أطعم الحيوان', hide: 'أين يختبئ؟', vanish: 'من اختفى؟', order: 'رتّب الأحجام', habitat: 'من يعيش هنا؟', tracing: 'ارسم الطريق', shadows: 'لعبة الظلال', more: 'أين الأكثر؟', odd: 'أين المختلف؟', memory: 'بطاقات الذاكرة', fruits: 'سلة الفواكه', letters: 'صيد الحروف', mirror: 'مرآة الأشكال', pattern: 'صانعة الأنماط', firstsound: 'أول صوت', bridge: 'جسر الروابط', missing: 'ماذا ينقص الصورة؟', water: 'اسقِ الزهرة', maze: 'ساعد الأرنب' };
     for (const vpName of (process.env.FAST ? ['جوال-عمودي', 'آيباد-أفقي'] : ['جوال-عمودي', 'آيباد-أفقي', 'جوال-أفقي', 'آيباد-عمودي'])) {
       for (const g of Object.keys(NAMES)) {
         section(`جلسة كاملة آلياً — ${NAMES[g]} — ${vpName}`);

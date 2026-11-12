@@ -166,6 +166,12 @@
       return b;
     });
 
+    var galBtn = h('button', { class: 'p-btn warn', type: 'button', text: S.parent.clearGallery, 'data-act': 'clear-gallery' });
+    var galArmed = false;
+    galBtn.addEventListener('click', function () {
+      if (!galArmed) { galArmed = true; galBtn.textContent = P.resetConfirm; setTimeout(function () { galArmed = false; galBtn.textContent = P.clearGallery; }, 4000); }
+      else { B.gallery.clear(); galArmed = false; galBtn.textContent = P.clearGallery; say(P.resetDone); }
+    });
     var demoBtn = h('button', { class: 'p-btn', type: 'button', text: P.replayDemo, 'data-act': 'replay-demo' });
     demoBtn.addEventListener('click', function () {
       st.data().demoSeen = {}; st.save(); say(P.replayDemoDone);
@@ -192,7 +198,7 @@
         h('div', { class: 'p-wrap' }, copyBtn, fileBtn),
         ta, h('div', { class: 'p-wrap' }, restoreBtn, restoreFileBtn), picker
       ),
-      h('section', { class: 'p-sec' }, demoBtn, resetBtns),
+      h('section', { class: 'p-sec' }, demoBtn, galBtn, resetBtns),
       msg
     );
 

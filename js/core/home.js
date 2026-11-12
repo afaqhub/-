@@ -86,6 +86,36 @@
     });
     return h('div', { class: 'gd-row' }, gb, sb);
   }
+  /* شريط «أكمل لعبتك» و«تحدي اليوم» */
+  function dayNum() { var d = new Date(); return Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000); }
+  function dailyPool(locked) { return B.catalog.filter(function (c) { return !c.free && B.games[c.id] && c.zone !== 'garden' && !(locked && c.zone === 'solo'); }); }
+  function chipsRow(locked) {
+    var H = B.S.home, data = B.storage.data(), row = h('div', { class: 'chips-row' });
+    function chip(cls, label, id, done) {
+      var it = B.catalog.filter(function (c) { return c.id === id; })[0]; if (!it) return;
+      var b = h('button', { class: 'home-chip ' + cls + (done ? ' done' : ''), type: 'button', 'data-chip': cls, 'data-game': id },
+        h('span', { class: 'hc-ic', html: art.gameIcon ? art.gameIcon(id) : '' }),
+        h('span', { class: 'hc-tx' }, h('small', { text: label }), h('b', { text: B.S.games[id] })));
+      UI.bindPress(b, function () { var r = b.getBoundingClientRect(); B.session.start(id, { x: r.left + r.width / 2, y: r.top + r.height / 2 }); });
+      row.appendChild(b);
+    }
+    var last = data.last; if (last && B.games[last] && !(locked && (B.catalog.filter(function (c) { return c.id === last; })[0] || {}).zone === 'solo')) chip('cont', H.cont, last, false);
+    var pool = dailyPool(locked);
+    if (pool.length) {
+      var d = dayNum(), pick = pool[(d * 7 + 3) % pool.length].id;
+      var dd = new Date(), today = dd.getFullYear() + '-' + ('0' + (dd.getMonth() + 1)).slice(-2) + '-' + ('0' + dd.getDate()).slice(-2), g = data.games && data.games[pick];
+      chip('daily', H.daily, pick, !!(g && g.last === today));
+    }
+    return row.childNodes.length ? row : null;
+  }
+  function mascot(zonesEl) {
+    var m = h('button', { class: 'mascot', type: 'button', 'aria-label': B.S.home.mascotHi, html: B.pics.draw('rabbit') });
+    m.addEventListener('click', function () {
+      if (B.audio) B.audio.play('pop');
+      UI.anim(m, [{ transform: 'translateY(0)' }, { transform: 'translateY(-26px) rotate(-8deg)', offset: 0.4 }, { transform: 'translateY(0)' }, { transform: 'translateY(-10px)', offset: 0.75 }, { transform: 'translateY(0)' }], { dur: 700 });
+    });
+    return m;
+  }
   function kit_pick(a) { return a.length ? a[Math.floor(Math.random() * a.length)] : null; }
 
   /* أدوات الصفحة: ملء الشاشة، والوضع الليلي/النهاري (للكبار؛ ليست أزرار لعب) */
@@ -145,12 +175,21 @@
       h('div', { class: 'home-hills mid', html: art.sceneTile('mid', vp.W, Math.round(vp.H * 0.3)) })
     );
 
-    var zones = h('main', { class: 'zones scrollable' }, gardenRow(locked), zone('solo', locked), zone('together', false), zone('create', false));
+    var chips = chipsRow(locked);
+    var zones = h('main', { class: 'zones scrollable' }, gardenRow(locked), chips, zone('solo', locked), zone('together', false), zone('create', false));
     var fbPill = h('div', { class: 'fb-pill', role: 'button', tabindex: '0', text: B.S.feedback.pill });
     fbPill.addEventListener('click', function () { B.feedback.open(); });
     var dot = h('div', { class: 'adm-dot', role: 'button', tabindex: '0', 'aria-label': B.S.admin.dot, text: '·' });
     dot.addEventListener('click', function () { B.admin.open(); });
-    var el = h('div', { class: 'screen home' }, sky, zones, logo, tools(), fbPill, dot);
+    var mas = mascot();
+    var el = h('div', { class: 'screen home' }, sky, zones, logo, tools(), fbPill, dot, mas);
+    // الأرنب يقفز وحده أحياناً ويلفت النظر إلى «فاجئني»
+    var idle = setInterval(function () {
+      if (!document.body.contains(el)) { clearInterval(idle); return; }
+      var sbtn = el.querySelector('.surprise-btn');
+      UI.anim(mas, [{ transform: 'translateY(0)' }, { transform: 'translateY(-22px)', offset: 0.4 }, { transform: 'translateY(0)' }], { dur: 600 });
+      if (sbtn) UI.anim(sbtn, [{ transform: 'scale(1)' }, { transform: 'scale(1.08)', offset: 0.5 }, { transform: 'scale(1)' }], { dur: 700 });
+    }, 14000);
 
     // ظهور متتابع بحركة زنبركية (بعد الإدراج في الصفحة)
     requestAnimationFrame(function () {
