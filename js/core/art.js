@@ -287,8 +287,8 @@
   function fullIcon() {
     return svg('0 0 48 48', '<path d="M6 18V6h12M30 6h12v12M42 30v12H30M18 42H6V30" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>', 'icon-svg');
   }
-  function diceIcon() {
-    return svg('0 0 48 48', '<rect x="6" y="6" width="36" height="36" rx="9" fill="#fff"/><circle cx="17" cy="17" r="3.4" fill="#8E5CF0"/><circle cx="31" cy="17" r="3.4" fill="#8E5CF0"/><circle cx="24" cy="24" r="3.4" fill="#8E5CF0"/><circle cx="17" cy="31" r="3.4" fill="#8E5CF0"/><circle cx="31" cy="31" r="3.4" fill="#8E5CF0"/>', 'icon-svg');
+  function diceIcon() { // «قرعة»: صندوق هدية مفاجأة بشريط وعلامة استفهام (لا نرد)
+    return svg('0 0 48 48', '<rect x="7" y="20" width="34" height="22" rx="5" fill="#fff"/><rect x="5" y="14" width="38" height="9" rx="4" fill="#FFE98A"/><rect x="21" y="14" width="6" height="28" fill="#F2658E"/><path d="M24 14C16 14 12 6 17 5C21 4 24 10 24 14ZM24 14C32 14 36 6 31 5C27 4 24 10 24 14Z" fill="#F2658E"/><text x="24" y="38" text-anchor="middle" font-size="13" font-weight="800" fill="#8E5CF0" font-family="Tajawal,sans-serif">؟</text>', 'dice-svg');
   }
   /* أدوات الرسم: أيقونات واضحة */
   function mixIcon() { // دائرتان متداخلتان تتولد منهما ثالثة

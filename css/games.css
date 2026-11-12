@@ -693,3 +693,9 @@ html.night::after { content: ''; position: fixed; inset: 0; z-index: 900; pointe
 .tab-btn b { font-size: 16px; line-height: 1.1; text-align: center; } .tab-btn { padding: 2px; min-width: 0; }
 .tab-all.on { background: linear-gradient(160deg, #6AB7FF, #3D8BFD); }
 .tab-all .tab-ic svg { height: 32px; }
+/* لوحات الأقسام شبه شفافة لتظهر الخلفية الجميلة من خلفها */
+.zones .zone { background: linear-gradient(160deg, color-mix(in srgb, var(--z1) 58%, transparent), color-mix(in srgb, var(--z2) 48%, transparent)) !important;
+  box-shadow: 0 6px 18px rgba(31, 42, 90, .12) !important; border: 2px solid rgba(255, 255, 255, .55); backdrop-filter: blur(1.5px); }
+.zones .tile-name { text-shadow: 0 2px 0 var(--zd), 0 0 10px rgba(0, 0, 0, .35), 0 0 3px rgba(0, 0, 0, .35); }
+.zones .zone-name { text-shadow: 0 3px 0 var(--zd), 0 0 10px rgba(0, 0, 0, .3); }
+.zones .group-label { background: rgba(255, 255, 255, .5); color: var(--night); text-shadow: none; }
