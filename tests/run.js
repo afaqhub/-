@@ -688,7 +688,7 @@ async function seeDemoThrough(page) {
     await open(page, base, '?ts=6');
     await page.evaluate(() => {
       const s = Bustan.storage;
-      s.data().settings.soloLimit = 1;
+      s.data().settings.soloLimit = 1; s.data().settings.soloLimitOn = true;
       const d = s.data().days; d[s.todayKey()] = { sessions: { train: 1 }, rounds: { train: 10 } };
       s.save(); Bustan.home.show();
     });

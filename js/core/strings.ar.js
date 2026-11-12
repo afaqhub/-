@@ -75,7 +75,7 @@
     },
     garden: { count: 'ما زُرع' },
     cats: { watch: 'ملاحظة وذاكرة', num: 'أرقام وأشكال', move: 'حروف وحركة', know: 'معرفة وتصنيف' },
-    home: { garden: 'بستاني', gardenNote: 'ما زرعتَه بإكمال ألعابك', surprise: 'فاجئني بلعبة', cont: 'أكمل لعبتك', daily: 'تحدي اليوم', mascotHi: 'أرنوب', night: 'الوضع الليلي', day: 'الوضع النهاري', full: 'ملء الشاشة', exitFull: 'إنهاء ملء الشاشة' },
+    home: { done: 'أنجزتها', garden: 'بستاني', gardenNote: 'ما زرعتَه بإكمال ألعابك', surprise: 'فاجئني بلعبة', cont: 'أكمل لعبتك', daily: 'تحدي اليوم', mascotHi: 'أرنوب', night: 'الوضع الليلي', day: 'الوضع النهاري', full: 'ملء الشاشة', exitFull: 'إنهاء ملء الشاشة' },
     summary: { title: 'ملخّص', favorite: 'اللعبة الأكثر لعباً', suggest: 'اقتراح للعب الآن', planted: 'ما زُرع في البستان', sessionsAll: 'جلسات مكتملة', none: 'لم يلعب بعد' },
     create: { del: 'حذف', delAsk: 'حذف هذه الصورة؟', delYes: 'نعم، احذفها', delNo: 'أبقيها', save: 'حفظ', saved: 'تم الحفظ', galleryEmpty: 'لم تحفظ شيئاً بعد', tMix: 'خلط', tSize: 'حجم', tErase: 'ممحاة', tClear: 'مسح', color: 'تغيير اللون', clear: 'تنظيف اللوحة', next: 'رسمة أخرى', mix: 'وعاء خلط الألوان', size: 'حجم الفرشاة', erase: 'ممحاة' },
 
@@ -98,7 +98,7 @@
       noData: 'لا بيانات بعد',
       dailyLimit: 'حدّ جلسات «وحدي» في اليوم',
       todaySessions: 'جلسات اليوم',
-      openSolo: 'فتح «وحدي» لهذا اليوم',
+      openSolo: 'فتح «وحدي» لهذا اليوم', limitOnBtn: 'الحد اليومي: متوقف (اضغط لتفعيله)', limitOffBtn: 'الحد اليومي: مفعّل (اضغط لإيقافه)',
       soloOpened: 'مفتوحة لهذا اليوم',
       sound: 'الصوت',
       soundOn: 'يعمل',

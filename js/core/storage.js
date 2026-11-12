@@ -22,7 +22,7 @@
     return {
       schemaVersion: SCHEMA,
       created: Date.now(),
-      settings: { soundOn: true, soloLimit: 2, weeklyConnector: 0, night: false },
+      settings: { soundOn: true, soloLimit: 2, soloLimitOn: false, weeklyConnector: 0, night: false },
       games: games,
       days: {},          // 'YYYY-MM-DD' -> { sessions:{id:n}, rounds:{id:n} }
       lock: { soloOpenDate: '' }, // تاريخ اليوم الذي فتح فيه الوالد «وحدي» رغم الحد
@@ -178,6 +178,7 @@
 
     /* هل قسم «وحدي» مقفل اليوم؟ */
     soloLocked: function () {
+      if (!data.settings.soloLimitOn) return false;   // الحد اليومي اختياري يفعّله الوالد
       if (data.lock.soloOpenDate === todayKey()) return false;
       return S.soloSessionsToday() >= data.settings.soloLimit;
     },

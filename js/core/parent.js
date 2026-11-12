@@ -81,6 +81,10 @@
     minus.addEventListener('click', function () { setLimit(-1); });
     plus.addEventListener('click', function () { setLimit(1); });
 
+    var limBtn = h('button', { class: 'p-btn', type: 'button', 'data-act': 'limit-toggle' });
+    function refreshLim() { limBtn.textContent = st.data().settings.soloLimitOn ? P.limitOffBtn : P.limitOnBtn; }
+    limBtn.addEventListener('click', function () { var s = st.data().settings; s.soloLimitOn = !s.soloLimitOn; st.save(); refreshLim(); });
+    refreshLim();
     var openBtn = h('button', { class: 'p-btn', type: 'button', 'data-act': 'open-solo' });
     function refreshOpen() {
       var opened = st.data().lock.soloOpenDate === st.todayKey();
@@ -187,6 +191,7 @@
       h('section', { class: 'p-sec' }, h('h3', { text: P.lastDays }), chart),
       h('section', { class: 'p-sec' },
         h('h3', { text: P.dailyLimit }),
+        limBtn,
         h('div', { class: 'p-limit' }, minus, limitVal, plus),
         h('div', { class: 'p-line', text: P.todaySessions + ': ' + UI.num(st.soloSessionsToday()) }),
         openBtn

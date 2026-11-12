@@ -1211,6 +1211,8 @@ html.night::after { content: ''; position: fixed; inset: 0; z-index: 900; pointe
 .zones .tile-name { text-shadow: 0 2px 0 var(--zd), 0 0 10px rgba(0, 0, 0, .35), 0 0 3px rgba(0, 0, 0, .35); }
 .zones .zone-name { text-shadow: 0 3px 0 var(--zd), 0 0 10px rgba(0, 0, 0, .3); }
 .zones .group-label { background: rgba(255, 255, 255, .5); color: var(--night); text-shadow: none; }
+.tile-done { position: absolute; top: -6px; inset-inline-start: -4px; z-index: 3; display: flex; align-items: center; gap: 3px; padding: 2px 8px 2px 4px; border-radius: 999px; background: #fff; box-shadow: 0 2px 0 #2DBE7E; pointer-events: none; }
+.tile-done span { width: 18px; height: 18px; display: block; } .tile-done svg { width: 100%; height: 100%; } .tile-done b { font-size: 12px; font-weight: 800; color: #1C8F5C; }
 
 </style>
 </head>
@@ -1297,7 +1299,7 @@ html.night::after { content: ''; position: fixed; inset: 0; z-index: 900; pointe
     },
     garden: { count: 'ما زُرع' },
     cats: { watch: 'ملاحظة وذاكرة', num: 'أرقام وأشكال', move: 'حروف وحركة', know: 'معرفة وتصنيف' },
-    home: { garden: 'بستاني', gardenNote: 'ما زرعتَه بإكمال ألعابك', surprise: 'فاجئني بلعبة', cont: 'أكمل لعبتك', daily: 'تحدي اليوم', mascotHi: 'أرنوب', night: 'الوضع الليلي', day: 'الوضع النهاري', full: 'ملء الشاشة', exitFull: 'إنهاء ملء الشاشة' },
+    home: { done: 'أنجزتها', garden: 'بستاني', gardenNote: 'ما زرعتَه بإكمال ألعابك', surprise: 'فاجئني بلعبة', cont: 'أكمل لعبتك', daily: 'تحدي اليوم', mascotHi: 'أرنوب', night: 'الوضع الليلي', day: 'الوضع النهاري', full: 'ملء الشاشة', exitFull: 'إنهاء ملء الشاشة' },
     summary: { title: 'ملخّص', favorite: 'اللعبة الأكثر لعباً', suggest: 'اقتراح للعب الآن', planted: 'ما زُرع في البستان', sessionsAll: 'جلسات مكتملة', none: 'لم يلعب بعد' },
     create: { del: 'حذف', delAsk: 'حذف هذه الصورة؟', delYes: 'نعم، احذفها', delNo: 'أبقيها', save: 'حفظ', saved: 'تم الحفظ', galleryEmpty: 'لم تحفظ شيئاً بعد', tMix: 'خلط', tSize: 'حجم', tErase: 'ممحاة', tClear: 'مسح', color: 'تغيير اللون', clear: 'تنظيف اللوحة', next: 'رسمة أخرى', mix: 'وعاء خلط الألوان', size: 'حجم الفرشاة', erase: 'ممحاة' },
 
@@ -1320,7 +1322,7 @@ html.night::after { content: ''; position: fixed; inset: 0; z-index: 900; pointe
       noData: 'لا بيانات بعد',
       dailyLimit: 'حدّ جلسات «وحدي» في اليوم',
       todaySessions: 'جلسات اليوم',
-      openSolo: 'فتح «وحدي» لهذا اليوم',
+      openSolo: 'فتح «وحدي» لهذا اليوم', limitOnBtn: 'الحد اليومي: متوقف (اضغط لتفعيله)', limitOffBtn: 'الحد اليومي: مفعّل (اضغط لإيقافه)',
       soloOpened: 'مفتوحة لهذا اليوم',
       sound: 'الصوت',
       soundOn: 'يعمل',
@@ -1393,7 +1395,7 @@ html.night::after { content: ''; position: fixed; inset: 0; z-index: 900; pointe
     return {
       schemaVersion: SCHEMA,
       created: Date.now(),
-      settings: { soundOn: true, soloLimit: 2, weeklyConnector: 0, night: false },
+      settings: { soundOn: true, soloLimit: 2, soloLimitOn: false, weeklyConnector: 0, night: false },
       games: games,
       days: {},          // 'YYYY-MM-DD' -> { sessions:{id:n}, rounds:{id:n} }
       lock: { soloOpenDate: '' }, // تاريخ اليوم الذي فتح فيه الوالد «وحدي» رغم الحد
@@ -1549,6 +1551,7 @@ html.night::after { content: ''; position: fixed; inset: 0; z-index: 900; pointe
 
     /* هل قسم «وحدي» مقفل اليوم؟ */
     soloLocked: function () {
+      if (!data.settings.soloLimitOn) return false;   // الحد اليومي اختياري يفعّله الوالد
       if (data.lock.soloOpenDate === todayKey()) return false;
       return S.soloSessionsToday() >= data.settings.soloLimit;
     },
@@ -3351,7 +3354,8 @@ html.night::after { content: ''; position: fixed; inset: 0; z-index: 900; pointe
     },
       h('span', { class: 'tile-art', html: art.gameIcon(it.id, !built) }),
       h('span', { class: 'tile-name', text: S.games[it.id] }),
-      !built ? h('span', { class: 'tile-zzz', html: art.zzz() }) : null
+      !built ? h('span', { class: 'tile-zzz', html: art.zzz() }) : null,
+      (built && !it.free && B.storage.game(it.id) && B.storage.game(it.id).sessions > 0) ? h('span', { class: 'tile-done' }, h('span', { html: art.check() }), h('b', { text: S.home.done })) : null
     );
     UI.bindPress(el, function (e) {
       if (!built || locked) { sleepyWobble(el); return; }
@@ -3649,6 +3653,10 @@ html.night::after { content: ''; position: fixed; inset: 0; z-index: 900; pointe
     minus.addEventListener('click', function () { setLimit(-1); });
     plus.addEventListener('click', function () { setLimit(1); });
 
+    var limBtn = h('button', { class: 'p-btn', type: 'button', 'data-act': 'limit-toggle' });
+    function refreshLim() { limBtn.textContent = st.data().settings.soloLimitOn ? P.limitOffBtn : P.limitOnBtn; }
+    limBtn.addEventListener('click', function () { var s = st.data().settings; s.soloLimitOn = !s.soloLimitOn; st.save(); refreshLim(); });
+    refreshLim();
     var openBtn = h('button', { class: 'p-btn', type: 'button', 'data-act': 'open-solo' });
     function refreshOpen() {
       var opened = st.data().lock.soloOpenDate === st.todayKey();
@@ -3755,6 +3763,7 @@ html.night::after { content: ''; position: fixed; inset: 0; z-index: 900; pointe
       h('section', { class: 'p-sec' }, h('h3', { text: P.lastDays }), chart),
       h('section', { class: 'p-sec' },
         h('h3', { text: P.dailyLimit }),
+        limBtn,
         h('div', { class: 'p-limit' }, minus, limitVal, plus),
         h('div', { class: 'p-line', text: P.todaySessions + ': ' + UI.num(st.soloSessionsToday()) }),
         openBtn

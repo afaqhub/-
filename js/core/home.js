@@ -30,7 +30,8 @@
     },
       h('span', { class: 'tile-art', html: art.gameIcon(it.id, !built) }),
       h('span', { class: 'tile-name', text: S.games[it.id] }),
-      !built ? h('span', { class: 'tile-zzz', html: art.zzz() }) : null
+      !built ? h('span', { class: 'tile-zzz', html: art.zzz() }) : null,
+      (built && !it.free && B.storage.game(it.id) && B.storage.game(it.id).sessions > 0) ? h('span', { class: 'tile-done' }, h('span', { html: art.check() }), h('b', { text: S.home.done })) : null
     );
     UI.bindPress(el, function (e) {
       if (!built || locked) { sleepyWobble(el); return; }
