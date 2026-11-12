@@ -1213,6 +1213,22 @@ html.night::after { content: ''; position: fixed; inset: 0; z-index: 900; pointe
 .zones .group-label { background: rgba(255, 255, 255, .5); color: var(--night); text-shadow: none; }
 .tile-done { position: absolute; top: -6px; inset-inline-start: -4px; z-index: 3; display: flex; align-items: center; gap: 3px; padding: 2px 8px 2px 4px; border-radius: 999px; background: #fff; box-shadow: 0 2px 0 #2DBE7E; pointer-events: none; }
 .tile-done span { width: 18px; height: 18px; display: block; } .tile-done svg { width: 100%; height: 100%; } .tile-done b { font-size: 12px; font-weight: 800; color: #1C8F5C; }
+/* زر «الوالدان» الظاهر (ضغط مطوّل ≈ ثانية) */
+.parent-btn { position: relative; overflow: hidden; cursor: pointer; user-select: none; -webkit-user-select: none; touch-action: none; color: var(--night-soft); }
+.parent-btn .pb-ic { width: 28px; height: 28px; display: block; } .parent-btn .pb-ic svg { width: 100%; height: 100%; }
+.parent-btn .pb-tx { font-size: 13px; font-weight: 800; position: relative; z-index: 1; }
+.parent-btn .pb-fill { position: absolute; inset: 0; background: rgba(142, 92, 240, .35); transform: scaleX(0); transform-origin: 0 50%; pointer-events: none; }
+.parent-btn.holding .pb-fill { animation: pbFill 1.2s linear forwards; } @keyframes pbFill { to { transform: scaleX(1); } }
+.parent-btn.in-tabbar { flex: 0 0 66px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; border-radius: 18px; background: #EEF1FA; margin-inline-start: 2px; }
+.parent-btn.in-header { display: none; }
+@media (orientation: landscape) {
+  .parent-btn.in-tabbar { display: none; }
+  .parent-btn.in-header { display: flex; align-items: center; gap: 6px; position: absolute; z-index: 5; top: calc(14px + var(--safe-t)); left: calc(132px + var(--safe-l)); height: 52px; padding: 0 14px; border-radius: 26px; background: rgba(255, 255, 255, .9); box-shadow: 0 4px 0 var(--lilac-deep); }
+  .parent-btn .pb-tx { font-size: 16px; }
+}
+@media (orientation: landscape) { .tabbar { gap: 4px; padding: 4px 6px; overflow-y: auto; } .tab-btn { min-height: max(72px, var(--tap)); } .tab-ic { height: 28px; } }
+.tabbar { gap: 4px; padding-inline: 6px; } .tab-btn { min-width: 72px; } .parent-btn.in-tabbar { flex: 0 0 54px; } .parent-btn .pb-tx { font-size: 12px; }
+@media (orientation: landscape) { .tab-btn { min-width: 0; } .parent-btn .pb-tx { font-size: 16px; } }
 
 </style>
 </head>
@@ -1299,7 +1315,7 @@ html.night::after { content: ''; position: fixed; inset: 0; z-index: 900; pointe
     },
     garden: { count: 'ما زُرع' },
     cats: { watch: 'ملاحظة وذاكرة', num: 'أرقام وأشكال', move: 'حروف وحركة', know: 'معرفة وتصنيف' },
-    home: { done: 'أنجزتها', garden: 'بستاني', gardenNote: 'ما زرعتَه بإكمال ألعابك', surprise: 'فاجئني بلعبة', cont: 'أكمل لعبتك', daily: 'تحدي اليوم', mascotHi: 'أرنوب', night: 'الوضع الليلي', day: 'الوضع النهاري', full: 'ملء الشاشة', exitFull: 'إنهاء ملء الشاشة' },
+    home: { parent: 'الوالدان', parentHold: 'اضغط واستمر', done: 'أنجزتها', garden: 'بستاني', gardenNote: 'ما زرعتَه بإكمال ألعابك', surprise: 'فاجئني بلعبة', cont: 'أكمل لعبتك', daily: 'تحدي اليوم', mascotHi: 'أرنوب', night: 'الوضع الليلي', day: 'الوضع النهاري', full: 'ملء الشاشة', exitFull: 'إنهاء ملء الشاشة' },
     summary: { title: 'ملخّص', favorite: 'اللعبة الأكثر لعباً', suggest: 'اقتراح للعب الآن', planted: 'ما زُرع في البستان', sessionsAll: 'جلسات مكتملة', none: 'لم يلعب بعد' },
     create: { del: 'حذف', delAsk: 'حذف هذه الصورة؟', delYes: 'نعم، احذفها', delNo: 'أبقيها', save: 'حفظ', saved: 'تم الحفظ', galleryEmpty: 'لم تحفظ شيئاً بعد', tMix: 'خلط', tSize: 'حجم', tErase: 'ممحاة', tClear: 'مسح', color: 'تغيير اللون', clear: 'تنظيف اللوحة', next: 'رسمة أخرى', mix: 'وعاء خلط الألوان', size: 'حجم الفرشاة', erase: 'ممحاة' },
 
@@ -2176,6 +2192,9 @@ html.night::after { content: ''; position: fixed; inset: 0; z-index: 900; pointe
   function trashIcon() {
     return svg('0 0 100 100', '<path d="M24 30H76L70 88Q69 92 65 92H35Q31 92 30 88Z" fill="#B8C4E8" stroke="#6B7BB8" stroke-width="5" stroke-linejoin="round"/><rect x="16" y="20" width="68" height="10" rx="5" fill="#8FA0D8" stroke="#6B7BB8" stroke-width="5"/><rect x="38" y="10" width="24" height="10" rx="4" fill="#8FA0D8" stroke="#6B7BB8" stroke-width="4"/><path d="M40 42V80M50 42V80M60 42V80" stroke="#6B7BB8" stroke-width="5" stroke-linecap="round"/>', 'tool-svg');
   }
+  function gearIcon() {
+    return svg('0 0 100 100', '<path d="M42 8h16l3 12q6 2 11 6l12-4 8 14-9 9q1 6 0 12l9 9-8 14-12-4q-5 4-11 6l-3 12H42l-3-12q-6-2-11-6l-12 4-8-14 9-9q-1-6 0-12l-9-9 8-14 12 4q5-4 11-6z" fill="#8FA0D8" stroke="#5B6BA8" stroke-width="4" stroke-linejoin="round"/><circle cx="50" cy="50" r="15" fill="#fff" stroke="#5B6BA8" stroke-width="4"/>', 'tool-svg');
+  }
   function saveIcon() {
     return svg('0 0 100 100', '<rect x="10" y="16" width="80" height="68" rx="9" fill="#FAFCFF" stroke="#8E5CF0" stroke-width="6"/><path d="M16 74L38 48L54 64L66 52L84 74Z" fill="#2DBE7E"/><circle cx="70" cy="34" r="9" fill="#FFD34E"/><path d="M50 90v-10M44 86h12" stroke="#F2658E" stroke-width="6" stroke-linecap="round"/>', 'tool-svg');
   }
@@ -2514,7 +2533,7 @@ html.night::after { content: ''; position: fixed; inset: 0; z-index: 900; pointe
     house: house,
     replayIcon: replayIcon,
     pauseIcon: pauseIcon,
-    moonBtn: moonIcon, sunBtn: sunIcon, full: fullIcon, dice: diceIcon, toolMix: mixIcon, toolSize: sizeIcon, toolErase: eraserIcon, toolClear: broomIcon, toolSave: saveIcon, trash: trashIcon,
+    moonBtn: moonIcon, sunBtn: sunIcon, full: fullIcon, dice: diceIcon, toolMix: mixIcon, toolSize: sizeIcon, toolErase: eraserIcon, toolClear: broomIcon, toolSave: saveIcon, gear: gearIcon, trash: trashIcon,
     check: check,
     playIcon: playIcon,
     bulb: bulb,
@@ -3466,13 +3485,33 @@ html.night::after { content: ''; position: fixed; inset: 0; z-index: 900; pointe
     return box;
   }
 
+  var HOLD_MS = 1200; // ضغطة مطوّلة قصيرة: لا يفتحها الطفل بالخطأ، ولا يطول انتظار الكبير
+  /* زر «الوالدان» الظاهر: ضغط مطوّل ثانية وبعض الثانية؛ والنقرة السريعة تذكّر بالضغط المستمر */
+  function parentBtn(cls) {
+    var H = B.S.home;
+    var b = h('div', { class: 'parent-btn ' + cls, role: 'button', tabindex: '0', 'aria-label': H.parent },
+      h('span', { class: 'pb-ic', html: art.gear() }), h('b', { class: 'pb-tx', text: H.parent }), h('i', { class: 'pb-fill' }));
+    var timer = null, sx = 0, sy = 0, lbl = b.querySelector('.pb-tx'), t0 = 0;
+    function cancel() { if (timer) { clearTimeout(timer); timer = null; } b.classList.remove('holding'); }
+    b.addEventListener('pointerdown', function (e) {
+      sx = e.clientX; sy = e.clientY; cancel(); t0 = Date.now(); b.classList.add('holding');
+      timer = setTimeout(function () { timer = null; b.classList.remove('holding'); B.parent.open(); }, HOLD_MS);
+    });
+    b.addEventListener('pointermove', function (e) { if (Math.abs(e.clientX - sx) > 30 || Math.abs(e.clientY - sy) > 30) cancel(); });
+    ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (ev) { b.addEventListener(ev, function () {
+      var early = timer && (Date.now() - t0 < HOLD_MS - 50); cancel();
+      if (early && ev === 'pointerup') { lbl.textContent = H.parentHold; setTimeout(function () { lbl.textContent = H.parent; }, 1600); }
+    }); });
+    b.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+    return b;
+  }
   function attachLongPress(btn) {
     var timer = null, sx = 0, sy = 0;
     function cancel() { if (timer) { clearTimeout(timer); timer = null; } }
     btn.addEventListener('pointerdown', function (e) {
       sx = e.clientX; sy = e.clientY;
       cancel();
-      timer = setTimeout(function () { timer = null; B.parent.open(); }, 3000); // ثلاث ثوانٍ فعلية
+      timer = setTimeout(function () { timer = null; B.parent.open(); }, HOLD_MS);
     });
     btn.addEventListener('pointermove', function (e) {
       if (Math.abs(e.clientX - sx) > 24 || Math.abs(e.clientY - sy) > 24) cancel();
@@ -3504,7 +3543,7 @@ html.night::after { content: ''; position: fixed; inset: 0; z-index: 900; pointe
 
     var chips = chipsRow(locked);
     var zones = h('main', { class: 'zones scrollable', 'data-tab': tabNow }, h('div', { class: 'home-top' }, gardenRow(locked), chips), zone('solo', locked), zone('together', false), zone('create', false));
-    var tabbar = h('nav', { class: 'tabbar', role: 'tablist' }, ['all', 'solo', 'together', 'create'].map(function (id) {
+    var tabbar = h('nav', { class: 'tabbar', role: 'tablist' }, parentBtn('in-tabbar'), ['all', 'solo', 'together', 'create'].map(function (id) {
       var b = h('button', { class: 'tab-btn tab-' + id + (id === tabNow ? ' on' : ''), type: 'button', role: 'tab', 'data-tab': id, 'aria-label': B.S.zones[id] },
         h('span', { class: 'tab-ic', html: art.zoneBadge(id) }), h('b', { text: B.S.zones[id] }));
       b.addEventListener('click', function () { setTab(id); });
@@ -3522,7 +3561,7 @@ html.night::after { content: ''; position: fixed; inset: 0; z-index: 900; pointe
     var dot = h('div', { class: 'adm-dot', role: 'button', tabindex: '0', 'aria-label': B.S.admin.dot, text: '·' });
     dot.addEventListener('click', function () { B.admin.open(); });
     var mas = mascot(); if (chips) chips.appendChild(mas);
-    var el = h('div', { class: 'screen home' }, sky, zones, tabbar, logo, tools());
+    var el = h('div', { class: 'screen home' }, sky, zones, tabbar, logo, tools(), parentBtn('in-header'));
     zones.appendChild(fbPill); zones.appendChild(dot);
     // الأرنب يقفز وحده أحياناً ويلفت النظر إلى «فاجئني»
     var idle = setInterval(function () {

@@ -303,6 +303,9 @@
   function trashIcon() {
     return svg('0 0 100 100', '<path d="M24 30H76L70 88Q69 92 65 92H35Q31 92 30 88Z" fill="#B8C4E8" stroke="#6B7BB8" stroke-width="5" stroke-linejoin="round"/><rect x="16" y="20" width="68" height="10" rx="5" fill="#8FA0D8" stroke="#6B7BB8" stroke-width="5"/><rect x="38" y="10" width="24" height="10" rx="4" fill="#8FA0D8" stroke="#6B7BB8" stroke-width="4"/><path d="M40 42V80M50 42V80M60 42V80" stroke="#6B7BB8" stroke-width="5" stroke-linecap="round"/>', 'tool-svg');
   }
+  function gearIcon() {
+    return svg('0 0 100 100', '<path d="M42 8h16l3 12q6 2 11 6l12-4 8 14-9 9q1 6 0 12l9 9-8 14-12-4q-5 4-11 6l-3 12H42l-3-12q-6-2-11-6l-12 4-8-14 9-9q-1-6 0-12l-9-9 8-14 12 4q5-4 11-6z" fill="#8FA0D8" stroke="#5B6BA8" stroke-width="4" stroke-linejoin="round"/><circle cx="50" cy="50" r="15" fill="#fff" stroke="#5B6BA8" stroke-width="4"/>', 'tool-svg');
+  }
   function saveIcon() {
     return svg('0 0 100 100', '<rect x="10" y="16" width="80" height="68" rx="9" fill="#FAFCFF" stroke="#8E5CF0" stroke-width="6"/><path d="M16 74L38 48L54 64L66 52L84 74Z" fill="#2DBE7E"/><circle cx="70" cy="34" r="9" fill="#FFD34E"/><path d="M50 90v-10M44 86h12" stroke="#F2658E" stroke-width="6" stroke-linecap="round"/>', 'tool-svg');
   }
@@ -641,7 +644,7 @@
     house: house,
     replayIcon: replayIcon,
     pauseIcon: pauseIcon,
-    moonBtn: moonIcon, sunBtn: sunIcon, full: fullIcon, dice: diceIcon, toolMix: mixIcon, toolSize: sizeIcon, toolErase: eraserIcon, toolClear: broomIcon, toolSave: saveIcon, trash: trashIcon,
+    moonBtn: moonIcon, sunBtn: sunIcon, full: fullIcon, dice: diceIcon, toolMix: mixIcon, toolSize: sizeIcon, toolErase: eraserIcon, toolClear: broomIcon, toolSave: saveIcon, gear: gearIcon, trash: trashIcon,
     check: check,
     playIcon: playIcon,
     bulb: bulb,

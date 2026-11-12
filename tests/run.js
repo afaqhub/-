@@ -715,7 +715,7 @@ async function seeDemoThrough(page) {
     const box = await page.locator('.logo-corner').boundingBox();
     const cx = box.x + box.width / 2, cy = box.y + box.height / 2;
     // ضغطة قصيرة لا تفتح شيئاً
-    await page.mouse.move(cx, cy); await page.mouse.down(); await page.waitForTimeout(1200); await page.mouse.up();
+    await page.mouse.move(cx, cy); await page.mouse.down(); await page.waitForTimeout(500); await page.mouse.up();
     ok(!(await page.evaluate(() => !!document.querySelector('.parent-overlay'))), 'الضغطة القصيرة لا تفتح ركن الوالدين، ولا أثر ظاهر');
     await page.mouse.move(cx, cy); await page.mouse.down(); await page.waitForTimeout(3300);
     await page.mouse.up();

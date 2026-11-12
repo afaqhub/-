@@ -142,13 +142,33 @@
     return box;
   }
 
+  var HOLD_MS = 1200; // ضغطة مطوّلة قصيرة: لا يفتحها الطفل بالخطأ، ولا يطول انتظار الكبير
+  /* زر «الوالدان» الظاهر: ضغط مطوّل ثانية وبعض الثانية؛ والنقرة السريعة تذكّر بالضغط المستمر */
+  function parentBtn(cls) {
+    var H = B.S.home;
+    var b = h('div', { class: 'parent-btn ' + cls, role: 'button', tabindex: '0', 'aria-label': H.parent },
+      h('span', { class: 'pb-ic', html: art.gear() }), h('b', { class: 'pb-tx', text: H.parent }), h('i', { class: 'pb-fill' }));
+    var timer = null, sx = 0, sy = 0, lbl = b.querySelector('.pb-tx'), t0 = 0;
+    function cancel() { if (timer) { clearTimeout(timer); timer = null; } b.classList.remove('holding'); }
+    b.addEventListener('pointerdown', function (e) {
+      sx = e.clientX; sy = e.clientY; cancel(); t0 = Date.now(); b.classList.add('holding');
+      timer = setTimeout(function () { timer = null; b.classList.remove('holding'); B.parent.open(); }, HOLD_MS);
+    });
+    b.addEventListener('pointermove', function (e) { if (Math.abs(e.clientX - sx) > 30 || Math.abs(e.clientY - sy) > 30) cancel(); });
+    ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (ev) { b.addEventListener(ev, function () {
+      var early = timer && (Date.now() - t0 < HOLD_MS - 50); cancel();
+      if (early && ev === 'pointerup') { lbl.textContent = H.parentHold; setTimeout(function () { lbl.textContent = H.parent; }, 1600); }
+    }); });
+    b.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+    return b;
+  }
   function attachLongPress(btn) {
     var timer = null, sx = 0, sy = 0;
     function cancel() { if (timer) { clearTimeout(timer); timer = null; } }
     btn.addEventListener('pointerdown', function (e) {
       sx = e.clientX; sy = e.clientY;
       cancel();
-      timer = setTimeout(function () { timer = null; B.parent.open(); }, 3000); // ثلاث ثوانٍ فعلية
+      timer = setTimeout(function () { timer = null; B.parent.open(); }, HOLD_MS);
     });
     btn.addEventListener('pointermove', function (e) {
       if (Math.abs(e.clientX - sx) > 24 || Math.abs(e.clientY - sy) > 24) cancel();
@@ -180,7 +200,7 @@
 
     var chips = chipsRow(locked);
     var zones = h('main', { class: 'zones scrollable', 'data-tab': tabNow }, h('div', { class: 'home-top' }, gardenRow(locked), chips), zone('solo', locked), zone('together', false), zone('create', false));
-    var tabbar = h('nav', { class: 'tabbar', role: 'tablist' }, ['all', 'solo', 'together', 'create'].map(function (id) {
+    var tabbar = h('nav', { class: 'tabbar', role: 'tablist' }, parentBtn('in-tabbar'), ['all', 'solo', 'together', 'create'].map(function (id) {
       var b = h('button', { class: 'tab-btn tab-' + id + (id === tabNow ? ' on' : ''), type: 'button', role: 'tab', 'data-tab': id, 'aria-label': B.S.zones[id] },
         h('span', { class: 'tab-ic', html: art.zoneBadge(id) }), h('b', { text: B.S.zones[id] }));
       b.addEventListener('click', function () { setTab(id); });
@@ -198,7 +218,7 @@
     var dot = h('div', { class: 'adm-dot', role: 'button', tabindex: '0', 'aria-label': B.S.admin.dot, text: '·' });
     dot.addEventListener('click', function () { B.admin.open(); });
     var mas = mascot(); if (chips) chips.appendChild(mas);
-    var el = h('div', { class: 'screen home' }, sky, zones, tabbar, logo, tools());
+    var el = h('div', { class: 'screen home' }, sky, zones, tabbar, logo, tools(), parentBtn('in-header'));
     zones.appendChild(fbPill); zones.appendChild(dot);
     // الأرنب يقفز وحده أحياناً ويلفت النظر إلى «فاجئني»
     var idle = setInterval(function () {
