@@ -44,7 +44,7 @@
 
   function zone(zoneId, locked) {
     var S = B.S;
-    var items = B.catalog.filter(function (c) { return c.zone === zoneId; });
+    var items = B.catalog.filter(function (c) { return c.zone === zoneId && !c.hidden; });
     var z = h('section', { class: 'zone zone-' + zoneId + (locked ? ' is-locked' : ''), 'data-zone': zoneId },
       h('header', { class: 'zone-head' },
         h('span', { class: 'zone-badge', html: art.zoneBadge(zoneId) }),
@@ -117,6 +117,19 @@
       UI.anim(m, [{ transform: 'translateY(0)' }, { transform: 'translateY(-26px) rotate(-8deg)', offset: 0.4 }, { transform: 'translateY(0)' }, { transform: 'translateY(-10px)', offset: 0.75 }, { transform: 'translateY(0)' }], { dur: 700 });
     });
     return m;
+  }
+  /* «قصص»: رف بطاقات القصص داخل تبويبها */
+  function storiesShelf() {
+    var S = B.S, shelf = h('section', { class: 'stories-shelf' }, h('header', { class: 'zone-head' }, h('span', { class: 'zone-badge', html: art.zoneBadge('stories') }), h('h2', { class: 'zone-name', text: S.stories.title })));
+    var grid = h('div', { class: 'st-lib' });
+    B.free.stories.list().forEach(function (it) {
+      var card = h('button', { class: 'st-card' + (it.read ? ' read' : ''), type: 'button', 'aria-label': it.title },
+        B.free.stories.cover(it), h('b', { text: it.title }), h('small', { text: 'القيمة: ' + it.value }), it.read ? h('span', { class: 'st-read', html: art.check() }) : null);
+      UI.bindPress(card, function () { var r = card.getBoundingClientRect(); B.free.stories.pick = it.id; B.session.start('stories', { x: r.left + r.width / 2, y: r.top + r.height / 2 }); });
+      grid.appendChild(card);
+    });
+    shelf.appendChild(grid);
+    return shelf;
   }
   function kit_pick(a) { return a.length ? a[Math.floor(Math.random() * a.length)] : null; }
 
@@ -233,8 +246,8 @@
     );
 
     var chips = chipsRow(locked);
-    var zones = h('main', { class: 'zones scrollable', 'data-tab': tabNow }, h('div', { class: 'home-top' }, installBtn(), gardenRow(locked), chips), zone('solo', locked), zone('together', false), zone('create', false));
-    var tabbar = h('nav', { class: 'tabbar', role: 'tablist' }, parentBtn('in-tabbar'), ['all', 'solo', 'together', 'create'].map(function (id) {
+    var zones = h('main', { class: 'zones scrollable', 'data-tab': tabNow }, h('div', { class: 'home-top' }, installBtn(), gardenRow(locked), chips), zone('solo', locked), zone('together', false), zone('create', false), storiesShelf());
+    var tabbar = h('nav', { class: 'tabbar', role: 'tablist' }, ['all', 'solo', 'together', 'create', 'stories'].map(function (id) {
       var b = h('button', { class: 'tab-btn tab-' + id + (id === tabNow ? ' on' : ''), type: 'button', role: 'tab', 'data-tab': id, 'aria-label': B.S.zones[id] },
         h('span', { class: 'tab-ic', html: art.zoneBadge(id) }), h('b', { text: B.S.zones[id] }));
       b.addEventListener('click', function () { setTab(id); });

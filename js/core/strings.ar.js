@@ -10,7 +10,7 @@
   appName: 'بستان الصغار',
   stories: { title: 'قصص نقرؤها معًا', soon: 'قصة جديدة قريبًا', prev: 'السابق', next: 'التالي', end: 'النهاية', endText: 'انتهت القصة. أحسنتم!', again: 'نقرؤها مرة أخرى', more: 'قصص أخرى', parents: 'للوالدين: أسئلة للحوار', askTitle: 'اسألوا طفلكم' },
 
-    zones: { all: 'الكل', solo: 'وحدي', together: 'مع أبي وأمي', create: 'إبداع' },
+    zones: { stories: 'قصص', all: 'الكل', solo: 'وحدي', together: 'مع أبي وأمي', create: 'إبداع' },
 
     games: {
       train: 'قطار الإشارة',

@@ -329,7 +329,7 @@ async function seeDemoThrough(page) {
       dir: document.documentElement.dir, lang: document.documentElement.lang,
       digits: !/[0-9]/.test(document.body.innerText)
     }));
-    ok(info.zones === 3 && info.tiles === 25 && !!(await page.$('.gd-banner')), `${name}: ثلاث مناطق و٢٥ نشاطاً وبطاقة «بستاني» مستقلة`);
+    ok(info.zones === 3 && info.tiles === 24 && !!(await page.$('.gd-banner')), `${name}: ثلاث مناطق و٢٤ نشاطاً وبطاقة «بستاني» مستقلة`);
     ok(info.sleeping === 0, `${name}: كل الألعاب متاحة (لا أيقونات نائمة)`);
     const fontOk = await page.evaluate(async () => {
       const r = await Promise.all(['400', '700', '800'].map((w) => document.fonts.load(w + ' 20px Tajawal', 'بستان')));

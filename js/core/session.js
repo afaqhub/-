@@ -43,7 +43,7 @@
     { id: 'coloring', zone: 'create', free: true },
     { id: 'drawing', zone: 'create', free: true },
     { id: 'gallery', zone: 'create', free: true },
-    { id: 'stories', zone: 'together', free: true },
+    { id: 'stories', zone: 'together', free: true, hidden: true },
     { id: 'garden', zone: 'garden', free: true }
   ];
   B.free = B.free || {};
