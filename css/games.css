@@ -930,3 +930,10 @@ html.night .tabbar { background: rgba(30, 36, 90, .75); } html.night .tab-btn { 
 .gw-order-q { font-size: clamp(20px, 4.4vmin, 30px); font-weight: 800; color: #1F2A5A; text-align: center; background: #fff; padding: 10px 22px; border-radius: 999px; box-shadow: 0 5px 0 #B9A6F0; margin-bottom: 14px; }
 .gw-numl { font-size: calc(var(--cs) * .56); font-weight: 800; color: #1F2A5A; line-height: 1; }
 .gw-tree, .gw-bugscene, .gw-needscene, .gw-meadow, .gw-row { margin-inline: auto; align-self: center; } .gw-tree { width: min(88vw, 400px); }
+
+/* القصص الطويلة + تصنيف القصص (7.12) */
+.e-z { font-weight: 800; color: #8E5CF0; font-size: clamp(16px, 4cqw, 26px); animation: zUp 2.4s ease-in infinite; } .e-z.a { right: 4%; top: 0; } .e-z.b { right: 18%; top: -10%; animation-delay: .8s; } .e-z.c { right: 32%; top: -20%; animation-delay: 1.6s; }
+@keyframes zUp { 0% { transform: translateY(8px) scale(.6); opacity: 0; } 30% { opacity: 1; } 100% { transform: translateY(-26px) scale(1.2); opacity: 0; } }
+.st-tags { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; } .st-tag { font-size: 13px; font-weight: 800; padding: 2px 10px; border-radius: 99px; background: #EEF1FA; color: #6B7BB8; } .st-tag.long { background: #FFE1A8; color: #A8530F; } .st-tag.short { background: #D3F5E4; color: #1C8F5C; } .st-tag.age { background: #E7DEFF; color: #6B3CC9; }
+.st-sub { width: 100%; margin: 10px 0 2px; font-size: 20px; font-weight: 800; color: #6B3CC9; text-align: start; }
+.st-guess { width: min(100%, 760px); margin: 0 auto; } .st-guess-q { width: 100%; text-align: center; font-size: clamp(20px, 4.2vmin, 28px); font-weight: 800; color: #C23C69; background: #fff; border-radius: 22px; padding: 10px 14px; box-shadow: 0 5px 0 #F7C8D8; }

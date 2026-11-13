@@ -121,14 +121,21 @@
   /* «قصص»: رف بطاقات القصص داخل تبويبها */
   function storiesShelf() {
     var S = B.S, shelf = h('section', { class: 'stories-shelf' }, h('header', { class: 'zone-head' }, h('span', { class: 'zone-badge', html: art.zoneBadge('stories') }), h('h2', { class: 'zone-name', text: S.stories.title })));
-    var grid = h('div', { class: 'st-lib' });
-    B.free.stories.list().forEach(function (it) {
-      var card = h('button', { class: 'st-card' + (it.read ? ' read' : ''), type: 'button', 'aria-label': it.title },
-        B.free.stories.cover(it), h('b', { text: it.title }), h('small', { text: 'القيمة: ' + it.value }), it.read ? h('span', { class: 'st-read', html: art.check() }) : null);
-      UI.bindPress(card, function () { var r = card.getBoundingClientRect(); B.free.stories.pick = it.id; B.session.start('stories', { x: r.left + r.width / 2, y: r.top + r.height / 2 }); });
-      grid.appendChild(card);
-    });
-    shelf.appendChild(grid);
+    var all = B.free.stories.list();
+    function sec(title, list) {
+      if (!list.length) return;
+      shelf.appendChild(h('h3', { class: 'st-sub', text: title }));
+      var grid = h('div', { class: 'st-lib' });
+      list.forEach(function (it) {
+        var card = h('button', { class: 'st-card' + (it.read ? ' read' : ''), type: 'button', 'aria-label': it.title },
+          B.free.stories.cover(it), h('b', { text: it.title }), B.free.stories.tags(it), h('small', { text: 'القيمة: ' + it.value }), it.read ? h('span', { class: 'st-read', html: art.check() }) : null);
+        UI.bindPress(card, function () { var r = card.getBoundingClientRect(); B.free.stories.pick = it.id; B.session.start('stories', { x: r.left + r.width / 2, y: r.top + r.height / 2 }); });
+        grid.appendChild(card);
+      });
+      shelf.appendChild(grid);
+    }
+    sec('قصص طويلة (٣ دقائق تقريبًا) — للأكبر قليلًا', all.filter(function (x) { return x.kind === 'long'; }));
+    sec('قصص قصيرة (دقيقة أو دقيقتان) — للأصغر', all.filter(function (x) { return x.kind !== 'long'; }));
     return shelf;
   }
   function kit_pick(a) { return a.length ? a[Math.floor(Math.random() * a.length)] : null; }
