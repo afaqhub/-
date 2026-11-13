@@ -28,7 +28,7 @@ html = html.replace(/<script src="([^"]+)"><\/script>/g, (_, src) => {
 // الأيقونات و manifest
 html = html.replace('href="assets/icons/apple-touch-icon.png"', `href="data:image/png;base64,${b64('assets/icons/apple-touch-icon.png')}"`);
 html = html.replace('href="assets/icons/icon-192.png"', `href="data:image/png;base64,${b64('assets/icons/icon-192.png')}"`);
-html = html.replace(/<link rel="manifest"[^>]*>\n?/, `<script>window.__BUSTAN_VERSION__="${(fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8').match(/VERSION = '([^']+)'/) || [0, '?'])[1]}";window.__BUSTAN_ICONS__={a:"data:image/png;base64,${b64('assets/icons/icon-192.png')}",b:"data:image/png;base64,${b64('assets/icons/icon-512.png')}"};</script>\n`);
+html = html.replace(/<link rel="manifest"[^>]*>\n?/, `<link rel="manifest" href="manifest.webmanifest">\n<script>window.__BUSTAN_VERSION__="${(fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8').match(/VERSION = '([^']+)'/) || [0, '?'])[1]}";window.__BUSTAN_ICONS__={a:"data:image/png;base64,${b64('assets/icons/icon-192.png')}",b:"data:image/png;base64,${b64('assets/icons/icon-512.png')}"};</script>\n`);
 
 fs.mkdirSync(OUT, { recursive: true });
 fs.writeFileSync(path.join(OUT, 'index.html'), html);
@@ -36,7 +36,7 @@ fs.writeFileSync(path.join(OUT, 'index.html'), html);
 // Service Worker مبسّط للملف الواحد
 const sw = `/* Service Worker — يحفظ الصفحة الوحيدة ليعمل التطبيق دون إنترنت. ارفع VERSION عند كل تحديث. */
 'use strict';
-const VERSION = '7.9.0';
+const VERSION = '7.9.1';
 const CACHE = 'bustan-v' + VERSION;
 const FILES = ['./', './index.html'];
 self.addEventListener('install', (e) => {
@@ -61,3 +61,13 @@ try {
   const parts = ['HANDOFF.md', 'IDEAS.md', 'PLAN.md'].map((f) => '\n\n---\n\n<!-- ' + f + ' -->\n\n' + fs.readFileSync(path.join(ROOT, f), 'utf8'));
   fs.writeFileSync(path.join(OUT, 'PROJECT.md'), '# دليل مشروع «بستان الصغار» الشامل (الإصدار ' + (fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8').match(/VERSION = '([^']+)'/) || [0, '?'])[1] + ')\n' + parts.join(''));
 } catch (e) { console.warn('PROJECT.md:', e.message); }
+
+// ملفات التثبيت الثابتة (manifest + أيقونات): ضرورية ليعرض المتصفح «تثبيت التطبيق» الحقيقي
+try {
+  const man = JSON.parse(fs.readFileSync(path.join(ROOT, 'manifest.webmanifest'), 'utf8'));
+  man.id = './'; man.start_url = './'; man.scope = './';
+  fs.writeFileSync(path.join(OUT, 'manifest.webmanifest'), JSON.stringify(man, null, 2));
+  fs.mkdirSync(path.join(OUT, 'assets', 'icons'), { recursive: true });
+  ['icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png'].forEach((f) => fs.copyFileSync(path.join(ROOT, 'assets', 'icons', f), path.join(OUT, 'assets', 'icons', f)));
+  try { require('child_process').execSync('rm -f bustan-upload.zip && zip -qr bustan-upload.zip index.html sw.js manifest.webmanifest assets', { cwd: OUT }); } catch (e) {}
+} catch (e) { console.warn('manifest:', e.message); }
