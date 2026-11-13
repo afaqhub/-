@@ -24,7 +24,7 @@
       },
       demo: function (ctx) { return runner.run(function (alive, setCur) { return roundFn(ctx, st, 1, true, alive, setCur); }); },
       playRound: function (ctx, level) { return runner.run(function (alive, setCur) { return roundFn(ctx, st, level, false, alive, setCur); }); },
-      cancelRound: function () { runner.cancel(); if (st) { st.top.innerHTML = ''; st.tray.innerHTML = ''; st.answer = null; if (st.stop) st.stop(); st.ctx.stage.querySelectorAll('.kit-hand,.ms-fly').forEach(function (x) { x.remove(); }); } },
+      cancelRound: function () { runner.cancel(); if (st) { st.top.innerHTML = ''; st.tray.innerHTML = ''; st.answer = null; if (st.stop) st.stop(); st.ctx.stage.querySelectorAll('.kit-hand,.ms-fly,.gw-can,.wt-drop').forEach(function (x) { x.remove(); }); } },
       outro: function (ctx) { return kit.dusk(ctx); },
       endArt: function () { return kit.endScene(sleeper); },
       destroy: function () { runner.stop(); if (st && st.stop) st.stop(); st = null; },
@@ -162,7 +162,8 @@
   function dropSvg() { return art.svg('0 0 40 56', '<path d="M20 4Q4 28 4 38a16 16 0 0 0 32 0Q36 28 20 4Z" fill="#5CC8FF" stroke="#2468D1" stroke-width="3"/><ellipse cx="14" cy="36" rx="4" ry="6" fill="#fff" opacity=".6"/>', 'wt-drop-svg'); }
   var WSEQ = { 1: ['seed', 'water'], 2: ['seed', 'water', 'sun'], 3: ['seed', 'water', 'sun', 'water'], 4: ['seed', 'sun', 'water', 'water', 'sun'], 5: ['seed', 'water', 'sun', 'water', 'sun', 'water'] };
   var WDIST = ['apple', 'ball', 'key', 'book', 'umbrella', 'carrot'];
-  mini('water', 'wt-stage', 'rabbit', async function (ctx, st, level, demo, alive, setCur) {
+  /* جولة «نمو»: بذرة ثم ماء (وشمس) — صارت واحدة من ٧ أنواع جولات متنوعة */
+  async function growRound(ctx, st, level, demo, alive, setCur) {
     var steps = WSEQ[level] || WSEQ[1], col = kit.pick(BLOOMS), done = 0, errors = 0;
     st.top.innerHTML = ''; st.tray.innerHTML = '';
     var scene = h('div', { class: 'wt-scene' });
@@ -237,6 +238,192 @@
     UI.anim(plant, [{ transform: 'translateX(-50%) rotate(0)' }, { transform: 'translateX(-50%) rotate(-5deg)' }, { transform: 'translateX(-50%) rotate(5deg)' }, { transform: 'translateX(-50%) rotate(0)' }], { dur: 1400, fill: 'none' });
     await ctx.sleep(2100); if (!alive()) return;
     return { errors: demo ? 0 : Math.min(errors, 4) };
+  }
+
+  /* ═════════ جولات الحديقة المتنوعة (كل جولة فكرة مختلفة) ═════════ */
+  function ladybug() { return sv('<ellipse cx="50" cy="56" rx="30" ry="26" fill="#F0485A"/><path d="M50 30V82" stroke="#1F2A5A" stroke-width="4"/><circle cx="38" cy="50" r="5" fill="#1F2A5A"/><circle cx="62" cy="50" r="5" fill="#1F2A5A"/><circle cx="40" cy="68" r="4.5" fill="#1F2A5A"/><circle cx="60" cy="68" r="4.5" fill="#1F2A5A"/><circle cx="50" cy="28" r="12" fill="#1F2A5A"/>'); }
+  function basketSvg() { return sv('<path d="M10 40H90L80 90H20Z" fill="#E9B068" stroke="#C98A3F" stroke-width="5" stroke-linejoin="round"/><path d="M26 40V90M42 40V90M58 40V90M74 40V90" stroke="#C98A3F" stroke-width="3"/>'); }
+  function treeSvg() { return sv('<rect x="42" y="56" width="16" height="40" rx="5" fill="#8A5A33"/><circle cx="50" cy="34" r="30" fill="#2DBE7E"/><circle cx="26" cy="46" r="20" fill="#2DBE7E"/><circle cx="74" cy="46" r="20" fill="#2DBE7E"/>'); }
+  function toolH(k) { return k === 'water' ? canSvg() : k === 'sun' ? art.sun() : k === 'seed' ? seedSvg() : pic(k); }
+
+  /* محرّك «اضغط الأهداف الصحيحة»: يدير الأخطاء وسلّم المساعدة (نبض ثم كفّ) وعرض التجربة */
+  async function targetsRound(ctx, st, items, demo, alive, hintMsg) {
+    var errors = 0, idle = 0, busy = false, left = items.filter(function (i) { return i.ok; }).length, finish, fin = new Promise(function (r) { finish = r; });
+    function pending() { return items.filter(function (i) { return i.ok && !i.done; })[0]; }
+    async function hit(it) {
+      if (busy || it.done) return; busy = true; idle = 0;
+      it.done = true; it.el.classList.remove('pulse-hint');
+      try { await it.run(); } catch (e) {}
+      busy = false; left--; if (left <= 0) finish(true);
+    }
+    items.forEach(function (it) {
+      it.el.addEventListener('click', function () {
+        if (busy || ctx.paused) return;
+        if (it.ok) hit(it);
+        else { errors++; idle = 0; if (B.audio) B.audio.play('wrong'); kit.wrong(it.el); if (hintMsg && st.msg) st.msg.textContent = hintMsg; }
+      });
+    });
+    st.solve = function () { var p = pending(); if (!p || busy) return false; hit(p); return true; };
+    st.stop = function () { finish(false); };
+    (async function watch() {
+      while (alive() && left > 0) {
+        await ctx.sleep(1000); if (ctx.paused || busy) continue; idle++;
+        var p = pending(); if (!p) break;
+        if (idle === 6) { p.el.classList.add('pulse-hint'); errors++; }
+        if (idle >= 12 || (demo && idle >= 2)) {
+          var c = kit.center(p.el, ctx.stage), hd = kit.hand(ctx.stage, c.x, c.y);
+          await ctx.sleep(500); await hd.tap(); hd.el.remove(); idle = 0; if (!busy && !p.done) hit(p);
+        }
+      }
+    })();
+    await fin; st.solve = null;
+    return { errors: demo ? 0 : Math.min(errors, 4) };
+  }
+
+  var BLOOM = BLOOMS;
+  function plantEl(col, wilt) {
+    var d = h('div', { class: 'gw-plant' + (wilt ? ' wilt' : ''), role: 'button', tabindex: '0' }, h('div', { class: 'gw-flower', html: plantSvg(3, col) }), h('div', { class: 'gw-pot', html: potSvg() }));
+    if (wilt) d.appendChild(h('div', { class: 'gw-need', html: dropSvg() }));
+    return d;
+  }
+  async function waterPlant(ctx, st, pl) {
+    var c0 = kit.center(pl, ctx.stage);
+    var cn = h('div', { class: 'gw-can', html: canSvg(), style: { left: (c0.x - 150) + 'px', top: (c0.y - 120) + 'px' } }); ctx.stage.appendChild(cn);
+    await ctx.anim(cn, [{ opacity: 0, transform: 'translate(-30px,20px) rotate(0)' }, { opacity: 1, transform: 'translate(0,0) rotate(0)' }], { dur: 300, fill: 'forwards' });
+    await ctx.anim(cn, [{ transform: 'translate(0,0) rotate(0)' }, { transform: 'translate(10px,-4px) rotate(30deg)' }], { dur: 300, fill: 'forwards' });
+    if (B.audio) B.audio.play('splash');
+    for (var i = 0; i < 6; i++) {
+      var d = h('span', { class: 'wt-drop', style: { left: (c0.x - 70 + (i % 2) * 6) + 'px', top: (c0.y - 100) + 'px', position: 'absolute' } }); ctx.stage.appendChild(d);
+      UI.anim(d, [{ transform: 'translateY(0)', opacity: 1 }, { transform: 'translateY(70px)', opacity: 0 }], { dur: 600, delay: i * 70, easing: 'ease-in' }).then((function (x) { return function () { x.remove(); }; })(d));
+    }
+    await ctx.sleep(750);
+    pl.classList.remove('wilt'); var nd = pl.querySelector('.gw-need'); if (nd) nd.remove();
+    UI.anim(pl.querySelector('.gw-flower'), [{ transform: 'scale(.8)' }, { transform: 'scale(1.12)' }, { transform: 'scale(1)' }], { dur: 500, fill: 'none' });
+    if (B.audio) B.audio.play('pop');
+    await ctx.anim(cn, [{ opacity: 1 }, { opacity: 0 }], { dur: 250, fill: 'forwards' }); cn.remove();
+  }
+
+  var ROUNDS = {
+    grow: growRound,
+    /* ١) ساعد الظمآنة: اسقِ الزهور الذابلة فقط */
+    thirsty: async function (ctx, st, level, demo, alive, setCur) {
+      var n = level <= 2 ? 3 : level <= 4 ? 4 : 5, k = Math.min(n - 1, level <= 2 ? 2 : 3);
+      st.top.innerHTML = ''; st.tray.innerHTML = '';
+      st.msg = null;
+      var cols = kit.shuffle(BLOOMS.slice()), idx = kit.shuffle(Array.apply(null, Array(n)).map(function (_, q) { return q; }));
+      var wiltSet = idx.slice(0, k), row = h('div', { class: 'gw-row' }), items = [];
+      for (var i = 0; i < n; i++) { (function (i) { var wl = wiltSet.indexOf(i) >= 0, pl = plantEl(cols[i % cols.length], wl); row.appendChild(pl); items.push({ el: pl, ok: wl, run: function () { return waterPlant(ctx, st, pl); } }); })(i); }
+      st.top.appendChild(row); UI.anim(row, [{ opacity: 0, transform: 'scale(.8)' }, { opacity: 1, transform: 'none' }], { dur: 450, easing: UI.SPRING, fill: 'backwards' });
+      if (B.audio) B.audio.play('card');
+      await ctx.sleep(500); if (!alive()) return;
+      var r = await targetsRound(ctx, st, items, demo, alive); if (!alive()) return;
+      await cheer(ctx, row); return r;
+    },
+    /* ٢) اقطف الناضجة: التفاح الأحمر فقط */
+    ripe: async function (ctx, st, level, demo, alive, setCur) {
+      var total = level <= 2 ? 5 : 6, ripeN = level <= 2 ? 2 : level <= 4 ? 3 : 4;
+      st.top.innerHTML = ''; st.tray.innerHTML = '';
+      var slots = kit.shuffle([[34, 26], [58, 22], [44, 44], [70, 40], [24, 46], [52, 56], [76, 58]]).slice(0, total);
+      var scene = h('div', { class: 'gw-tree' }, h('div', { class: 'gw-tree-art', html: treeSvg() })), basket = h('div', { class: 'gw-basket', html: basketSvg() }), cnt = h('b', { class: 'gw-cnt', text: UI.num(0) }); basket.appendChild(cnt);
+      var picked = 0, items = [], rp = kit.shuffle(slots.map(function (_, i) { return i; })).slice(0, ripeN);
+      slots.forEach(function (s, i) {
+        var ok = rp.indexOf(i) >= 0;
+        var ap = h('div', { class: 'gw-apple ' + (ok ? 'ripe' : 'green'), role: 'button', tabindex: '0', style: { left: s[0] + '%', top: s[1] + '%' }, html: pic('apple') });
+        scene.appendChild(ap);
+        items.push({ el: ap, ok: ok, run: async function () {
+          var from = kit.center(ap, ctx.stage), to = kit.center(basket, ctx.stage);
+          if (B.audio) B.audio.play('pop');
+          await ctx.anim(ap, [{ transform: 'translate(0,0) scale(1)' }, { transform: 'translate(' + (to.x - from.x) + 'px,' + (to.y - from.y) + 'px) scale(.6)' }], { dur: 600, easing: 'ease-in', fill: 'forwards' });
+          ap.style.visibility = 'hidden'; picked++; cnt.textContent = UI.num(picked); UI.anim(basket, [{ transform: 'scale(1)' }, { transform: 'scale(1.15)' }, { transform: 'scale(1)' }], { dur: 300 });
+        } });
+      });
+      scene.appendChild(basket); st.top.appendChild(scene);
+      UI.anim(scene, [{ opacity: 0, transform: 'scale(.85)' }, { opacity: 1, transform: 'none' }], { dur: 450, easing: UI.SPRING, fill: 'backwards' });
+      if (B.audio) B.audio.play('card');
+      await ctx.sleep(500); if (!alive()) return;
+      var r = await targetsRound(ctx, st, items, demo, alive); if (!alive()) return;
+      await cheer(ctx, basket); return r;
+    },
+    /* ٣) أبعد الدعسوقات عن الزهرة */
+    bugs: async function (ctx, st, level, demo, alive, setCur) {
+      var n = level <= 2 ? 2 : level <= 4 ? 3 : 4;
+      st.top.innerHTML = ''; st.tray.innerHTML = '';
+      var col = kit.pick(BLOOMS), scene = h('div', { class: 'gw-bugscene' }, h('div', { class: 'gw-big', html: plantSvg(3, col) })), items = [];
+      var spots = kit.shuffle([[34, 22], [62, 24], [48, 12], [30, 42], [66, 44], [48, 34]]).slice(0, n);
+      spots.forEach(function (s, i) {
+        var bg = h('div', { class: 'gw-bug', role: 'button', tabindex: '0', style: { left: s[0] + '%', top: s[1] + '%', animationDelay: (i * 0.4) + 's' }, html: ladybug() });
+        scene.appendChild(bg);
+        items.push({ el: bg, ok: true, run: async function () {
+          if (B.audio) B.audio.play('flutter');
+          await ctx.anim(bg, [{ transform: 'translate(0,0) rotate(0)', opacity: 1 }, { transform: 'translate(' + (i % 2 ? 160 : -160) + 'px,-200px) rotate(' + (i % 2 ? 360 : -360) + 'deg)', opacity: 0 }], { dur: 700, easing: 'ease-in', fill: 'forwards' });
+        } });
+      });
+      st.top.appendChild(scene); UI.anim(scene, [{ opacity: 0, transform: 'scale(.85)' }, { opacity: 1, transform: 'none' }], { dur: 450, easing: UI.SPRING, fill: 'backwards' });
+      if (B.audio) B.audio.play('card');
+      await ctx.sleep(500); if (!alive()) return;
+      var r = await targetsRound(ctx, st, items, demo, alive); if (!alive()) return;
+      UI.anim(scene.firstChild, [{ transform: 'scale(1)' }, { transform: 'scale(1.1) rotate(-3deg)' }, { transform: 'scale(1) rotate(3deg)' }, { transform: 'scale(1)' }], { dur: 800, fill: 'none' });
+      await cheer(ctx, scene); return r;
+    },
+    /* ٤) ماذا تحتاج؟ اختر الأداة المناسبة للحالة */
+    need: async function (ctx, st, level, demo, alive, setCur) {
+      var S = kit.pick([{ k: 'water', say: 'ذابلة وعطشى', wilt: true }, { k: 'sun', say: 'باردة تحت الغيم', cloud: true }]);
+      st.top.innerHTML = ''; st.tray.innerHTML = '';
+      var col = kit.pick(BLOOMS), sc = h('div', { class: 'gw-needscene' + (S.cloud ? ' cold' : '') }, h('div', { class: 'gw-big' + (S.wilt ? ' wilt' : ''), html: plantSvg(S.wilt ? 3 : 2, col) }));
+      if (S.cloud) sc.appendChild(h('div', { class: 'gw-cloud', html: pic('cloud') }));
+      st.top.appendChild(sc); UI.anim(sc, [{ opacity: 0, transform: 'scale(.85)' }, { opacity: 1, transform: 'none' }], { dur: 450, easing: UI.SPRING, fill: 'backwards' });
+      if (B.audio) B.audio.play('card');
+      await ctx.sleep(600); if (!alive()) return;
+      var dist = kit.shuffle(['apple', 'ball', 'key', 'book', 'umbrella'].filter(function (x) { return x !== 'umbrella' || S.k !== 'water'; })).slice(0, 2), keys = kit.shuffle([S.k].concat(dist));
+      var btns = addBtns(st, keys.map(toolH));
+      var res = await ask(ctx, st, btns, keys.indexOf(S.k), demo, alive, setCur); if (!res) return;
+      btns.forEach(function (b, i) { if (i !== keys.indexOf(S.k)) b.classList.add('faded'); });
+      if (S.k === 'water') { var big = sc.firstChild; await ctx.sleep(300); big.classList.remove('wilt'); if (B.audio) B.audio.play('splash'); }
+      else { var cl = sc.querySelector('.gw-cloud'); if (cl) UI.anim(cl, [{ opacity: 1 }, { opacity: 0, transform: 'translateX(120px)' }], { dur: 700, fill: 'forwards' }); sc.classList.remove('cold'); if (B.audio) B.audio.play('sparkle'); }
+      await cheer(ctx, sc); return { errors: demo ? 0 : res.errors };
+    },
+    /* ٥) رتّب مراحل النمو */
+    order: async function (ctx, st, level, demo, alive, setCur) {
+      st.top.innerHTML = ''; st.tray.innerHTML = '';
+      var col = kit.pick(BLOOMS), stages = [seedSvg(), plantSvg(1, col), plantSvg(3, col)], ord = kit.shuffle([0, 1, 2]), nextI = 0, errors = 0, wrongRun = 0;
+      var ttl = h('div', { class: 'gw-order-q', text: B.S.water.orderQ }); st.top.appendChild(ttl);
+      var btns = addBtns(st, ord.map(function (i) { return stages[i]; }), 'pic'), fin, pr = new Promise(function (r) { fin = r; });
+      btns.forEach(function (b, bi) {
+        b.addEventListener('click', function () {
+          if (b.classList.contains('faded')) return;
+          if (ord[bi] === nextI) { nextI++; wrongRun = 0; b.classList.add('faded'); b.appendChild(h('em', { class: 'st-num', text: UI.num(nextI) })); b.classList.remove('faded'); b.style.pointerEvents = 'none'; if (B.audio) B.audio.play('place'); b.classList.remove('pulse-hint'); if (nextI === 3) fin(true); }
+          else { errors++; wrongRun++; if (B.audio) B.audio.play('wrong'); kit.wrong(b); if (wrongRun >= 2) { var nb = btns[ord.indexOf(nextI)]; nb.classList.add('pulse-hint'); } }
+        });
+      });
+      st.solve = function () { if (nextI >= 3) return false; btns[ord.indexOf(nextI)].click(); return true; };
+      st.stop = function () { fin(false); };
+      if (demo) (async function () { while (alive() && nextI < 3) { await ctx.sleep(1500); if (nextI < 3 && !ctx.paused) { var c = kit.center(btns[ord.indexOf(nextI)], ctx.stage), hd = kit.hand(ctx.stage, c.x, c.y); await hd.tap(); hd.el.remove(); btns[ord.indexOf(nextI)].click(); } } })();
+      await pr; st.solve = null; if (!alive()) return;
+      await cheer(ctx, ttl); return { errors: demo ? 0 : Math.min(errors, 4) };
+    },
+    /* ٦) كم زهرة؟ */
+    count: async function (ctx, st, level, demo, alive, setCur) {
+      var n = kit.rand(Math.min(5, level + 2)) + 1;
+      st.top.innerHTML = ''; st.tray.innerHTML = '';
+      var meadow = h('div', { class: 'gw-meadow' }), cols = BLOOMS;
+      var spots = kit.shuffle([[14, 40], [36, 56], [58, 38], [80, 54], [26, 20], [70, 18]]).slice(0, n);
+      spots.forEach(function (s, i) { var f = h('div', { class: 'gw-mf', style: { left: s[0] + '%', top: s[1] + '%', animationDelay: (i * 0.3) + 's' }, html: plantSvg(3, cols[i % cols.length]) }); meadow.appendChild(f); });
+      st.top.appendChild(meadow); UI.anim(meadow, [{ opacity: 0, transform: 'scale(.85)' }, { opacity: 1, transform: 'none' }], { dur: 450, easing: UI.SPRING, fill: 'backwards' });
+      if (B.audio) B.audio.play('card');
+      await ctx.sleep(900); if (!alive()) return;
+      var opts = [n]; kit.shuffle([1, 2, 3, 4, 5, 6].filter(function (x) { return x !== n; })).forEach(function (x) { if (opts.length < 3) opts.push(x); }); opts = kit.shuffle(opts);
+      var btns = addBtns(st, opts.map(function (x) { return '<span class="gw-numl">' + UI.num(x) + '</span>'; }), 'num');
+      var res = await ask(ctx, st, btns, opts.indexOf(n), demo, alive, setCur); if (!res) return;
+      btns.forEach(function (b, i) { if (i !== opts.indexOf(n)) b.classList.add('faded'); });
+      await cheer(ctx, meadow); return { errors: demo ? 0 : res.errors };
+    }
+  };
+  var WTYPES = ['grow', 'thirsty', 'ripe', 'need', 'order', 'bugs', 'count'];
+  mini('water', 'wt-stage', 'rabbit', async function (ctx, st, level, demo, alive, setCur) {
+    if (!st.bag || !st.bag.length) { st.bag = kit.shuffle(WTYPES.slice()); if (st.lastT && st.bag[st.bag.length - 1] === st.lastT) st.bag.unshift(st.bag.pop()); }
+    var tp = st.bag.pop(); st.lastT = tp;
+    if (demo) tp = 'thirsty';
+    return ROUNDS[tp](ctx, st, level, demo, alive, setCur);
   });
 
   /* ═════════════════ ساعد الأرنب (متاهة) ═════════════════

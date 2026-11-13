@@ -91,7 +91,7 @@ js/app.js · PLAN.md · README.md · IDEAS.md · HANDOFF.md (هذا)
 3. ارفع `VERSION`، `node tools/build-single.js`، commit + push إلى الفرع، ثم `SendUserFile` لـ`dist/index.html` و`dist/sw.js` (+ بضع لقطات).
 4. أجب باختصار وبالعربية: ما تغيّر، وما لم تستطع اختباره، وأي قرار اتخذتَه.
 
-## ١٠) الحالة الحالية: الإصدار 7.8.1 (يُحدَّث مع كل تسليم)
+## ١٠) الحالة الحالية: الإصدار 7.9.0 (يُحدَّث مع كل تسليم)
 **تسليم كل مرة (قاعدة من صاحب المشروع):** `dist/index.html` + `dist/sw.js` + **هذا الدليل الشامل** `dist/PROJECT.md` (ينتجه `node tools/build-single.js` ويضم HANDOFF + IDEAS + PLAN: بنك أفكار الألعاب وبنك القصص وغيرهما). حدّث هذا القسم قبل كل تسليم.
 
 ### ما أُضيف منذ 6.0.2

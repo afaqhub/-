@@ -1,6 +1,6 @@
 /* Service Worker — يحفظ الصفحة الوحيدة ليعمل التطبيق دون إنترنت. ارفع VERSION عند كل تحديث. */
 'use strict';
-const VERSION = '7.8.1';
+const VERSION = '7.9.0';
 const CACHE = 'bustan-v' + VERSION;
 const FILES = ['./', './index.html'];
 self.addEventListener('install', (e) => {
