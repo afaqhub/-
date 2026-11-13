@@ -937,3 +937,8 @@ html.night .tabbar { background: rgba(30, 36, 90, .75); } html.night .tab-btn { 
 .st-tags { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; } .st-tag { font-size: 13px; font-weight: 800; padding: 2px 10px; border-radius: 99px; background: #EEF1FA; color: #6B7BB8; } .st-tag.long { background: #FFE1A8; color: #A8530F; } .st-tag.short { background: #D3F5E4; color: #1C8F5C; } .st-tag.age { background: #E7DEFF; color: #6B3CC9; }
 .st-sub { width: 100%; margin: 10px 0 2px; font-size: 20px; font-weight: 800; color: #6B3CC9; text-align: start; }
 .st-guess { width: min(100%, 760px); margin: 0 auto; } .st-guess-q { width: 100%; text-align: center; font-size: clamp(20px, 4.2vmin, 28px); font-weight: 800; color: #C23C69; background: #fff; border-radius: 22px; padding: 10px 14px; box-shadow: 0 5px 0 #F7C8D8; }
+/* داخل الكهف */
+.st-scene.bg-cave { background: radial-gradient(ellipse at 55% 70%, #6A4F78 0%, #3A2B52 55%, #1F1838 100%); }
+.st-cavewall { position: absolute; inset: 0 0 24% 0; background: radial-gradient(circle at 20% 30%, rgba(255, 220, 150, .16) 0 8%, transparent 9%), radial-gradient(circle at 78% 22%, rgba(255, 220, 150, .12) 0 6%, transparent 7%), repeating-linear-gradient(100deg, rgba(0, 0, 0, .1) 0 14px, transparent 14px 38px); }
+.st-stal { position: absolute; left: 0; right: 0; top: 0; height: 18%; } .st-stal svg { width: 100%; height: 100%; display: block; }
+.st-cavefloor { position: absolute; left: 0; right: 0; bottom: 0; height: 26%; background: linear-gradient(180deg, #6B5A52, #3F322E); border-top: 4px solid rgba(255, 220, 150, .25); }

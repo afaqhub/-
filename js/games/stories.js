@@ -88,11 +88,11 @@
           ch: [{ k: 'svg:pad', x: 40, y: 3, s: 26 }, { k: 'rocket', x: 40, y: 14, s: 20, fx: 'sway' }, { k: 'moon', x: 80, y: 56, s: 18 }] },
         { bg: 'night', text: 'لكن الصاروخ لم ينطلق! فحزن نجم.', say: [{ w: 1, t: 'آه… لم أستطع…' }],
           ch: [{ k: 'svg:pad', x: 40, y: 3, s: 26 }, { k: 'rocket', x: 40, y: 14, s: 20, tilt: -10, eff: ['sad', 'smoke'] }, { k: 'cloud', x: 80, y: 60, s: 20, fx: 'sway' }] },
-        { bg: 'day', text: 'جاء الدب وربّت عليه وشجّعه.', say: [{ w: 0, t: 'لا تحزن يا نجم! سنحاول معًا.' }, { w: 1, t: 'شكرًا يا دبدوب!' }],
+        { bg: 'day', text: 'وفي الصباح جاء الدب وربّت عليه وشجّعه.', say: [{ w: 0, t: 'لا تحزن يا نجم! سنحاول معًا.' }, { w: 1, t: 'شكرًا يا دبدوب!' }],
           ch: [{ k: 'bear', x: 28, y: 6, s: 30, hold: 1, fx: 'hop' }, { k: 'rocket', x: 66, y: 6, s: 22, fx: 'sway', eff: ['joy'] }] },
         { bg: 'day', text: 'وساعده أصدقاؤه في تجهيز منصة الانطلاق.', say: [{ w: 1, t: 'هيا نجهّز كل شيء!' }],
           ch: [{ k: 'svg:pad', x: 50, y: 3, s: 24 }, { k: 'bear', x: 20, y: 6, s: 24, hold: 0, eff: ['effort'] }, { k: 'fox', x: 80, y: 6, s: 22, hold: 0, flip: true, fx: 'hop' }, { k: 'rocket', x: 50, y: 13, s: 18, fx: 'sway' }] },
-        { bg: 'night', text: 'وانطلق الصاروخ إلى السماء… ووصل نجم إلى القمر! الحمد لله.', say: [],
+        { bg: 'night', text: 'وفي المساء انطلق الصاروخ إلى السماء… ووصل نجم إلى القمر! الحمد لله.', say: [],
           ch: [{ k: 'rocket', x: 34, y: 8, s: 22, tilt: 0, tap: 'whoosh', act: { to: [56, 50], rot: 22, arc: true, dur: 2200, ease: 'ease-in', eff: ['flame', 'smoke'], snd2: 'cheer', after: { eff: true } }, note: 'اضغط الصاروخ ليطير' }, { k: 'moon', x: 74, y: 52, s: 28, fx: 'pop' }, { k: 'star', x: 14, y: 72, s: 8, fx: 'spin' }, { k: 'star', x: 90, y: 74, s: 8, fx: 'spin' }] }
       ],
       acts: [
@@ -238,12 +238,12 @@
           ch: [{ k: 'fox', x: 28, y: 5, s: 28, fx: 'hop' }, { k: 'ball', x: 52, y: 20, s: 12, fx: 'hop' }, { k: 'svg:vase', x: 84, y: 22, s: 14 }, { k: 'svg:shelf', x: 84, y: 4, s: 22 }] },
         { bg: 'room', text: 'فارتطمت الكرة بالإناء… وانكسر!', say: [{ w: 0, t: 'يا إلهي!' }],
           ch: [{ k: 'fox', x: 30, y: 5, s: 28, eff: ['bang'] }, { k: 'ball', x: 56, y: 6, s: 12 }, { k: 'svg:vaseBroken', x: 82, y: 4, s: 22 }] },
-        { bg: 'day', text: 'خاف الثعلب، فاختبأ خلف الشجرة.', say: [{ w: 0, t: 'آه… ماذا أفعل؟' }],
-          ch: [{ k: 'fox', x: 48, y: 5, s: 22, eff: ['sweat'] }, { k: 'tree', x: 56, y: 5, s: 34, fx: 'sway' }, { k: 'svg:vaseBroken', x: 16, y: 4, s: 14 }] },
-        { bg: 'day', text: 'جاءت البومة وسألت بلطف.', say: [{ w: 0, t: 'من كسر الإناء يا أصدقاء؟' }, { w: 1, t: 'أنا كسرته، وأنا آسف.' }],
+        { bg: 'room', text: 'خاف الثعلب، فاختبأ خلف الصندوق الكبير.', say: [{ w: 0, t: 'آه… ماذا أفعل؟' }],
+          ch: [{ k: 'fox', x: 56, y: 5, s: 20, eff: ['sweat'] }, { k: 'box', x: 56, y: 3, s: 26 }, { k: 'svg:vaseBroken', x: 16, y: 4, s: 14 }] },
+        { bg: 'room', text: 'جاءت البومة إلى البيت وسألت بلطف.', say: [{ w: 0, t: 'من كسر الإناء يا أصدقاء؟' }, { w: 1, t: 'أنا كسرته، وأنا آسف.' }],
           ch: [{ k: 'owl', x: 26, y: 5, s: 26, fx: 'sway', eff: ['q'] }, { k: 'fox', x: 66, y: 5, s: 26, eff: ['sad'] }, { k: 'svg:vaseBroken', x: 90, y: 4, s: 14 }] },
-        { bg: 'evening', text: 'شكرت البومة الثعلب على صدقه، وأصلحا الإناء معًا.', say: [{ w: 0, t: 'شكرًا لأنك صدقت! ما أجمل الصدق.' }],
-          ch: [{ k: 'owl', x: 24, y: 5, s: 26, hold: 2, eff: ['joy'] }, { k: 'fox', x: 76, y: 5, s: 26, flip: true, hold: 2 }, { k: 'svg:vase', x: 50, y: 6, s: 18, tap: 'sparkle', act: { bounce: 2 }, note: 'اضغط الإناء' }] }
+        { bg: 'room', text: 'شكرت البومة الثعلب على صدقه، وأصلحا الإناء معًا. اضغط الإناء.', say: [{ w: 0, t: 'شكرًا لأنك صدقت! ما أجمل الصدق.' }],
+          ch: [{ k: 'owl', x: 24, y: 5, s: 26, hold: 2, eff: ['joy'] }, { k: 'fox', x: 76, y: 5, s: 26, flip: true, hold: 2 }, { k: 'svg:vaseBroken', x: 50, y: 6, s: 18, tap: 'sparkle', act: { swap: 'svg:vase', bounce: 2 }, note: 'اضغط الإناء' }] }
       ],
       acts: [
         { t: 'pick', q: 'ماذا انكسر؟', opts: [{ k: 'svg:vase', ok: 1 }, { k: 'ball' }], hint: 'ارتطمت به الكرة وكان فوق الرف.' },
@@ -298,21 +298,21 @@
           ch: [{ k: 'svg:riverV', x: 60, y: 0, s: 15 }, { k: 'rabbit', x: 12, y: 6, s: 20, eff: ['q'] }, { k: 'fox', x: 30, y: 6, s: 18, eff: ['q'] }, { k: 'bear', x: 46, y: 6, s: 20, eff: ['q'] }] },
         { bg: 'day', text: 'حمل الدب والثعلب جذع شجرة ووضعاه فوق النهر.', say: [{ w: 2, t: 'واحد… اثنان… ثلاثة… ارفع!' }],
           ch: [{ k: 'svg:riverV', x: 62, y: 0, s: 15 }, { k: 'svg:plank', x: 28, y: 6, s: 22, tap: 'place', act: { to: [62, 10], arc: true, dur: 1100, snd2: 'pop' }, note: 'اضغط الجذع' }, { k: 'bear', x: 10, y: 6, s: 20, hold: 1, eff: ['effort'] }, { k: 'fox', x: 44, y: 6, s: 18, hold: 1, flip: true, eff: ['sweat'] }] },
-        { bg: 'day', text: 'عبر الأصدقاء النهر فوق الجسر خطوة خطوة، وهم يمسكون بعضهم.', say: [{ w: 3, t: 'تمسّكوا جيدًا!' }],
-          ch: [{ k: 'svg:riverV', x: 62, y: 0, s: 15 }, { k: 'svg:bridge', x: 62, y: 18, s: 30 }, { k: 'rabbit', x: 24, y: 6, s: 18, tap: 'pop', act: { to: [88, 6], arc: true, dur: 1500 }, note: 'اضغط أرنوب ليعبر' }, { k: 'fox', x: 8, y: 6, s: 16, eff: ['joy'] }, { k: 'bear', x: 42, y: 6, s: 18 }] },
+        { bg: 'day', text: 'عبر الأصدقاء النهر فوق الجسر واحدًا بعد الآخر، وهم يمسكون بعضهم. اضغط كلًّا منهم ليعبر.', say: [{ w: 3, t: 'تمسّكوا جيدًا!' }],
+          ch: [{ k: 'svg:riverV', x: 62, y: 0, s: 15 }, { k: 'svg:bridge', x: 62, y: 18, s: 30 }, { k: 'rabbit', x: 30, y: 6, s: 18, tap: 'pop', act: { to: [90, 6], arc: true, dur: 1500 }, note: 'أرنوب' }, { k: 'fox', x: 12, y: 6, s: 16, tap: 'pop', act: { to: [80, 6], arc: true, dur: 1700 }, note: 'الثعلب' }, { k: 'bear', x: 46, y: 6, s: 18, tap: 'pop', act: { to: [70, 6], arc: true, dur: 1900 }, note: 'الدب' }] },
         { bg: 'evening', text: 'وصلوا عند الغروب إلى كهف مظلم، وقالت الخريطة: الكنز في الداخل!', say: [{ w: 1, t: 'المكان مظلم جدًا…' }, { w: 3, t: 'أشعر بالخوف قليلًا.' }],
           ch: [{ k: 'svg:cave', x: 78, y: 3, s: 30 }, { k: 'rabbit', x: 14, y: 6, s: 20 }, { k: 'fox', x: 32, y: 6, s: 18 }, { k: 'bear', x: 52, y: 6, s: 20, eff: ['sweat'] }] },
-        { bg: 'evening', text: 'ابتسم الثعلب وأخرج فانوسًا: أحضرته للمغامرة! اضغط الكهف ليضيء.', say: [{ w: 2, t: 'معي فانوس! بسم الله، لا تخافوا.' }],
-          ch: [{ k: 'svg:cave', x: 78, y: 3, s: 30, tap: 'sparkle', act: { swap: 'svg:caveLit', bounce: 2 }, note: 'اضغط الكهف' }, { k: 'rabbit', x: 14, y: 6, s: 20, eff: ['joy'] }, { k: 'fox', x: 32, y: 6, s: 20, hold: 4 }, { k: 'bear', x: 54, y: 6, s: 20 }, { k: 'lantern', x: 44, y: 18, s: 10, fx: 'sway' }] },
-        { bg: 'night', text: 'دخلوا الكهف ومعهم النور، فرأوا صندوقًا خشبيًا في آخره!', say: [{ w: 1, t: 'الكنز! لقد وجدناه!' }],
-          ch: [{ k: 'svg:chest', x: 78, y: 4, s: 24 }, { k: 'rabbit', x: 16, y: 6, s: 20, fx: 'hop', eff: ['joy'] }, { k: 'fox', x: 36, y: 6, s: 18 }, { k: 'bear', x: 56, y: 6, s: 20 }] },
-        { bg: 'night', text: 'لكن الصندوق كان مقفلًا!', ask: { q: 'أين تتوقع أن يكون المفتاح؟', opts: [{ k: 'svg:chest', t: 'تحت صخرة قريبة' }, { k: 'tree', t: 'في شجرة بعيدة' }], react: 'لنبحث معًا عن المفتاح!' },
-          ch: [{ k: 'svg:chest', x: 78, y: 4, s: 24 }, { k: 'rabbit', x: 16, y: 6, s: 20, eff: ['q'] }, { k: 'fox', x: 36, y: 6, s: 18, eff: ['q'] }, { k: 'bear', x: 56, y: 6, s: 20, eff: ['q'] }] },
-        { bg: 'night', text: 'بحثوا معًا حتى وجد الدب المفتاح تحت صخرة قريبة.', say: [{ w: 3, t: 'وجدته! كان تحت الصخرة!' }],
-          ch: [{ k: 'key', x: 38, y: 6, s: 12, tap: 'place', act: { to: [72, 24], arc: true, dur: 1000 }, note: 'اضغط المفتاح' }, { k: 'svg:chest', x: 80, y: 4, s: 22 }, { k: 'rabbit', x: 14, y: 6, s: 18 }, { k: 'bear', x: 54, y: 6, s: 22, fx: 'hop', eff: ['joy'] }] },
-        { bg: 'night', text: 'أدار أرنوب المفتاح… فانفتح الصندوق! وكان فيه تمر وتفاح وكتب جميلة.', say: [{ w: 1, t: 'يا سلام! ما أجمله!' }],
-          ch: [{ k: 'svg:chest', x: 66, y: 4, s: 30, tap: 'cheer', act: { swap: 'svg:chestOpen', bounce: 2 }, note: 'اضغط الصندوق' }, { k: 'rabbit', x: 22, y: 6, s: 22, eff: ['joy'] }, { k: 'fox', x: 42, y: 6, s: 18, eff: ['joy'] }] },
-        { bg: 'evening', text: 'قال أرنوب: الكنز الحقيقي أن نشاركه مع كل أصدقاء الغابة! ووزّعوا التمر والتفاح.', say: [{ w: 1, t: 'الكنز أجمل حين نتشاركه!' }],
+        { bg: 'evening', text: 'ابتسم الثعلب وأخرج فانوسًا: أحضرته للمغامرة! اضغط الكهف ليضيء، ثم ادخلوا معًا.', say: [{ w: 2, t: 'معي فانوس! بسم الله، لا تخافوا.' }],
+          ch: [{ k: 'svg:cave', x: 78, y: 3, s: 30, tap: 'sparkle', act: { swap: 'svg:caveLit', bounce: 1, others: [{ i: 1, act: { to: [78, 8], scale: 0.3, fade: true, dur: 1700 } }, { i: 2, act: { to: [80, 8], scale: 0.3, fade: true, dur: 1700 } }, { i: 3, act: { to: [76, 8], scale: 0.3, fade: true, dur: 1700 } }, { i: 4, act: { to: [80, 12], scale: 0.3, fade: true, dur: 1700 } }] }, note: 'اضغط الكهف ليضيء وتدخلوا' }, { k: 'rabbit', x: 14, y: 6, s: 20, eff: ['joy'] }, { k: 'fox', x: 32, y: 6, s: 20, hold: 4 }, { k: 'bear', x: 54, y: 6, s: 20 }, { k: 'lantern', x: 44, y: 18, s: 10, fx: 'sway' }] },
+        { bg: 'cave', text: 'دخلوا الكهف ومعهم النور، فرأوا في آخره صندوقًا خشبيًا كبيرًا!', say: [{ w: 1, t: 'الكنز! لقد وجدناه!' }],
+          ch: [{ k: 'svg:chest', x: 78, y: 4, s: 24 }, { k: 'rabbit', x: 16, y: 6, s: 20, enter: true, eff: ['joy'] }, { k: 'fox', x: 36, y: 6, s: 18, enter: true, hold: 4 }, { k: 'bear', x: 56, y: 6, s: 20, enter: true }, { k: 'lantern', x: 46, y: 18, s: 10, enter: true, fx: 'sway' }] },
+        { bg: 'cave', text: 'لكن الصندوق كان مقفلًا!', ask: { q: 'أين تتوقع أن يكون المفتاح؟', opts: [{ k: 'svg:chest', t: 'تحت صخرة قريبة' }, { k: 'tree', t: 'في شجرة بعيدة' }], react: 'لنبحث معًا عن المفتاح!' },
+          ch: [{ k: 'svg:chest', x: 78, y: 4, s: 24 }, { k: 'rabbit', x: 16, y: 6, s: 20, eff: ['q'] }, { k: 'fox', x: 36, y: 6, s: 18, hold: 4, eff: ['q'] }, { k: 'bear', x: 56, y: 6, s: 20, eff: ['q'] }, { k: 'lantern', x: 46, y: 18, s: 10, fx: 'sway' }] },
+        { bg: 'cave', text: 'بحثوا معًا حتى وجد الدب المفتاح تحت صخرة قريبة. اضغط المفتاح ليذهب إلى الصندوق.', say: [{ w: 3, t: 'وجدته! كان تحت الصخرة!' }],
+          ch: [{ k: 'key', x: 38, y: 6, s: 12, tap: 'place', act: { to: [72, 22], arc: true, dur: 1000 }, note: 'اضغط المفتاح' }, { k: 'svg:chest', x: 80, y: 4, s: 22 }, { k: 'rabbit', x: 14, y: 6, s: 18 }, { k: 'bear', x: 54, y: 6, s: 22, fx: 'hop', eff: ['joy'] }] },
+        { bg: 'cave', text: 'أدار أرنوب المفتاح… اضغط الصندوق ليُفتح! وكان فيه تمر وتفاح وكتب جميلة.', say: [{ w: 1, t: 'يا سلام! ما أجمله!' }],
+          ch: [{ k: 'svg:chest', x: 70, y: 4, s: 28, tap: 'cheer', act: { swap: 'svg:chestOpen', bounce: 2, reveal: [4, 5, 6] }, note: 'اضغط الصندوق' }, { k: 'rabbit', x: 22, y: 6, s: 22, eff: ['joy'] }, { k: 'fox', x: 44, y: 6, s: 18, eff: ['joy'] }, { k: 'bear', x: 90, y: 6, s: 12 }, { k: 'apple', x: 56, y: 30, s: 9, hide: true, fx: 'pop' }, { k: 'book', x: 72, y: 36, s: 10, hide: true, fx: 'pop' }, { k: 'star', x: 86, y: 30, s: 8, hide: true, fx: 'spin' }] },
+        { bg: 'evening', text: 'خرجوا من الكهف ومعهم الصندوق، وقال أرنوب: الكنز الحقيقي أن نشاركه مع كل أصدقاء الغابة! ووزّعوا التمر والتفاح.', say: [{ w: 1, t: 'الكنز أجمل حين نتشاركه!' }],
           ch: [{ k: 'svg:chestOpen', x: 50, y: 4, s: 22 }, { k: 'rabbit', x: 20, y: 6, s: 22, hold: 3, eff: ['joy'] }, { k: 'fox', x: 78, y: 6, s: 18, flip: true }, { k: 'apple', x: 34, y: 18, s: 10, fx: 'pop' }] },
         { bg: 'evening', text: 'وعادوا إلى بيوتهم فرحين، وقد عرفوا أن أجمل كنز هو الأصدقاء والتعاون. الحمد لله.',
           ch: [{ k: 'sun', x: 20, y: 44, s: 22, fx: 'pop' }, { k: 'rabbit', x: 36, y: 6, s: 24, fx: 'hop' }, { k: 'fox', x: 58, y: 6, s: 20, fx: 'hop' }, { k: 'bear', x: 80, y: 6, s: 22, fx: 'hop' }, { k: 'heart', x: 50, y: 54, s: 11, fx: 'pop' }] }
@@ -377,9 +377,9 @@
       scenes: [
         { bg: 'evening', text: 'كان دبدوب يلعب حتى غابت الشمس. اضغط الشمس لتغيب.', say: [{ w: 1, t: 'ما أجمل اللعب! وداعًا يا شمس.' }],
           ch: [{ k: 'sun', x: 80, y: 30, s: 22, tap: 'sparkle', act: { to: [84, -2], dur: 1600, ease: 'ease-in' }, note: 'اضغط الشمس' }, { k: 'bear', x: 30, y: 6, s: 30, fx: 'hop', eff: ['joy'] }] },
-        { bg: 'night', text: 'وجاء الليل، وصار الجو مظلمًا.', say: [{ w: 2, t: 'الظلام كبير… أنا أخاف قليلًا.' }],
-          ch: [{ k: 'moon', x: 84, y: 56, s: 16 }, { k: 'svg:cave', x: 70, y: 3, s: 28 }, { k: 'bear', x: 30, y: 6, s: 26, eff: ['sad', 'sweat'] }] },
-        { bg: 'night', text: 'وفجأة سمع صوتًا غريبًا: هووو هووو!', say: [{ w: 1, t: 'من هناك؟!' }],
+        { bg: 'cave', text: 'وجاء الليل، فدخل دبدوب إلى بيته الصغير في الكهف.', say: [{ w: 1, t: 'الظلام كبير… أنا أخاف قليلًا.' }],
+          ch: [{ k: 'moon', x: 84, y: 56, s: 14 }, { k: 'bear', x: 36, y: 5, s: 28, enter: true, eff: ['sad', 'sweat'] }] },
+        { bg: 'night', text: 'فخرج دبدوب إلى باب الكهف، وفجأة سمع صوتًا غريبًا: هووو هووو!', say: [{ w: 1, t: 'من هناك؟!' }],
           ch: [{ k: 'tree', x: 80, y: 5, s: 32, fx: 'sway' }, { k: 'bear', x: 28, y: 6, s: 26, eff: ['bang', 'sweat'] }, { k: 'star', x: 20, y: 66, s: 7, fx: 'spin' }] },
         { bg: 'night', text: 'تُرى ما مصدر الصوت؟', ask: { q: 'ما مصدر الصوت برأيك؟', opts: [{ k: 'owl', t: 'بومة' }, { k: 'fox', t: 'ثعلب' }], react: 'لنرَ من هناك!' },
           ch: [{ k: 'tree', x: 80, y: 5, s: 32 }, { k: 'bear', x: 28, y: 6, s: 26, eff: ['q'] }] },
@@ -401,8 +401,8 @@
           ch: [{ k: 'bear', x: 30, y: 6, s: 26, tilt: 10, eff: ['zzz'] }, { k: 'owl', x: 66, y: 6, s: 20 }, { k: 'moon', x: 84, y: 54, s: 14 }] },
         { bg: 'night', text: 'قالت البومة: تصبح على خير يا دبدوب.', say: [{ w: 1, t: 'تصبح على خير!' }, { w: 0, t: 'وأنتِ من أهل الخير!' }],
           ch: [{ k: 'bear', x: 28, y: 6, s: 24, eff: ['zzz'] }, { k: 'owl', x: 66, y: 6, s: 22 }] },
-        { bg: 'night', text: 'ونام دبدوب مطمئنًا، وقد تعلّم أن الله معنا في الظلام والنور. الحمد لله.',
-          ch: [{ k: 'svg:cave', x: 70, y: 3, s: 28 }, { k: 'bear', x: 30, y: 4, s: 24, tilt: 70, eff: ['zzz'] }, { k: 'moon', x: 84, y: 56, s: 14, fx: 'pop' }, { k: 'star', x: 18, y: 62, s: 8, fx: 'spin' }, { k: 'heart', x: 50, y: 52, s: 10, fx: 'pop' }] }
+        { bg: 'cave', text: 'ودّع دبدوب صديقته وعاد إلى بيته الدافئ، ونام مطمئنًا، وقد تعلّم أن الله معنا في الظلام والنور. الحمد لله.',
+          ch: [{ k: 'moon', x: 84, y: 56, s: 14, fx: 'pop' }, { k: 'bear', x: 40, y: 4, s: 26, tilt: 78, eff: ['zzz'] }, { k: 'heart', x: 62, y: 40, s: 10, fx: 'pop' }, { k: 'star', x: 18, y: 62, s: 8, fx: 'spin' }] }
       ],
       acts: [
         { t: 'pick', q: 'ممَّ كان يخاف دبدوب؟', opts: [{ k: 'moon', t: 'الظلام', ok: 1 }, { k: 'ball', t: 'الكرة' }], hint: 'جاء بعد غروب الشمس.' },
@@ -442,12 +442,14 @@
     if (A.soil === false) { var so = el.querySelector('.st-soil'); if (so) so.style.display = 'none'; }
     var ef = el.querySelector('.st-eff'); if (A.eff) { if (!ef) { ef = h('div', { class: 'st-eff' }); el.appendChild(ef); } ef.insertAdjacentHTML('beforeend', effHtml(A.eff)); }
     var dx = A.to ? (A.to[0] - c.x) / 100 * W : (A.dx || 0) / 100 * W, dy = A.to ? -(A.to[1] - c.y) / 100 * H : -(A.dy || 0) / 100 * H;
-    var base = tr || '', rot = A.rot || 0, fr = [];
-    function T(x, y, r) { return { transform: 'translate(' + x + 'px,' + y + 'px) rotate(' + r + 'deg) ' + base }; }
+    var base = tr || '', rot = A.rot || 0, fr = [], sc = A.scale || 1;
+    function T(x, y, r) { return { opacity: 1, transform: 'translate(' + x + 'px,' + y + 'px) rotate(' + r + 'deg) ' + base + (sc !== 1 && (x || y) ? ' scale(' + sc + ')' : '') }; }
+    (A.reveal || []).forEach(function (ri, k) { var re = scene.querySelectorAll('.st-ch')[ri]; if (re) { re.style.opacity = '1'; UI.anim(re, [{ opacity: 0, transform: 'translateX(-50%) translateY(20px) scale(.3)' }, { opacity: 1, transform: 'translateX(-50%) translateY(0) scale(1.2)' }, { opacity: 1, transform: 'translateX(-50%) scale(1)' }], { dur: 700, delay: 300 + k * 250, fill: 'backwards' }); } });
     if (A.bounce) { fr.push(T(0, 0, 0)); for (var i = 0; i < A.bounce; i++) { fr.push(T(0, -H * 0.2, i % 2 ? 8 : -8)); fr.push(T(0, 0, 0)); } }
     else if (A.arc) { fr = [T(0, 0, 0), T(dx * 0.5, dy * 0.5 - H * 0.16, rot / 2), T(dx, dy, rot)]; }
     else if (A.shake) { fr = [T(0, 0, 0), T(-8, 0, -6), T(8, 0, 6), T(-8, 0, -6), T(0, 0, 0)]; }
     else { fr = [T(0, 0, 0), T(dx, dy, rot)]; }
+    if (A.fade && fr.length) fr[fr.length - 1].opacity = 0;
     var an = inn.animate(fr, { duration: (A.dur || 900) / UI.ts, easing: A.ease || 'ease-in-out', fill: A.bounce || A.shake ? 'none' : 'forwards' });
     if (A.snd2) setTimeout(function () { if (B.audio) B.audio.play(A.snd2); }, (A.dur || 900) / UI.ts);
     if (A.after) an.onfinish = function () { if (A.after.eff && ef) ef.innerHTML = ''; if (A.after.swap) inn.innerHTML = pic(A.after.swap); };
@@ -456,14 +458,19 @@
   function sceneEl(p, withSay) {
     var s = h('div', { class: 'st-scene bg-' + p.bg });
     if (p.bg === 'night') s.appendChild(h('div', { class: 'st-hills mid', html: art.sceneTile('gmid', 600, 50) }));
+    else if (p.bg === 'cave') { s.appendChild(h('div', { class: 'st-cavewall' })); s.appendChild(h('div', { class: 'st-stal', html: '<svg viewBox="0 0 100 14" preserveAspectRatio="none"><path d="M0 0H100V3L94 14L88 4L78 11L70 3L58 13L50 3L40 12L30 3L20 14L12 4L5 10L0 4Z" fill="#2A2140"/></svg>' })); s.appendChild(h('div', { class: 'st-cavefloor' })); }
     else if (p.bg === 'room') s.appendChild(h('div', { class: 'st-floor' }));
     else if (p.bg === 'bath') { s.appendChild(h('div', { class: 'st-tiles' })); s.appendChild(h('div', { class: 'st-floor bath' })); }
     else { s.appendChild(h('div', { class: 'st-hills far', html: art.sceneTile('gfar', 600, 120) })); s.appendChild(h('div', { class: 'st-hills mid', html: art.sceneTile('gmid', 600, 90) })); }
-    var chs = p.ch || [];
+    var chs = p.ch || [], nodes = [], trs = [];
     chs.forEach(function (c, i) {
       var tr = (c.flip ? 'scaleX(-1) ' : '') + (c.tilt ? 'rotate(' + c.tilt + 'deg)' : '');
+      trs[i] = tr;
       var el = h('div', { class: 'st-ch' + (c.fx ? ' fx-' + c.fx : '') + (c.tap ? ' st-hot' : ''), style: { left: c.x + '%', bottom: c.y + '%', width: c.s + '%', animationDelay: (i * 0.35) + 's' } },
         h('div', { class: 'st-in', style: { transform: tr || 'none', transformOrigin: '50% 100%' }, html: pic(c.k) }));
+      nodes[i] = el;
+      if (c.hide) el.style.opacity = '0';
+      if (c.enter) UI.anim(el.firstChild, [{ opacity: 0, transform: 'translateX(-90px) ' + (tr || '') }, { opacity: 1, transform: (tr || 'none') }], { dur: 1100, delay: 200 + i * 220, fill: 'backwards' });
       if (c.buried) el.appendChild(h('div', { class: 'st-soil' }));
       if (c.eff) el.appendChild(h('div', { class: 'st-eff', html: effHtml(c.eff) }));
       if (c.tap) {
@@ -476,6 +483,7 @@
           var A = c.act, inn = el.firstChild;
           if (A && !acted) {
             acted = true; runAct(el, inn, c, A, s, tr);
+            (A.others || []).forEach(function (o, k) { setTimeout(function () { var ne = nodes[o.i]; if (ne) runAct(ne, ne.firstChild, chs[o.i], o.act, s, trs[o.i]); }, k * 260 / UI.ts); });
           } else if (!A) {
             UI.anim(inn, [{ transform: tr || 'none' }, { transform: (c.flip ? 'scaleX(-1) ' : '') + 'rotate(' + ((c.tilt || 0) - 7) + 'deg) scale(1.15)' }, { transform: (c.flip ? 'scaleX(-1) ' : '') + 'rotate(' + ((c.tilt || 0) + 7) + 'deg) scale(1.15)' }, { transform: tr || 'none' }], { dur: 500, fill: 'none' });
           }
