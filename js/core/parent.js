@@ -286,28 +286,92 @@
     var msg = h('div', { class: 'p-msg' });
     body.appendChild(pw); body.appendChild(go); body.appendChild(msg);
     function stat(label, n) { return h('div', { class: 'p-row' }, h('div', { class: 'p-game', text: label }), h('div', { class: 'p-nums', text: UI.num(n || 0) })); }
-    function show() {
+    function show(key) {
       body.innerHTML = '';
       if (!B.stats.enabled()) { body.appendChild(h('div', { class: 'p-warn', text: A.off })); return; }
-      var out = h('div', { class: 'p-sec' }), rf = h('button', { class: 'p-btn', type: 'button', text: A.refresh });
-      function load() {
+      var sTab = h('button', { class: 'p-btn p-chip on', type: 'button', text: A.tabStats }), cTab = h('button', { class: 'p-btn p-chip', type: 'button', text: A.tabControl });
+      var statsBox = h('div'), ctrlBox = h('div', { style: { display: 'none' } });
+      sTab.addEventListener('click', function () { statsBox.style.display = ''; ctrlBox.style.display = 'none'; sTab.classList.add('on'); cTab.classList.remove('on'); });
+      cTab.addEventListener('click', function () { statsBox.style.display = 'none'; ctrlBox.style.display = ''; cTab.classList.add('on'); sTab.classList.remove('on'); });
+      body.appendChild(h('div', { class: 'p-wrap' }, sTab, cTab)); body.appendChild(statsBox); body.appendChild(ctrlBox);
+
+      /* ═══ الإحصاءات بالتواريخ ═══ */
+      var data = null, out = h('div', { class: 'p-sec' }), nowK = function () { var d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); };
+      function addDays(k, n) { var p = k.split('-'), d = new Date(+p[0], +p[1] - 1, +p[2] + n); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+      var fromI = h('input', { class: 'p-ta', type: 'date', style: { minHeight: '48px' } }), toI = h('input', { class: 'p-ta', type: 'date', style: { minHeight: '48px' } });
+      toI.value = nowK(); fromI.value = addDays(nowK(), -6);
+      function render(all) {
         out.innerHTML = '';
-        B.stats.read().then(function (d) {
-          d = d || {};
-          var dev = d.devices || {}, ev = d.events || {}, pl = d.play || {}, dn = d.done || {};
-          out.appendChild(stat(A.visitors, dev['new'])); out.appendChild(stat(A.players, dev.player)); out.appendChild(stat(A.opens, ev.open));
-          out.appendChild(h('h3', { text: A.games }));
-          B.catalog.forEach(function (c) {
-            out.appendChild(h('div', { class: 'p-row' }, h('div', { class: 'p-game', text: S.games[c.id] }),
-              h('div', { class: 'p-nums' }, h('span', { text: A.started + ': ' + UI.num(pl[c.id] || 0) }), c.free ? null : h('span', { text: A.finished + ': ' + UI.num(dn[c.id] || 0) }))));
+        if (!data) return;
+        var from = fromI.value, to = toI.value, tot = { open: 0, nw: 0, pl: 0 }, plays = {}, dones = {}, rows = [];
+        if (all) {
+          var ev = data.events || {}, dv = data.devices || {}; tot = { open: ev.open || 0, nw: dv['new'] || 0, pl: dv.player || 0 }; plays = data.play || {}; dones = data.done || {};
+        } else {
+          Object.keys(data.days || {}).sort().reverse().forEach(function (k) {
+            if (k < from || k > to) return;
+            var d = data.days[k], ev2 = d.events || {}, dv2 = d.devices || {};
+            tot.open += ev2.open || 0; tot.nw += dv2['new'] || 0; tot.pl += dv2.player || 0;
+            Object.keys(d.play || {}).forEach(function (g) { plays[g] = (plays[g] || 0) + d.play[g]; });
+            Object.keys(d.done || {}).forEach(function (g) { dones[g] = (dones[g] || 0) + d.done[g]; });
+            rows.push([k, ev2.open || 0, dv2['new'] || 0, dv2.player || 0]);
           });
-        }).catch(function () { out.appendChild(h('div', { class: 'p-warn', text: A.fail })); });
+          out.appendChild(h('div', { class: 'p-line muted', text: UI.num(from) + ' ← ' + UI.num(to) }));
+        }
+        out.appendChild(stat(A.visitors, tot.nw)); out.appendChild(stat(A.players, tot.pl)); out.appendChild(stat(A.opens, tot.open));
+        if (rows.length) {
+          out.appendChild(h('h3', { text: A.daily }));
+          rows.forEach(function (r) { out.appendChild(h('div', { class: 'p-row' }, h('div', { class: 'p-game', text: UI.num(r[0]) }), h('div', { class: 'p-nums' }, h('span', { text: A.opens + ': ' + UI.num(r[1]) }), h('span', { text: A.visitors + ': ' + UI.num(r[2]) }), h('span', { text: A.players + ': ' + UI.num(r[3]) })))); });
+        }
+        out.appendChild(h('h3', { text: A.games }));
+        B.catalog.forEach(function (c) {
+          if (!(plays[c.id] || dones[c.id])) return;
+          out.appendChild(h('div', { class: 'p-row' }, h('div', { class: 'p-game', text: S.games[c.id] }),
+            h('div', { class: 'p-nums' }, h('span', { text: A.started + ': ' + UI.num(plays[c.id] || 0) }), c.free ? null : h('span', { text: A.finished + ': ' + UI.num(dones[c.id] || 0) }))));
+        });
+        if (!all) out.appendChild(h('div', { class: 'p-line muted', text: A.dailyNote }));
       }
-      rf.addEventListener('click', load);
-      body.appendChild(rf); body.appendChild(out); load();
+      function load(then) { out.innerHTML = ''; B.stats.read().then(function (d) { data = d || {}; then(); }).catch(function () { out.appendChild(h('div', { class: 'p-warn', text: A.fail })); }); }
+      function chip(label, fn) { var b2 = h('button', { class: 'p-btn p-chip', type: 'button', text: label }); b2.addEventListener('click', function () { fn(); }); return b2; }
+      var chips = h('div', { class: 'p-wrap' },
+        chip(A.today, function () { fromI.value = toI.value = nowK(); render(false); }),
+        chip(A.d7, function () { toI.value = nowK(); fromI.value = addDays(nowK(), -6); render(false); }),
+        chip(A.d30, function () { toI.value = nowK(); fromI.value = addDays(nowK(), -29); render(false); }),
+        chip(A.all, function () { render(true); }));
+      var showB = h('button', { class: 'p-btn', type: 'button', text: A.show }); showB.addEventListener('click', function () { render(false); });
+      var rf = h('button', { class: 'p-btn', type: 'button', text: A.refresh }); rf.addEventListener('click', function () { load(function () { render(false); }); });
+      statsBox.appendChild(chips);
+      statsBox.appendChild(h('div', { class: 'p-line', text: A.from })); statsBox.appendChild(fromI);
+      statsBox.appendChild(h('div', { class: 'p-line', text: A.to })); statsBox.appendChild(toI);
+      statsBox.appendChild(h('div', { class: 'p-wrap' }, showB, rf)); statsBox.appendChild(out);
+      load(function () { render(false); });
+
+      /* ═══ التحكم بالمنصة عن بعد ═══ */
+      var cfg = { off: B.config.off, msg: B.config.msg, hidden: Object.assign({}, B.config.hidden) };
+      var offBtn = h('button', { class: 'p-btn', type: 'button' }), msgI = h('input', { class: 'p-ta', type: 'text', placeholder: A.msgPh, style: { minHeight: '48px' } });
+      msgI.value = cfg.msg || '';
+      function paintOff() { offBtn.textContent = A.platform + ': ' + (cfg.off ? A.platformOffT : A.platformOn); offBtn.classList.toggle('warn', !!cfg.off); }
+      offBtn.addEventListener('click', function () { cfg.off = !cfg.off; paintOff(); });
+      var list = h('div'), savedMsg = h('div', { class: 'p-msg' });
+      function gameRow(id, label) {
+        var b3 = h('button', { class: 'p-btn p-chip', type: 'button', 'data-gid': id });
+        function paint() { var hid = !!cfg.hidden[id]; b3.textContent = hid ? A.gamesHidden : A.gamesShown; b3.classList.toggle('on', !hid); b3.classList.toggle('warn', hid); }
+        b3.addEventListener('click', function () { if (cfg.hidden[id]) delete cfg.hidden[id]; else cfg.hidden[id] = true; paint(); });
+        paint();
+        return h('div', { class: 'p-row' }, h('div', { class: 'p-game', text: label }), b3);
+      }
+      B.catalog.forEach(function (c) { if (!c.hidden) list.appendChild(gameRow(c.id, S.games[c.id])); });
+      list.appendChild(gameRow('stories', A.storiesTab));
+      var saveB = h('button', { class: 'p-btn', type: 'button', text: A.save });
+      saveB.addEventListener('click', function () {
+        cfg.msg = msgI.value.trim();
+        B.config.save(cfg, key).then(function () { B.config._set(cfg); try { localStorage.setItem('bustan.config', JSON.stringify(cfg)); } catch (e) {} savedMsg.textContent = A.saved; }).catch(function () { savedMsg.textContent = A.saveFail; });
+      });
+      ctrlBox.appendChild(h('div', { class: 'p-line muted', text: A.ctrlNote })); ctrlBox.appendChild(offBtn); ctrlBox.appendChild(msgI); ctrlBox.appendChild(list); ctrlBox.appendChild(saveB); ctrlBox.appendChild(savedMsg);
+      paintOff();
+      B.config.readRemote().then(function (rc) { cfg.off = !!rc.off; cfg.msg = rc.msg || ''; cfg.hidden = rc.hidden || {}; msgI.value = cfg.msg; paintOff(); list.innerHTML = ''; B.catalog.forEach(function (c) { if (!c.hidden) list.appendChild(gameRow(c.id, S.games[c.id])); }); list.appendChild(gameRow('stories', A.storiesTab)); }).catch(function () {});
     }
     go.addEventListener('click', function () {
-      sha(pw.value).then(function (x) { if (x === ADMIN_HASH) show(); else msg.textContent = A.bad; });
+      sha(pw.value).then(function (x) { if (x === ADMIN_HASH) show(pw.value); else msg.textContent = A.bad; });
     });
   }
   B.admin = { open: openAdmin };

@@ -22,11 +22,14 @@
     } catch (e) { return false; }
   }
   /* زيادة عدّاد: PATCH بقيمة الخادم increment (ذرّية، لا تضيع الأرقام مع التزامن) */
+  function dayKey() { var d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
   function bump(group, key) {
     var b = base();
     if (!b || !window.fetch) return;
-    var body = {}; body[key] = { '.sv': { increment: 1 } };
-    try { window.fetch(b + '/stats/' + group + '.json', { method: 'PATCH', body: JSON.stringify(body), keepalive: true }).catch(function () {}); } catch (e) {}
+    var inc = { '.sv': { increment: 1 } }, body = {};
+    body[group + '/' + key] = inc;                                   // الإجمالي
+    body['days/' + dayKey() + '/' + group + '/' + key] = inc;       // اليومي (للتقارير بالتواريخ)
+    try { window.fetch(b + '/stats.json', { method: 'PATCH', body: JSON.stringify(body), keepalive: true }).catch(function () {}); } catch (e) {}
   }
 
   B.stats = {
@@ -39,6 +42,40 @@
       var u = B.S.statsDb;
       if (!u) return Promise.reject(new Error('no db'));
       return window.fetch(u.replace(/\/+$/, '') + '/stats.json').then(function (r) { return r.json(); });
+    }
+  };
+
+  /* إعدادات عن بعد يتحكم بها صاحب المشروع من لوحة الإدارة: إيقاف المنصة، وإخفاء ألعاب.
+     تُحفظ نسخة محلية فتعمل دون إنترنت. config = { off, msg, hidden:{id:true} } */
+  var CK = 'bustan.config', cfgShown = '';
+  B.config = {
+    off: false, msg: '', hidden: {},
+    isHidden: function (id) { return !!B.config.hidden[id]; },
+    _set: function (c) { c = c || {}; B.config.off = !!c.off; B.config.msg = c.msg || ''; B.config.hidden = c.hidden || {}; },
+    init: function () { try { B.config._set(JSON.parse(window.localStorage.getItem(CK) || '{}')); } catch (e) {} cfgShown = JSON.stringify([B.config.off, B.config.msg, B.config.hidden]); B.config.applyOff(); },
+    load: function () {
+      var b = base(); if (!b || !window.fetch) return Promise.resolve();
+      return window.fetch(b + '/config.json', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (c) {
+        c = c || {}; B.config._set(c);
+        try { window.localStorage.setItem(CK, JSON.stringify({ off: B.config.off, msg: B.config.msg, hidden: B.config.hidden })); } catch (e) {}
+        var now = JSON.stringify([B.config.off, B.config.msg, B.config.hidden]);
+        B.config.applyOff();
+        if (now !== cfgShown) { cfgShown = now; if (B.home && B.home.refresh) B.home.refresh(); }
+      }).catch(function () {});
+    },
+    save: function (cfg, key) {
+      var u = B.S.statsDb; if (!u) return Promise.reject(new Error('no db'));
+      var body = { off: !!cfg.off, msg: cfg.msg || '', hidden: cfg.hidden || {}, key: key || '', updated: Date.now() };
+      return window.fetch(u.replace(/\/+$/, '') + '/config.json', { method: 'PUT', body: JSON.stringify(body) }).then(function (r) { if (!r.ok) throw new Error('write'); return r.json(); });
+    },
+    readRemote: function () { var u = B.S.statsDb; if (!u) return Promise.resolve({}); return window.fetch(u.replace(/\/+$/, '') + '/config.json', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (c) { return c || {}; }); },
+    applyOff: function () {
+      var lay = document.querySelector('.off-overlay');
+      if (!B.config.off) { if (lay) lay.remove(); return; }
+      if (lay) { lay.querySelector('p').textContent = B.config.msg || B.S.cfg.defaultMsg; return; }
+      var h = B.UI.h;
+      document.body.appendChild(h('div', { class: 'rest-overlay off-overlay', role: 'dialog', style: { zIndex: 500 } },
+        h('div', { class: 'rest-card' }, h('div', { class: 'rest-bear', html: B.art.animal('bear', { sleep: true }) }), h('h2', { text: B.S.cfg.offTitle }), h('p', { text: B.config.msg || B.S.cfg.defaultMsg }))));
     }
   };
 })();

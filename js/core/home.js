@@ -44,14 +44,14 @@
 
   function zone(zoneId, locked) {
     var S = B.S;
-    var items = B.catalog.filter(function (c) { return c.zone === zoneId && !c.hidden; });
+    var items = B.catalog.filter(function (c) { return c.zone === zoneId && !c.hidden && !B.config.isHidden(c.id); });
     var z = h('section', { class: 'zone zone-' + zoneId + (locked ? ' is-locked' : ''), 'data-zone': zoneId },
       h('header', { class: 'zone-head' },
         h('span', { class: 'zone-badge', html: art.zoneBadge(zoneId) }),
         h('h2', { class: 'zone-name', text: S.zones[zoneId] })
       ),
       zoneId === 'solo'
-        ? h('div', { class: 'groups' }, ['watch', 'num', 'move', 'know'].map(function (cat) {
+        ? h('div', { class: 'groups' }, ['watch', 'num', 'move', 'know'].filter(function (cat) { return items.some(function (c) { return c.cat === cat; }); }).map(function (cat) {
             return h('div', { class: 'group g-' + cat },
               h('div', { class: 'group-label', text: S.cats[cat] }),
               h('div', { class: 'tiles' }, items.filter(function (c) { return c.cat === cat; }).map(function (it) { return tile(it, locked); })));
@@ -81,7 +81,7 @@
     UI.bindPress(gb, function () { var r = gb.getBoundingClientRect(); B.session.start('garden', { x: r.left + r.width / 2, y: r.top + r.height / 2 }); });
     var sb = h('button', { class: 'surprise-btn', type: 'button', 'aria-label': H.surprise, html: art.dice() }, h('small', { text: H.surprise }));
     UI.bindPress(sb, function () {
-      var pool = B.catalog.filter(function (c) { return !c.free && B.games[c.id] && !(locked && c.zone === 'solo'); });
+      var pool = B.catalog.filter(function (c) { return !c.free && B.games[c.id] && !B.config.isHidden(c.id) && !(locked && c.zone === 'solo'); });
       var it = kit_pick(pool); if (!it) return;
       var r = sb.getBoundingClientRect(); B.session.start(it.id, { x: r.left + r.width / 2, y: r.top + r.height / 2 });
     });
@@ -89,7 +89,7 @@
   }
   /* شريط «أكمل لعبتك» و«تحدي اليوم» */
   function dayNum() { var d = new Date(); return Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000); }
-  function dailyPool(locked) { return B.catalog.filter(function (c) { return !c.free && B.games[c.id] && c.zone !== 'garden' && !(locked && c.zone === 'solo'); }); }
+  function dailyPool(locked) { return B.catalog.filter(function (c) { return !c.free && B.games[c.id] && !B.config.isHidden(c.id) && c.zone !== 'garden' && !(locked && c.zone === 'solo'); }); }
   function chipsRow(locked) {
     var H = B.S.home, data = B.storage.data(), row = h('div', { class: 'chips-row' });
     function chip(cls, label, id, done) {
@@ -100,7 +100,7 @@
       UI.bindPress(b, function () { var r = b.getBoundingClientRect(); B.session.start(id, { x: r.left + r.width / 2, y: r.top + r.height / 2 }); });
       row.appendChild(b);
     }
-    var last = data.last; if (last && B.games[last] && !(locked && (B.catalog.filter(function (c) { return c.id === last; })[0] || {}).zone === 'solo')) chip('cont', H.cont, last, false);
+    var last = data.last; if (last && B.games[last] && !B.config.isHidden(last) && !(locked && (B.catalog.filter(function (c) { return c.id === last; })[0] || {}).zone === 'solo')) chip('cont', H.cont, last, false);
     var pool = dailyPool(locked);
     if (pool.length) {
       var d = dayNum(), pick = pool[(d * 7 + 3) % pool.length].id;
@@ -246,8 +246,8 @@
     );
 
     var chips = chipsRow(locked);
-    var zones = h('main', { class: 'zones scrollable', 'data-tab': tabNow }, h('div', { class: 'home-top' }, installBtn(), gardenRow(locked), chips), zone('solo', locked), zone('together', false), zone('create', false), storiesShelf());
-    var tabbar = h('nav', { class: 'tabbar', role: 'tablist' }, ['all', 'solo', 'together', 'create', 'stories'].map(function (id) {
+    var zones = h('main', { class: 'zones scrollable', 'data-tab': tabNow }, h('div', { class: 'home-top' }, installBtn(), gardenRow(locked), chips), zone('solo', locked), zone('together', false), zone('create', false), B.config.isHidden('stories') ? null : storiesShelf());
+    var tabbar = h('nav', { class: 'tabbar', role: 'tablist' }, ['all', 'solo', 'together', 'create', 'stories'].filter(function (id) { return !(id === 'stories' && B.config.isHidden('stories')); }).map(function (id) {
       var b = h('button', { class: 'tab-btn tab-' + id + (id === tabNow ? ' on' : ''), type: 'button', role: 'tab', 'data-tab': id, 'aria-label': B.S.zones[id] },
         h('span', { class: 'tab-ic', html: art.zoneBadge(id) }), h('b', { text: B.S.zones[id] }));
       b.addEventListener('click', function () { setTab(id); });
@@ -311,6 +311,7 @@
       B.home._shown = true;
       return UI.go(build());
     },
+    refresh: function () { if (document.querySelector('.home') && !document.querySelector('.game-screen')) { if (!B.config.isHidden(tabNow) && tabNow !== 'all' && tabNow !== 'stories') {} if (tabNow === 'stories' && B.config.isHidden('stories')) tabNow = 'all'; UI.go(build(), { instant: true }); } },
     updateBar: function () {
       var home = document.querySelector('.home'); if (!home || home.querySelector('.update-bar')) return;
       var b = h('button', { class: 'update-bar', type: 'button' }, h('b', { text: B.S.update.bar }));

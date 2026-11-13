@@ -79,6 +79,7 @@
   }
 
   function start(id, origin) {
+    if (B.config && B.config.isHidden(id)) return;
     if (B.audio) B.audio.theme(id);
     var game = B.games[id], it = item(id);
     origin = origin || {};

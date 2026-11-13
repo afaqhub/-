@@ -50,6 +50,9 @@
     setTimeout(B.update.check, 3000);
     document.addEventListener('visibilitychange', function () { if (!document.hidden) B.update.check(); });
   }
+  B.config.init();
+  B.config.load();
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) B.config.load(); });
   B.timer.start();
   B.stats.open();
   if (B.storage.data().settings.night) B.applyNight(true);
