@@ -91,7 +91,7 @@
     summary: { title: 'ملخّص', favorite: 'اللعبة الأكثر لعباً', suggest: 'اقتراح للعب الآن', planted: 'ما زُرع في البستان', sessionsAll: 'جلسات مكتملة', none: 'لم يلعب بعد' },
     create: { del: 'حذف', delAsk: 'حذف هذه الصورة؟', delYes: 'نعم، احذفها', delNo: 'أبقيها', save: 'حفظ', saved: 'تم الحفظ', galleryEmpty: 'لم تحفظ شيئاً بعد', tMix: 'خلط', tSize: 'حجم', tErase: 'ممحاة', tClear: 'مسح', color: 'تغيير اللون', clear: 'تنظيف اللوحة', next: 'رسمة أخرى', mix: 'وعاء خلط الألوان', size: 'حجم الفرشاة', erase: 'ممحاة' },
 
-    buttons: {
+    buttons: { next: 'اللعبة التالية',
       home: 'الرئيسية',
       stop: 'قف',
       replay: 'إعادة العرض',

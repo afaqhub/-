@@ -544,7 +544,7 @@ async function seeDemoThrough(page) {
         ok(sawHand || (await page.evaluate((g) => Bustan.storage.demoSeen(g), g)), 'العرض التوضيحي الأول عُرض (باليد أو بكفّ التتبّع)');
         const st = await page.evaluate((g) => ({ end: !!document.querySelector('.end-screen'), lit: document.querySelectorAll('.bulb.lit').length, gm: Bustan.storage.game(g), btns: document.querySelectorAll('.end-screen button').length }), g);
         ok(st.end && st.lit === total, `اكتملت الجلسة وأُضيئت المصابيح كلها (${Math.round((Date.now() - t0) / 1000)} ث)`);
-        ok(st.gm.rounds === total && st.gm.sessions === 1 && st.btns === 1, 'سُجّلت الجلسة، والختام بزر واحد');
+        ok(st.gm.rounds === total && st.gm.sessions === 1 && (st.btns === 1 || st.btns === 2), 'سُجّلت الجلسة، والختام بزر العودة وزر اللعبة التالية');
         ok((await page.evaluate(() => Bustan.storage.data().garden.length)) === gBefore + 1 && !!(await page.$('.end-plant')), 'أُضيف عنصر جديد إلى «بستاني» عند اكتمال الجلسة');
         ok(page.__log.errors.length === 0, 'لا أخطاء console' + (page.__log.errors.length ? ' — ' + page.__log.errors[0] : ''));
         ok(page.__log.external.length === 0, 'لا طلبات خارجية');

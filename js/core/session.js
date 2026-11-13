@@ -209,7 +209,15 @@
     var S = B.S;
     var art = game.endArt ? game.endArt(ctx) : null;
     var btn = UI.iconButton('home-btn end-home', B.art.house(), S.buttons.home, function () { exit(ctx, game); });
-    var end = h('div', { class: 'end-screen' }, h('div', { class: 'end-art' }, art), btn);
+    var nx = nextGame(ctx.gameId), actions = h('div', { class: 'end-actions' }, btn);
+    if (nx) {
+      var nb = h('button', { class: 'end-next', type: 'button', 'data-next': nx.id },
+        h('span', { class: 'en-ic', html: B.art.gameIcon(nx.id) }),
+        h('span', { class: 'en-tx' }, h('small', { text: S.buttons.next }), h('b', { text: S.games[nx.id] })));
+      UI.bindPress(nb, function () { var r = nb.getBoundingClientRect(); exit(ctx, game, true); B.session.start(nx.id, { x: r.left + r.width / 2, y: r.top + r.height / 2 }); });
+      actions.appendChild(nb);
+    }
+    var end = h('div', { class: 'end-screen' }, h('div', { class: 'end-art' }, art), actions);
     ctx.hud.classList.add('is-hidden');
     var plant = B.garden.plant();
     end.appendChild(h('div', { class: 'end-plant', html: B.pics.draw(plant) }));
@@ -249,13 +257,24 @@
     ctx.timers.slice().forEach(function (t) { t.start(); });
   }
 
-  function exit(ctx, game) {
+  function exit(ctx, game, noHome) {
     if (!ctx.alive) return;
     ctx.alive = false;
     try { game.destroy && game.destroy(); } catch (e) { console.error(e); }
     active = null;
     B.storage.save(); // يُحفظ التقدم بنقرة واحدة
-    B.home.show();
+    if (!noHome) B.home.show();
+  }
+
+  /* اللعبة المقترحة بعد الانتهاء: التالية في الفهرس ضمن القسم نفسه، وإلا من أي قسم متاح (مبنية، ظاهرة، غير مقفلة) */
+  function nextGame(curId) {
+    var locked = B.storage.soloLocked();
+    function ok(c) { return c.id !== curId && !c.free && !c.hidden && B.games[c.id] && c.zone !== 'garden' && !(B.config && B.config.isHidden(c.id)) && !(locked && c.zone === 'solo'); }
+    var cur = item(curId), list = B.catalog.filter(ok);
+    if (!list.length) return null;
+    var idx = B.catalog.indexOf(cur), n = B.catalog.length;
+    for (var k = 1; k <= n; k++) { var c = B.catalog[(idx + k) % n]; if (ok(c) && (!cur || c.zone === cur.zone)) return c; }
+    return list[0];
   }
 
   B.session = {

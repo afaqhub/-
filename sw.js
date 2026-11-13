@@ -3,7 +3,7 @@
    لا يعيد تحميل الصفحة تلقائياً (كي لا تُفاجأ الطفلة)؛ يظهر التحديث عند الفتح التالي. */
 'use strict';
 
-const VERSION = '7.10.0';
+const VERSION = '7.11.0';
 const CACHE = 'bustan-v' + VERSION;
 
 const FILES = [
