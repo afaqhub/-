@@ -3,7 +3,7 @@
    لا يعيد تحميل الصفحة تلقائياً (كي لا تُفاجأ الطفلة)؛ يظهر التحديث عند الفتح التالي. */
 'use strict';
 
-const VERSION = '7.8.0';
+const VERSION = '7.8.1';
 const CACHE = 'bustan-v' + VERSION;
 
 const FILES = [
@@ -76,7 +76,7 @@ self.addEventListener('fetch', (e) => {
   if (isPage) {
     // الصفحة والسكربتات: الشبكة أولاً ليصل التحديث فوراً، ثم الذاكرة دون إنترنت
     e.respondWith(
-      fetch(req).then((res) => {
+      fetch(req, { cache: 'no-store' }).then((res) => {
         if (res && res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); }
         return res;
       }).catch(() => caches.match(req, { ignoreSearch: true }).then((hit) => hit || caches.match('./index.html')))

@@ -1,6 +1,6 @@
 /* Service Worker — يحفظ الصفحة الوحيدة ليعمل التطبيق دون إنترنت. ارفع VERSION عند كل تحديث. */
 'use strict';
-const VERSION = '7.8.0';
+const VERSION = '7.8.1';
 const CACHE = 'bustan-v' + VERSION;
 const FILES = ['./', './index.html'];
 self.addEventListener('install', (e) => {
@@ -13,6 +13,6 @@ self.addEventListener('fetch', (e) => {
   const r = e.request;
   if (r.method !== 'GET' || new URL(r.url).origin !== self.location.origin) return;
   // الشبكة أولاً ليصل كل تحديث فوراً، والذاكرة احتياطاً دون إنترنت
-  e.respondWith(fetch(r).then((res) => { if (res && res.ok) { const c = res.clone(); caches.open(CACHE).then((k) => k.put(r, c)); } return res; })
+  e.respondWith(fetch(r, { cache: 'no-store' }).then((res) => { if (res && res.ok) { const c = res.clone(); caches.open(CACHE).then((k) => k.put(r, c)); } return res; })
     .catch(() => caches.match(r, { ignoreSearch: true }).then((hit) => hit || caches.match('./index.html'))));
 });

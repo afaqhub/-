@@ -28,7 +28,7 @@ html = html.replace(/<script src="([^"]+)"><\/script>/g, (_, src) => {
 // الأيقونات و manifest
 html = html.replace('href="assets/icons/apple-touch-icon.png"', `href="data:image/png;base64,${b64('assets/icons/apple-touch-icon.png')}"`);
 html = html.replace('href="assets/icons/icon-192.png"', `href="data:image/png;base64,${b64('assets/icons/icon-192.png')}"`);
-html = html.replace(/<link rel="manifest"[^>]*>\n?/, `<script>window.__BUSTAN_ICONS__={a:"data:image/png;base64,${b64('assets/icons/icon-192.png')}",b:"data:image/png;base64,${b64('assets/icons/icon-512.png')}"};</script>\n`);
+html = html.replace(/<link rel="manifest"[^>]*>\n?/, `<script>window.__BUSTAN_VERSION__="${(fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8').match(/VERSION = '([^']+)'/) || [0, '?'])[1]}";window.__BUSTAN_ICONS__={a:"data:image/png;base64,${b64('assets/icons/icon-192.png')}",b:"data:image/png;base64,${b64('assets/icons/icon-512.png')}"};</script>\n`);
 
 fs.mkdirSync(OUT, { recursive: true });
 fs.writeFileSync(path.join(OUT, 'index.html'), html);
@@ -36,7 +36,7 @@ fs.writeFileSync(path.join(OUT, 'index.html'), html);
 // Service Worker مبسّط للملف الواحد
 const sw = `/* Service Worker — يحفظ الصفحة الوحيدة ليعمل التطبيق دون إنترنت. ارفع VERSION عند كل تحديث. */
 'use strict';
-const VERSION = '7.8.0';
+const VERSION = '7.8.1';
 const CACHE = 'bustan-v' + VERSION;
 const FILES = ['./', './index.html'];
 self.addEventListener('install', (e) => {
@@ -49,7 +49,7 @@ self.addEventListener('fetch', (e) => {
   const r = e.request;
   if (r.method !== 'GET' || new URL(r.url).origin !== self.location.origin) return;
   // الشبكة أولاً ليصل كل تحديث فوراً، والذاكرة احتياطاً دون إنترنت
-  e.respondWith(fetch(r).then((res) => { if (res && res.ok) { const c = res.clone(); caches.open(CACHE).then((k) => k.put(r, c)); } return res; })
+  e.respondWith(fetch(r, { cache: 'no-store' }).then((res) => { if (res && res.ok) { const c = res.clone(); caches.open(CACHE).then((k) => k.put(r, c)); } return res; })
     .catch(() => caches.match(r, { ignoreSearch: true }).then((hit) => hit || caches.match('./index.html'))));
 });
 `;

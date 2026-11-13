@@ -305,7 +305,18 @@
   }
 
   B.home = {
-    show: function () { if (B.audio) B.audio.theme(null); return UI.go(build()); },
+    show: function () {
+      if (B.audio) B.audio.theme(null);
+      if (B.update && B.update.pending && B.update.apply && B.home._shown) { B.update.apply(); return; }   // رجوع إلى الرئيسية بعد اكتشاف تحديث: نحدّث
+      B.home._shown = true;
+      return UI.go(build());
+    },
+    updateBar: function () {
+      var home = document.querySelector('.home'); if (!home || home.querySelector('.update-bar')) return;
+      var b = h('button', { class: 'update-bar', type: 'button' }, h('b', { text: B.S.update.bar }));
+      UI.bindPress(b, function () { B.update.apply(); });
+      home.appendChild(b);
+    },
     tab: function (id) { if (B.home._setTab) B.home._setTab(id); },
     build: build
   };

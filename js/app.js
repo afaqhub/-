@@ -29,6 +29,30 @@
     } catch (e) {}
   }
 
+  /* التحديث التلقائي: التطبيق المثبّت لا يملك زر «تحديث الصفحة»، فنفحص النسخة المنشورة ونعرض شريط «تحديث جديد»،
+     ونطبّقه تلقائياً عند الرجوع إلى الرئيسية. (يعمل مع الملف الواحد المنشور على http/https) */
+  B.update = { pending: false, cur: window.__BUSTAN_VERSION__ || '', check: null, apply: null };
+  if (B.update.cur && /^https?:$/.test(window.location.protocol)) {
+    B.update.check = function () {
+      return fetch(window.location.pathname + '?u=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.text(); }).then(function (txt) {
+        var m = txt.match(/__BUSTAN_VERSION__="([^"]+)"/);
+        if (m && m[1] !== B.update.cur) { B.update.pending = true; if (B.home && B.home.updateBar) B.home.updateBar(); }
+        return B.update.pending;
+      }).catch(function () { return false; });
+    };
+    B.update.apply = function () {
+      var go = function () { window.location.reload(); };
+      try {
+        var p = [];
+        if (window.caches) p.push(caches.keys().then(function (ks) { return Promise.all(ks.map(function (k) { return caches.delete(k); })); }));
+        if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) p.push(navigator.serviceWorker.getRegistrations().then(function (rs) { return Promise.all(rs.map(function (r) { return r.update ? r.update() : null; })); }));
+        Promise.all(p).then(go, go);
+      } catch (e) { go(); }
+    };
+    setTimeout(B.update.check, 3000);
+    setInterval(B.update.check, 20 * 60 * 1000);
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) B.update.check(); });
+  }
   B.timer.start();
   B.stats.open();
   if (B.storage.data().settings.night) B.applyNight(true);

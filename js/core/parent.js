@@ -184,6 +184,10 @@
     var closeBtn = h('button', { class: 'p-close', type: 'button', 'aria-label': S.buttons.close, text: '✕' });
     closeBtn.addEventListener('click', function () { close(); B.home.show(); });
 
+    var updBtn = h('button', { class: 'p-btn', type: 'button', 'data-act': 'update', text: S.update.now });
+    updBtn.addEventListener('click', function () {
+      if (B.update && B.update.apply) { updBtn.textContent = S.update.checking; B.update.apply(); } else { say(S.update.latest); }
+    });
     var more = h('details', { class: 'p-more' }, h('summary', { text: S.more }),
       summary,
       h('section', { class: 'p-sec' }, rows),
@@ -208,6 +212,7 @@
       timerSection(say),
       pinSection(say),
       h('section', { class: 'p-sec' }, h('h3', { text: P.sound }), soundBtn, h('div', { class: 'p-line muted', text: P.soundNote })),
+      h('section', { class: 'p-sec' }, updBtn, h('div', { class: 'p-line muted', text: S.update.version + ': ' + (window.__BUSTAN_VERSION__ ? UI.num(window.__BUSTAN_VERSION__.replace(/\./g, '٫')) : '') })),
       more,
       msg
     );
