@@ -301,13 +301,13 @@
       why: 'المغامرة أجمل حين نعمل معًا، ولا نخاف إن كان معنا أصدقاء ونستعين بالله، والكنز الحقيقي أن نتشاركه مع الجميع.',
       scenes: [
         { bg: 'morning', text: 'في صباح جميل، وجد أرنوب ورقة قديمة تحت الشجرة… إنها خريطة كنز!', say: [{ w: 1, t: 'ما هذا؟ خريطة كنز!' }],
-          ch: [{ k: 'tree', x: 86, y: 5, s: 28, fx: 'sway' }, { k: 'rabbit', x: 30, y: 6, s: 28, fx: 'hop', eff: ['joy'] }, { k: 'svg:map', x: 58, y: 8, s: 16, tap: 'sparkle', act: { to: [58, 30], arc: true, dur: 800, bounce: 0 }, note: 'اضغط الخريطة' }] },
+          ch: [{ k: 'tree', x: 86, y: 5, s: 28, fx: 'sway' }, { k: 'rabbit', x: 30, y: 6, s: 28, fx: 'hop', eff: ['joy'] }, { k: 'svg:map', x: 58, y: 8, s: 16, tap: 'sparkle', act: { zoom: 'map', bounce: 1 }, note: 'اضغط الخريطة لتقرأها' }] },
         { bg: 'day', text: 'أرى أرنوب الخريطة لصديقيه: الثعلب والدب، ففرحا وقرّروا البحث عن الكنز معًا.', say: [{ w: 1, t: 'كنز؟ هيا نبحث عنه معًا!' }, { w: 2, t: 'أنا معكما!' }],
-          ch: [{ k: 'rabbit', x: 22, y: 6, s: 24, fx: 'hop' }, { k: 'fox', x: 50, y: 6, s: 22, fx: 'hop' }, { k: 'bear', x: 78, y: 6, s: 24, flip: true, fx: 'hop' }, { k: 'svg:map', x: 50, y: 44, s: 12, fx: 'pop' }] },
+          ch: [{ k: 'rabbit', x: 22, y: 6, s: 24, fx: 'hop' }, { k: 'fox', x: 50, y: 6, s: 22, fx: 'hop' }, { k: 'bear', x: 78, y: 6, s: 24, flip: true, fx: 'hop' }, { k: 'svg:map', x: 50, y: 46, s: 14, tap: 'sparkle', act: { zoom: 'map:0', bounce: 1 }, note: 'اضغط الخريطة' }] },
         { bg: 'day', text: 'وبدأت الرحلة. تُرى ماذا سيقابلهم في الطريق؟', ask: { q: 'ما أول شيء تتوقع أن يقابلهم في الطريق؟', opts: [{ k: 'svg:riverV', t: 'نهر' }, { k: 'mountain', t: 'جبل' }], react: 'لنرَ ماذا قابلهم!' },
           ch: [{ k: 'rabbit', x: 24, y: 6, s: 22 }, { k: 'fox', x: 50, y: 6, s: 20 }, { k: 'bear', x: 76, y: 6, s: 22 }] },
-        { bg: 'day', text: 'مشوا بين الأشجار يتبعون الخط الأحمر على الخريطة.', say: [{ w: 3, t: 'الخريطة تقول: إلى الأمام!' }],
-          ch: [{ k: 'tree', x: 8, y: 5, s: 24 }, { k: 'tree', x: 94, y: 5, s: 22 }, { k: 'rabbit', x: 30, y: 6, s: 20, fx: 'hop' }, { k: 'fox', x: 54, y: 6, s: 18, fx: 'hop' }, { k: 'bear', x: 76, y: 6, s: 20, fx: 'hop' }] },
+        { bg: 'day', text: 'مشوا بين الأشجار يتبعون الخط الأحمر على الخريطة. اضغط الخريطة لتقرأها.', say: [{ w: 3, t: 'الخريطة تقول: إلى الأمام!' }],
+          ch: [{ k: 'tree', x: 8, y: 5, s: 24 }, { k: 'tree', x: 94, y: 5, s: 22 }, { k: 'svg:map', x: 50, y: 34, s: 12, tap: 'sparkle', act: { zoom: 'map:1', bounce: 1 }, note: 'اضغط الخريطة' }, { k: 'rabbit', x: 30, y: 6, s: 20, fx: 'hop' }, { k: 'fox', x: 54, y: 6, s: 18, fx: 'hop' }, { k: 'bear', x: 76, y: 6, s: 20, fx: 'hop' }] },
         { bg: 'day', text: 'وصلوا إلى نهر عميق، ولا يوجد جسر!', say: [{ w: 3, t: 'النهر عميق! كيف نعبر؟' }],
           ch: [{ k: 'svg:riverV', x: 60, y: 0, s: 15 }, { k: 'rabbit', x: 12, y: 6, s: 20, eff: ['q'] }, { k: 'fox', x: 30, y: 6, s: 18 }, { k: 'bear', x: 46, y: 6, s: 20, eff: ['sweat'] }] },
         { bg: 'day', text: 'فكّر الثلاثة قليلًا.', ask: { q: 'ماذا تقترح ليعبروا النهر؟', opts: [{ k: 'svg:plank', t: 'نصنع جسرًا' }, { k: 'tree', t: 'نقطع غصنًا طويلًا' }], react: 'فكرة جميلة! لنجرّب معًا.' },
@@ -316,7 +316,7 @@
           ch: [{ k: 'svg:riverV', x: 62, y: 0, s: 15 }, { k: 'svg:plank', x: 28, y: 6, s: 22, tap: 'place', act: { to: [62, 10], arc: true, dur: 1100, snd2: 'pop' }, note: 'اضغط الجذع' }, { k: 'bear', x: 10, y: 6, s: 20, hold: 1, eff: ['effort'] }, { k: 'fox', x: 44, y: 6, s: 18, hold: 1, flip: true, eff: ['sweat'] }] },
         { bg: 'day', text: 'عبر الأصدقاء النهر فوق الجسر واحدًا بعد الآخر، وهم يمسكون بعضهم. اضغط كلًّا منهم ليعبر.', say: [{ w: 3, t: 'تمسّكوا جيدًا!' }],
           ch: [{ k: 'svg:riverV', x: 62, y: 0, s: 15 }, { k: 'svg:bridge', x: 62, y: 18, s: 30 }, { k: 'rabbit', x: 30, y: 6, s: 18, tap: 'pop', act: { to: [90, 6], arc: true, dur: 1500 }, note: 'أرنوب' }, { k: 'fox', x: 12, y: 6, s: 16, tap: 'pop', act: { to: [80, 6], arc: true, dur: 1700 }, note: 'الثعلب' }, { k: 'bear', x: 46, y: 6, s: 18, tap: 'pop', act: { to: [70, 6], arc: true, dur: 1900 }, note: 'الدب' }] },
-        { bg: 'evening', text: 'وصلوا عند الغروب إلى كهف مظلم، وقالت الخريطة: الكنز في الداخل!', say: [{ w: 1, t: 'المكان مظلم جدًا…' }, { w: 3, t: 'أشعر بالخوف قليلًا.' }],
+        { bg: 'evening', text: 'وصلوا عند الغروب إلى كهف مظلم، وقالت الخريطة: الكنز في الداخل! اضغط الخريطة لتقرأها.', say: [{ w: 1, t: 'المكان مظلم جدًا…' }, { w: 3, t: 'أشعر بالخوف قليلًا.' }],
           ch: [{ k: 'svg:cave', x: 78, y: 3, s: 30 }, { k: 'rabbit', x: 14, y: 6, s: 20 }, { k: 'fox', x: 32, y: 6, s: 18 }, { k: 'bear', x: 52, y: 6, s: 20, eff: ['sweat'] }] },
         { bg: 'evening', text: 'ابتسم الثعلب وأخرج فانوسًا: أحضرته للمغامرة! اضغط الكهف ليضيء، ثم ادخلوا معًا.', say: [{ w: 2, t: 'معي فانوس! بسم الله، لا تخافوا.' }],
           ch: [{ k: 'svg:cave', x: 78, y: 3, s: 30, tap: 'sparkle', act: { swap: 'svg:caveLit', bounce: 1, others: [{ i: 1, act: { to: [78, 8], scale: 0.3, fade: true, dur: 1700 } }, { i: 2, act: { to: [80, 8], scale: 0.3, fade: true, dur: 1700 } }, { i: 3, act: { to: [76, 8], scale: 0.3, fade: true, dur: 1700 } }, { i: 4, act: { to: [80, 12], scale: 0.3, fade: true, dur: 1700 } }] }, note: 'اضغط الكهف ليضيء وتدخلوا' }, { k: 'rabbit', x: 14, y: 6, s: 20, eff: ['joy'] }, { k: 'fox', x: 32, y: 6, s: 20, hold: 4 }, { k: 'bear', x: 54, y: 6, s: 20 }, { k: 'lantern', x: 44, y: 18, s: 10, fx: 'sway' }] },
@@ -616,7 +616,36 @@
     return o;
   }
   /* فعل حقيقي عند الضغط: انتقال (to أو dx/dy بنسب مئوية)، مسار قوسي، ارتداد، تبديل الصورة، تأثيرات، إزالة التراب */
+
+  /* تكبير عنصر مهم (كالخريطة) ليقرأه الطفل: نافذة كبيرة داخل القصة */
+  var MAPPTS = [[22, 100, 'البداية'], [58, 62, 'الشجرة'], [100, 88, 'النهر'], [140, 50, 'الكهف'], [176, 96, 'الكنز']];
+  function mapBig(hl) {
+    var P = MAPPTS, d = 'M22 100Q40 55 58 62T100 88T140 50T176 96', o = '';
+    o += '<rect x="3" y="3" width="194" height="124" rx="10" fill="#F7E6B8" stroke="#C98A3F" stroke-width="3.5"/>';
+    o += '<path d="M10 40L28 14L46 40ZM30 40L48 20L66 40Z" fill="#B7C9E8" opacity=".7"/>';
+    o += '<path d="M93 4Q106 24 94 44T96 84T94 124H110Q112 100 106 84T108 44T104 4Z" fill="#5CC8FF"/><path d="M98 16Q104 28 98 40M100 60Q106 72 100 84" stroke="#fff" stroke-width="1.6" fill="none" opacity=".8"/>';
+    o += '<rect x="90" y="84" width="22" height="8" rx="2" fill="#A8683A" stroke="#7A4A25" stroke-width="1"/>';
+    o += '<circle cx="58" cy="52" r="11" fill="#3FA85C"/><circle cx="50" cy="58" r="8" fill="#52C06E"/><rect x="56" y="60" width="4" height="10" fill="#8A5A33"/>';
+    o += '<path d="M126 62Q126 36 140 36T154 62Z" fill="#4A3A5E"/><path d="M134 62Q134 48 140 48T146 62Z" fill="#1F1838"/><path d="M122 62H158" stroke="#7A6A8E" stroke-width="3" stroke-linecap="round"/>';
+    o += '<mask id="mm"><path d="' + d + '" pathLength="1" stroke="#fff" stroke-width="8" fill="none" class="zm-draw"/></mask>';
+    o += '<path d="' + d + '" stroke="#F0485A" stroke-width="3.2" fill="none" stroke-dasharray="6 5" stroke-linecap="round" mask="url(#mm)"/>';
+    o += '<path d="M168 88L184 104M184 88L168 104" stroke="#E0334C" stroke-width="5" stroke-linecap="round"/>';
+    o += '<path d="M16 100V84" stroke="#7A4A25" stroke-width="2.5"/><path d="M16 84L30 89L16 94Z" fill="#8E5CF0"/>';
+    P.forEach(function (q, i) { o += '<text x="' + q[0] + '" y="' + (i === 2 ? 116 : i === 3 ? 26 : i === 1 ? 82 : 118) + '" text-anchor="middle" font-size="9.5" font-weight="800" fill="#6B3A12" stroke="#F7E6B8" stroke-width="2.6" paint-order="stroke">' + q[2] + '</text>'; });
+    if (hl != null && P[hl]) o += '<circle cx="' + P[hl][0] + '" cy="' + P[hl][1] + '" r="9" fill="none" stroke="#FFC83D" stroke-width="3.4" class="zm-ring"/>';
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 130" class="zm-svg">' + o + '</svg>';
+  }
+  function openZoom(spec, scene) {
+    var host = scene.closest('.st-stage') || scene.parentNode, body = '', cap = '';
+    if (spec.indexOf('map') === 0) { var hl = spec.split(':')[1]; body = mapBig(hl === undefined ? null : +hl); cap = hl === undefined ? 'خريطة الكنز: اتبع الخط الأحمر حتى العلامة ✕' : 'الخريطة تقول: نحن هنا، والكنز في آخر الخط الأحمر.'; }
+    else body = pic(spec);
+    var ov = h('div', { class: 'st-zoom', role: 'dialog' }, h('div', { class: 'zm-card', html: body }), h('div', { class: 'zm-cap', text: cap }), h('button', { class: 'zm-ok', type: 'button', text: 'حسنًا' }));
+    function close() { UI.anim(ov, [{ opacity: 1 }, { opacity: 0 }], { dur: 220 }).then(function () { ov.remove(); }); if (B.audio) B.audio.play('close'); }
+    ov.addEventListener('click', close); host.appendChild(ov); if (B.audio) B.audio.play('open');
+    UI.anim(ov, [{ opacity: 0 }, { opacity: 1 }], { dur: 250 }); UI.anim(ov.firstChild, [{ transform: 'scale(.3) rotate(-6deg)' }, { transform: 'scale(1)' }], { dur: 520, easing: UI.SPRING });
+  }
   function runAct(el, inn, c, A, scene, tr) {
+    if (A.zoom) openZoom(A.zoom, scene);
     var sr = scene.getBoundingClientRect(), W = sr.width || 300, H = sr.height || 225;
     if (A.swap) inn.innerHTML = pic(A.swap);
     if (A.ex) inn.innerHTML = pic(c.k, A.ex);

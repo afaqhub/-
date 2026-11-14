@@ -1050,3 +1050,10 @@ html.night .tabbar { background: rgba(30, 36, 90, .75); } html.night .tab-btn { 
 @media (min-width: 900px) and (orientation: landscape) and (min-height: 641px) { .st-root:has(.st-parent) .st-scene { max-height: calc(100dvh - var(--hud-h) - 300px) !important; } }
 @media (min-width: 700px) and (orientation: portrait) { .st-root:has(.st-parent) .st-scene { width: min(100%, 880px, calc((100dvh - var(--hud-h) - 560px) * 1.3334)); } }
 @media (min-width: 900px) and (orientation: landscape) and (min-height: 641px) { .st-root:has(.st-opt) .st-scene, .st-root:has(.st-ask) .st-scene { max-height: calc(100dvh - var(--hud-h) - 330px) !important; } }
+
+.st-zoom { position: absolute; inset: 0; z-index: 60; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 16px; background: rgba(30, 20, 60, .72); backdrop-filter: blur(4px); cursor: pointer; }
+.zm-card { width: min(94vw, calc((100dvh - 230px) * 1.54), 1100px); filter: drop-shadow(0 14px 24px rgba(0, 0, 0, .4)); } .zm-svg { width: 100%; height: auto; display: block; overflow: visible; }
+.zm-cap { max-width: 92vw; text-align: center; color: #fff; font-size: clamp(22px, 3.4vw, 36px); font-weight: 800; line-height: 1.6; text-shadow: 0 2px 6px rgba(0, 0, 0, .5); direction: rtl; }
+.zm-ok { min-width: 160px; min-height: 72px; padding: 6px 30px; border: 0; border-radius: 999px; font: inherit; font-size: 24px; font-weight: 800; color: #fff; background: linear-gradient(135deg, #3FDCBC, #17A98B); box-shadow: 0 6px 0 #0B8269; cursor: pointer; } @media (min-width: 700px) { .zm-ok { min-height: 96px; font-size: 30px; } }
+.zm-draw { stroke-dasharray: 1; stroke-dashoffset: 1; animation: zmDraw 2.6s .5s ease-in-out forwards; } @keyframes zmDraw { to { stroke-dashoffset: 0; } }
+.zm-ring { animation: zmRing 1s ease-in-out infinite; transform-box: fill-box; transform-origin: center; } @keyframes zmRing { 50% { transform: scale(1.35); opacity: .6; } }
