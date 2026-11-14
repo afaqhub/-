@@ -1114,3 +1114,11 @@ html.night .tabbar { background: rgba(30, 36, 90, .75); } html.night .tab-btn { 
 .st-hills.far { animation: stHill 22s ease-in-out infinite alternate; } .st-hills.mid { animation: stHill 15s ease-in-out infinite alternate-reverse; } @keyframes stHill { from { transform: translateX(-1.2%); } to { transform: translateX(1.2%); } }
 @media (prefers-reduced-motion: reduce) { .st-cl, .st-bird, .st-bird svg, .st-tw, .st-hills { animation: none !important; } }
 .st-hills, .st-hills svg { overflow: visible; }
+
+.mate { position: absolute; z-index: 2; inset-inline-start: 10px; bottom: calc(14px + var(--mw) * .2 + var(--safe-b, 0px)); --mw: clamp(54px, 11vmin, 118px); width: var(--mw); pointer-events: none; }
+@media (max-width: 560px) and (orientation: portrait) { .mate { --mw: 46px; inset-inline-start: 4px; opacity: .95; } }
+.mate .rg { filter: drop-shadow(0 3px 3px rgba(0, 0, 0, .18)); }
+.st-drop { position: absolute; aspect-ratio: 1; transform: translateX(-50%); border: 4px dashed rgba(255, 200, 61, .95); border-radius: 50%; background: rgba(255, 243, 176, .35); z-index: 1; pointer-events: none; animation: gapPulse 1.1s ease-in-out infinite; }
+.st-drop.near { border-color: #3FDCBC; background: rgba(63, 220, 188, .35); transform: translateX(-50%) scale(1.12); }
+.st-ch.dragging { z-index: 20; cursor: grabbing; } .st-ch.st-hot { touch-action: manipulation; }
+@media (min-width: 900px) and (min-height: 641px) { :root { --cs: clamp(var(--tap), 27vmin, 260px); } .mg-tray.hd-grid { --cs: clamp(var(--tap), min(24vw, 22vh), 230px); } }

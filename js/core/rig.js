@@ -56,6 +56,32 @@
     }
   };
 
+  /* تعبير مؤقت: يبدّل الوجه والوضعية ثم يعود */
+  B.rig.express = function (el, ex, ms) {
+    if (!el) return; var k = el.getAttribute('data-k'), hd = el.querySelector('.rg-hd'); if (!hd || !B.pics) return;
+    var prev = el._ex || '';
+    hd.innerHTML = B.pics.draw(k, 'pic', ex); B.rig.setEx(el, ex); el._ex = ex;
+    clearTimeout(el._tex); el._tex = setTimeout(function () { hd.innerHTML = B.pics.draw(k, 'pic', prev); B.rig.setEx(el, prev); el._ex = prev; B.life.update(); }, (ms || 1500) / ((B.UI && B.UI.ts) || 1));
+    B.life.update();
+  };
+  /* رفيق اللعبة: حيوان صغير في ركن الشاشة يشجّع الطفل ويتفاعل مع الأصوات (صح/تصفيق) ويلتفت إلى إصبعه */
+  var MATES = ['rabbit', 'bear', 'fox', 'cat', 'duck', 'lamb', 'frog'], cur = null, lastT = 0;
+  B.mate = {
+    attach: function (root, id) {
+      var h = 0; for (var i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+      var k = MATES[h % MATES.length], d = document.createElement('div');
+      d.className = 'mate'; d.setAttribute('aria-hidden', 'true'); d.innerHTML = B.rig.html(k, '', B.pics.draw(k, 'pic'));
+      root.appendChild(d); cur = d; setTimeout(function () { B.life.update(); }, 100); return d;
+    },
+    react: function (name) {
+      if (!cur || !cur.isConnected) return; var rg = cur.firstChild, now = Date.now(); if (!rg || now - lastT < 450) return;
+      if (name === 'right') { lastT = now; B.rig.express(rg, 'joy', 1400); B.rig.act(rg, 'hop', 700); }
+      else if (name === 'cheer' || name === 'applause' || name === 'win') { lastT = now; B.rig.express(rg, 'joy', 2400); B.rig.act(rg, 'cheer', 2200); }
+      else if (name === 'wrong') { lastT = now; B.rig.express(rg, 'think', 1500); B.rig.act(rg, 'shake', 900); }
+      else if (name === 'sparkle') { lastT = now; B.rig.act(rg, 'wave', 1000); }
+    }
+  };
+
   /* ——— الحياة: نظر ورمش وحركات عفوية لكل الرؤوس ——— */
   var ptr = null, ptrT = 0, raf = 0, reduce = false;
   try { reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { }

@@ -699,7 +699,43 @@
         el.appendChild(h('div', { class: 'st-paw', html: art.hand() }));
         el.setAttribute('role', 'button'); el.setAttribute('aria-label', c.note || 'اضغط');
         var acted = false;
+        var isDrag = !!(c.act && c.act.to && (c.tap === 'place' || c.k === 'apple'));
+        var ghost = null;
+        if (isDrag) {
+          c.note = 'اسحبه إلى الدائرة';
+          ghost = h('div', { class: 'st-drop', style: { left: c.act.to[0] + '%', bottom: c.act.to[1] + '%', width: c.s + '%' } }); s.appendChild(ghost);
+          var drag = null;
+          var closeTo = function () { var a = el.firstChild.getBoundingClientRect(), g = ghost.getBoundingClientRect(); return Math.hypot(a.left + a.width / 2 - (g.left + g.width / 2), a.top + a.height / 2 - (g.top + g.height / 2)) < Math.max(g.width * 0.7, 56); };
+          el.style.touchAction = 'none';
+          el.addEventListener('pointerdown', function (e) {
+            if (acted) return; drag = { x: e.clientX, y: e.clientY, r: s.getBoundingClientRect(), moved: false, dx: 0, dy: 0 };
+            try { el.setPointerCapture(e.pointerId); } catch (er) { } el.classList.add('dragging');
+          });
+          el.addEventListener('pointermove', function (e) {
+            if (!drag) return; drag.dx = e.clientX - drag.x; drag.dy = e.clientY - drag.y;
+            if (Math.hypot(drag.dx, drag.dy) > 9) drag.moved = true; if (!drag.moved) return;
+            el.firstChild.style.transform = 'translate(' + drag.dx + 'px,' + drag.dy + 'px) scale(1.08) ' + (tr || '');
+            ['.st-paw', '.st-ring', '.st-note'].forEach(function (q) { var n = el.querySelector(q); if (n) n.style.display = 'none'; });
+            ghost.classList.toggle('near', closeTo());
+          });
+          var endDrag = function () {
+            if (!drag) return; var d = drag; drag = null; el.classList.remove('dragging'); ghost.classList.remove('near');
+            if (!d.moved) return;
+            el._dragged = true; setTimeout(function () { el._dragged = false; }, 60);
+            var cx = c.x + d.dx / d.r.width * 100, cy = c.y - d.dy / d.r.height * 100;
+            if (closeTo()) {
+              acted = true; ghost.remove(); if (B.audio) B.audio.play(c.tap);
+              el.style.left = cx + '%'; el.style.bottom = cy + '%'; el.firstChild.style.transform = tr || 'none';
+              runAct(el, el.firstChild, { k: c.k, x: cx, y: cy, s: c.s }, c.act, s, tr);
+              (c.act.others || []).forEach(function (o, k) { setTimeout(function () { var ne = nodes[o.i]; if (ne) runAct(ne, ne.firstChild, chs[o.i], o.act, s, trs[o.i]); }, k * 260 / UI.ts); });
+              ['.st-paw', '.st-ring', '.st-note'].forEach(function (q) { var n = el.querySelector(q); if (n) n.style.display = 'none'; });
+            } else { UI.anim(el.firstChild, [{ transform: el.firstChild.style.transform }, { transform: tr || 'none' }], { dur: 380, easing: UI.SPRING }); el.firstChild.style.transform = tr || 'none'; if (B.audio) B.audio.play('pop'); }
+          };
+          el.addEventListener('pointerup', endDrag); el.addEventListener('pointercancel', endDrag);
+        }
         el.addEventListener('click', function () {
+          if (el._dragged) return;
+          if (ghost && !acted) ghost.remove();
           if (B.audio) B.audio.play(c.tap);
           var A = c.act, inn = el.firstChild;
           if (A && !acted) {

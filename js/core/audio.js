@@ -184,6 +184,7 @@
       }
     },
     play: function (name, arg) {
+      if (B.mate) B.mate.react(name);
       if (!enabled()) return;
       var c = ensure();
       if (!c) return;

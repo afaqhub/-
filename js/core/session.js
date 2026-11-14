@@ -116,6 +116,7 @@
     ctx.pauseBtn = UI.iconButton('pause-btn', B.art.pauseIcon(), S.buttons.pause, function () { pause(ctx, game); });
     ctx.hud = h('div', { class: 'hud' }, ctx.homeBtn, bulbs.el, ctx.pauseBtn);
     ctx.root = h('div', { class: 'screen game-screen game-' + it.id, 'data-game': it.id, 'data-zone': it.zone }, stage, ctx.hud);
+    if (B.mate) B.mate.attach(ctx.root, it.id);
 
     // انتظار وحركة آمنان: لا يكملان بعد الخروج من اللعبة
     function guard(v) { return ctx.alive ? v : new Promise(function () {}); }
@@ -210,6 +211,7 @@
   /* الشاشة الختامية: شخصية هادئة وزر واحد للعودة. لا جولة تلقائية ولا «العب مرة أخرى». */
   function showEnd(ctx, game) {
     var S = B.S;
+    if (B.mate) B.mate.react('win');
     var art = game.endArt ? game.endArt(ctx) : null;
     var btn = UI.iconButton('home-btn end-home', B.art.house(), S.buttons.home, function () { exit(ctx, game); });
     var nx = nextGame(ctx.gameId), actions = h('div', { class: 'end-actions' }, btn);
