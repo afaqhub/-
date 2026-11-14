@@ -36,14 +36,14 @@
     }
     var d = function (x, rr, ox, oy, big) {
       return (big ? '<circle cx="' + x + '" cy="' + y + '" r="' + (r * 1.45) + '" fill="#fff" stroke="' + EYE + '" stroke-width="1.4"/>' : '') +
-        '<circle cx="' + (x + (ox || 0)) + '" cy="' + (y + (oy || 0)) + '" r="' + rr + '" fill="' + EYE + '"/>' +
-        '<circle cx="' + (x + (ox || 0) + rr * 0.35) + '" cy="' + (y + (oy || 0) - rr * 0.35) + '" r="' + (rr * 0.33) + '" fill="#fff"/>';
+        '<g class="ey"><g class="ev"><circle cx="' + (x + (ox || 0)) + '" cy="' + (y + (oy || 0)) + '" r="' + rr + '" fill="' + EYE + '"/>' +
+        '<circle cx="' + (x + (ox || 0) + rr * 0.35) + '" cy="' + (y + (oy || 0) - rr * 0.35) + '" r="' + (rr * 0.33) + '" fill="#fff"/></g></g>';
     };
     if (ex === 'joy') return '<path d="M' + (x1 - r) + ' ' + (y + 1) + 'q' + r + ' ' + (-r * 1.4) + ' ' + (2 * r) + ' 0M' + (x2 - r) + ' ' + (y + 1) + 'q' + r + ' ' + (-r * 1.4) + ' ' + (2 * r) + ' 0" stroke="' + EYE + '" stroke-width="3.2" fill="none" stroke-linecap="round"/>';
     if (ex === 'strain') return '<path d="M' + (x1 - r) + ' ' + (y - r) + 'L' + (x1 + r) + ' ' + y + 'L' + (x1 - r) + ' ' + (y + r) + 'M' + (x2 + r) + ' ' + (y - r) + 'L' + (x2 - r) + ' ' + y + 'L' + (x2 + r) + ' ' + (y + r) + '" stroke="' + EYE + '" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>';
     if (ex === 'scared') return d(x1, r * 0.6, 0, 0, true) + d(x2, r * 0.6, 0, 0, true) + brows(ex, x1, x2, y, r);
     if (ex === 'surprised') return d(x1, r * 1.15, 0, 0, false) + d(x2, r * 1.15, 0, 0, false) + brows(ex, x1, x2, y, r);
-    if (ex === 'think') return '<path d="M' + (x - w * 0.45) + ' ' + (y + 1) + 'Q' + (x + w * 0.1) + ' ' + (y + 4) + ' ' + (x + w * 0.6) + ' ' + (y - 1) + '"' + s + '/>';
+    if (ex === 'think') return d(x1, r, r * 0.45, -r * 0.5) + d(x2, r, r * 0.45, -r * 0.5) + brows(ex, x1, x2, y, r);
     if (ex === 'sad' || ex === 'cry') return d(x1, r, 0, r * 0.25) + d(x2, r, 0, r * 0.25) + brows(ex, x1, x2, y, r);
     if (ex === 'angry') return d(x1, r, 0, 0) + d(x2, r, 0, 0) + brows(ex, x1, x2, y, r);
     return d(x1, r) + d(x2, r);
@@ -56,7 +56,7 @@
     if (ex === 'sad' || ex === 'cry') return '<path d="M' + (x - w) + ' ' + (y + 3) + 'Q' + x + ' ' + (y - 4) + ' ' + (x + w) + ' ' + (y + 3) + '"' + s + '/>';
     if (ex === 'scared') return '<path d="M' + (x - w * 0.8) + ' ' + (y + 2) + 'Q' + (x - w * 0.4) + ' ' + (y - 2) + ' ' + x + ' ' + (y + 2) + 'T' + (x + w * 0.8) + ' ' + (y + 2) + '"' + s + '/>';
     if (ex === 'surprised') return '<ellipse cx="' + x + '" cy="' + (y + 1) + '" rx="' + (w * 0.42) + '" ry="' + (w * 0.6) + '" fill="' + col + '"/>';
-    if (ex === 'think') return '<path d="M' + (x - w * 0.6) + ' ' + (y + 2) + 'L' + (x + w * 0.6) + ' ' + (y - 1) + '"' + s + '/>';
+    if (ex === 'think') return '<path d="M' + (x - w * 0.45) + ' ' + (y + 1) + 'Q' + (x + w * 0.1) + ' ' + (y + 4) + ' ' + (x + w * 0.6) + ' ' + (y - 1) + '"' + s + '/>';
     if (ex === 'strain') return '<path d="M' + (x - w) + ' ' + y + 'l' + (w / 2) + ' 3 l' + (w / 2) + ' -3 l' + (w / 2) + ' 3 l' + (w / 2) + ' -3"' + s + '/>';
     if (ex === 'angry') return '<path d="M' + (x - w) + ' ' + (y + 4) + 'Q' + x + ' ' + (y - 3) + ' ' + (x + w) + ' ' + (y + 4) + '"' + s + '/>';
     return dflt;
@@ -78,10 +78,10 @@
         eyes(36, 64, 47, 4.8, c) + cheeks(25, 75, 62);
     },
     rabbit: function (c) {
-      return '<ellipse cx="35" cy="24" rx="9.5" ry="23" fill="#fff" stroke="#D5CEEA" stroke-width="2.5"/>' +
-        '<ellipse cx="35" cy="26" rx="4.5" ry="15" fill="#FFB8CC"/>' +
-        '<ellipse cx="65" cy="24" rx="9.5" ry="23" fill="#fff" stroke="#D5CEEA" stroke-width="2.5"/>' +
-        '<ellipse cx="65" cy="26" rx="4.5" ry="15" fill="#FFB8CC"/>' +
+      return '<g class="ear l"><ellipse cx="35" cy="24" rx="9.5" ry="23" fill="#fff" stroke="#D5CEEA" stroke-width="2.5"/>' +
+        '<ellipse cx="35" cy="26" rx="4.5" ry="15" fill="#FFB8CC"/></g>' +
+        '<g class="ear r"><ellipse cx="65" cy="24" rx="9.5" ry="23" fill="#fff" stroke="#D5CEEA" stroke-width="2.5"/>' +
+        '<ellipse cx="65" cy="26" rx="4.5" ry="15" fill="#FFB8CC"/></g>' +
         '<circle cx="50" cy="61" r="32" fill="#fff" stroke="#D5CEEA" stroke-width="2.5"/>' +
         '<ellipse cx="50" cy="65" rx="4.5" ry="3.4" fill="#FF8FAE"/>' +
         '<path d="M50 68.5v3.5" stroke="#7C6A9A" stroke-width="2.4" fill="none" stroke-linecap="round"/>' + mo(c, 50, 73, 6, '#7C6A9A', '<path d="M44 73q6 5 12 0" stroke="#7C6A9A" stroke-width="2.4" fill="none" stroke-linecap="round"/>') +

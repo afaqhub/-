@@ -3,7 +3,7 @@
    لا يعيد تحميل الصفحة تلقائياً (كي لا تُفاجأ الطفلة)؛ يظهر التحديث عند الفتح التالي. */
 'use strict';
 
-const VERSION = '7.14.2';
+const VERSION = '7.15.0';
 const CACHE = 'bustan-v' + VERSION;
 
 const FILES = [
@@ -22,6 +22,7 @@ const FILES = [
   './js/core/garden.js',
   './js/core/art.js',
   './js/core/pics.js',
+  './js/core/rig.js',
   './js/core/ui.js',
   './js/core/kit.js',
   './js/core/session.js',

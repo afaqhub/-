@@ -797,6 +797,19 @@ async function seeDemoThrough(page) {
     await ctx.close();
   }
 
+  /* ───── القصص: بناء كل المشاهد وكل التعابير بلا أخطاء ───── */
+  section('القصص والشخصيات الحيّة');
+  {
+    const vp = VIEWPORTS['جوال-عمودي'];
+    const page = await newPage(browser, vp, base);
+    await page.goto(base + 'index.html');
+    await page.waitForSelector('.tab-btn');
+    const errs = await page.evaluate(() => Bustan.free.stories._smoke());
+    ok(errs.length === 0, 'كل مشاهد القصص وتعابير الحيوانات تُرسم بلا أخطاء' + (errs.length ? ' — ' + errs.slice(0, 3).join(' | ') : ''));
+    ok(await page.evaluate(() => !!(Bustan.rig && Bustan.life)), 'نظام الشخصيات الحيّة موجود');
+    await page.close();
+  }
+
   /* ───── ١٦) PWA دون إنترنت ───── */
   section('Service Worker والعمل دون إنترنت');
   {

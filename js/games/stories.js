@@ -11,6 +11,9 @@
     if (k.indexOf('svg:') === 0) return CUSTOM[k.slice(4)];
     return B.pics.draw(k, 'pic', ex);
   }
+  /* شخصية: الحيوانات بجسم كامل حيّ، وغيرها صورة */
+  function cpic(k, ex) { return B.rig && B.rig.has(k) ? B.rig.html(k, ex, pic(k, ex)) : pic(k, ex); }
+  function lift(c) { return B.rig && B.rig.has(c.k) ? B.rig.lift * c.s : 0; }
   /* تعبير الوجه: صريح عبر ex، وإلا يُستنتج من التأثيرات (حزن/دهشة/تفكير/فرح/جهد/خوف) */
   var EXMAP = { sad: 'sad', bang: 'surprised', q: 'think', joy: 'joy', zzz: 'sleepy' };
   function inferEx(c) {
@@ -303,7 +306,7 @@
         { bg: 'morning', text: 'في صباح جميل، وجد أرنوب ورقة قديمة تحت الشجرة… إنها خريطة كنز!', say: [{ w: 1, t: 'ما هذا؟ خريطة كنز!' }],
           ch: [{ k: 'tree', x: 86, y: 5, s: 28, fx: 'sway' }, { k: 'rabbit', x: 30, y: 6, s: 28, fx: 'hop', eff: ['joy'] }, { k: 'svg:map', x: 58, y: 8, s: 16, tap: 'sparkle', act: { zoom: 'map', bounce: 1 }, note: 'اضغط الخريطة لتقرأها' }] },
         { bg: 'day', text: 'أرى أرنوب الخريطة لصديقيه: الثعلب والدب، ففرحا وقرّروا البحث عن الكنز معًا.', say: [{ w: 1, t: 'كنز؟ هيا نبحث عنه معًا!' }, { w: 2, t: 'أنا معكما!' }],
-          ch: [{ k: 'rabbit', x: 22, y: 6, s: 24, fx: 'hop' }, { k: 'fox', x: 50, y: 6, s: 22, fx: 'hop' }, { k: 'bear', x: 78, y: 6, s: 24, flip: true, fx: 'hop' }, { k: 'svg:map', x: 50, y: 46, s: 14, tap: 'sparkle', act: { zoom: 'map:0', bounce: 1 }, note: 'اضغط الخريطة' }] },
+          ch: [{ k: 'rabbit', x: 22, y: 6, s: 24, fx: 'hop' }, { k: 'fox', x: 50, y: 6, s: 22, fx: 'hop' }, { k: 'bear', x: 78, y: 6, s: 24, flip: true, fx: 'hop' }, { k: 'svg:map', x: 50, y: 66, s: 13, tap: 'sparkle', act: { zoom: 'map:0', bounce: 1 }, note: 'اضغط الخريطة' }] },
         { bg: 'day', text: 'وبدأت الرحلة. تُرى ماذا سيقابلهم في الطريق؟', ask: { q: 'ما أول شيء تتوقع أن يقابلهم في الطريق؟', opts: [{ k: 'svg:riverV', t: 'نهر' }, { k: 'mountain', t: 'جبل' }], react: 'لنرَ ماذا قابلهم!' },
           ch: [{ k: 'rabbit', x: 24, y: 6, s: 22 }, { k: 'fox', x: 50, y: 6, s: 20 }, { k: 'bear', x: 76, y: 6, s: 22 }] },
         { bg: 'day', text: 'مشوا بين الأشجار يتبعون الخط الأحمر على الخريطة. اضغط الخريطة لتقرأها.', say: [{ w: 3, t: 'الخريطة تقول: إلى الأمام!' }],
@@ -648,7 +651,7 @@
     if (A.zoom) openZoom(A.zoom, scene);
     var sr = scene.getBoundingClientRect(), W = sr.width || 300, H = sr.height || 225;
     if (A.swap) inn.innerHTML = pic(A.swap);
-    if (A.ex) inn.innerHTML = pic(c.k, A.ex);
+    if (A.ex) { var rgx = inn.querySelector('.rg'); if (rgx) { var hdx = rgx.querySelector('.rg-hd'); if (hdx) hdx.innerHTML = pic(c.k, A.ex); B.rig.setEx(rgx, A.ex); } else inn.innerHTML = pic(c.k, A.ex); }
     if (A.soil === false) { var so = el.querySelector('.st-soil'); if (so) so.style.display = 'none'; }
     var ef = el.querySelector('.st-eff'); if (A.eff) { if (!ef) { ef = h('div', { class: 'st-eff' }); el.appendChild(ef); } ef.insertAdjacentHTML('beforeend', effHtml(A.eff)); }
     var dx = A.to ? (A.to[0] - c.x) / 100 * W : (A.dx || 0) / 100 * W, dy = A.to ? -(A.to[1] - c.y) / 100 * H : -(A.dy || 0) / 100 * H;
@@ -660,6 +663,7 @@
     else if (A.shake) { fr = [T(0, 0, 0), T(-8, 0, -6), T(8, 0, 6), T(-8, 0, -6), T(0, 0, 0)]; }
     else { fr = [T(0, 0, 0), T(dx, dy, rot)]; }
     if (A.fade && fr.length) fr[fr.length - 1].opacity = 0;
+    var rgw = inn.querySelector('.rg'); if (rgw && A.to && !A.bounce) { B.rig.act(rgw, 'walk', A.dur || 900); } else if (rgw && !A.to) B.rig.act(rgw, A.fade ? 'hop' : 'cheer', 900);
     var an = inn.animate(fr, { duration: (A.dur || 900) / UI.ts, easing: A.ease || 'ease-in-out', fill: A.bounce || A.shake ? 'none' : 'forwards' });
     if (A.snd2) setTimeout(function () { if (B.audio) B.audio.play(A.snd2); }, (A.dur || 900) / UI.ts);
     if (A.after) an.onfinish = function () { if (A.after.eff && ef) ef.innerHTML = ''; if (A.after.swap) inn.innerHTML = pic(A.after.swap); };
@@ -672,12 +676,19 @@
     else if (p.bg === 'room') s.appendChild(h('div', { class: 'st-floor' }));
     else if (p.bg === 'bath') { s.appendChild(h('div', { class: 'st-tiles' })); s.appendChild(h('div', { class: 'st-floor bath' })); }
     else { s.appendChild(h('div', { class: 'st-hills far', html: art.sceneTile('gfar', 600, 120) })); s.appendChild(h('div', { class: 'st-hills mid', html: art.sceneTile('gmid', 600, 90) })); }
+    /* حياة الخلفية: غيوم وطيور في النهار، ونجوم متلألئة في الليل والمساء */
+    if (p.bg === 'morning' || p.bg === 'day' || p.bg === 'evening') {
+      var CL = '<svg viewBox="0 0 120 50"><g fill="#fff" opacity=".92"><ellipse cx="40" cy="32" rx="30" ry="14"/><ellipse cx="68" cy="26" rx="26" ry="16"/><ellipse cx="92" cy="34" rx="22" ry="11"/></g></svg>';
+      s.insertBefore(h('div', { class: 'st-cl c1', html: CL }), s.firstChild); s.insertBefore(h('div', { class: 'st-cl c2', html: CL }), s.firstChild);
+      if (p.bg !== 'evening') s.insertBefore(h('div', { class: 'st-bird', html: '<svg viewBox="0 0 40 20"><path d="M2 14Q10 0 20 11Q30 0 38 14" stroke="#4A5B8C" stroke-width="3" fill="none" stroke-linecap="round"/></svg>' }), s.firstChild);
+    }
+    if (p.bg === 'night' || p.bg === 'evening') for (var si = 0; si < 9; si++) s.insertBefore(h('i', { class: 'st-tw', style: { left: (6 + (si * 37) % 88) + '%', top: (5 + (si * 23) % 34) + '%', animationDelay: (si * 0.43) + 's' } }), s.firstChild);
     var chs = p.ch || [], nodes = [], trs = [];
     chs.forEach(function (c, i) {
       var tr = (c.flip ? 'scaleX(-1) ' : '') + (c.tilt ? 'rotate(' + c.tilt + 'deg)' : '');
       trs[i] = tr;
-      var el = h('div', { class: 'st-ch' + (c.fx ? ' fx-' + c.fx : '') + (c.tap ? ' st-hot' : ''), style: { left: c.x + '%', bottom: c.y + '%', width: c.s + '%', animationDelay: (i * 0.35) + 's' } },
-        h('div', { class: 'st-in', style: { transform: tr || 'none', transformOrigin: '50% 100%' }, html: pic(c.k, inferEx(c)) }));
+      var el = h('div', { class: 'st-ch' + (c.fx ? ' fx-' + c.fx : '') + (c.tap ? ' st-hot' : ''), style: { left: c.x + '%', bottom: lift(c) ? 'calc(' + c.y + '% + ' + lift(c).toFixed(2) + 'cqw)' : c.y + '%', width: c.s + '%', animationDelay: (i * 0.35) + 's' } },
+        h('div', { class: 'st-in', style: { transform: tr || 'none', transformOrigin: '50% 100%' }, html: cpic(c.k, inferEx(c)) }));
       nodes[i] = el;
       if (c.hide) el.style.opacity = '0';
       if (c.enter) UI.anim(el.firstChild, [{ opacity: 0, transform: 'translateX(-90px) ' + (tr || '') }, { opacity: 1, transform: (tr || 'none') }], { dur: 1100, delay: 200 + i * 220, fill: 'backwards' });
@@ -704,12 +715,17 @@
       }
       s.appendChild(el);
     });
+    s.addEventListener('pointerdown', function (e) {
+      var r = e.target.closest && e.target.closest('.rg'); if (!r || r.closest('.st-hot')) return;
+      B.rig.act(r, ['hop', 'wave', 'nod'][Math.floor(Math.random() * 3)], 800); if (B.audio) B.audio.play('pop');
+      nodes.forEach(function (n) { var o = n.querySelector('.rg'); if (o && o !== r) B.rig.lookAt(o, r.querySelector('.rg-hd'), 1500); });
+    });
     // الأذرع: خطوط مع كفوف تمسك بالشيء الآخر (الشخصية تفعل ما يقوله النص)
     var arms = '';
     chs.forEach(function (c) {
       if (c.hold == null || !chs[c.hold]) return;
       var t2 = chs[c.hold], col = ARMC[c.k] || '#E9B68E';
-      var yc = function (o, f) { return 75 * (1 - (o.y + (o.s / 0.75) * f) / 100); };
+      var yc = function (o, f) { return 75 * (1 - (o.y + (o.s / 0.75) * f) / 100) - lift(o); };
       var dir = t2.x >= c.x ? 1 : -1;
       var x1 = c.x + dir * c.s * 0.32, y1 = yc(c, 0.34);
       var x2 = t2.x - dir * t2.s * 0.26, y2 = yc(t2, t2.hy == null ? 0.42 : t2.hy);
@@ -724,9 +740,14 @@
         var left = many ? Math.max(34, Math.min(66, c.x)) : Math.max(27, Math.min(73, c.x));
         var wPct = many ? 0.6 : 0.46;
         var st = { left: left + '%', background: BCOL[c.k] || '#fff', '--dx': ((c.x - left) / wPct) + '%', animationDelay: (bi * 0.9) + 's' };
-        if (!many) st.bottom = (b.at != null ? b.at : Math.min(80, c.y + c.s / 0.75 + 3)) + '%';
+        if (!many) st.bottom = (b.at != null ? b.at : Math.min(80, c.y + c.s / 0.75 + 3)) + '%'; if (!many && b.at == null && lift(c)) st.bottom = 'calc(' + st.bottom + ' + ' + lift(c).toFixed(2) + 'cqw)';
         var bub = h('div', { class: 'st-bub' + (many ? ' stack' : ''), style: st }, many ? h('em', { class: 'st-bn', text: UI.num(bi + 1) }) : null, h('span', { text: b.t }));
         (many ? stack : s).appendChild(bub);
+        setTimeout(function () {
+          var sp = nodes[b.w], r = sp && sp.querySelector('.rg'); if (!r || !s.isConnected) return;
+          B.rig.act(r, 'talk', 1900);
+          nodes.forEach(function (n, ni) { if (ni !== b.w) { var o = n.querySelector('.rg'); if (o) B.rig.lookAt(o, r.querySelector('.rg-hd'), 1900); } });
+        }, (500 + bi * 900) / UI.ts);
       });
       if (stack) s.appendChild(stack);
     }
@@ -742,6 +763,13 @@
   function isRead(id) { var d = B.storage.data(); return !!(d.stories && d.stories[id] && d.stories[id].read); }
 
   B.free.stories = {
+    /* فحص سريع للاختبارات: يبني كل مشاهد كل القصص وكل التعابير ويعيد الأخطاء */
+    _smoke: function () {
+      var errs = [], exs = ['', 'joy', 'sad', 'cry', 'scared', 'surprised', 'think', 'strain', 'angry', 'sleepy'];
+      STORIES.forEach(function (S) { S.scenes.forEach(function (sc, i) { try { sceneEl(sc, true); } catch (e) { errs.push(S.id + '#' + (i + 1) + ': ' + e.message); } }); });
+      ['rabbit', 'bear', 'fox', 'turtle', 'duck', 'cat', 'lamb', 'frog', 'owl'].forEach(function (k) { exs.forEach(function (x) { try { cpic(k, x); } catch (e) { errs.push(k + '/' + x + ': ' + e.message); } }); });
+      return errs;
+    },
     list: function () { return STORIES.map(function (s) { return { id: s.id, title: s.title, cover: s.cover, value: s.value, bgc: s.bgc, kind: s.kind, age: s.age, mins: s.mins, read: isRead(s.id) }; }); },
     tags: function (S) {
       var long = S.kind === 'long', bed = S.kind === 'bed';

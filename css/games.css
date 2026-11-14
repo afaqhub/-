@@ -1057,3 +1057,60 @@ html.night .tabbar { background: rgba(30, 36, 90, .75); } html.night .tab-btn { 
 .zm-ok { min-width: 160px; min-height: 72px; padding: 6px 30px; border: 0; border-radius: 999px; font: inherit; font-size: 24px; font-weight: 800; color: #fff; background: linear-gradient(135deg, #3FDCBC, #17A98B); box-shadow: 0 6px 0 #0B8269; cursor: pointer; } @media (min-width: 700px) { .zm-ok { min-height: 96px; font-size: 30px; } }
 .zm-draw { stroke-dasharray: 1; stroke-dashoffset: 1; animation: zmDraw 2.6s .5s ease-in-out forwards; } @keyframes zmDraw { to { stroke-dashoffset: 0; } }
 .zm-ring { animation: zmRing 1s ease-in-out infinite; transform-box: fill-box; transform-origin: center; } @keyframes zmRing { 50% { transform: scale(1.35); opacity: .6; } }
+
+/* ═══ الشخصيات الحيّة (rig) ═══ */
+.ey { transition: transform .22s ease-out; } .ev { transform-box: fill-box; transform-origin: 50% 50%; transition: transform .08s; } .ev.bl { transform: scaleY(.08); }
+.ear { transform-box: fill-box; transform-origin: 50% 100%; animation: earTw 6.5s ease-in-out infinite; } .ear.r { animation-delay: .35s; animation-duration: 7.4s; }
+@keyframes earTw { 0%, 88%, 100% { transform: rotate(0); } 91% { transform: rotate(-9deg); } 95% { transform: rotate(6deg); } }
+.rg { position: relative; width: 100%; } .st-in .rg { filter: drop-shadow(0 4px 3px rgba(0, 0, 0, .18)); } .st-in .rg svg { filter: none; }
+.rg-hd { position: relative; z-index: 2; transform: translate(var(--hx, 0%), var(--hy, 0%)) rotate(var(--hr, 0deg)); transform-origin: 50% 88%; transition: transform .3s ease-out; }
+.rg-hd > svg { transform-origin: 50% 90%; }
+.st-in .rg .rg-bd, .rg .rg-bd { position: absolute; left: 14%; width: 72%; height: auto; top: 76%; z-index: 1; overflow: visible; transform-origin: 50% 100%; animation: rgBreath 3.4s ease-in-out infinite; }
+@keyframes rgBreath { 50% { transform: scaleY(1.035); } }
+.rg-arm, .rg-leg, .rg-tail { transform-box: fill-box; } .rg-arm { transform-origin: 50% 10%; } .rg-leg { transform-origin: 50% 6%; } .rg-tail { transform-origin: 8% 92%; }
+.rg-arm.l { transform: rotate(7deg); animation: rgAL 4.6s ease-in-out infinite; } .rg-arm.r { transform: rotate(-7deg); animation: rgAR 5.2s ease-in-out infinite; }
+@keyframes rgAL { 50% { transform: rotate(13deg); } } @keyframes rgAR { 50% { transform: rotate(-13deg); } }
+.rg-tail { animation: rgTail 1.8s ease-in-out infinite; } @keyframes rgTail { 50% { transform: rotate(12deg); } }
+/* تعبير → وضعية الجسم */
+.p-joy { animation: rgBob .55s ease-in-out infinite alternate; } @keyframes rgBob { to { transform: translateY(-5%); } }
+.p-joy .rg-arm.l { animation: rgJL .55s ease-in-out infinite alternate; } .p-joy .rg-arm.r { animation: rgJR .55s ease-in-out infinite alternate; }
+@keyframes rgJL { from { transform: rotate(115deg); } to { transform: rotate(160deg); } } @keyframes rgJR { from { transform: rotate(-115deg); } to { transform: rotate(-160deg); } }
+.p-joy .rg-leg.l { animation: rgLegA .55s ease-in-out infinite alternate; } .p-joy .rg-leg.r { animation: rgLegB .55s ease-in-out infinite alternate; } @keyframes rgLegA { to { transform: rotate(14deg); } } @keyframes rgLegB { to { transform: rotate(-14deg); } }
+.p-scared { animation: rgShiv .11s linear infinite alternate; } @keyframes rgShiv { from { transform: translateX(-.9%); } to { transform: translateX(.9%); } }
+.p-scared .rg-arm.l { animation: none; transform: rotate(-50deg); } .p-scared .rg-arm.r { animation: none; transform: rotate(50deg); } .p-scared .rg-hd > svg { transform: scale(.96) translateY(2%); }
+.p-scared .rg-leg.l { animation: none; transform: rotate(6deg); } .p-scared .rg-leg.r { animation: none; transform: rotate(-6deg); }
+.p-sad .rg-arm.l { animation: none; transform: rotate(2deg); } .p-sad .rg-arm.r { animation: none; transform: rotate(-2deg); } .p-sad .rg-hd > svg { transform: translateY(3%) rotate(-4deg); animation: none; } .p-sad .rg-tail { animation: none; transform: rotate(-20deg); } .p-sad .rg-bd { animation-duration: 5s; }
+.p-cry .rg-arm.l, .p-cry .rg-arm.r { animation: rgRub .35s ease-in-out infinite alternate; } .p-cry .rg-arm.l { transform: rotate(-120deg); } .p-cry .rg-arm.r { transform: rotate(120deg); } @keyframes rgRub { to { margin-top: -1px; } }
+.p-surprised { animation: rgSurp .55s cubic-bezier(.3, 1.6, .5, 1) 1; } @keyframes rgSurp { 0% { transform: translateY(0); } 30% { transform: translateY(-14%) scale(1.04, .96); } 100% { transform: translateY(0); } }
+.p-surprised .rg-arm.l { animation: none; transform: rotate(75deg); } .p-surprised .rg-arm.r { animation: none; transform: rotate(-75deg); }
+.p-think .rg-arm.r { animation: rgThinkR 2.4s ease-in-out infinite; transform: rotate(-150deg); } @keyframes rgThinkR { 50% { transform: rotate(-142deg); } } .p-think .rg-arm.l { animation: none; transform: rotate(-35deg); } .p-think .rg-hd > svg { transform: rotate(5deg); }
+.p-strain .rg-arm.l { animation: rgPushL .18s linear infinite alternate; transform: rotate(-38deg); } .p-strain .rg-arm.r { animation: rgPushR .18s linear infinite alternate; transform: rotate(38deg); } @keyframes rgPushL { to { transform: rotate(-46deg); } } @keyframes rgPushR { to { transform: rotate(46deg); } }
+.p-strain .rg-leg.l { animation: none; transform: rotate(10deg); } .p-strain .rg-leg.r { animation: none; transform: rotate(-10deg); } .p-strain .rg-hd > svg { animation: rgShake .16s linear infinite alternate; } @keyframes rgShake { from { transform: translateX(-.8%); } to { transform: translateX(.8%); } }
+.p-sleepy .rg-hd > svg { transform: rotate(7deg) translateY(2%); } .p-sleepy .rg-arm.l { animation: none; transform: rotate(3deg); } .p-sleepy .rg-arm.r { animation: none; transform: rotate(-3deg); } .p-sleepy .rg-bd { animation-duration: 4.6s; } .p-sleepy .rg-tail { animation: none; }
+.p-angry .rg-arm.l { animation: none; transform: rotate(-18deg); } .p-angry .rg-arm.r { animation: none; transform: rotate(18deg); }
+/* حركات مؤقتة */
+.rg-a-hop { animation: rgHop .7s cubic-bezier(.3, 1.3, .5, 1) 1; } @keyframes rgHop { 0% { transform: scale(1.06, .92); } 35% { transform: translateY(-16%) scale(.96, 1.06); } 70% { transform: translateY(0) scale(1.05, .93); } 100% { transform: none; } }
+.rg-a-hop .rg-arm.l { animation: rgJL .35s ease-in-out 2 alternate; } .rg-a-hop .rg-arm.r { animation: rgJR .35s ease-in-out 2 alternate; }
+.rg-a-wave .rg-arm.r { animation: rgWave .38s ease-in-out infinite alternate; transform: rotate(-140deg); } @keyframes rgWave { from { transform: rotate(-128deg); } to { transform: rotate(-168deg); } }
+.rg-a-stretch { animation: rgStr 1.5s ease-in-out 1; } @keyframes rgStr { 30%, 70% { transform: scale(.96, 1.07); } }
+.rg-a-stretch .rg-arm.l { animation: rgStL 1.5s ease-in-out 1; } .rg-a-stretch .rg-arm.r { animation: rgStR 1.5s ease-in-out 1; } @keyframes rgStL { 25%, 75% { transform: rotate(168deg); } } @keyframes rgStR { 25%, 75% { transform: rotate(-168deg); } }
+.rg-a-scratch .rg-arm.r { animation: rgSc .2s linear infinite alternate; transform: rotate(-150deg); } @keyframes rgSc { from { transform: rotate(-146deg); } to { transform: rotate(-160deg); } } .rg-a-scratch .rg-hd > svg { transform: rotate(5deg); }
+.rg-a-talk .rg-hd > svg { animation: rgTalk .32s ease-in-out infinite alternate; } @keyframes rgTalk { to { transform: translateY(-2.2%) scale(1.025); } }
+.rg-a-talk .rg-arm.r { animation: rgGest .5s ease-in-out infinite alternate; } @keyframes rgGest { from { transform: rotate(-25deg); } to { transform: rotate(-62deg); } }
+.rg-a-nod .rg-hd > svg { animation: rgNod .3s ease-in-out 3 alternate; } @keyframes rgNod { to { transform: translateY(5%) rotate(2deg); } }
+.rg-a-shake .rg-hd > svg { animation: rgShk .22s ease-in-out 4 alternate; } @keyframes rgShk { from { transform: rotate(-9deg); } to { transform: rotate(9deg); } }
+.rg-a-walk { animation: rgWalkB .38s ease-in-out infinite alternate; } @keyframes rgWalkB { to { transform: translateY(-3.5%); } }
+.rg-a-walk .rg-leg.l { animation: rgWL .38s ease-in-out infinite alternate; } .rg-a-walk .rg-leg.r { animation: rgWR .38s ease-in-out infinite alternate; } @keyframes rgWL { from { transform: rotate(-28deg); } to { transform: rotate(28deg); } } @keyframes rgWR { from { transform: rotate(28deg); } to { transform: rotate(-28deg); } }
+.rg-a-walk .rg-arm.l { animation: rgWR .38s ease-in-out infinite alternate; } .rg-a-walk .rg-arm.r { animation: rgWL .38s ease-in-out infinite alternate; }
+.rg-a-cheer { animation: rgBob .4s ease-in-out infinite alternate; } .rg-a-cheer .rg-arm.l { animation: rgJL .4s ease-in-out infinite alternate; } .rg-a-cheer .rg-arm.r { animation: rgJR .4s ease-in-out infinite alternate; }
+@media (prefers-reduced-motion: reduce) { .rg, .rg *, .ear { animation: none !important; } }
+
+.st-cl { position: absolute; width: 20%; z-index: 0; pointer-events: none; opacity: .9; } .st-cl svg { width: 100%; height: auto; display: block; }
+.st-cl.c1 { top: 9%; animation: stCl 52s linear infinite; } .st-cl.c2 { top: 22%; width: 14%; animation: stCl 74s linear infinite -30s; opacity: .75; }
+@keyframes stCl { from { left: -25%; } to { left: 110%; } }
+.st-bird { position: absolute; top: 16%; width: 6%; z-index: 0; pointer-events: none; animation: stBird 17s linear infinite 3s; } .st-bird svg { width: 100%; display: block; animation: stFlap .5s ease-in-out infinite alternate; transform-origin: 50% 70%; }
+@keyframes stBird { from { left: 108%; transform: translateY(0); } 50% { transform: translateY(18px); } to { left: -10%; transform: translateY(-10px); } } @keyframes stFlap { to { transform: scaleY(.45); } }
+.st-tw { position: absolute; width: 5px; height: 5px; border-radius: 50%; background: #FFF7C2; box-shadow: 0 0 6px 2px rgba(255, 247, 194, .7); z-index: 0; pointer-events: none; animation: twinkle 2.4s ease-in-out infinite; }
+.st-hills.far { animation: stHill 22s ease-in-out infinite alternate; } .st-hills.mid { animation: stHill 15s ease-in-out infinite alternate-reverse; } @keyframes stHill { from { transform: translateX(-1.2%); } to { transform: translateX(1.2%); } }
+@media (prefers-reduced-motion: reduce) { .st-cl, .st-bird, .st-bird svg, .st-tw, .st-hills { animation: none !important; } }
+.st-hills, .st-hills svg { overflow: visible; }
