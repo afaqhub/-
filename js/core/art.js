@@ -590,6 +590,12 @@
       '<path d="M50 60V36" stroke="#1C8F5C" stroke-width="5" stroke-linecap="round"/><path d="M50 46Q34 38 28 48Q42 56 50 46Z" fill="#2DBE7E"/><circle cx="50" cy="26" r="11" fill="#F2658E"/><circle cx="50" cy="26" r="4.5" fill="#FFD34E"/>' +
       '<path d="M74 22L90 14M82 28q6 6 4 12" stroke="#2468D1" stroke-width="5" fill="none" stroke-linecap="round"/><circle cx="84" cy="48" r="3" fill="#5CC8FF"/><circle cx="90" cy="58" r="3" fill="#5CC8FF"/>';
   };
+  GAME_ICONS.treasure = function () {
+    return '<rect x="6" y="6" width="88" height="88" rx="14" fill="#F7E3B0"/><circle cx="62" cy="58" r="30" fill="#FFE98A" opacity=".6"/><circle cx="62" cy="58" r="18" fill="#FF8A3D" opacity=".5"/><path d="M62 38l6 13 14 2-10 10 3 14-13-7-13 7 3-14-10-10 14-2z" fill="#FFD34E" stroke="#E2A21B" stroke-width="3" stroke-linejoin="round"/><circle cx="24" cy="30" r="8" fill="#6EC6FF" opacity=".7"/>';
+  };
+  GAME_ICONS.mimic = function () {
+    return '<circle cx="50" cy="56" r="26" fill="#B67B4D"/><circle cx="30" cy="36" r="10" fill="#B67B4D"/><circle cx="70" cy="36" r="10" fill="#B67B4D"/><ellipse cx="50" cy="64" rx="12" ry="9" fill="#F3D6B0"/><circle cx="41" cy="52" r="3.5" fill="#3A2A3F"/><circle cx="59" cy="52" r="3.5" fill="#3A2A3F"/><path d="M16 22L8 8M84 22l8-14M8 56h-6M92 56h6" stroke="#8E5CF0" stroke-width="5" stroke-linecap="round"/>';
+  };
   GAME_ICONS.maze = function () {
     return '<rect x="8" y="8" width="84" height="84" rx="10" fill="#CFF0C0"/><path d="M8 34H58M34 34V62M58 62H92M58 8V34M34 62H8M70 62V92M20 92V78" stroke="#1C8F5C" stroke-width="6" stroke-linecap="round" fill="none"/>' +
       '<g transform="translate(10 12) scale(.26)"><circle cx="50" cy="55" r="36" fill="#fff" stroke="#D5CEEA" stroke-width="3"/><ellipse cx="35" cy="22" rx="9" ry="22" fill="#fff" stroke="#D5CEEA" stroke-width="3"/><ellipse cx="65" cy="22" rx="9" ry="22" fill="#fff" stroke="#D5CEEA" stroke-width="3"/></g>' +
@@ -597,6 +603,9 @@
   };
   GAME_ICONS.stories = function () {
     return ('<path d="M8 22Q30 12 50 24Q70 12 92 22V82Q70 72 50 84Q30 72 8 82Z" fill="#fff" stroke="#8E5CF0" stroke-width="5" stroke-linejoin="round"/><path d="M50 24V84" stroke="#8E5CF0" stroke-width="4"/><circle cx="30" cy="42" r="8" fill="#FFD34E"/><path d="M16 70L28 56L40 68L36 74H16Z" fill="#2DBE7E"/><path d="M60 40H82M60 52H82M60 64H76" stroke="#B9A6F0" stroke-width="4" stroke-linecap="round"/>');
+  };
+  GAME_ICONS.scene = function () {
+    return '<rect x="8" y="14" width="84" height="72" rx="10" fill="#9AD8F7" stroke="#8E5CF0" stroke-width="5"/><rect x="8" y="58" width="84" height="28" rx="0" fill="#7ED67A"/><circle cx="72" cy="34" r="10" fill="#FFD34E"/><circle cx="30" cy="52" r="12" fill="#2DBE7E"/><rect x="28" y="52" width="4" height="18" fill="#8A5A33"/><path d="M48 70l6-12 6 12z" fill="#F2658E"/>';
   };
   GAME_ICONS.gallery = function () {
     return '<rect x="10" y="14" width="80" height="68" rx="8" fill="#FAFCFF" stroke="#8E5CF0" stroke-width="6"/><path d="M16 74L38 48L54 64L66 52L84 74Z" fill="#2DBE7E"/><circle cx="70" cy="34" r="9" fill="#FFD34E"/>' +

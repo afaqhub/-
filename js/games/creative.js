@@ -448,6 +448,53 @@
     destroy: function () {}
   };
 
+
+  /* ═════════ مشهدي: ألصق الملصقات على خلفية واحفظ مشهدك ═════════ */
+  var SCN_BG = [
+    { id: 'day', n: 'نهار', css: 'linear-gradient(180deg,#9AD8F7 0%,#E6F6FF 60%,#9BDB8A 61%,#6FC46E 100%)', svg: ['#9AD8F7', '#E6F6FF', '#9BDB8A'] },
+    { id: 'night', n: 'ليل', css: 'linear-gradient(180deg,#1D2A6B 0%,#4A3FA6 62%,#3F8F6A 63%,#2E6F50 100%)', svg: ['#1D2A6B', '#4A3FA6', '#3F8F6A'] },
+    { id: 'sea', n: 'بحر', css: 'linear-gradient(180deg,#CDEFFF 0%,#8FD3F4 38%,#3D9FE0 39%,#2468D1 100%)', svg: ['#CDEFFF', '#8FD3F4', '#3D9FE0'] },
+    { id: 'sand', n: 'صحراء', css: 'linear-gradient(180deg,#FFE9B8 0%,#FFD28A 60%,#F0B860 61%,#E0A04A 100%)', svg: ['#FFE9B8', '#FFD28A', '#F0B860'] }
+  ];
+  var SCN_ST = ['sun', 'moon', 'cloud', 'tree', 'flower', 'rose', 'house', 'rabbit', 'bear', 'duck', 'turtle', 'fox', 'owl', 'cat', 'butterfly', 'bird', 'star', 'heart', 'balloon', 'car', 'rocket', 'fish'];
+  B.free.scene = {
+    open: function (ctx) {
+      var stage = ctx.stage; stage.classList.add('g-stage', 'sc-stage');
+      var items = [], sel = SCN_ST[3], bg = SCN_BG[0];
+      var board = h('div', { class: 'sc-board', style: { background: bg.css } }), tray = h('div', { class: 'sc-tray scrollable' }), bgRow = h('div', { class: 'sc-bgs' });
+      function paintBg() { board.style.background = bg.css; bgRow.querySelectorAll('.sc-bg').forEach(function (b) { b.classList.toggle('on', b.dataset.id === bg.id); }); }
+      SCN_BG.forEach(function (b) { var el = h('button', { class: 'sc-bg', type: 'button', 'data-id': b.id, style: { background: b.css } }, h('span', { text: b.n })); el.addEventListener('click', function () { bg = b; paintBg(); if (B.audio) B.audio.play('pick'); }); bgRow.appendChild(el); });
+      SCN_ST.forEach(function (k) {
+        var b = h('button', { class: 'sc-st' + (k === sel ? ' on' : ''), type: 'button', 'data-k': k, 'aria-label': k, html: B.pics.draw(k) });
+        b.addEventListener('click', function () { sel = k; tray.querySelectorAll('.sc-st').forEach(function (x) { x.classList.toggle('on', x === b); }); if (B.audio) B.audio.play('pick'); });
+        tray.appendChild(b);
+      });
+      function stamp(x, y) {
+        var size = 20, it = { k: sel, x: x, y: y, s: size };
+        var el = h('div', { class: 'sc-item', style: { left: x * 100 + '%', top: y * 100 + '%', width: size + '%' }, html: B.pics.draw(sel) });
+        board.appendChild(el); it.el = el; items.push(it);
+        UI.anim(el, [{ transform: 'translate(-50%,-62%) scale(.2)', opacity: 0 }, { transform: 'translate(-50%,-62%) scale(1.15)', opacity: 1 }, { transform: 'translate(-50%,-62%) scale(1)', opacity: 1 }], { dur: 380, easing: UI.SPRING, fill: 'forwards' });
+        if (B.audio) B.audio.play('place');
+      }
+      board.addEventListener('pointerdown', function (e) { if (e.target.closest('.sc-item') && false) return; var r = board.getBoundingClientRect(); stamp(Math.max(0.08, Math.min(0.92, (e.clientX - r.left) / r.width)), Math.max(0.1, Math.min(0.95, (e.clientY - r.top) / r.height))); });
+      function btn(cls, label, fn) { var b = h('button', { class: 'g-choice dr-tool ' + cls, type: 'button', 'aria-label': label }, h('small', { text: label })); b.addEventListener('click', fn); return b; }
+      var undo = btn('sc-undo', 'تراجع', function () { var it = items.pop(); if (it) { it.el.remove(); if (B.audio) B.audio.play('soft'); } });
+      var clr = btn('sc-clear', 'مسح', function () { items.splice(0).forEach(function (it) { it.el.remove(); }); if (B.audio) B.audio.play('sweep'); });
+      var save = btn('sc-save', 'حفظ', function () {
+        var W = 400, H = 300, g = bg.svg, out = '<svg xmlns="http://www.w3.org/2000/svg" width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + g[0] + '"/><stop offset=".6" stop-color="' + g[1] + '"/></linearGradient></defs><rect width="400" height="300" fill="url(#g)"/><rect y="180" width="400" height="120" fill="' + g[2] + '"/>';
+        items.forEach(function (it) {
+          var sz = it.s / 100 * W, svg = B.pics.draw(it.k).replace(/<svg /, '<svg x="' + (it.x * W - sz / 2) + '" y="' + (it.y * H - sz * 0.62) + '" width="' + sz + '" height="' + sz + '" ').replace(/ class="pic"/, '').replace(/ focusable="false"/, '').replace(/ aria-hidden="true"/, '');
+          out += svg;
+        });
+        out += '</svg>';
+        saveToGallery(stage, 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(out));
+      });
+      var hint = h('div', { class: 'sc-hint', text: 'اختر ملصقًا ثم المس المشهد لتلصقه' });
+      stage.appendChild(h('div', { class: 'sc-wrap' }, bgRow, board, hint, tray, h('div', { class: 'sc-actions' }, undo, clr, save)));
+    },
+    destroy: function () {}
+  };
+
   /* ═════════ إبداعاتي (المعرض) ═════════ */
   B.free.gallery = {
     open: function (ctx) {

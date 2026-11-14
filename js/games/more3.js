@@ -560,6 +560,105 @@
     await ctx.sleep(1600); if (!alive()) return;
     return { errors: demo ? 0 : Math.min(errors, 8) };
   });
+
+  /* ═════════════════ قلّد حركتي (مع أبي وأمي) ═════════════════
+     الحيوان يؤدّي حركة والطفل ووالده يؤدّيانها معه، ويضغط الطفل دائرة عند كل مرة. لا كاميرا ولا تحقّق: متعة حركية. */
+  var MOVES = [
+    { id: 'jump', cue: 'اقفز', fx: 'mm-jump' }, { id: 'clap', cue: 'صفّق', fx: 'mm-clap' }, { id: 'spin', cue: 'لفّ حول نفسك', fx: 'mm-spin' },
+    { id: 'stretch', cue: 'مدّ يديك إلى السماء', fx: 'mm-stretch' }, { id: 'stomp', cue: 'اضرب الأرض بقدمك', fx: 'mm-stomp' }, { id: 'wave', cue: 'لوّح بيدك', fx: 'mm-wave' }
+  ];
+  var MIMICS = ['bear', 'rabbit', 'duck', 'frog', 'cat', 'fox'];
+  mini('mimic', 'mm-stage', 'bear', async function (ctx, st, level, demo, alive, setCur) {
+    var mv; do { mv = kit.pick(MOVES); } while (mv.id === st.last); st.last = mv.id;
+    var n = level <= 1 ? 2 : level <= 3 ? 3 : level === 4 ? 4 : 5, an = kit.pick(MIMICS), done = 0, idle = 0, busy = false, errors = 0, fin, pr = new Promise(function (r) { fin = r; });
+    st.top.innerHTML = ''; st.tray.innerHTML = '';
+    var ch = h('div', { class: 'mm-char', html: pic(an) }), cue = h('div', { class: 'mm-cue', text: mv.cue + ' ' + (n === 1 ? 'مرة واحدة' : UI.num(n) + ' مرات') + '!' });
+    var row = h('div', { class: 'mm-dots' });
+    var dots = [];
+    for (var i = 0; i < n; i++) { var d = h('button', { class: 'mm-dot', type: 'button', 'aria-label': 'عدّ' }, h('span', { html: pic('star') })); dots.push(d); row.appendChild(d); }
+    st.top.appendChild(h('div', { class: 'mm-wrap' }, cue, ch, row));
+    UI.anim(ch, [{ opacity: 0, transform: 'scale(.4)' }, { opacity: 1, transform: 'none' }], { dur: 450, easing: UI.SPRING, fill: 'backwards' });
+    if (B.audio) B.audio.play('card');
+    await ctx.sleep(700); if (!alive()) return;
+    ch.classList.add(mv.fx);                    // الحيوان يؤدّي الحركة بإيقاع ثابت
+    function next() { return dots[done]; }
+    dots.forEach(function (d, k) {
+      d.addEventListener('click', function () {
+        if (busy || ctx.paused) return;
+        if (k !== done) { errors++; if (B.audio) B.audio.play('wrong'); kit.wrong(d); return; }
+        busy = true; idle = 0; d.classList.add('on'); d.classList.remove('pulse-hint'); done++;
+        if (B.audio) B.audio.play(['pop', 'place', 'pick'][done % 3]); UI.burst(ctx.stage, kit.center(d, ctx.stage).x, kit.center(d, ctx.stage).y, { n: 6, spread: 40, dur: 500 });
+        busy = false; if (done >= n) fin(true);
+      });
+    });
+    st.solve = function () { if (done >= n) return false; next().click(); return true; };
+    st.stop = function () { fin(false); };
+    (async function watch() {
+      while (alive() && done < n) {
+        await ctx.sleep(1000); if (ctx.paused) continue; idle++;
+        if (idle === 8) { next().classList.add('pulse-hint'); }
+        if (idle >= 14 || (demo && idle >= 3)) { var c = kit.center(next(), ctx.stage), hd = kit.hand(ctx.stage, c.x, c.y); await ctx.sleep(400); await hd.tap(); hd.el.remove(); idle = 0; if (done < n) next().click(); }
+      }
+    })();
+    await pr; st.solve = null; if (!alive()) return;
+    ch.classList.remove(mv.fx); await cheer(ctx, ch);
+    return { errors: demo ? 0 : Math.min(errors, 3) };
+  });
+
+  /* ═════════════════ الكنز الدافئ ═════════════════
+     كنز مخفي في الميدان: يلمس الطفل مكاناً فتظهر دائرة بارد/دافئ/حارّ تدلّه على القرب، حتى يجد الكنز. */
+  var TBG = ['tr-sand', 'tr-grass', 'tr-sea', 'tr-snow'];
+  mini('treasure', 'tr2-stage', 'fox', async function (ctx, st, level, demo, alive, setCur) {
+    var n = level <= 2 ? 1 : level <= 4 ? 2 : 3, R = [0.17, 0.15, 0.13, 0.115, 0.1][Math.min(4, level - 1)], found = 0, taps = 0, idle = 0, errors = 0, fin, pr = new Promise(function (r) { fin = r; });
+    st.top.innerHTML = ''; st.tray.innerHTML = '';
+    var field = h('div', { class: 'tr2-field ' + kit.pick(TBG), role: 'application' }), cnt = h('div', { class: 'tr2-cnt' }), word = h('div', { class: 'tr2-word', text: 'المسوا الميدان وابحثوا!' });
+    var targets = [];
+    for (var i = 0; i < n; i++) { var tg; do { tg = { x: 0.14 + Math.random() * 0.72, y: 0.14 + Math.random() * 0.72 }; } while (targets.some(function (o) { return Math.hypot(o.x - tg.x, o.y - tg.y) < 0.3; })); targets.push(tg); }
+    function drawCnt() { cnt.innerHTML = ''; for (var k = 0; k < n; k++) cnt.appendChild(h('span', { class: 'tr2-c' + (k < found ? ' on' : ''), html: pic('star') })); }
+    drawCnt();
+    st.top.appendChild(h('div', { class: 'tr2-wrap' }, cnt, field, word));
+    UI.anim(field, [{ opacity: 0, transform: 'scale(.85)' }, { opacity: 1, transform: 'none' }], { dur: 450, easing: UI.SPRING, fill: 'backwards' });
+    if (B.audio) B.audio.play('card');
+    await ctx.sleep(600); if (!alive()) return;
+    function nearest(x, y) { var best = 9, bi = -1; targets.forEach(function (t, k) { if (t.got) return; var d = Math.hypot(t.x - x, t.y - y); if (d < best) { best = d; bi = k; } }); return { d: best, i: bi }; }
+    function ring(x, y, d) {
+      var lvl = d < R ? 4 : d < 0.26 ? 3 : d < 0.45 ? 2 : 1, cols = ['#6EC6FF', '#9AD8B8', '#FFD34E', '#FF8A3D'], nm = ['بارد', 'دافئ', 'حارّ', 'حارّ جدًا!'];
+      var r = h('div', { class: 'tr2-ring', style: { left: x * 100 + '%', top: y * 100 + '%', borderColor: cols[lvl - 1], background: cols[lvl - 1] + '55' } }); field.appendChild(r);
+      UI.anim(r, [{ transform: 'translate(-50%,-50%) scale(.2)', opacity: 1 }, { transform: 'translate(-50%,-50%) scale(' + (0.7 + lvl * 0.35) + ')', opacity: 0 }], { dur: 900 }).then(function () { r.remove(); });
+      word.textContent = nm[lvl - 1]; word.style.color = lvl >= 3 ? '#C9611F' : '#2468D1';
+      if (B.audio) B.audio.play(lvl >= 3 ? 'sparkle' : 'tap');
+    }
+    async function tapAt(x, y) {
+      if (ctx.paused) return; taps++; idle = 0;
+      var nr = nearest(x, y); ring(x, y, nr.d);
+      if (nr.d < R && nr.i >= 0) {
+        var t = targets[nr.i]; t.got = true; found++;
+        var s = h('div', { class: 'tr2-star', style: { left: t.x * 100 + '%', top: t.y * 100 + '%' }, html: pic('star') }); field.appendChild(s);
+        if (B.audio) B.audio.play('right');
+        await ctx.anim(s, [{ transform: 'translate(-50%,-50%) scale(.3)', opacity: 0 }, { transform: 'translate(-50%,-50%) scale(1.5)', opacity: 1 }, { transform: 'translate(-50%,-50%) scale(1.1)', opacity: 1 }], { dur: 700, easing: UI.SPRING, fill: 'forwards' });
+        UI.burst(ctx.stage, kit.center(s, ctx.stage).x, kit.center(s, ctx.stage).y, { n: 14, spread: 80, dur: 900 });
+        drawCnt(); word.textContent = found < n ? 'وجدتم واحدًا! ابحثوا عن الباقي' : 'وجدتم كل الكنوز!';
+        if (found >= n) fin(true);
+      } else if (taps > 5) errors += taps % 3 === 0 ? 1 : 0;
+    }
+    field.addEventListener('pointerdown', function (e) { var r = field.getBoundingClientRect(); tapAt((e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height); });
+    st.solve = function () { var t = targets.filter(function (o) { return !o.got; })[0]; if (!t) return false; tapAt(t.x, t.y); return true; };
+    st.stop = function () { fin(false); };
+    (async function watch() {
+      while (alive() && found < n) {
+        await ctx.sleep(1000); if (ctx.paused) continue; idle++;
+        var t = targets.filter(function (o) { return !o.got; })[0]; if (!t) break;
+        if (idle === 7) { var g = h('div', { class: 'tr2-glim', style: { left: t.x * 100 + '%', top: t.y * 100 + '%' } }); field.appendChild(g); setTimeout(function () { g.remove(); }, 3000); }
+        if (idle >= 13 || (demo && idle >= 3)) {
+          var fr = field.getBoundingClientRect(), p = ctx.stage.getBoundingClientRect(), hd = kit.hand(ctx.stage, fr.left - p.left + t.x * fr.width, fr.top - p.top + t.y * fr.height);
+          await ctx.sleep(400); await hd.tap(); hd.el.remove(); idle = 0; tapAt(t.x, t.y);
+        }
+      }
+    })();
+    await pr; st.solve = null; if (!alive()) return;
+    await cheer(ctx, field); return { errors: demo ? 0 : Math.min(errors, 4) };
+  });
+
   B.games.maze._gen = genMaze; B.games.maze._bfs = bfs;
   B.games.missing._parts = MKEYS; B.games.missing._mp = MP;
 })();

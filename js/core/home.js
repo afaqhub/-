@@ -135,7 +135,8 @@
       shelf.appendChild(grid);
     }
     sec('قصص طويلة (٣ دقائق تقريبًا) — للأكبر قليلًا', all.filter(function (x) { return x.kind === 'long'; }));
-    sec('قصص قصيرة (دقيقة أو دقيقتان) — للأصغر', all.filter(function (x) { return x.kind !== 'long'; }));
+    sec('قصص قصيرة (دقيقة أو دقيقتان) — للأصغر', all.filter(function (x) { return x.kind === 'short'; }));
+    sec('قصص قبل النوم (هادئة) — للمساء', all.filter(function (x) { return x.kind === 'bed'; }));
     return shelf;
   }
   function kit_pick(a) { return a.length ? a[Math.floor(Math.random() * a.length)] : null; }
@@ -221,6 +222,29 @@
     ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (ev) { btn.addEventListener(ev, cancel); });
   }
 
+  /* تعريف الوالدين: ثلاث خطوات مصوّرة؛ كل زر «تخطّي/ابدأ» يحمل الصنف guide-go (يُغلق مرة واحدة) */
+  function welcomeLayer(container, onDone) {
+    var W = B.S.welcome, step = 0, layer = h('div', { class: 'guide-layer welcome', style: { zIndex: 96 } });
+    function artFor(i) {
+      if (i === 0) return h('div', { class: 'wl-art', html: art.logo() });
+      if (i === 1) return h('div', { class: 'wl-art wl-tabs' }, ['solo', 'together', 'create', 'stories'].map(function (z) { return h('div', { class: 'wl-tab' }, h('span', { html: art.zoneBadge(z) }), h('b', { text: B.S.zones[z] })); }));
+      return h('div', { class: 'wl-art wl-gear' }, h('span', { html: art.gear() }), h('b', { text: B.S.home.parent }));
+    }
+    function close() { UI.anim(layer, [{ opacity: 1 }, { opacity: 0 }], { dur: 250 }).then(function () { layer.remove(); if (onDone) onDone(); }); }
+    function paint() {
+      var S = W.steps[step], last = step === W.steps.length - 1;
+      var skip = h('button', { class: 'guide-go wl-skip', type: 'button', text: last ? W.go : W.skip });
+      skip.addEventListener('click', close);
+      var nx = last ? null : h('button', { class: 'guide-next', type: 'button', text: W.next });
+      if (nx) nx.addEventListener('click', function () { step++; paint(); if (B.audio) B.audio.play('page'); });
+      var dots = h('div', { class: 'wl-dots' }, W.steps.map(function (_, k) { return h('i', { class: k === step ? 'on' : '' }); }));
+      var card = h('div', { class: 'guide-card' }, artFor(step), h('h2', { text: S.title }), h('p', { class: 'wl-p', text: S.text }), dots, h('div', { class: 'wl-btns' }, last ? skip : h('span', { style: { display: 'contents' } }, nx, skip)));
+      layer.innerHTML = ''; layer.appendChild(card);
+      UI.anim(card, [{ opacity: 0, transform: 'translateX(-24px)' }, { opacity: 1, transform: 'none' }], { dur: 380, fill: 'none' });
+    }
+    paint(); container.appendChild(layer);
+  }
+
   var tabNow = 'all';
   function build() {
     var locked = B.storage.soloLocked();
@@ -295,19 +319,8 @@
       UI.anim(el.querySelectorAll('.zone-head')[1], [{ opacity: 0, transform: 'translateY(-10px)' }, { opacity: 1, transform: 'none' }], { dur: 420, delay: 200 });
       UI.anim(el.querySelectorAll('.zone-head')[2], [{ opacity: 0, transform: 'translateY(-10px)' }, { opacity: 1, transform: 'none' }], { dur: 420, delay: 400 });
     });
-    // شاشة ترحيب للوالدين مرة واحدة
-    if (!B.storage.data().welcomed) {
-      var W = B.S.welcome, go = h('button', { class: 'guide-go', type: 'button', text: W.go });
-      var card = h('div', { class: 'guide-card' }, h('h2', { text: W.title }),
-        h('ul', { class: 'guide-steps' }, W.lines.map(function (t) { return h('li', {}, h('b', { text: '•' }), h('span', { text: t })); })), go);
-      var layer = h('div', { class: 'guide-layer', style: { zIndex: 50 } }, card);
-      el.appendChild(layer);
-      requestAnimationFrame(function () { UI.anim(card, [{ opacity: 0, transform: 'translateY(20px) scale(.95)' }, { opacity: 1, transform: 'none' }], { dur: 450, easing: UI.SPRING, fill: 'none' }); });
-      go.addEventListener('click', function () {
-        B.storage.data().welcomed = true; B.storage.save();
-        UI.anim(layer, [{ opacity: 1 }, { opacity: 0 }], { dur: 250 }).then(function () { layer.remove(); });
-      });
-    }
+    // شاشة تعريف للوالدين عند أول فتح (ثلاث خطوات قصيرة)
+    if (!B.storage.data().welcomed) welcomeLayer(el, function () { B.storage.data().welcomed = true; B.storage.save(); });
     return el;
   }
 
@@ -318,6 +331,7 @@
       B.home._shown = true;
       return UI.go(build());
     },
+    welcome: function () { var hm = document.querySelector('.home'); if (hm) welcomeLayer(hm, null); },
     refresh: function () { if (document.querySelector('.home') && !document.querySelector('.game-screen')) { if (!B.config.isHidden(tabNow) && tabNow !== 'all' && tabNow !== 'stories') {} if (tabNow === 'stories' && B.config.isHidden('stories')) tabNow = 'all'; UI.go(build(), { instant: true }); } },
     updateBar: function () {
       var home = document.querySelector('.home'); if (!home || home.querySelector('.update-bar')) return;

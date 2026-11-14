@@ -6,7 +6,7 @@
 
   var KEY = 'bustan.progress';
   var SCHEMA = 3;
-  var GAME_IDS = ['train', 'mirror', 'pattern', 'fruits', 'letters', 'memory', 'shadows', 'more', 'odd', 'tracing', 'feed', 'hide', 'vanish', 'order', 'habitat', 'missing', 'water', 'maze', 'firstsound', 'bridge'];
+  var GAME_IDS = ['train', 'mirror', 'pattern', 'fruits', 'letters', 'memory', 'shadows', 'more', 'odd', 'tracing', 'feed', 'hide', 'vanish', 'order', 'habitat', 'missing', 'water', 'maze', 'treasure', 'mimic', 'firstsound', 'bridge'];
   var MAX_DAYS = 60;
 
   var data = null;

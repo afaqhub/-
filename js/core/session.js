@@ -36,12 +36,15 @@
     { id: 'habitat', zone: 'solo', rounds: 10, cat: 'know' },
     { id: 'water', zone: 'solo', rounds: 10, cat: 'know' },
     { id: 'maze', zone: 'solo', rounds: 10, cat: 'move' },
+    { id: 'treasure', zone: 'solo', rounds: 10, cat: 'move' },
+    { id: 'mimic', zone: 'together', rounds: 8 },
     { id: 'firstsound', zone: 'together', rounds: 8 },
     { id: 'bridge', zone: 'together', rounds: 8 },
     // القسم الإبداعي: لعب حرّ بلا جولات ولا مصابيح
     { id: 'workshop', zone: 'create', free: true },
     { id: 'coloring', zone: 'create', free: true },
     { id: 'drawing', zone: 'create', free: true },
+    { id: 'scene', zone: 'create', free: true },
     { id: 'gallery', zone: 'create', free: true },
     { id: 'stories', zone: 'together', free: true, hidden: true },
     { id: 'garden', zone: 'garden', free: true }

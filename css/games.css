@@ -942,3 +942,53 @@ html.night .tabbar { background: rgba(30, 36, 90, .75); } html.night .tab-btn { 
 .st-cavewall { position: absolute; inset: 0 0 24% 0; background: radial-gradient(circle at 20% 30%, rgba(255, 220, 150, .16) 0 8%, transparent 9%), radial-gradient(circle at 78% 22%, rgba(255, 220, 150, .12) 0 6%, transparent 7%), repeating-linear-gradient(100deg, rgba(0, 0, 0, .1) 0 14px, transparent 14px 38px); }
 .st-stal { position: absolute; left: 0; right: 0; top: 0; height: 18%; } .st-stal svg { width: 100%; height: 100%; display: block; }
 .st-cavefloor { position: absolute; left: 0; right: 0; bottom: 0; height: 26%; background: linear-gradient(180deg, #6B5A52, #3F322E); border-top: 4px solid rgba(255, 220, 150, .25); }
+/* تعريف الوالدين (7.13) */
+.guide-layer.welcome .guide-card { text-align: center; gap: 10px; justify-items: center; }
+.wl-art { width: 120px; display: grid; place-items: center; margin: 0 auto; } .wl-art svg { width: 100%; height: auto; } .wl-tabs { width: 100%; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; } .wl-tab { display: grid; justify-items: center; gap: 2px; width: 74px; } .wl-tab span { width: 52px; height: 44px; display: grid; place-items: center; background: #EEF1FA; border-radius: 16px; padding: 4px; } .wl-tab span svg { height: 100%; width: auto; } .wl-tab b { font-size: 14px; color: var(--night); line-height: 1.2; }
+.wl-gear { grid-auto-flow: row; gap: 4px; width: 90px; } .wl-gear span { width: 70px; height: 70px; background: #EEF1FA; border-radius: 50%; padding: 12px; display: grid; place-items: center; } .wl-gear b { font-size: 16px; color: var(--night); }
+.wl-p { font-size: 19px; line-height: 1.8; color: var(--night); margin: 0; } .wl-dots { display: flex; gap: 8px; justify-content: center; } .wl-dots i { width: 12px; height: 12px; border-radius: 50%; background: #D8D0F0; } .wl-dots i.on { background: #8E5CF0; transform: scale(1.3); }
+.wl-btns { display: flex; gap: 10px; justify-content: center; align-items: center; flex-wrap: wrap; } .guide-next { min-width: 130px; min-height: max(64px, var(--tap)); padding: 6px 22px; border: 0; border-radius: 999px; background: linear-gradient(135deg, #3FDCBC, #17A98B); color: #fff; box-shadow: 0 6px 0 #0B8269; font-family: inherit; font-size: 20px; font-weight: 800; cursor: pointer; } .wl-skip { }
+
+/* ألعاب الحركة (7.13) */
+.mm-stage { background: linear-gradient(180deg, #FFE3F0 0%, #E4F6FF 60%, #D8F5D0 100%); --deep: #C23C69; }
+.mm-wrap { display: grid; gap: 14px; justify-items: center; width: min(92vw, 440px); } .mm-cue { font-size: clamp(26px, 6vw, 40px); font-weight: 800; color: #C23C69; text-align: center; text-shadow: 0 2px 0 rgba(255, 255, 255, .8); }
+.mm-char { width: clamp(150px, 42vw, 240px); transform-origin: 50% 100%; } .mm-char svg { width: 100%; height: auto; filter: drop-shadow(0 8px 6px rgba(0, 0, 0, .15)); }
+.mm-jump { animation: mmJump .9s ease-in-out infinite; } @keyframes mmJump { 0%, 100% { transform: translateY(0) scale(1.05, .92); } 40% { transform: translateY(-34px) scale(.95, 1.08); } }
+.mm-clap { animation: mmClap .5s ease-in-out infinite alternate; } @keyframes mmClap { from { transform: scaleX(1) rotate(-3deg); } to { transform: scaleX(.88) rotate(3deg); } }
+.mm-spin { animation: mmSpin 1.6s ease-in-out infinite; } @keyframes mmSpin { to { transform: rotate(360deg); } }
+.mm-stretch { animation: mmStretch 1.4s ease-in-out infinite; } @keyframes mmStretch { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.22) translateY(-10px); } }
+.mm-stomp { animation: mmStomp .8s ease-in infinite; } @keyframes mmStomp { 0%, 100% { transform: translateY(0) rotate(0); } 25% { transform: translateY(-18px) rotate(-4deg); } 45% { transform: translateY(0) rotate(0) scale(1.06, .94); } 60% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+.mm-wave { animation: mmWave 1s ease-in-out infinite; } @keyframes mmWave { 0%, 100% { transform: rotate(-14deg); } 50% { transform: rotate(14deg); } }
+.mm-dots { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; direction: ltr; }
+.mm-dot { width: clamp(76px, 18vw, 96px); height: clamp(76px, 18vw, 96px); padding: 14px; border: 0; border-radius: 50%; background: #fff; box-shadow: 0 7px 0 #C9B6F5; cursor: pointer; opacity: .6; transition: transform .2s, opacity .2s, box-shadow .2s; } .mm-dot span { display: block; width: 100%; filter: grayscale(1) opacity(.35); } .mm-dot span svg { width: 100%; height: auto; } .mm-dot.on { opacity: 1; background: #FFF3B0; box-shadow: 0 0 0 5px #FFD34E, 0 7px 0 #E2A21B; transform: scale(1.08); } .mm-dot.on span { filter: none; }
+.tr2-stage { background: linear-gradient(180deg, #E8F4FF 0%, #FFF3D6 100%); --deep: #C9611F; }
+.tr2-wrap { display: grid; gap: 10px; justify-items: center; width: min(92vw, 420px); } .tr2-cnt { display: flex; gap: 8px; height: 38px; } .tr2-c { width: 38px; filter: grayscale(1) opacity(.4); } .tr2-c.on { filter: none; } .tr2-c svg { width: 100%; height: auto; }
+.tr2-field { position: relative; width: 100%; aspect-ratio: 1; border-radius: 30px; overflow: hidden; touch-action: none; box-shadow: 0 9px 0 #C98A3F, 0 18px 24px rgba(150, 100, 0, .22); cursor: pointer; }
+.tr-sand { background: radial-gradient(circle at 30% 30%, #F7E3B0, #EBC97A); } .tr-grass { background: radial-gradient(circle at 60% 40%, #BDEBA0, #86D17E); } .tr-sea { background: radial-gradient(circle at 40% 60%, #9AE0FF, #4FB4F0); } .tr-snow { background: radial-gradient(circle at 50% 40%, #FFFFFF, #CFE6F7); }
+.tr2-ring { position: absolute; width: 38%; aspect-ratio: 1; border-radius: 50%; border: 6px solid; transform: translate(-50%, -50%); pointer-events: none; }
+.tr2-star { position: absolute; width: 22%; pointer-events: none; transform: translate(-50%, -50%); } .tr2-star svg { width: 100%; height: auto; filter: drop-shadow(0 4px 4px rgba(0, 0, 0, .25)); }
+.tr2-glim { position: absolute; width: 18%; aspect-ratio: 1; border-radius: 50%; transform: translate(-50%, -50%); background: radial-gradient(circle, rgba(255, 243, 176, .9), transparent 70%); animation: gapPulse 1s ease-in-out infinite; pointer-events: none; }
+.tr2-word { min-height: 36px; font-size: clamp(22px, 5vw, 30px); font-weight: 800; color: #2468D1; text-align: center; }
+@media (orientation: landscape) and (max-height: 640px) {
+  .mm-wrap { grid-template-columns: auto auto; align-items: center; gap: 4px 24px; width: min(94vw, 760px); } .mm-cue { grid-column: 1 / -1; font-size: 24px; } .mm-char { width: min(30vw, 30vh); } .mm-dots { flex-direction: row; } .mm-dot { width: 72px; height: 72px; padding: 10px; }
+  .tr2-wrap { width: min(60vh, 90vw); } .tr2-cnt { height: 30px; } .tr2-c { width: 30px; } .tr2-word { font-size: 20px; min-height: 26px; }
+}
+.tr2-wrap, .mm-wrap { margin-top: 6px; }
+.st-tag.bed { background: #D9D4FF; color: #4A3FA6; }
+.tr2-wrap { width: min(92vw, 420px); } @media (orientation: landscape) and (max-height: 640px) { .tr2-wrap { width: min(52vh, 90vw); } }
+
+/* مشهدي (7.13) */
+.sc-stage { background: linear-gradient(180deg, #FFF3D6 0%, #FFE3EC 100%); display: block; overflow-y: auto; }
+.sc-wrap { position: absolute; inset: var(--hud-h) 0 0 0; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 4px 12px 12px; overflow-y: auto; }
+.sc-board { position: relative; width: min(94vw, 520px); aspect-ratio: 4 / 3; border-radius: 26px; overflow: hidden; box-shadow: 0 8px 0 #8E5CF0, 0 14px 22px rgba(107, 60, 201, .2); touch-action: none; cursor: pointer; flex: none; }
+.sc-item { position: absolute; transform: translate(-50%, -62%); pointer-events: none; } .sc-item svg { width: 100%; height: auto; display: block; filter: drop-shadow(0 4px 3px rgba(0, 0, 0, .2)); }
+.sc-bgs { display: flex; gap: 8px; flex: none; } .sc-bg { min-width: 76px; min-height: 52px; border: 3px solid #fff; border-radius: 16px; font-family: inherit; font-weight: 800; color: #1F2A5A; cursor: pointer; box-shadow: 0 4px 0 rgba(0, 0, 0, .15); } .sc-bg.on { border-color: #8E5CF0; box-shadow: 0 0 0 3px #B79BFF; }
+.sc-tray { display: flex; gap: 8px; width: min(94vw, 520px); overflow-x: auto; padding: 6px 4px 10px; flex: none; direction: rtl; } .sc-st { flex: 0 0 76px; width: 76px; height: 76px; padding: 8px; border: 0; border-radius: 22px; background: #fff; box-shadow: 0 5px 0 #B9A6F0; cursor: pointer; } .sc-st svg { width: 100%; height: 100%; } .sc-st.on { box-shadow: 0 0 0 4px #FFD34E, 0 5px 0 #E2A21B; background: #FFF8D6; }
+.sc-hint { font-size: 17px; font-weight: 700; color: #6B3CC9; text-align: center; flex: none; } .sc-actions { display: flex; gap: 10px; flex: none; }
+
+/* لمسة جمالية موحّدة لخلفيات الألعاب القديمة: فقاعات ضوء وتلال ناعمة خلف المحتوى (7.13) */
+.g-stage { isolation: isolate; }
+.g-stage::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(circle at 10% 20%, rgba(255, 255, 255, .55) 0 2.6%, transparent 3.2%), radial-gradient(circle at 86% 14%, rgba(255, 255, 255, .5) 0 2%, transparent 2.6%), radial-gradient(circle at 74% 34%, rgba(255, 255, 255, .38) 0 1.4%, transparent 1.9%), radial-gradient(circle at 22% 46%, rgba(255, 255, 255, .34) 0 1.2%, transparent 1.7%), radial-gradient(circle at 92% 58%, rgba(255, 255, 255, .4) 0 1.8%, transparent 2.3%), radial-gradient(circle at 6% 72%, rgba(255, 255, 255, .36) 0 1.5%, transparent 2%); }
+.g-stage::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 22%; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse 62% 100% at 18% 100%, rgba(255, 255, 255, .34), transparent 72%), radial-gradient(ellipse 58% 90% at 82% 100%, rgba(255, 255, 255, .26), transparent 72%), radial-gradient(ellipse 40% 70% at 50% 100%, rgba(255, 255, 255, .22), transparent 72%); }

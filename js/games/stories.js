@@ -29,6 +29,12 @@
     vaseBroken: sv('<path d="M10 90L24 60L36 84Z" fill="#5CC8FF" stroke="#2468D1" stroke-width="3" stroke-linejoin="round"/><path d="M40 92L52 56L66 88Z" fill="#5CC8FF" stroke="#2468D1" stroke-width="3" stroke-linejoin="round"/><path d="M68 90L80 70L92 92Z" fill="#5CC8FF" stroke="#2468D1" stroke-width="3" stroke-linejoin="round"/><circle cx="34" cy="50" r="6" fill="#F2658E"/><circle cx="76" cy="58" r="6" fill="#FFD34E"/>'),
     river: sv('<path d="M0 46Q14 36 28 46T56 46T84 46T100 46V92H0Z" fill="#5CC8FF"/><path d="M6 62Q20 54 34 62T62 62T90 62" stroke="#fff" stroke-width="3" fill="none" opacity=".7"/><path d="M0 78Q16 70 32 78T64 78T100 78" stroke="#fff" stroke-width="3" fill="none" opacity=".6"/>'),
     riverV: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 100" class="pic"><rect width="30" height="100" fill="#5CC8FF"/><path d="M6 4Q14 12 6 22T6 42T6 62T6 82" stroke="#fff" stroke-width="2.4" fill="none" opacity=".75"/><path d="M22 12Q14 20 22 30T22 50T22 70T22 90" stroke="#fff" stroke-width="2.4" fill="none" opacity=".6"/></svg>',
+    seed: sv('<ellipse cx="50" cy="52" rx="22" ry="30" fill="#8A5A33" transform="rotate(25 50 52)"/><ellipse cx="42" cy="40" rx="6" ry="12" fill="#B67B4D" transform="rotate(25 42 40)"/>'),
+    sprout: sv('<path d="M50 94V56" stroke="#1C8F5C" stroke-width="7" stroke-linecap="round"/><path d="M50 66Q26 60 22 42Q44 42 50 66Z" fill="#2DBE7E"/><path d="M50 58Q74 50 78 32Q54 32 50 58Z" fill="#5ED38A"/>'),
+    bloom: sv('<path d="M50 96V50" stroke="#1C8F5C" stroke-width="7" stroke-linecap="round"/><path d="M50 80Q28 74 24 58Q44 58 50 80Z" fill="#2DBE7E"/><path d="M50 72Q72 66 76 50Q56 50 50 72Z" fill="#5ED38A"/><g fill="#F2658E"><circle cx="50" cy="14" r="12"/><circle cx="68" cy="26" r="12"/><circle cx="64" cy="46" r="12"/><circle cx="36" cy="46" r="12"/><circle cx="32" cy="26" r="12"/></g><circle cx="50" cy="32" r="12" fill="#FFD34E"/>'),
+    can: sv('<path d="M14 36H70L64 86Q63 92 57 92H27Q21 92 20 86Z" fill="#5CC8FF" stroke="#2468D1" stroke-width="4" stroke-linejoin="round"/><path d="M70 46L96 28" stroke="#2468D1" stroke-width="8" stroke-linecap="round"/><path d="M18 36Q42 8 66 36" stroke="#2468D1" stroke-width="5" fill="none"/>'),
+    hive: sv('<ellipse cx="50" cy="82" rx="38" ry="12" fill="#C98A3F"/><path d="M18 80Q18 20 50 14Q82 20 82 80Z" fill="#FFC83D" stroke="#C98A3F" stroke-width="4"/><path d="M22 62H78M26 44H74M34 28H66" stroke="#C98A3F" stroke-width="4"/><ellipse cx="50" cy="66" rx="10" ry="12" fill="#6B4426"/>'),
+    honey: sv('<rect x="22" y="30" width="56" height="60" rx="12" fill="#FFB62E" stroke="#C98A3F" stroke-width="4"/><rect x="26" y="14" width="48" height="16" rx="6" fill="#B67B4D"/><ellipse cx="42" cy="52" rx="5" ry="12" fill="#fff" opacity=".5"/>'),
     plank: sv('<rect x="4" y="38" width="92" height="24" rx="6" fill="#B67B4D" stroke="#8A5A33" stroke-width="4"/><path d="M20 38V62M42 38V62M64 38V62M82 38V62" stroke="#8A5A33" stroke-width="2.5"/>'),
     bridge: sv('<path d="M2 66H98" stroke="#8A5A33" stroke-width="3"/><rect x="2" y="44" width="96" height="22" rx="6" fill="#B67B4D" stroke="#8A5A33" stroke-width="4"/><path d="M18 44V66M38 44V66M58 44V66M78 44V66" stroke="#8A5A33" stroke-width="2.5"/><rect x="6" y="20" width="6" height="26" fill="#8A5A33"/><rect x="88" y="20" width="6" height="26" fill="#8A5A33"/><path d="M9 24H91" stroke="#8A5A33" stroke-width="4"/>'),
     chest: sv('<rect x="8" y="44" width="84" height="46" rx="8" fill="#B67B4D" stroke="#8A5A33" stroke-width="5"/><path d="M8 52Q50 28 92 52V44Q50 20 8 44Z" fill="#C98A3F" stroke="#8A5A33" stroke-width="5" stroke-linejoin="round"/><rect x="40" y="52" width="20" height="22" rx="4" fill="#FFD34E" stroke="#C98A3F" stroke-width="3"/><circle cx="50" cy="62" r="3.5" fill="#8A5A33"/>'),
@@ -413,6 +419,144 @@
         { t: 'talk', q: 'ماذا تقول حين تخاف؟ وماذا تحب في الليل؟' }
       ],
       mission: 'قبل النوم قل: بسم الله، وفكّر في شيء جميل حدث لك اليوم.'
+    },
+    {
+      id: 'seed', kind: 'short', age: '٣–٥ سنوات', mins: 2, title: 'البذرة التي لم تستعجل', cover: ['svg:sprout', 'rabbit'], value: 'الصبر والعناية', sticker: 'بستاني صبور', bgc: '#8FD98A',
+      tip: 'اقرؤوا «أين الزهرة؟» بلهفة، ثم أبطئوا عند «لا تستعجل». دعوا الطفل يضغط البذرة ثم الإبريق ثم النبتة لتكبر.',
+      why: 'بعض الأشياء الجميلة تحتاج وقتًا وعناية: ماءً وشمسًا وصبرًا، ثم نفرح بالنتيجة ونحمد الله.',
+      scenes: [
+        { bg: 'day', text: 'أحضر أرنوب بذرة صغيرة وحفر لها حفرة في التراب. اضغط البذرة لتدخل التراب.', say: [{ w: 0, t: 'سأزرعها وأريد زهرة جميلة!' }],
+          ch: [{ k: 'rabbit', x: 26, y: 6, s: 28, fx: 'hop', eff: ['joy'] }, { k: 'svg:hole', x: 70, y: 3, s: 20 }, { k: 'svg:seed', x: 50, y: 18, s: 8, tap: 'place', act: { to: [70, 8], arc: true, dur: 900, scale: 0.6 }, note: 'اضغط البذرة' }] },
+        { bg: 'morning', text: 'وفي الصباح عاد وهو متحمس… لكن لا شيء ظهر بعد!', say: [{ w: 0, t: 'أين الزهرة؟ لم تظهر بعد!' }],
+          ch: [{ k: 'rabbit', x: 28, y: 6, s: 28, eff: ['q'] }, { k: 'svg:hole', x: 70, y: 3, s: 20 }] },
+        { bg: 'day', text: 'مرّت السلحفاة وقالت له كلمة حكيمة.', say: [{ w: 0, t: 'لا تستعجل يا أرنوب؛ تحتاج البذرة ماءً وشمسًا ووقتًا.' }],
+          ch: [{ k: 'turtle', x: 26, y: 5, s: 24, fx: 'hop' }, { k: 'rabbit', x: 62, y: 6, s: 24, flip: true }, { k: 'svg:hole', x: 90, y: 3, s: 12 }] },
+        { bg: 'day', text: 'فسقى أرنوب البذرة كل يوم وانتظر. اضغط الإبريق ليسقيها.', say: [{ w: 0, t: 'سأعتني بها وأصبر.' }],
+          ch: [{ k: 'rabbit', x: 20, y: 6, s: 24 }, { k: 'svg:can', x: 44, y: 14, s: 16, tap: 'splash', act: { to: [62, 26], rot: 32, dur: 1000, others: [{ i: 3, act: { swap: 'svg:sprout', bounce: 2 } }] }, note: 'اضغط الإبريق' }, { k: 'sun', x: 88, y: 56, s: 16, fx: 'spin' }, { k: 'svg:hole', x: 76, y: 3, s: 18 }] },
+        { bg: 'evening', text: 'ومرّت الأيام… وفي يوم ظهرت زهرة جميلة! اضغط النبتة لتزهر. الحمد لله.', say: [{ w: 0, t: 'الحمد لله! كبرت لأني صبرت.' }],
+          ch: [{ k: 'rabbit', x: 26, y: 6, s: 26, fx: 'hop', eff: ['joy'] }, { k: 'svg:sprout', x: 66, y: 4, s: 22, tap: 'sparkle', act: { swap: 'svg:bloom', bounce: 2 }, note: 'اضغط النبتة' }, { k: 'turtle', x: 88, y: 5, s: 14 }] }
+      ],
+      acts: [
+        { t: 'pick', q: 'ماذا تحتاج البذرة لتكبر؟', opts: [{ k: 'svg:can', t: 'ماء وصبر', ok: 1 }, { k: 'ball', t: 'كرة' }], hint: 'سقاها أرنوب كل يوم.' },
+        { t: 'feel', q: 'كيف شعر أرنوب حين ظهرت الزهرة؟', ans: 'happy' },
+        { t: 'order', q: 'رتّب القصة:', items: [{ k: 'svg:seed', t: 'زرع البذرة' }, { k: 'svg:sprout', t: 'نبتت النبتة' }, { k: 'svg:bloom', t: 'ظهرت الزهرة' }] },
+        { t: 'talk', q: 'ما الشيء الذي انتظرتَه طويلًا ثم فرحتَ به؟' }
+      ],
+      mission: 'ازرع بذرة أو سقِّ نبتة في بيتكم اليوم، وانتظر بصبر.'
+    },
+    {
+      id: 'bee', kind: 'short', age: '٣–٥ سنوات', mins: 2, title: 'النحلة النشيطة', cover: ['bee', 'svg:honey'], value: 'الاجتهاد والعمل', sticker: 'عامل نشيط', bgc: '#FFC83D',
+      tip: 'اقرؤوا بإيقاع نشيط. دعوا الطفل يضغط النحلة لتطير بين الأزهار، ثم الخلية ليظهر العسل.',
+      why: 'العمل الجاد يثمر خيرًا ينفع الجميع، ونشكر من يتعب من أجلنا.',
+      scenes: [
+        { bg: 'morning', text: 'استيقظت النحلة الصغيرة مع الشمس.', say: [{ w: 1, t: 'صباح الخير! اليوم سأعمل بجدّ.', at: 58 }],
+          ch: [{ k: 'sun', x: 84, y: 54, s: 20, fx: 'spin' }, { k: 'bee', x: 32, y: 30, s: 20, fx: 'fly' }, { k: 'flower', x: 66, y: 5, s: 16, fx: 'sway' }, { k: 'rose', x: 88, y: 5, s: 14, fx: 'sway' }] },
+        { bg: 'day', text: 'طارت من زهرة إلى زهرة تجمع الرحيق. اضغط النحلة لتطير.',
+          ch: [{ k: 'flower', x: 20, y: 5, s: 16 }, { k: 'rose', x: 50, y: 5, s: 16 }, { k: 'flower', x: 80, y: 5, s: 16 }, { k: 'bee', x: 18, y: 30, s: 16, tap: 'flutter', act: { to: [80, 28], arc: true, dur: 1800 }, note: 'اضغط النحلة' }] },
+        { bg: 'day', text: 'تُرى ماذا ستصنع من هذا الرحيق؟', ask: { q: 'ماذا تتوقع أن تصنع النحلة من الرحيق؟', opts: [{ k: 'svg:honey', t: 'عسلًا' }, { k: 'apple', t: 'تفاحًا' }], react: 'لنرَ ماذا صنعت!' },
+          ch: [{ k: 'bee', x: 50, y: 32, s: 22, fx: 'fly' }, { k: 'flower', x: 24, y: 5, s: 16 }, { k: 'rose', x: 76, y: 5, s: 16 }] },
+        { bg: 'day', text: 'وصلت إلى خليتها وأفرغت ما جمعت. اضغط الخلية.', say: [{ w: 1, t: 'تعبتُ قليلًا، لكن العمل جميل!' }],
+          ch: [{ k: 'svg:hive', x: 62, y: 4, s: 28, tap: 'sparkle', act: { bounce: 2, reveal: [2] }, note: 'اضغط الخلية' }, { k: 'bee', x: 32, y: 30, s: 18, fx: 'fly' }, { k: 'svg:honey', x: 84, y: 8, s: 12, hide: true }] },
+        { bg: 'evening', text: 'وجاء الدب يتذوّق العسل وقال: شكرًا لك أيتها النحلة!', say: [{ w: 0, t: 'ما ألذّه! شكرًا يا نحلة، ما أنشطك!' }],
+          ch: [{ k: 'bear', x: 28, y: 6, s: 28, fx: 'hop', eff: ['joy'] }, { k: 'svg:honey', x: 58, y: 8, s: 14 }, { k: 'bee', x: 82, y: 30, s: 16, fx: 'fly' }, { k: 'heart', x: 50, y: 54, s: 10, fx: 'pop' }] }
+      ],
+      acts: [
+        { t: 'pick', q: 'ماذا صنعت النحلة؟', opts: [{ k: 'svg:honey', t: 'عسلًا', ok: 1 }, { k: 'apple', t: 'تفاحًا' }], hint: 'جمعت الرحيق من الأزهار.' },
+        { t: 'pick', q: 'من شكر النحلة؟', opts: [{ k: 'bear', ok: 1 }, { k: 'fox' }], hint: 'صديق كبير يحب العسل.' },
+        { t: 'feel', q: 'كيف شعرت النحلة حين شكرها الدب؟', ans: 'happy' },
+        { t: 'talk', q: 'ما العمل الذي تعمله أنت لأسرتك؟ ومن يستحق شكرك؟' }
+      ],
+      mission: 'ساعد في عمل صغير بالبيت اليوم، وقل لمن يعمل لأجلك: شكرًا.'
+    },
+    {
+      id: 'lamb', kind: 'long', age: '٤–٦ سنوات', mins: 3, title: 'الخروف الضائع', cover: ['lamb', 'owl'], value: 'الرحمة والتعاون وطلب المساعدة', sticker: 'صديق رحيم', bgc: '#9ADFA8',
+      tip: 'اخفضوا الصوت قليلًا عند الضياع، وارفعوه بأمل عند ظهور الأرنب. توقفوا عند «ماذا يفعل الخروف؟» وناقشوا: متى نطلب المساعدة؟',
+      why: 'إذا ضعنا أو احتجنا أحدًا نطلب المساعدة ولا نخاف، ونرحم من يحتاجنا ونساعده، وما أجمل العودة إلى الأهل.',
+      scenes: [
+        { bg: 'morning', text: 'كان الخروف الصغير يرعى مع قطيعه في المرج الأخضر.', say: [{ w: 1, t: 'ما أجمل الصباح!' }],
+          ch: [{ k: 'sun', x: 84, y: 54, s: 18, fx: 'spin' }, { k: 'lamb', x: 34, y: 6, s: 26, fx: 'hop', eff: ['joy'] }, { k: 'lamb', x: 62, y: 5, s: 18 }, { k: 'tree', x: 90, y: 5, s: 24, fx: 'sway' }] },
+        { bg: 'day', text: 'رأى فراشة جميلة فلحق بها… وبعيدًا بعيدًا. اضغط الخروف ليتبعها.',
+          ch: [{ k: 'butterfly', x: 70, y: 40, s: 12, fx: 'fly' }, { k: 'lamb', x: 20, y: 6, s: 22, tap: 'pop', act: { to: [72, 6], arc: true, dur: 2000 }, note: 'اضغط الخروف' }, { k: 'tree', x: 40, y: 5, s: 22 }] },
+        { bg: 'day', text: 'وفجأة نظر حوله… فلم يجد أحدًا!', say: [{ w: 1, t: 'أين القطيع؟ أين أمي؟' }],
+          ch: [{ k: 'tree', x: 14, y: 5, s: 24 }, { k: 'lamb', x: 50, y: 6, s: 26, eff: ['q', 'sad'] }, { k: 'tree', x: 88, y: 5, s: 24 }] },
+        { bg: 'day', text: 'وقف الخروف يفكّر.', ask: { q: 'ماذا يفعل الخروف الصغير الآن؟', opts: [{ k: 'heart', t: 'يطلب المساعدة' }, { k: 'ball', t: 'يبقى صامتًا' }], react: 'نعم، نطلب المساعدة حين نضيع، ولا نخاف.' },
+          ch: [{ k: 'lamb', x: 50, y: 6, s: 26, eff: ['q'] }] },
+        { bg: 'day', text: 'نادى بأعلى صوته يطلب النجدة.', say: [{ w: 0, t: 'أنا هنا! ساعدوني من فضلكم!' }],
+          ch: [{ k: 'lamb', x: 50, y: 6, s: 26, eff: ['bang', 'sad'] }, { k: 'tree', x: 88, y: 5, s: 22 }] },
+        { bg: 'day', text: 'سمعه الأرنب فجاء مسرعًا.', say: [{ w: 0, t: 'لا تخف يا صغير! سنجد قطيعك معًا.' }],
+          ch: [{ k: 'rabbit', x: 28, y: 6, s: 24, fx: 'hop', eff: ['joy'] }, { k: 'lamb', x: 64, y: 6, s: 24 }] },
+        { bg: 'day', text: 'وفوق الشجرة كانت البومة ترى من بعيد.', say: [{ w: 2, t: 'أرى قطيعك قرب النهر! اتبعاني.' }],
+          ch: [{ k: 'tree', x: 80, y: 5, s: 34, fx: 'sway' }, { k: 'rabbit', x: 22, y: 6, s: 20 }, { k: 'owl', x: 76, y: 30, s: 16, fx: 'sway' }, { k: 'lamb', x: 46, y: 6, s: 20 }] },
+        { bg: 'day', text: 'ساروا الثلاثة معًا نحو النهر. اضغط كلًّا منهم ليمشي.',
+          ch: [{ k: 'svg:riverV', x: 84, y: 0, s: 12 }, { k: 'lamb', x: 20, y: 6, s: 18, tap: 'pop', act: { to: [62, 6], dur: 1600 }, note: 'الخروف' }, { k: 'rabbit', x: 8, y: 6, s: 16, tap: 'pop', act: { to: [48, 6], dur: 1500 }, note: 'الأرنب' }, { k: 'owl', x: 34, y: 30, s: 14, tap: 'pop', act: { to: [72, 30], arc: true, dur: 1700 }, note: 'البومة' }] },
+        { bg: 'evening', text: 'كان الغروب يقترب، لكنهم لم يتوقفوا.', say: [{ w: 1, t: 'بقي القليل! تشجّع يا صغير.' }],
+          ch: [{ k: 'sun', x: 20, y: 40, s: 22, fx: 'pop' }, { k: 'lamb', x: 54, y: 6, s: 20 }, { k: 'rabbit', x: 74, y: 6, s: 18 }] },
+        { bg: 'evening', text: 'وهناك رأى الخروف قطيعه! اضغط الخروف ليركض إليهم.',
+          ch: [{ k: 'lamb', x: 76, y: 5, s: 16 }, { k: 'lamb', x: 90, y: 5, s: 14 }, { k: 'lamb', x: 20, y: 6, s: 22, tap: 'whoosh', act: { to: [64, 6], dur: 1200, snd2: 'cheer' }, note: 'اضغط الخروف' }] },
+        { bg: 'evening', text: 'فرح القطيع بعودته، وضمّته أمه بحنان.', say: [{ w: 1, t: 'الحمد لله أنك عدتَ سالمًا!' }],
+          ch: [{ k: 'lamb', x: 28, y: 5, s: 18, eff: ['joy'] }, { k: 'lamb', x: 50, y: 6, s: 30, hold: 0, eff: ['joy'] }, { k: 'heart', x: 38, y: 50, s: 11, fx: 'pop' }] },
+        { bg: 'evening', text: 'شكر الخروف صديقيه على مساعدتهما.', say: [{ w: 0, t: 'شكرًا يا أصدقائي! لن أنساكم.' }],
+          ch: [{ k: 'lamb', x: 30, y: 6, s: 22, fx: 'hop' }, { k: 'rabbit', x: 56, y: 6, s: 18 }, { k: 'owl', x: 80, y: 8, s: 16 }] },
+        { bg: 'evening', text: 'وعاد الجميع إلى بيوتهم، وقد تعلّم الخروف أن يبقى قرب أهله، وأن نطلب المساعدة حين نضيع، ونساعد من يحتاجنا. الحمد لله.',
+          ch: [{ k: 'sun', x: 18, y: 42, s: 22, fx: 'pop' }, { k: 'lamb', x: 42, y: 6, s: 22, fx: 'hop' }, { k: 'rabbit', x: 66, y: 6, s: 18 }, { k: 'heart', x: 54, y: 52, s: 10, fx: 'pop' }, { k: 'owl', x: 88, y: 8, s: 14 }] }
+      ],
+      acts: [
+        { t: 'pick', q: 'لماذا ضاع الخروف؟', opts: [{ k: 'butterfly', t: 'تبع فراشة', ok: 1 }, { k: 'ball', t: 'لعب بالكرة' }], hint: 'رأى شيئًا جميلًا يطير.' },
+        { t: 'pick', q: 'ماذا فعل الخروف حين ضاع؟', opts: [{ k: 'heart', t: 'طلب المساعدة', ok: 1 }, { k: 'tree', t: 'بقي صامتًا' }], hint: 'نادى بأعلى صوته.' },
+        { t: 'pick', q: 'من رأى القطيع من بعيد؟', opts: [{ k: 'owl', ok: 1 }, { k: 'fox' }], hint: 'كانت فوق الشجرة.' },
+        { t: 'feel', q: 'كيف شعر الخروف حين عاد إلى أهله؟', ans: 'happy' },
+        { t: 'order', q: 'رتّب القصة:', items: [{ k: 'butterfly', t: 'تبع الفراشة' }, { k: 'heart', t: 'طلب المساعدة' }, { k: 'lamb', t: 'عاد إلى قطيعه' }] },
+        { t: 'talk', q: 'ماذا تفعل لو ضعتَ في مكان مزدحم؟ ومن تطلب منه المساعدة؟' }
+      ],
+      mission: 'اتفق مع أسرتك اليوم: إذا ضعتَ في مكان، أين تقف ومن تطلب منه المساعدة؟'
+    },
+    {
+      id: 'star', kind: 'bed', age: '٣–٦ سنوات', mins: 2, title: 'النجمة الصغيرة', cover: ['star', 'moon'], value: 'الطمأنينة والانتماء', sticker: 'نجمة هادئة', bgc: '#7C8CF0',
+      tip: 'اقرؤوها بصوت منخفض بطيء كأنكم تهدهدون. أطفئوا الأضواء الساطعة وخفّفوا الإضاءة إن أمكن، ودعوا الطفل يضغط السحابة والنجمة بهدوء.',
+      why: 'لكل واحد منا مكان يُحَبّ فيه، وليلتنا هادئة بحفظ الله، فننام مطمئنين.',
+      scenes: [
+        { bg: 'night', text: 'في سماء الليل الهادئة، كانت نجمة صغيرة تبحث عن مكانها بين النجوم.', say: [{ w: 1, t: 'أين مكاني يا ترى؟' }],
+          ch: [{ k: 'moon', x: 82, y: 54, s: 20, fx: 'pop' }, { k: 'star', x: 40, y: 38, s: 16, fx: 'pop', eff: ['q'] }, { k: 'star', x: 14, y: 62, s: 6, fx: 'spin' }, { k: 'star', x: 66, y: 66, s: 6, fx: 'spin' }] },
+        { bg: 'night', text: 'قال القمر بصوت هادئ: لكل نجمة مكان جميل، تعالي نبحث معًا.', say: [{ w: 0, t: 'تعالي نبحث معًا، بهدوء.', at: 64 }],
+          ch: [{ k: 'moon', x: 64, y: 42, s: 28, fx: 'pop' }, { k: 'star', x: 26, y: 38, s: 14, fx: 'pop' }] },
+        { bg: 'night', text: 'مرّت سحابة صغيرة تغطي الطريق. اضغط السحابة لتبتعد.',
+          ch: [{ k: 'star', x: 62, y: 40, s: 16, fx: 'pop' }, { k: 'cloud', x: 52, y: 38, s: 30, tap: 'whoosh', act: { dx: -48, fade: true, dur: 1600 }, note: 'اضغط السحابة' }, { k: 'moon', x: 18, y: 56, s: 14 }] },
+        { bg: 'night', text: 'وجدت مكانها بين نجمتين صديقتين. اضغط النجمة لتنتقل إلى مكانها.',
+          ch: [{ k: 'star', x: 30, y: 52, s: 12, fx: 'spin' }, { k: 'star', x: 70, y: 52, s: 12, fx: 'spin' }, { k: 'star', x: 50, y: 30, s: 14, tap: 'sparkle', act: { to: [50, 52], arc: true, dur: 1400, eff: ['joy'] }, note: 'اضغط النجمة' }] },
+        { bg: 'night', text: 'ابتسمت النجوم وقالت: أهلًا بكِ يا صغيرة، هذا مكانك.', say: [{ w: 0, t: 'أهلًا بكِ يا صغيرة!' }, { w: 2, t: 'ما أجمل أن أكون معكم.' }],
+          ch: [{ k: 'star', x: 24, y: 48, s: 12, fx: 'pop', eff: ['joy'] }, { k: 'star', x: 76, y: 48, s: 12, fx: 'pop', eff: ['joy'] }, { k: 'star', x: 50, y: 48, s: 14, fx: 'pop' }] },
+        { bg: 'night', text: 'وصارت السماء هادئة، والقمر يحرس النوم. تصبحون على خير، بحفظ الله.', say: [{ w: 0, t: 'تصبحون على خير…' }],
+          ch: [{ k: 'moon', x: 72, y: 50, s: 26, fx: 'pop', tap: 'sparkle', act: { bounce: 2, eff: ['zzz'] }, note: 'اضغط القمر' }, { k: 'star', x: 30, y: 46, s: 14, fx: 'spin' }, { k: 'star', x: 12, y: 64, s: 7 }] }
+      ],
+      acts: [
+        { t: 'pick', q: 'ماذا كانت النجمة تبحث عنه؟', opts: [{ k: 'star', t: 'مكانها', ok: 1 }, { k: 'ball', t: 'كرة' }], hint: 'أرادت أن تكون مع أصدقائها.' },
+        { t: 'talk', q: 'ما أجمل شيء رأيته في السماء؟ وأين مكانك الذي تحبه في بيتكم؟' }
+      ],
+      mission: 'انظر من النافذة إلى السماء قبل النوم وقل: الحمد لله.'
+    },
+    {
+      id: 'sleepy', kind: 'bed', age: '٣–٦ سنوات', mins: 2, title: 'ليلة هادئة في الغابة', cover: ['moon', 'rabbit'], value: 'الاستعداد للنوم وذكر الله', sticker: 'نائم مطمئن', bgc: '#8E7CF0',
+      tip: 'اقرؤوا بصوت يهبط تدريجيًا مع كل حيوان ينام. دعوا الطفل يضغط كل حيوان ليغفو، وكرّروا معه «باسمك ربي وضعت جنبي».',
+      why: 'قبل النوم نهدأ ونقول ذكر الله، فننام مطمئنين، والغابة كلها تنام بهدوء.',
+      scenes: [
+        { bg: 'evening', text: 'غابت الشمس، وحان وقت النوم في الغابة الهادئة.', say: [{ w: 1, t: 'كم كان يومًا جميلًا!' }],
+          ch: [{ k: 'sun', x: 24, y: 28, s: 24 }, { k: 'rabbit', x: 54, y: 6, s: 24 }, { k: 'tree', x: 88, y: 5, s: 26, fx: 'sway' }] },
+        { bg: 'night', text: 'ذهب الأرنب إلى فراشه وقال: باسمك ربي وضعت جنبي. اضغط الأرنب لينام.', say: [{ w: 0, t: 'باسمك ربي وضعت جنبي.' }],
+          ch: [{ k: 'rabbit', x: 46, y: 6, s: 28, tap: 'soft', act: { rot: 78, dur: 1400, eff: ['zzz'] }, note: 'اضغط الأرنب' }, { k: 'moon', x: 84, y: 54, s: 14 }] },
+        { bg: 'night', text: 'ثم نام الدب الكبير في كهفه الدافئ. اضغط الدب لينام.', say: [{ w: 1, t: 'تصبحون على خير.' }],
+          ch: [{ k: 'svg:cave', x: 74, y: 3, s: 26 }, { k: 'bear', x: 34, y: 5, s: 28, tap: 'soft', act: { rot: 78, dur: 1400, eff: ['zzz'] }, note: 'اضغط الدب' }, { k: 'moon', x: 14, y: 58, s: 12 }] },
+        { bg: 'night', text: 'وأغمضت البطة عينيها قرب البحيرة. اضغطها لتنام.', say: [{ w: 0, t: 'تصبحون على خير.' }],
+          ch: [{ k: 'duck', x: 40, y: 5, s: 24, tap: 'soft', act: { rot: 70, dur: 1400, eff: ['zzz'] }, note: 'اضغط البطة' }, { k: 'moon', x: 82, y: 56, s: 14 }] },
+        { bg: 'night', text: 'وانكمشت السلحفاة في بيتها الصغير. اضغطها لتنام.',
+          ch: [{ k: 'turtle', x: 44, y: 5, s: 24, tap: 'soft', act: { rot: 8, dur: 1200, eff: ['zzz'] }, note: 'اضغط السلحفاة' }, { k: 'star', x: 16, y: 62, s: 7, fx: 'spin' }, { k: 'moon', x: 84, y: 56, s: 14 }] },
+        { bg: 'night', text: 'ونامت الغابة كلها، والقمر يحرسها بحفظ الله. تصبحون على خير.', say: [{ w: 0, t: 'تصبحون على خير…' }],
+          ch: [{ k: 'moon', x: 72, y: 50, s: 26, fx: 'pop' }, { k: 'owl', x: 28, y: 6, s: 22, fx: 'sway', eff: ['zzz'] }, { k: 'star', x: 12, y: 64, s: 7, fx: 'spin' }, { k: 'star', x: 50, y: 66, s: 6, fx: 'spin' }] }
+      ],
+      acts: [
+        { t: 'pick', q: 'ماذا قال الأرنب قبل أن ينام؟', opts: [{ k: 'heart', t: 'باسمك ربي وضعت جنبي', ok: 1 }, { k: 'ball', t: 'لا شيء' }], hint: 'ذكر الله قبل النوم يطمئن القلب.' },
+        { t: 'talk', q: 'ماذا تقول أنت قبل أن تنام؟ وما الذي يساعدك على النوم بهدوء؟' }
+      ],
+      mission: 'قبل النوم قل مع أسرتك: باسمك ربي وضعت جنبي، وتصبحون على خير.'
     }
   ];
   var BYID = {}; STORIES.forEach(function (s) { BYID[s.id] = s; });
@@ -514,7 +658,7 @@
         var left = many ? Math.max(34, Math.min(66, c.x)) : Math.max(27, Math.min(73, c.x));
         var wPct = many ? 0.6 : 0.46;
         var st = { left: left + '%', background: BCOL[c.k] || '#fff', '--dx': ((c.x - left) / wPct) + '%', animationDelay: (bi * 0.9) + 's' };
-        if (!many) st.bottom = Math.min(80, c.y + c.s / 0.75 + 3) + '%';
+        if (!many) st.bottom = (b.at != null ? b.at : Math.min(80, c.y + c.s / 0.75 + 3)) + '%';
         var bub = h('div', { class: 'st-bub' + (many ? ' stack' : ''), style: st }, many ? h('em', { class: 'st-bn', text: UI.num(bi + 1) }) : null, h('span', { text: b.t }));
         (many ? stack : s).appendChild(bub);
       });
@@ -534,8 +678,8 @@
   B.free.stories = {
     list: function () { return STORIES.map(function (s) { return { id: s.id, title: s.title, cover: s.cover, value: s.value, bgc: s.bgc, kind: s.kind, age: s.age, mins: s.mins, read: isRead(s.id) }; }); },
     tags: function (S) {
-      var long = S.kind === 'long';
-      return h('div', { class: 'st-tags' }, h('span', { class: 'st-tag ' + (long ? 'long' : 'short'), text: long ? 'قصة طويلة' : 'قصة قصيرة' }),
+      var long = S.kind === 'long', bed = S.kind === 'bed';
+      return h('div', { class: 'st-tags' }, h('span', { class: 'st-tag ' + (bed ? 'bed' : long ? 'long' : 'short'), text: bed ? 'قصة قبل النوم' : long ? 'قصة طويلة' : 'قصة قصيرة' }),
         h('span', { class: 'st-tag age', text: S.age || '٣–٥ سنوات' }), h('span', { class: 'st-tag min', text: '≈ ' + UI.num(S.mins || (long ? 3 : 1)) + ' د' }));
     },
     cover: function (S) { return h('div', { class: 'st-cover', style: { background: 'linear-gradient(160deg,#BDE8FF,' + S.bgc + ')' } }, S.cover.map(function (k) { return h('span', { html: pic(k) }); })); },
@@ -557,10 +701,11 @@
             g.appendChild(card);
           });
         }
-        var shortL = STORIES.filter(function (s) { return s.kind !== 'long'; }), longL = STORIES.filter(function (s) { return s.kind === 'long'; });
+        var shortL = STORIES.filter(function (s) { return s.kind === 'short'; }), longL = STORIES.filter(function (s) { return s.kind === 'long'; }), bedL = STORIES.filter(function (s) { return s.kind === 'bed'; });
         root.appendChild(h('h2', { class: 'st-h', text: B.S.stories.title }));
         root.appendChild(h('h3', { class: 'st-sub', text: 'قصص طويلة (٣ دقائق تقريبًا) — للأكبر قليلًا' })); addCards(longL, grid); root.appendChild(grid);
         var grid2 = h('div', { class: 'st-lib' }); root.appendChild(h('h3', { class: 'st-sub', text: 'قصص قصيرة (دقيقة أو دقيقتان) — للأصغر' })); addCards(shortL, grid2); root.appendChild(grid2);
+        var grid3 = h('div', { class: 'st-lib' }); root.appendChild(h('h3', { class: 'st-sub', text: 'قصص قبل النوم (هادئة) — للمساء' })); addCards(bedL, grid3); root.appendChild(grid3);
         return;
         root.appendChild(h('h2', { class: 'st-h', text: B.S.stories.title })); root.appendChild(grid);
       }
