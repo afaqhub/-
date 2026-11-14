@@ -1,0 +1,82 @@
+/* الأساس: الخط المحلي، ألوان النظام، إعادة الضبط، منع التحديد والتمرير والتكبير */
+
+@font-face {
+  font-family: 'Tajawal';
+  src: url('../assets/fonts/tajawal-arabic-400-normal.woff2') format('woff2');
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'Tajawal';
+  src: url('../assets/fonts/tajawal-arabic-700-normal.woff2') format('woff2');
+  font-weight: 700; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'Tajawal';
+  src: url('../assets/fonts/tajawal-arabic-800-normal.woff2') format('woff2');
+  font-weight: 800; font-style: normal; font-display: swap;
+}
+
+:root {
+  /* الألوان الستة المسماة */
+  --night: #1F2A5A;   /* ليلي */
+  --dawn: #CFEBFF;    /* فجر */
+  --meadow: #19B394;  /* مرج */
+  --rose: #F2658E;    /* ورد */
+  --sun: #FFD34E;     /* شمس */
+  --cloud: #FAFCFF;   /* غيم */
+  /* ظلال مشتقة (الظل دائماً بلون أغمق من العنصر نفسه، لا رمادي) */
+  --night-soft: #3A4789;
+  --meadow-deep: #0B8269;
+  --rose-deep: #C23C69;
+  --sun-deep: #E2A21B;
+  --violet: #8E5CF0;
+  --sky: #8FD3F4;
+  --lilac-deep: #9FB3E0;
+
+  --font: 'Tajawal', 'Segoe UI', Tahoma, 'Noto Naskh Arabic', 'Geeza Pro', sans-serif;
+  --tap: 72px; /* أصغر مساحة لمس: ٧٢ على الجوال */
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-l: env(safe-area-inset-left, 0px);
+  --safe-r: env(safe-area-inset-right, 0px);
+}
+@media (min-width: 700px) and (min-height: 700px) {
+  :root { --tap: 96px; } /* ٩٦ على الآيباد */
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0; height: 100%; overflow: hidden;
+  background: var(--dawn);
+  color: var(--night);
+  font-family: var(--font);
+  font-weight: 700;
+  overscroll-behavior: none;
+  touch-action: manipulation;
+  -webkit-user-select: none; user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%; text-size-adjust: 100%;
+}
+
+#app { position: fixed; inset: 0; overflow: hidden; }
+.screen { position: absolute; inset: 0; overflow: hidden; }
+
+button { font: inherit; color: inherit; border: 0; background: none; padding: 0; margin: 0; cursor: pointer; touch-action: manipulation; }
+button:focus { outline: none; }
+button:focus-visible { outline: 4px solid var(--sun); outline-offset: 3px; }
+svg { display: block; }
+h1, h2, h3 { margin: 0; }
+
+textarea, input { -webkit-user-select: text; user-select: text; }
+
+/* تنفّس الشخصيات وهي ساكنة */
+.breathe { transform-box: fill-box; transform-origin: 50% 100%; animation: breathe 3.4s ease-in-out infinite; }
+@keyframes breathe { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.03); } }
+
+.scrollable { touch-action: pan-y; }
+
+@media (prefers-reduced-motion: reduce) {
+  .breathe, .home-cloud, .home-sun, .bracket::after, .balloon, .home-balloon, .bird, .home-bird, .wing-l, .wing-r, .sails, .end-star, .firefly, .end-moon, .sleepy-z, .end-z { animation: none !important; }
+}
