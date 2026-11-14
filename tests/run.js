@@ -381,13 +381,13 @@ async function seeDemoThrough(page) {
         day: Bustan.storage.data().days[Bustan.storage.todayKey()],
         hudHidden: document.querySelector('.hud').classList.contains('is-hidden'),
         endBtns: [...document.querySelectorAll('.end-screen button')].length,
-        endText: document.querySelector('.end-screen').innerText,
+        endText: (function () { const c = document.querySelector('.end-screen').cloneNode(true); const n = c.querySelector('.end-next'); if (n) n.remove(); return c.innerText; })(),
         again: /مرة أخرى|العب/.test(document.body.innerText)
       }));
       ok(st.bulbs === 10 && st.lit === 10, 'عشرة مصابيح أُضيئت واحداً واحداً');
       ok(st.g.rounds === 10 && st.g.sessions === 1, 'سُجّلت ١٠ جولات وجلسة واحدة في التخزين');
       ok(st.day && st.day.rounds.train === 10 && st.day.sessions.train === 1, 'سُجّل اليوم في السجل');
-      ok(st.end && st.hudHidden && st.endBtns === 1, 'شاشة ختامية هادئة وبها زر واحد فقط');
+      ok(st.end && st.hudHidden && (st.endBtns === 1 || st.endBtns === 2), 'شاشة ختامية هادئة: زر العودة (وزر اللعبة التالية)');
       ok(!st.again && st.endText.trim() === '', 'لا زر «العب مرة أخرى» ولا نص في الختام');
       // لا جولة تلقائية بعد الأخيرة
       await page.waitForTimeout(3000);
@@ -531,7 +531,7 @@ async function seeDemoThrough(page) {
         await page.evaluate((g) => Bustan.session.start(g, { x: 200, y: 200 }), g);
         await page.waitForSelector('.game-screen');
         const total = await page.evaluate(() => document.querySelectorAll('.bulb').length);
-        ok(total === (g === 'firstsound' || g === 'bridge' ? 8 : 10), 'عدد المصابيح ' + total);
+        ok(total === (g === 'firstsound' || g === 'bridge' || g === 'mimic' ? 8 : 10), 'عدد المصابيح ' + total);
         const gBefore = await page.evaluate(() => Bustan.storage.data().garden.length);
         let checked = false, sawHand = false; const t0 = Date.now();
         while (Date.now() - t0 < 240000) {
