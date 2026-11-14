@@ -11,17 +11,17 @@
   function p(d, f, o) { return '<path d="' + d + '" fill="' + (f || 'none') + '"' + (o || '') + '/>'; }
   function st(col, w) { return ' stroke="' + col + '" stroke-width="' + (w || 3) + '" stroke-linecap="round" stroke-linejoin="round"'; }
   function eye(x, y, s) { s = s || 3; return c(x, y, s, '#2B2340') + c(x + s * 0.3, y - s * 0.3, s * 0.35, '#fff'); }
-  function an(n) { return art.animalInner(n); }
+  function an(n, x) { return art.animalInner(n, x); }
   function sym(shape, color) { return art.symbol({ shape: shape, color: color }).replace(/^<svg[^>]*>|<\/svg>$/g, ''); }
   function inner(svgStr) { return svgStr.replace(/^<svg[^>]*>|<\/svg>$/g, ''); }
 
   var P = {
-    duck: function () { return an('duck'); },
-    bear: function () { return an('bear'); },
-    lamb: function () { return an('lamb'); },
-    cat: function () { return an('cat'); },
-    frog: function () { return an('frog'); },
-    rabbit: function () { return an('rabbit'); },
+    duck: function (x) { return an('duck', x); },
+    bear: function (x) { return an('bear', x); },
+    lamb: function (x) { return an('lamb', x); },
+    cat: function (x) { return an('cat', x); },
+    frog: function (x) { return an('frog', x); },
+    rabbit: function (x) { return an('rabbit', x); },
     owl: function () { return '<g transform="translate(5 0) scale(.9)">' + inner(art.owl()) + '</g>'; },
     sun: function () { return '<g transform="scale(.833)">' + inner(art.sun()) + '</g>' + p('M50 6v10M50 84v10M6 50h10M84 50h10M19 19l7 7M74 74l7 7M19 81l7-7M74 26l7-7', '', st('#FFB52E', 5)); },
     moon: function () { return inner(art.moon()); },
@@ -75,7 +75,7 @@
     pyramid: function () { return p('M50 12L94 86H6Z', '#FFD34E') + p('M50 12L94 86H62Z', '#E2A21B') + p('M28 50h30M20 64h40M12 78h50', '', st('#E2A21B', 2.5)) + r(2, 84, 96, 8, 4, '#F6CBA7'); },
     leaf: function () { return p('M14 86Q8 30 80 12Q92 70 30 86Q22 88 14 86Z', '#2DBE7E', st('#1C8F5C', 3)) + p('M14 86Q40 52 74 22M34 62l-2-18M50 46l-2-16M40 58l20 0M56 40l16 0', '', st('#1C8F5C', 3)); },
     pumpkin: function () { return e(50, 58, 40, 30, '#FF8A3D') + e(50, 58, 22, 30, '#FFA35C') + e(50, 58, 8, 30, '#FF8A3D') + p('M50 30Q48 16 58 12', '', st('#1C8F5C', 6)) + p('M56 20Q70 14 76 24Q66 30 56 20Z', '#2DBE7E'); },
-    fox: function () { return p('M14 40L18 8L44 26ZM86 40L82 8L56 26Z', '#FF8A3D', st('#FF8A3D', 5)) + c(50, 54, 34, '#FF8A3D') + p('M18 60Q30 50 50 68Q70 50 82 60Q76 88 50 88Q24 88 18 60Z', '#FAFCFF') + e(50, 70, 6, 4.5, K) + eye(36, 50, 4.2) + eye(64, 50, 4.2) + p('M44 78q6 4 12 0', '', st(K, 2.4)); },
+    fox: function (x) { return p('M14 40L18 8L44 26ZM86 40L82 8L56 26Z', '#FF8A3D', st('#FF8A3D', 5)) + c(50, 54, 34, '#FF8A3D') + p('M18 60Q30 50 50 68Q70 50 82 60Q76 88 50 88Q24 88 18 60Z', '#FAFCFF') + e(50, 70, 6, 4.5, K) + art.eyes(36, 64, 50, 4.2, x) + art.mo(x, 50, 78, 6, K, p('M44 78q6 4 12 0', '', st(K, 2.4))); },
     snow: function () { var s = ''; for (var i = 0; i < 3; i++) s += '<g transform="rotate(' + i * 60 + ' 50 50)">' + p('M50 8V92M50 22l-10-9M50 22l10-9M50 78l-10 9M50 78l10 9', '', st('#5CC8FF', 5)) + '</g>'; return s + c(50, 50, 6, '#FAFCFF', st('#5CC8FF', 3)); },
     corn: function () { var s = ''; for (var y = 0; y < 6; y++) for (var x = 0; x < 3; x++) s += c(40 + x * 10, 22 + y * 10, 4.2, '#E2A21B'); return e(50, 46, 20, 38, '#FFD34E') + s + p('M30 50Q14 70 34 94Q50 96 50 80Q34 70 30 50ZM70 50Q86 70 66 94Q50 96 50 80Q66 70 70 50Z', '#2DBE7E', st('#1C8F5C', 2)); },
     envelope: function () { return r(8, 24, 84, 56, 8, '#FAFCFF', st('#8FA0D8', 4)) + p('M10 28L50 58L90 28', '', st('#8FA0D8', 4)) + p('M10 76L38 50M90 76L62 50', '', st('#C9D8F2', 3)) + '<g transform="translate(38 44) scale(.24)">' + sym('heart', 'red') + '</g>'; },
@@ -85,12 +85,15 @@
     umbrella: function () { return p('M8 52A42 42 0 0 1 92 52Q82 42 71 52Q60 42 50 52Q40 42 29 52Q18 42 8 52Z', '#F2658E', st('#C23C69', 3)) + p('M50 12V8M50 52V84Q50 94 40 92', '', st(K, 5)); },
     sleepbear: function () { return art.animal('bear', { sleep: true }).replace(/^<svg[^>]*>|<\/svg>$/g, '') + '<g transform="translate(62 0) scale(.8)">' + inner(art.zzz()) + '</g>'; },
     bird: function () { return e(48, 56, 28, 24, '#3D8BFD') + c(72, 40, 15, '#3D8BFD') + p('M86 40l10 3l-10 4Z', '#FFA63D') + eye(76, 37, 2.8) + p('M40 52Q22 30 10 40Q24 46 34 62Z', '#2468D1') + p('M22 62L6 72L22 72Z', '#2468D1') + p('M44 80v10M56 80v10', '', st('#FFA63D', 4)); },
-    turtle: function () { return e(70, 76, 9, 7, '#7AC98B') + e(34, 76, 9, 7, '#7AC98B') + p('M14 66A36 30 0 0 1 86 66Z', '#2DBE7E', st('#1C8F5C', 3)) + p('M32 46l10 18M50 38v26M68 46l-10 18M22 60h56', '', st('#1C8F5C', 2.5)) + e(90, 60, 10, 8, '#7AC98B') + eye(93, 57, 2.2) + p('M14 66l-8 4', '', st('#7AC98B', 5)); }
+    turtle: function (x) {
+      var ex = typeof x === 'string' ? x : '', eyeB = ex === 'joy' ? p('M90 58q3 -3 6 0', '', st(K, 2.4)) : ex === 'scared' || ex === 'surprised' ? c(93, 57, 4, '#fff', st(K, 1.2)) + c(93, 57, 1.8, K) : eye(93, 57, 2.2);
+      return e(70, 76, 9, 7, '#7AC98B') + e(34, 76, 9, 7, '#7AC98B') + p('M14 66A36 30 0 0 1 86 66Z', '#2DBE7E', st('#1C8F5C', 3)) + p('M32 46l10 18M50 38v26M68 46l-10 18M22 60h56', '', st('#1C8F5C', 2.5)) + e(90, 60, 10, 8, '#7AC98B') + eyeB + art.brows(ex, 93, 93, 57, 2.6) + art.mo(ex, 94, 65, 4.5, K, p('M90 65q4 3 8 0', '', st(K, 1.8))) + p('M14 66l-8 4', '', st('#7AC98B', 5));
+    },
   };
 
   B.pics = {
     has: function (k) { return !!P[k]; },
-    draw: function (k, cls) { return art.svg('0 0 100 100', (P[k] || P.star)(), cls || 'pic'); },
+    draw: function (k, cls, ex) { return art.svg('0 0 100 100', (P[k] || P.star)(ex), cls || 'pic'); },
     keys: function () { return Object.keys(P); }
   };
 })();

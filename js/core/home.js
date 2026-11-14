@@ -122,9 +122,10 @@
   function storiesShelf() {
     var S = B.S, shelf = h('section', { class: 'stories-shelf' }, h('header', { class: 'zone-head' }, h('span', { class: 'zone-badge', html: art.zoneBadge('stories') }), h('h2', { class: 'zone-name', text: S.stories.title })));
     var all = B.free.stories.list();
-    function sec(title, list) {
+    var chipsHolder = h('div', { class: 'st-chips-slot' }); shelf.appendChild(chipsHolder);
+    function sec(title, list, k) {
       if (!list.length) return;
-      shelf.appendChild(h('h3', { class: 'st-sub', text: title }));
+      shelf.appendChild(h('h3', { class: 'st-sub', 'data-k': k, text: title }));
       var grid = h('div', { class: 'st-lib' });
       list.forEach(function (it) {
         var card = h('button', { class: 'st-card' + (it.read ? ' read' : ''), type: 'button', 'aria-label': it.title },
@@ -134,9 +135,10 @@
       });
       shelf.appendChild(grid);
     }
-    sec('قصص طويلة (٣ دقائق تقريبًا) — للأكبر قليلًا', all.filter(function (x) { return x.kind === 'long'; }));
-    sec('قصص قصيرة (دقيقة أو دقيقتان) — للأصغر', all.filter(function (x) { return x.kind === 'short'; }));
-    sec('قصص قبل النوم (هادئة) — للمساء', all.filter(function (x) { return x.kind === 'bed'; }));
+    sec('قصص طويلة (٣ دقائق تقريبًا) — للأكبر قليلًا', all.filter(function (x) { return x.kind === 'long'; }), 'long');
+    sec('قصص قصيرة (دقيقة أو دقيقتان) — للأصغر', all.filter(function (x) { return x.kind === 'short'; }), 'short');
+    sec('قصص قبل النوم (هادئة) — للمساء', all.filter(function (x) { return x.kind === 'bed'; }), 'bed');
+    shelf.chipsHolder = chipsHolder;
     return shelf;
   }
   function kit_pick(a) { return a.length ? a[Math.floor(Math.random() * a.length)] : null; }
@@ -278,6 +280,7 @@
 
     var chips = chipsRow(locked);
     var zones = h('main', { class: 'zones scrollable', 'data-tab': tabNow }, h('div', { class: 'home-top' }, installBtn(), gardenRow(locked), chips), zone('solo', locked), zone('together', false), zone('create', false), B.config.isHidden('stories') ? null : storiesShelf());
+    var slot = zones.querySelector('.st-chips-slot'); if (slot) slot.appendChild(B.free.stories.chips(zones, zones.querySelector('.stories-shelf')));
     var tabbar = h('nav', { class: 'tabbar', role: 'tablist' }, ['all', 'solo', 'together', 'create', 'stories'].filter(function (id) { return !(id === 'stories' && B.config.isHidden('stories')); }).map(function (id) {
       var b = h('button', { class: 'tab-btn tab-' + id + (id === tabNow ? ' on' : ''), type: 'button', role: 'tab', 'data-tab': id, 'aria-label': B.S.zones[id] },
         h('span', { class: 'tab-ic', html: art.zoneBadge(id) }), h('b', { text: B.S.zones[id] }));

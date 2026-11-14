@@ -567,12 +567,17 @@
     { id: 'jump', cue: 'اقفز', fx: 'mm-jump' }, { id: 'clap', cue: 'صفّق', fx: 'mm-clap' }, { id: 'spin', cue: 'لفّ حول نفسك', fx: 'mm-spin' },
     { id: 'stretch', cue: 'مدّ يديك إلى السماء', fx: 'mm-stretch' }, { id: 'stomp', cue: 'اضرب الأرض بقدمك', fx: 'mm-stomp' }, { id: 'wave', cue: 'لوّح بيدك', fx: 'mm-wave' }
   ];
+  var FUR = { bear: '#C98A52', rabbit: '#F4F1EE', duck: '#FFD34E', frog: '#7FD36B', cat: '#F2A65A', fox: '#F28C3A' };
+  function figure(an) {
+    var c = FUR[an] || '#C98A52', s = 'background:' + c;
+    return h('div', { class: 'mm-fig', html: '<i class="mm-sh"></i><i class="mm-dust"></i><div class="mm-all"><i class="mm-leg l" style="' + s + '"></i><i class="mm-leg r" style="' + s + '"></i><i class="mm-arm l" style="' + s + '"></i><i class="mm-torso" style="' + s + '"></i><i class="mm-belly"></i><div class="mm-head">' + pic(an) + '</div><i class="mm-arm r" style="' + s + '"></i><b class="mm-spark">طَق!</b></div>' });
+  }
   var MIMICS = ['bear', 'rabbit', 'duck', 'frog', 'cat', 'fox'];
   mini('mimic', 'mm-stage', 'bear', async function (ctx, st, level, demo, alive, setCur) {
     var mv; do { mv = kit.pick(MOVES); } while (mv.id === st.last); st.last = mv.id;
     var n = level <= 1 ? 2 : level <= 3 ? 3 : level === 4 ? 4 : 5, an = kit.pick(MIMICS), done = 0, idle = 0, busy = false, errors = 0, fin, pr = new Promise(function (r) { fin = r; });
     st.top.innerHTML = ''; st.tray.innerHTML = '';
-    var ch = h('div', { class: 'mm-char', html: pic(an) }), cue = h('div', { class: 'mm-cue', text: mv.cue + ' ' + (n === 1 ? 'مرة واحدة' : UI.num(n) + ' مرات') + '!' });
+    var ch = figure(an), cue = h('div', { class: 'mm-cue', text: mv.cue + ' ' + (n === 1 ? 'مرة واحدة' : UI.num(n) + ' مرات') + '!' });
     var row = h('div', { class: 'mm-dots' });
     var dots = [];
     for (var i = 0; i < n; i++) { var d = h('button', { class: 'mm-dot', type: 'button', 'aria-label': 'عدّ' }, h('span', { html: pic('star') })); dots.push(d); row.appendChild(d); }
@@ -580,7 +585,7 @@
     UI.anim(ch, [{ opacity: 0, transform: 'scale(.4)' }, { opacity: 1, transform: 'none' }], { dur: 450, easing: UI.SPRING, fill: 'backwards' });
     if (B.audio) B.audio.play('card');
     await ctx.sleep(700); if (!alive()) return;
-    ch.classList.add(mv.fx);                    // الحيوان يؤدّي الحركة بإيقاع ثابت
+    ch.classList.add('m-' + mv.id);                    // الحيوان يؤدّي الحركة بإيقاع ثابت
     function next() { return dots[done]; }
     dots.forEach(function (d, k) {
       d.addEventListener('click', function () {
@@ -601,7 +606,7 @@
       }
     })();
     await pr; st.solve = null; if (!alive()) return;
-    ch.classList.remove(mv.fx); await cheer(ctx, ch);
+    ch.classList.remove('m-' + mv.id); await cheer(ctx, ch);
     return { errors: demo ? 0 : Math.min(errors, 3) };
   });
 
@@ -611,22 +616,27 @@
   mini('treasure', 'tr2-stage', 'fox', async function (ctx, st, level, demo, alive, setCur) {
     var n = level <= 2 ? 1 : level <= 4 ? 2 : 3, R = [0.17, 0.15, 0.13, 0.115, 0.1][Math.min(4, level - 1)], found = 0, taps = 0, idle = 0, errors = 0, fin, pr = new Promise(function (r) { fin = r; });
     st.top.innerHTML = ''; st.tray.innerHTML = '';
+    var thermo = h('div', { class: 'tr2-th' }, h('i', { class: 'tr2-th-f' }), h('span', { class: 'tr2-th-i a', text: '❄️' }), h('span', { class: 'tr2-th-i b', text: '🔥' }));
     var field = h('div', { class: 'tr2-field ' + kit.pick(TBG), role: 'application' }), cnt = h('div', { class: 'tr2-cnt' }), word = h('div', { class: 'tr2-word', text: 'المسوا الميدان وابحثوا!' });
     var targets = [];
     for (var i = 0; i < n; i++) { var tg; do { tg = { x: 0.14 + Math.random() * 0.72, y: 0.14 + Math.random() * 0.72 }; } while (targets.some(function (o) { return Math.hypot(o.x - tg.x, o.y - tg.y) < 0.3; })); targets.push(tg); }
     function drawCnt() { cnt.innerHTML = ''; for (var k = 0; k < n; k++) cnt.appendChild(h('span', { class: 'tr2-c' + (k < found ? ' on' : ''), html: pic('star') })); }
     drawCnt();
-    st.top.appendChild(h('div', { class: 'tr2-wrap' }, cnt, field, word));
+    st.top.appendChild(h('div', { class: 'tr2-wrap' }, cnt, field, thermo, word));
     UI.anim(field, [{ opacity: 0, transform: 'scale(.85)' }, { opacity: 1, transform: 'none' }], { dur: 450, easing: UI.SPRING, fill: 'backwards' });
     if (B.audio) B.audio.play('card');
     await ctx.sleep(600); if (!alive()) return;
     function nearest(x, y) { var best = 9, bi = -1; targets.forEach(function (t, k) { if (t.got) return; var d = Math.hypot(t.x - x, t.y - y); if (d < best) { best = d; bi = k; } }); return { d: best, i: bi }; }
     function ring(x, y, d) {
       var lvl = d < R ? 4 : d < 0.26 ? 3 : d < 0.45 ? 2 : 1, cols = ['#6EC6FF', '#9AD8B8', '#FFD34E', '#FF8A3D'], nm = ['بارد', 'دافئ', 'حارّ', 'حارّ جدًا!'];
-      var r = h('div', { class: 'tr2-ring', style: { left: x * 100 + '%', top: y * 100 + '%', borderColor: cols[lvl - 1], background: cols[lvl - 1] + '55' } }); field.appendChild(r);
-      UI.anim(r, [{ transform: 'translate(-50%,-50%) scale(.2)', opacity: 1 }, { transform: 'translate(-50%,-50%) scale(' + (0.7 + lvl * 0.35) + ')', opacity: 0 }], { dur: 900 }).then(function () { r.remove(); });
-      word.textContent = nm[lvl - 1]; word.style.color = lvl >= 3 ? '#C9611F' : '#2468D1';
-      if (B.audio) B.audio.play(lvl >= 3 ? 'sparkle' : 'tap');
+      var ic = ['❄️', '🌤️', '🔥', '🔥🔥'], r = h('div', { class: 'tr2-ring', style: { left: x * 100 + '%', top: y * 100 + '%', borderColor: cols[lvl - 1], background: cols[lvl - 1] + '55' } }); field.appendChild(r);
+      var em = h('div', { class: 'tr2-emo', style: { left: x * 100 + '%', top: y * 100 + '%' }, text: ic[lvl - 1] }); field.appendChild(em);
+      UI.anim(r, [{ transform: 'translate(-50%,-50%) scale(.2)', opacity: 1 }, { transform: 'translate(-50%,-50%) scale(' + (0.7 + lvl * 0.35) + ')', opacity: 0 }], { dur: 1100 }).then(function () { r.remove(); });
+      UI.anim(em, [{ transform: 'translate(-50%,-50%) scale(.3)', opacity: 0 }, { transform: 'translate(-50%,-70%) scale(' + (0.9 + lvl * 0.2) + ')', opacity: 1, offset: .3 }, { transform: 'translate(-50%,-130%) scale(1)', opacity: 0 }], { dur: 1200 }).then(function () { em.remove(); });
+      word.textContent = nm[lvl - 1]; word.style.color = lvl >= 3 ? '#D8481A' : '#2468D1';
+      thermo.style.setProperty('--t', [0.08, 0.38, 0.7, 1][lvl - 1]); thermo.dataset.l = lvl;
+      field.classList.remove('warm', 'hot'); if (lvl >= 3) field.classList.add('hot'); else if (lvl === 2) field.classList.add('warm');
+      if (B.audio) B.audio.play(['tap', 'pop', 'sparkle', 'right'][lvl - 1]);
     }
     async function tapAt(x, y) {
       if (ctx.paused) return; taps++; idle = 0;

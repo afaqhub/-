@@ -15,16 +15,51 @@
   }
 
   /* ───────── الوجوه ───────── */
-  function eyes(x1, x2, y, r, closed) {
-    if (closed) {
+  /* تعابير الوجه: happy (الافتراضي) · joy · sad · cry · scared · surprised · think · strain · angry · sleepy (عيون مغمضة) */
+  function brows(ex, x1, x2, y, r) {
+    var s = ' stroke="' + EYE + '" stroke-width="2.8" fill="none" stroke-linecap="round"', o = '';
+    if (ex === 'sad' || ex === 'cry') o += '<path d="M' + (x1 - r - 1) + ' ' + (y - r - 1) + 'L' + (x1 + r) + ' ' + (y - r - 5.5) + 'M' + (x2 + r + 1) + ' ' + (y - r - 1) + 'L' + (x2 - r) + ' ' + (y - r - 5.5) + '"' + s + '/>';
+    else if (ex === 'scared') o += '<path d="M' + (x1 - r) + ' ' + (y - r - 3) + 'Q' + x1 + ' ' + (y - r - 9) + ' ' + (x1 + r) + ' ' + (y - r - 4) + 'M' + (x2 - r) + ' ' + (y - r - 4) + 'Q' + x2 + ' ' + (y - r - 9) + ' ' + (x2 + r) + ' ' + (y - r - 3) + '"' + s + '/>';
+    else if (ex === 'surprised') o += '<path d="M' + (x1 - r) + ' ' + (y - r - 5) + 'Q' + x1 + ' ' + (y - r - 10) + ' ' + (x1 + r) + ' ' + (y - r - 5) + 'M' + (x2 - r) + ' ' + (y - r - 5) + 'Q' + x2 + ' ' + (y - r - 10) + ' ' + (x2 + r) + ' ' + (y - r - 5) + '"' + s + '/>';
+    else if (ex === 'think') o += '<path d="M' + (x1 - r) + ' ' + (y - r - 3) + 'Q' + x1 + ' ' + (y - r - 6) + ' ' + (x1 + r) + ' ' + (y - r - 3) + 'M' + (x2 - r) + ' ' + (y - r - 5) + 'Q' + x2 + ' ' + (y - r - 11) + ' ' + (x2 + r) + ' ' + (y - r - 6) + '"' + s + '/>';
+    else if (ex === 'angry') o += '<path d="M' + (x1 - r - 1) + ' ' + (y - r - 6) + 'L' + (x1 + r) + ' ' + (y - r - 1) + 'M' + (x2 + r + 1) + ' ' + (y - r - 6) + 'L' + (x2 - r) + ' ' + (y - r - 1) + '"' + s + '/>';
+    if (ex === 'sad' || ex === 'cry') o += '<path d="M' + (x2 + r * 0.7) + ' ' + (y + r + 1) + 'q-3 5 0 7q3-2 0-7z" fill="#5CC8FF" stroke="#2F9BDD" stroke-width="1"/>';
+    if (ex === 'cry') o += '<path d="M' + (x1 - r * 0.7) + ' ' + (y + r + 1) + 'q-3 5 0 7q3-2 0-7z" fill="#5CC8FF" stroke="#2F9BDD" stroke-width="1"/>';
+    return o;
+  }
+  function eyes(x1, x2, y, r, c) {
+    var ex = typeof c === 'string' ? c : '';
+    if (c === true || ex === 'sleepy') {
       return '<path d="M' + (x1 - r) + ' ' + y + 'q' + r + ' ' + r + ' ' + (2 * r) + ' 0M' +
         (x2 - r) + ' ' + y + 'q' + r + ' ' + r + ' ' + (2 * r) + ' 0" stroke="' + EYE +
         '" stroke-width="3" fill="none" stroke-linecap="round"/>';
     }
-    return '<circle cx="' + x1 + '" cy="' + y + '" r="' + r + '" fill="' + EYE + '"/>' +
-      '<circle cx="' + x2 + '" cy="' + y + '" r="' + r + '" fill="' + EYE + '"/>' +
-      '<circle cx="' + (x1 + r * 0.35) + '" cy="' + (y - r * 0.35) + '" r="' + (r * 0.33) + '" fill="#fff"/>' +
-      '<circle cx="' + (x2 + r * 0.35) + '" cy="' + (y - r * 0.35) + '" r="' + (r * 0.33) + '" fill="#fff"/>';
+    var d = function (x, rr, ox, oy, big) {
+      return (big ? '<circle cx="' + x + '" cy="' + y + '" r="' + (r * 1.45) + '" fill="#fff" stroke="' + EYE + '" stroke-width="1.4"/>' : '') +
+        '<circle cx="' + (x + (ox || 0)) + '" cy="' + (y + (oy || 0)) + '" r="' + rr + '" fill="' + EYE + '"/>' +
+        '<circle cx="' + (x + (ox || 0) + rr * 0.35) + '" cy="' + (y + (oy || 0) - rr * 0.35) + '" r="' + (rr * 0.33) + '" fill="#fff"/>';
+    };
+    if (ex === 'joy') return '<path d="M' + (x1 - r) + ' ' + (y + 1) + 'q' + r + ' ' + (-r * 1.4) + ' ' + (2 * r) + ' 0M' + (x2 - r) + ' ' + (y + 1) + 'q' + r + ' ' + (-r * 1.4) + ' ' + (2 * r) + ' 0" stroke="' + EYE + '" stroke-width="3.2" fill="none" stroke-linecap="round"/>';
+    if (ex === 'strain') return '<path d="M' + (x1 - r) + ' ' + (y - r) + 'L' + (x1 + r) + ' ' + y + 'L' + (x1 - r) + ' ' + (y + r) + 'M' + (x2 + r) + ' ' + (y - r) + 'L' + (x2 - r) + ' ' + y + 'L' + (x2 + r) + ' ' + (y + r) + '" stroke="' + EYE + '" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>';
+    if (ex === 'scared') return d(x1, r * 0.6, 0, 0, true) + d(x2, r * 0.6, 0, 0, true) + brows(ex, x1, x2, y, r);
+    if (ex === 'surprised') return d(x1, r * 1.15, 0, 0, false) + d(x2, r * 1.15, 0, 0, false) + brows(ex, x1, x2, y, r);
+    if (ex === 'think') return '<path d="M' + (x - w * 0.45) + ' ' + (y + 1) + 'Q' + (x + w * 0.1) + ' ' + (y + 4) + ' ' + (x + w * 0.6) + ' ' + (y - 1) + '"' + s + '/>';
+    if (ex === 'sad' || ex === 'cry') return d(x1, r, 0, r * 0.25) + d(x2, r, 0, r * 0.25) + brows(ex, x1, x2, y, r);
+    if (ex === 'angry') return d(x1, r, 0, 0) + d(x2, r, 0, 0) + brows(ex, x1, x2, y, r);
+    return d(x1, r) + d(x2, r);
+  }
+  /* الفم حسب التعبير: dflt هو رسم الابتسامة الأصلي للحيوان */
+  function mo(c, x, y, w, col, dflt) {
+    var ex = typeof c === 'string' ? c : '', s = ' stroke="' + col + '" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"';
+    if (!ex || ex === 'happy' || ex === 'sleepy') return dflt;
+    if (ex === 'joy') return '<path d="M' + (x - w) + ' ' + (y - 1) + 'Q' + x + ' ' + (y + w * 1.5) + ' ' + (x + w) + ' ' + (y - 1) + 'Z" fill="#E8546A" stroke="' + col + '" stroke-width="2" stroke-linejoin="round"/>';
+    if (ex === 'sad' || ex === 'cry') return '<path d="M' + (x - w) + ' ' + (y + 3) + 'Q' + x + ' ' + (y - 4) + ' ' + (x + w) + ' ' + (y + 3) + '"' + s + '/>';
+    if (ex === 'scared') return '<path d="M' + (x - w * 0.8) + ' ' + (y + 2) + 'Q' + (x - w * 0.4) + ' ' + (y - 2) + ' ' + x + ' ' + (y + 2) + 'T' + (x + w * 0.8) + ' ' + (y + 2) + '"' + s + '/>';
+    if (ex === 'surprised') return '<ellipse cx="' + x + '" cy="' + (y + 1) + '" rx="' + (w * 0.42) + '" ry="' + (w * 0.6) + '" fill="' + col + '"/>';
+    if (ex === 'think') return '<path d="M' + (x - w * 0.6) + ' ' + (y + 2) + 'L' + (x + w * 0.6) + ' ' + (y - 1) + '"' + s + '/>';
+    if (ex === 'strain') return '<path d="M' + (x - w) + ' ' + y + 'l' + (w / 2) + ' 3 l' + (w / 2) + ' -3 l' + (w / 2) + ' 3 l' + (w / 2) + ' -3"' + s + '/>';
+    if (ex === 'angry') return '<path d="M' + (x - w) + ' ' + (y + 4) + 'Q' + x + ' ' + (y - 3) + ' ' + (x + w) + ' ' + (y + 4) + '"' + s + '/>';
+    return dflt;
   }
   function cheeks(x1, x2, y) {
     return '<circle cx="' + x1 + '" cy="' + y + '" r="5.5" fill="#FF9DB3" opacity=".6"/>' +
@@ -39,7 +74,7 @@
         '<circle cx="50" cy="55" r="36" fill="#B67B4D"/>' +
         '<ellipse cx="50" cy="68" rx="17" ry="13" fill="#F3D6B0"/>' +
         '<ellipse cx="50" cy="61" rx="6.5" ry="4.8" fill="#3A2A3F"/>' +
-        '<path d="M50 65.5v4M42.5 71.5q7.5 6 15 0" stroke="#3A2A3F" stroke-width="2.6" fill="none" stroke-linecap="round"/>' +
+        '<path d="M50 65.5v4" stroke="#3A2A3F" stroke-width="2.6" fill="none" stroke-linecap="round"/>' + mo(c, 50, 72, 7.5, '#3A2A3F', '<path d="M42.5 71.5q7.5 6 15 0" stroke="#3A2A3F" stroke-width="2.6" fill="none" stroke-linecap="round"/>') +
         eyes(36, 64, 47, 4.8, c) + cheeks(25, 75, 62);
     },
     rabbit: function (c) {
@@ -49,7 +84,7 @@
         '<ellipse cx="65" cy="26" rx="4.5" ry="15" fill="#FFB8CC"/>' +
         '<circle cx="50" cy="61" r="32" fill="#fff" stroke="#D5CEEA" stroke-width="2.5"/>' +
         '<ellipse cx="50" cy="65" rx="4.5" ry="3.4" fill="#FF8FAE"/>' +
-        '<path d="M50 68.5v3.5M44 73q6 5 12 0" stroke="#7C6A9A" stroke-width="2.4" fill="none" stroke-linecap="round"/>' +
+        '<path d="M50 68.5v3.5" stroke="#7C6A9A" stroke-width="2.4" fill="none" stroke-linecap="round"/>' + mo(c, 50, 73, 6, '#7C6A9A', '<path d="M44 73q6 5 12 0" stroke="#7C6A9A" stroke-width="2.4" fill="none" stroke-linecap="round"/>') +
         eyes(37, 63, 57, 4.6, c) + cheeks(27, 73, 69);
     },
     cat: function (c) {
@@ -60,7 +95,7 @@
         '<path d="M50 25v9M40 27l2 8M60 27l-2 8" stroke="#E57B2A" stroke-width="3.5" stroke-linecap="round"/>' +
         '<ellipse cx="50" cy="69" rx="14" ry="10" fill="#FFE2C2"/>' +
         '<path d="M46 63h8l-4 5z" fill="#FF7FA0" stroke="#FF7FA0" stroke-width="2" stroke-linejoin="round"/>' +
-        '<path d="M50 68v3M43 72q3.5 4 7 0q3.5 4 7 0" stroke="#7A4A2B" stroke-width="2.2" fill="none" stroke-linecap="round"/>' +
+        '<path d="M50 68v3" stroke="#7A4A2B" stroke-width="2.2" fill="none" stroke-linecap="round"/>' + mo(c, 50, 72, 7, '#7A4A2B', '<path d="M43 72q3.5 4 7 0q3.5 4 7 0" stroke="#7A4A2B" stroke-width="2.2" fill="none" stroke-linecap="round"/>') +
         '<path d="M13 62l15 3M13 72l15-2M87 62l-15 3M87 72l-15-2" stroke="#B85F1E" stroke-width="2" opacity=".55" stroke-linecap="round"/>' +
         eyes(37, 63, 52, 4.8, c);
     },
@@ -73,7 +108,7 @@
         '<ellipse cx="50" cy="62" rx="24" ry="28" fill="#F6CBA7"/>' +
         '<circle cx="36" cy="33" r="13" ' + wool + '/><circle cx="50" cy="29" r="14" ' + wool + '/><circle cx="64" cy="33" r="13" ' + wool + '/>' +
         '<ellipse cx="50" cy="68" rx="4.6" ry="3.4" fill="#E8809A"/>' +
-        '<path d="M50 71.5v3M44 76q6 5 12 0" stroke="#7A4A5A" stroke-width="2.4" fill="none" stroke-linecap="round"/>' +
+        '<path d="M50 71.5v3" stroke="#7A4A5A" stroke-width="2.4" fill="none" stroke-linecap="round"/>' + mo(c, 50, 76, 6, '#7A4A5A', '<path d="M44 76q6 5 12 0" stroke="#7A4A5A" stroke-width="2.4" fill="none" stroke-linecap="round"/>') +
         eyes(39, 61, 58, 4.4, c) + cheeks(31, 69, 69);
     },
     duck: function (c) {
@@ -85,15 +120,16 @@
         eyes(36, 64, 46, 4.8, c) + cheeks(23, 77, 58);
     },
     frog: function (c) {
-      var eyeBits = c
+      var exs = typeof c === 'string' ? c : '', cl = c === true || exs === 'sleepy';
+      var eyeBits = cl
         ? '<path d="M22 36q8 8 16 0M62 36q8 8 16 0" stroke="' + EYE + '" stroke-width="3" fill="none" stroke-linecap="round"/>'
         : '<circle cx="30" cy="34" r="10" fill="#fff"/><circle cx="70" cy="34" r="10" fill="#fff"/>' +
           '<circle cx="31" cy="35" r="5.5" fill="' + EYE + '"/><circle cx="69" cy="35" r="5.5" fill="' + EYE + '"/>' +
-          '<circle cx="33" cy="33" r="1.8" fill="#fff"/><circle cx="71" cy="33" r="1.8" fill="#fff"/>';
+          '<circle cx="33" cy="33" r="1.8" fill="#fff"/><circle cx="71" cy="33" r="1.8" fill="#fff"/>' + brows(exs, 30, 70, 34, 7);
       return '<ellipse cx="50" cy="62" rx="40" ry="31" fill="#5ED38A"/>' +
         '<circle cx="30" cy="34" r="15" fill="#5ED38A"/><circle cx="70" cy="34" r="15" fill="#5ED38A"/>' +
         eyeBits +
-        '<path d="M24 66q26 22 52 0" stroke="#2F8F57" stroke-width="3.4" fill="none" stroke-linecap="round"/>' +
+        mo(c, 50, 74, 22, '#2F8F57', '<path d="M24 66q26 22 52 0" stroke="#2F8F57" stroke-width="3.4" fill="none" stroke-linecap="round"/>') +
         '<circle cx="45" cy="52" r="1.8" fill="#2F8F57"/><circle cx="55" cy="52" r="1.8" fill="#2F8F57"/>' +
         cheeks(22, 78, 66);
     }
@@ -103,7 +139,7 @@
   function animal(name, opts) {
     opts = opts || {};
     var fn = ANIMALS[name] || ANIMALS.bear;
-    return svg('0 0 100 100', '<g class="breathe">' + fn(opts.sleep) + '</g>', 'animal animal-' + name);
+    return svg('0 0 100 100', '<g class="breathe">' + fn(opts.expr || opts.sleep) + '</g>', 'animal animal-' + name);
   }
 
   /* ناظر المحطة: بومة بقبعة (مربع ١٠٠×١١٠) */
@@ -660,7 +696,8 @@
     svg: svg,
     animal: animal,
     ANIMAL_NAMES: ANIMAL_NAMES,
-    animalInner: function (n) { return (ANIMALS[n] || ANIMALS.bear)(false); },
+    animalInner: function (n, ex) { return (ANIMALS[n] || ANIMALS.bear)(ex || false); },
+    eyes: eyes, mo: mo, brows: brows,
     owl: owl,
     COLORS: COLORS,
     COLOR_KEYS: COLOR_KEYS,

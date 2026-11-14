@@ -7,9 +7,19 @@
   var B = (window.Bustan = window.Bustan || {});
   B.free = B.free || {};
   var UI = B.UI, h = UI.h, art = B.art, kit = B.kit;
-  function pic(k) {
+  function pic(k, ex) {
     if (k.indexOf('svg:') === 0) return CUSTOM[k.slice(4)];
-    return B.pics.draw(k);
+    return B.pics.draw(k, 'pic', ex);
+  }
+  /* تعبير الوجه: صريح عبر ex، وإلا يُستنتج من التأثيرات (حزن/دهشة/تفكير/فرح/جهد/خوف) */
+  var EXMAP = { sad: 'sad', bang: 'surprised', q: 'think', joy: 'joy', zzz: 'sleepy' };
+  function inferEx(c) {
+    if (c.ex) return c.ex;
+    var e = c.eff || [];
+    for (var i = 0; i < e.length; i++) if (EXMAP[e[i]]) return EXMAP[e[i]];
+    if (e.indexOf('effort') >= 0 && e.indexOf('sweat') >= 0) return 'strain';
+    if (e.indexOf('sweat') >= 0) return 'scared';
+    return '';
   }
   function sv(inner) { return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" class="pic">' + inner + '</svg>'; }
 
@@ -28,7 +38,7 @@
     vase: sv('<path d="M34 90H66L72 56Q76 44 62 38V28H38V38Q24 44 28 56Z" fill="#5CC8FF" stroke="#2468D1" stroke-width="4" stroke-linejoin="round"/><path d="M50 28Q40 10 30 14M50 28Q58 6 70 12" stroke="#2DBE7E" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="30" cy="14" r="7" fill="#F2658E"/><circle cx="70" cy="12" r="7" fill="#FFD34E"/>'),
     vaseBroken: sv('<path d="M10 90L24 60L36 84Z" fill="#5CC8FF" stroke="#2468D1" stroke-width="3" stroke-linejoin="round"/><path d="M40 92L52 56L66 88Z" fill="#5CC8FF" stroke="#2468D1" stroke-width="3" stroke-linejoin="round"/><path d="M68 90L80 70L92 92Z" fill="#5CC8FF" stroke="#2468D1" stroke-width="3" stroke-linejoin="round"/><circle cx="34" cy="50" r="6" fill="#F2658E"/><circle cx="76" cy="58" r="6" fill="#FFD34E"/>'),
     river: sv('<path d="M0 46Q14 36 28 46T56 46T84 46T100 46V92H0Z" fill="#5CC8FF"/><path d="M6 62Q20 54 34 62T62 62T90 62" stroke="#fff" stroke-width="3" fill="none" opacity=".7"/><path d="M0 78Q16 70 32 78T64 78T100 78" stroke="#fff" stroke-width="3" fill="none" opacity=".6"/>'),
-    riverV: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 100" class="pic"><rect width="30" height="100" fill="#5CC8FF"/><path d="M6 4Q14 12 6 22T6 42T6 62T6 82" stroke="#fff" stroke-width="2.4" fill="none" opacity=".75"/><path d="M22 12Q14 20 22 30T22 50T22 70T22 90" stroke="#fff" stroke-width="2.4" fill="none" opacity=".6"/></svg>',
+    riverV: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 40" class="pic" preserveAspectRatio="none"><path d="M9 0H21L31 40H-1Z" fill="#C9A66B"/><path d="M10.5 0H19.5L28 40H2Z" fill="#5CC8FF"/><path d="M10.5 0H19.5L21.5 8H8.5Z" fill="#8DDCFF"/><path d="M7 12Q12 9 17 12T27 12" stroke="#fff" stroke-width="1.6" fill="none" opacity=".75"/><path d="M5 24Q11 20 17 24T29 24" stroke="#fff" stroke-width="1.8" fill="none" opacity=".7"/><path d="M3 35Q10 31 17 35T30 35" stroke="#fff" stroke-width="2" fill="none" opacity=".6"/></svg>',
     seed: sv('<ellipse cx="50" cy="52" rx="22" ry="30" fill="#8A5A33" transform="rotate(25 50 52)"/><ellipse cx="42" cy="40" rx="6" ry="12" fill="#B67B4D" transform="rotate(25 42 40)"/>'),
     sprout: sv('<path d="M50 94V56" stroke="#1C8F5C" stroke-width="7" stroke-linecap="round"/><path d="M50 66Q26 60 22 42Q44 42 50 66Z" fill="#2DBE7E"/><path d="M50 58Q74 50 78 32Q54 32 50 58Z" fill="#5ED38A"/>'),
     bloom: sv('<path d="M50 96V50" stroke="#1C8F5C" stroke-width="7" stroke-linecap="round"/><path d="M50 80Q28 74 24 58Q44 58 50 80Z" fill="#2DBE7E"/><path d="M50 72Q72 66 76 50Q56 50 50 72Z" fill="#5ED38A"/><g fill="#F2658E"><circle cx="50" cy="14" r="12"/><circle cx="68" cy="26" r="12"/><circle cx="64" cy="46" r="12"/><circle cx="36" cy="46" r="12"/><circle cx="32" cy="26" r="12"/></g><circle cx="50" cy="32" r="12" fill="#FFD34E"/>'),
@@ -211,7 +221,7 @@
       mission: 'اليوم انتظر دورك في اللعب أو الكلام، وقل لمن ينتظرك: تفضّل.'
     },
     {
-      id: 'sorry', kind: 'short', age: '٣–٥ سنوات', mins: 2, title: 'آسف، سأصلح ما فعلت', cover: ['svg:tower', 'fox'], value: 'الاعتذار وإصلاح الخطأ', sticker: 'صديق شجاع', bgc: '#FF9A5C',
+      id: 'sorry', kind: 'short', age: '٣–٥ سنوات', mins: 2, title: 'آسف، سأصلح ما فعلت', cover: ['svg:tower', 'fox'], value: 'الاعتذار وإصلاح ما أفسدناه', sticker: 'صديق شجاع', bgc: '#FF9A5C',
       tip: 'اقرؤوا «أوه! لم أنتبه!» بدهشة، و«أنا آسف» بصوت صادق هادئ. اسألوا الطفل: ماذا نفعل بعد أن نقول آسف؟',
       why: 'إذا أخطأنا دون قصد نعتذر، ونساعد في إصلاح ما حدث؛ فالاعتذار بالكلام والفعل.',
       scenes: [
@@ -559,6 +569,32 @@
       mission: 'قبل النوم قل مع أسرتك: باسمك ربي وضعت جنبي، وتصبحون على خير.'
     }
   ];
+
+  /* تعابير الوجوه لكل مشهد: [رقم المشهد، الحيوان، التعبير، (ترتيبه إن تكرر)]. التعبير الافتراضي مستنتج من التأثيرات. */
+  var EXP = {
+    carrot: [[3, 'rabbit', 'sad'], [4, 'rabbit', 'strain'], [4, 'bear', 'strain'], [4, 'turtle', 'strain'], [4, 'duck', 'strain'], [5, 'bear', 'joy'], [5, 'duck', 'joy'], [6, 'bear', 'joy']],
+    rocket: [[5, 'bear', 'strain'], [5, 'fox', 'strain']],
+    ball: [[3, 'turtle', 'sad'], [3, 'rabbit', 'think'], [4, 'rabbit', 'joy']],
+    toys: [[3, 'rabbit', 'think'], [5, 'rabbit', 'joy']],
+    water: [[2, 'rabbit', 'happy'], [3, 'rabbit', 'think'], [5, 'turtle', 'joy']],
+    sorry: [[3, 'fox', 'sad'], [4, 'bear', 'joy'], [4, 'fox', 'happy']],
+    truth: [[1, 'fox', 'joy'], [5, 'fox', 'joy'], [5, 'owl', 'joy']],
+    treasure: [[2, 'rabbit', 'joy'], [2, 'fox', 'joy'], [2, 'bear', 'joy'], [3, 'rabbit', 'think'], [3, 'fox', 'think'], [3, 'bear', 'think'], [4, 'rabbit', 'joy'], [4, 'fox', 'joy'], [4, 'bear', 'joy'],
+      [7, 'bear', 'strain'], [7, 'fox', 'strain'], [8, 'rabbit', 'scared'], [8, 'fox', 'scared'], [8, 'bear', 'scared'], [9, 'rabbit', 'scared'], [9, 'fox', 'think'], [10, 'fox', 'joy'], [10, 'bear', 'joy'],
+      [11, 'rabbit', 'surprised'], [11, 'fox', 'surprised'], [11, 'bear', 'surprised'], [13, 'rabbit', 'think'], [14, 'bear', 'joy'], [15, 'fox', 'joy'], [16, 'rabbit', 'joy'], [16, 'fox', 'joy'], [16, 'bear', 'joy']],
+    race: [[2, 'fox', 'joy'], [3, 'fox', 'joy'], [4, 'fox', 'joy'], [5, 'fox', 'joy'], [7, 'turtle', 'strain'], [10, 'fox', 'strain'], [10, 'turtle', 'strain'], [11, 'bear', 'joy'], [13, 'fox', 'joy'], [13, 'turtle', 'joy']],
+    dark: [[2, 'bear', 'scared'], [3, 'bear', 'scared'], [5, 'bear', 'surprised'], [6, 'bear', 'sad'], [7, 'bear', 'joy'], [10, 'bear', 'surprised']],
+    seed: [[2, 'rabbit', 'sad'], [3, 'rabbit', 'think'], [4, 'rabbit', 'happy']],
+    lamb: [[2, 'lamb', 'joy'], [3, 'lamb', 'scared'], [5, 'lamb', 'cry'], [6, 'lamb', 'sad', 1], [7, 'lamb', 'think'], [8, 'lamb', 'joy'], [9, 'lamb', 'think'], [12, 'lamb', 'joy'], [13, 'lamb', 'joy']]
+  };
+  var ACTEX = [['treasure', 8, 'rabbit', 'joy'], ['treasure', 8, 'fox', 'joy'], ['treasure', 8, 'bear', 'joy'], ['lamb', 10, 'lamb', 'joy', 2], ['sleepy', 2, 'rabbit', 'sleepy'], ['sleepy', 3, 'bear', 'sleepy'], ['sleepy', 4, 'duck', 'sleepy'], ['sleepy', 5, 'turtle', 'sleepy']];
+  function nth(list, k, n) { var seen = 0; for (var i = 0; i < list.length; i++) if (list[i].k === k) { if (seen === (n || 0)) return list[i]; seen++; } return null; }
+  (function applyEx() {
+    STORIES.forEach(function (S) {
+      (EXP[S.id] || []).forEach(function (e) { var sc = S.scenes[e[0] - 1], c = sc && nth(sc.ch, e[1], e[3]); if (c && !c.ex) c.ex = e[2]; });
+    });
+    ACTEX.forEach(function (e) { var S = STORIES.filter(function (x) { return x.id === e[0]; })[0], sc = S && S.scenes[e[1] - 1], c = sc && nth(sc.ch, e[2], e[4]); if (c && c.act) c.act.ex = e[3]; });
+  })();
   var BYID = {}; STORIES.forEach(function (s) { BYID[s.id] = s; });
   var BCOL = { rabbit: '#FFE1EC', bear: '#F3D6B0', fox: '#FFE0C4', turtle: '#D6F5E0', duck: '#FFF3B0', rocket: '#D9E8FF', owl: '#E8E0FF', cat: '#FFE9C7' };
 
@@ -583,6 +619,7 @@
   function runAct(el, inn, c, A, scene, tr) {
     var sr = scene.getBoundingClientRect(), W = sr.width || 300, H = sr.height || 225;
     if (A.swap) inn.innerHTML = pic(A.swap);
+    if (A.ex) inn.innerHTML = pic(c.k, A.ex);
     if (A.soil === false) { var so = el.querySelector('.st-soil'); if (so) so.style.display = 'none'; }
     var ef = el.querySelector('.st-eff'); if (A.eff) { if (!ef) { ef = h('div', { class: 'st-eff' }); el.appendChild(ef); } ef.insertAdjacentHTML('beforeend', effHtml(A.eff)); }
     var dx = A.to ? (A.to[0] - c.x) / 100 * W : (A.dx || 0) / 100 * W, dy = A.to ? -(A.to[1] - c.y) / 100 * H : -(A.dy || 0) / 100 * H;
@@ -611,7 +648,7 @@
       var tr = (c.flip ? 'scaleX(-1) ' : '') + (c.tilt ? 'rotate(' + c.tilt + 'deg)' : '');
       trs[i] = tr;
       var el = h('div', { class: 'st-ch' + (c.fx ? ' fx-' + c.fx : '') + (c.tap ? ' st-hot' : ''), style: { left: c.x + '%', bottom: c.y + '%', width: c.s + '%', animationDelay: (i * 0.35) + 's' } },
-        h('div', { class: 'st-in', style: { transform: tr || 'none', transformOrigin: '50% 100%' }, html: pic(c.k) }));
+        h('div', { class: 'st-in', style: { transform: tr || 'none', transformOrigin: '50% 100%' }, html: pic(c.k, inferEx(c)) }));
       nodes[i] = el;
       if (c.hide) el.style.opacity = '0';
       if (c.enter) UI.anim(el.firstChild, [{ opacity: 0, transform: 'translateX(-90px) ' + (tr || '') }, { opacity: 1, transform: (tr || 'none') }], { dur: 1100, delay: 200 + i * 220, fill: 'backwards' });
@@ -703,9 +740,10 @@
         }
         var shortL = STORIES.filter(function (s) { return s.kind === 'short'; }), longL = STORIES.filter(function (s) { return s.kind === 'long'; }), bedL = STORIES.filter(function (s) { return s.kind === 'bed'; });
         root.appendChild(h('h2', { class: 'st-h', text: B.S.stories.title }));
-        root.appendChild(h('h3', { class: 'st-sub', text: 'قصص طويلة (٣ دقائق تقريبًا) — للأكبر قليلًا' })); addCards(longL, grid); root.appendChild(grid);
-        var grid2 = h('div', { class: 'st-lib' }); root.appendChild(h('h3', { class: 'st-sub', text: 'قصص قصيرة (دقيقة أو دقيقتان) — للأصغر' })); addCards(shortL, grid2); root.appendChild(grid2);
-        var grid3 = h('div', { class: 'st-lib' }); root.appendChild(h('h3', { class: 'st-sub', text: 'قصص قبل النوم (هادئة) — للمساء' })); addCards(bedL, grid3); root.appendChild(grid3);
+        root.appendChild(self.chips(root, root));
+        root.appendChild(h('h3', { class: 'st-sub', 'data-k': 'long', text: 'قصص طويلة (٣ دقائق تقريبًا) — للأكبر قليلًا' })); addCards(longL, grid); root.appendChild(grid);
+        var grid2 = h('div', { class: 'st-lib' }); root.appendChild(h('h3', { class: 'st-sub', 'data-k': 'short', text: 'قصص قصيرة (دقيقة أو دقيقتان) — للأصغر' })); addCards(shortL, grid2); root.appendChild(grid2);
+        var grid3 = h('div', { class: 'st-lib' }); root.appendChild(h('h3', { class: 'st-sub', 'data-k': 'bed', text: 'قصص قبل النوم (هادئة) — للمساء' })); addCards(bedL, grid3); root.appendChild(grid3);
         return;
         root.appendChild(h('h2', { class: 'st-h', text: B.S.stories.title })); root.appendChild(grid);
       }
@@ -845,5 +883,27 @@
       if (pick && BYID[pick]) intro(BYID[pick]); else library();
     },
     destroy: function () {}
+  };
+
+  /* شريط ثابت لأقسام القصص (طويلة/قصيرة/قبل النوم): ينقل إلى القسم ويُبرز الحالي */
+  B.free.stories.SECS = [['long', 'طويلة', 'قصص طويلة (٣ دقائق تقريبًا) — للأكبر قليلًا'], ['short', 'قصيرة', 'قصص قصيرة (دقيقة أو دقيقتان) — للأصغر'], ['bed', 'قبل النوم', 'قصص قبل النوم (هادئة) — للمساء']];
+  B.free.stories.chips = function (scroller, root) {
+    var bar = h('div', { class: 'st-chips', role: 'tablist' }), btns = {};
+    B.free.stories.SECS.forEach(function (s) {
+      var b = h('button', { class: 'st-chip', type: 'button', text: s[1], 'data-k': s[0] }); btns[s[0]] = b;
+      b.addEventListener('click', function () {
+        var hd = root.querySelector('.st-sub[data-k="' + s[0] + '"]'); if (!hd) return;
+        var top = hd.getBoundingClientRect().top - scroller.getBoundingClientRect().top + scroller.scrollTop - bar.offsetHeight - 8;
+        scroller.scrollTo({ top: top, behavior: 'smooth' }); if (B.audio) B.audio.play('page');
+      });
+      bar.appendChild(b);
+    });
+    function upd() {
+      var cur = 'long', lim = scroller.getBoundingClientRect().top + scroller.clientHeight * 0.55;
+      B.free.stories.SECS.forEach(function (s) { var hd = root.querySelector('.st-sub[data-k="' + s[0] + '"]'); if (hd && hd.getBoundingClientRect().top <= lim) cur = s[0]; });
+      Object.keys(btns).forEach(function (k) { btns[k].classList.toggle('on', k === cur); });
+    }
+    scroller.addEventListener('scroll', upd, { passive: true }); setTimeout(upd, 60);
+    return bar;
   };
 })();
