@@ -1,0 +1,30 @@
+const {start,newPage,shot}=require('./harness.js'); const seed=require('./seed.js');
+(async()=>{
+  const {gas,web,browser}=await start(); const {tok,ids}=seed(gas.env); const {page,errors}=await newPage(browser);
+  await page.addInitScript(([t])=>{ localStorage.setItem('k_server','https://script.google.com/macros/s/TEST/exec'); localStorage.setItem('k_token',t); localStorage.setItem('k_welcome_skip','1'); },[tok]);
+  await page.goto('http://localhost:8788/'); await page.waitForSelector('.card');
+  let fails=0; const ok=(c,m)=>{ console.log((c?'ok  ':'FAIL')+' '+m); if(!c) fails++; };
+  ok(await page.locator('.vbar select').count()===3,'شريط الترتيب والتجميع والعرض ظاهر');
+  await page.selectOption('.vbar select >> nth=0','speaker'); await page.waitForTimeout(300);
+  const sp=await page.evaluate(()=>filtered().map(i=>i.speaker).filter(Boolean)); ok(sp.join('|')===sp.slice().sort((a,b)=>a.localeCompare(b,'ar')).join('|'),'الترتيب حسب القائل');
+  await page.selectOption('.vbar select >> nth=1','speaker'); await page.waitForTimeout(300);
+  ok(await page.locator('.gsec').count()>=2,'التجميع حسب القائل يعرض أقسامًا'); await shot(page,'60-grouped');
+  await page.selectOption('.vbar select >> nth=2','list'); await page.waitForTimeout(300);
+  ok(await page.locator('.lrow').count()>=3,'العرض المختصر'); await shot(page,'61-list');
+  await page.locator('.gsec').first().click(); await page.waitForTimeout(300);
+  ok(await page.evaluate(()=>!!st.f.speaker&&!st.group),'الضغط على عنوان القسم يصفّي فوائده');
+  ok(await page.evaluate(()=>localStorage.getItem('k_view'))==='list','العرض محفوظ');
+  // فهرس القائلين وحجب سريع
+  await page.evaluate(()=>{ st.f=Object.assign({},NOFILTER); goTab('speakers'); }); await page.waitForTimeout(1200);
+  ok(await page.locator('.ixhide').count()>=2,'أزرار الحجب السريع في فهرس القائلين'); await shot(page,'62-speakers');
+  await page.fill('.vbar input','كثير'); await page.waitForTimeout(200); ok(await page.locator('.ixrow').count()===1,'البحث في القائلين');
+  await page.selectOption('.ixrow .ixhide','الاسم'); await page.waitForTimeout(1200);
+  const pub=gas.env.call('listPublic').data.find(i=>i.id===ids.quran);
+  ok(pub&&pub.speaker==='','الزائر لا يرى اسم القائل المحجوب ('+(pub&&pub.speaker)+')');
+  await page.selectOption('.ixrow .ixhide','كل شيء'); await page.waitForTimeout(1200);
+  ok(!gas.env.call('listPublic').data.some(i=>i.id===ids.quran),'الحجب الكلي يخفي فوائده عن الزائر');
+  await page.selectOption('.ixrow .ixhide',''); await page.waitForTimeout(1200);
+  ok(gas.env.call('listPublic').data.find(i=>i.id===ids.quran).speaker==='ابن كثير','الإظهار يعيده');
+  ok(errors.length===0,'لا أخطاء '+JSON.stringify(errors));
+  await browser.close(); gas.srv.close(); web.close(); process.exit(fails?1:0);
+})().catch(e=>{console.error(e);process.exit(1)});

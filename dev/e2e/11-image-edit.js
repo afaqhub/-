@@ -1,0 +1,22 @@
+const {start,newPage}=require('./harness.js'); const seed=require('./seed.js');
+(async()=>{
+  const {gas,web,browser}=await start(); const {tok,ids}=seed(gas.env); const {page,errors}=await newPage(browser);
+  await page.addInitScript(([t])=>{ localStorage.setItem('k_server','https://script.google.com/macros/s/TEST/exec'); localStorage.setItem('k_token',t); localStorage.setItem('k_welcome_skip','1'); },[tok]);
+  await page.goto('http://localhost:8788/'); await page.waitForSelector('.card');
+  let fails=0; const ok=(c,m)=>{ console.log((c?'ok  ':'FAIL')+' '+m); if(!c) fails++; };
+  const prev=()=>page.evaluate(()=>document.querySelector('#pvc').toDataURL());
+  await page.evaluate((id)=>imageSheet([st.items.find(i=>i.id===id)]),ids.quran); await page.waitForTimeout(1200);
+  await page.click('#edbox summary');
+  const orig=await page.inputValue('#ed_text'); ok(orig.includes('فالاعتصام'),'يُحمَّل نص الفائدة في المحرر');
+  const p0=await prev();
+  await page.fill('#ed_text',orig+'\nجملة مضافة في الصورة فقط.'); await page.waitForTimeout(700);
+  const p1=await prev(); ok(p1!==p0,'إضافة نص تغيّر الصورة');
+  await page.fill('#ed_text','نص مختصر بعد الحذف.'); await page.fill('#ed_sp','ابن القيم'); await page.waitForTimeout(700);
+  ok((await prev())!==p1,'حذف/اختصار النص وتغيير القائل يغيّران الصورة');
+  ok(await page.evaluate((id)=>st.items.find(i=>i.id===id).text.includes('فالاعتصام'),ids.quran),'الفائدة الأصلية لم تتغير');
+  await page.click('#ed_reset'); await page.waitForTimeout(600); ok(await page.inputValue('#ed_text')===orig&&(await prev())===p0,'إعادة الأصل ترجع الصورة كما كانت');
+  await page.fill('#ed_text','نص جديد محفوظ في الفائدة.'); await page.click('#ed_save'); await page.waitForTimeout(1200);
+  ok(await page.evaluate((id)=>st.items.find(i=>i.id===id).text,ids.quran)==='نص جديد محفوظ في الفائدة.','«حفظ في الفائدة» يعدّل الفائدة نفسها');
+  ok(errors.length===0,'لا أخطاء '+JSON.stringify(errors));
+  await browser.close(); gas.srv.close(); web.close(); process.exit(fails?1:0);
+})().catch(e=>{console.error(e);process.exit(1)});

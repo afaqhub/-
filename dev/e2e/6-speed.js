@@ -1,0 +1,33 @@
+/* سرعة الإقلاع: عدد الطلبات إلى الخادم، والعرض الفوري من الجهاز */
+const {start,newPage}=require('./harness.js'); const seed=require('./seed.js');
+let pass=0,fail=0; const ok=(c,m)=>{ if(c){pass++;console.log('  ✓',m)}else{fail++;console.log('  ✗',m)} };
+(async()=>{
+  const {gas,web,browser}=await start(); const env=gas.env; const {tok,temp}=seed(env);
+  const calls=[]; const mk=async(opts)=>{ const x=await newPage(browser,opts); x.page.on('request',r=>{ if(r.url().includes('script.google.com')&&r.method()==='POST'){ try{ calls.push(JSON.parse(r.postData()).fn); }catch(e){} } }); return x; };
+  const {page:P,errors,ctx}=await mk();
+  await P.addInitScript(([t])=>{ localStorage.setItem('k_server','https://script.google.com/macros/s/TEST/exec'); localStorage.setItem('k_welcome_skip','1'); if(t) localStorage.setItem('k_token',t); },[tok]);
+  console.log('فتح الصفحة (مالك، أول مرة بلا نسخة محفوظة)');
+  await P.goto('http://localhost:8788/'); await P.waitForSelector('.card'); await P.waitForTimeout(400);
+  ok(calls.join()==='boot','طلب واحد فقط: '+calls.join());
+  console.log('فتحها ثانيةً (النسخة محفوظة والبيانات لم تتغيّر)');
+  calls.length=0; await P.reload(); await P.waitForSelector('.card'); await P.waitForTimeout(500);
+  ok(calls.join()==='boot','طلب واحد: '+calls.join()); ok(await P.evaluate(()=>st.fromCache),'عُرضت النسخة المحفوظة فورًا');
+  ok(await P.evaluate(()=>st.items.length>5),'ظهرت الفوائد');
+  console.log('تغيّرت البيانات من جهاز آخر ⇒ تُحدَّث تلقائيًا');
+  env.call('save',{item:{text:'فائدة أُضيفت من جهاز آخر',speaker:'س',visibility:'عامة'}},tok);
+  calls.length=0; await P.reload(); await P.waitForFunction(()=>st.items.some(i=>i.text==='فائدة أُضيفت من جهاز آخر'),null,{timeout:6000}); ok(calls.join()==='boot','تحدّثت بطلب واحد');
+  console.log('بلا إنترنت: تُعرض النسخة المحفوظة');
+  await P.unroute('https://script.google.com/macros/s/TEST/exec'); await P.route('https://script.google.com/macros/s/TEST/exec',r=>r.abort('failed'));
+  await P.reload(); await P.waitForSelector('.card'); await P.waitForTimeout(700); ok(await P.locator('.card').count()>3,'الفوائد معروضة رغم انقطاع الخادم');
+  await P.close();
+  console.log('الدخول: طلب واحد ثم لا شيء');
+  const g=await mk(); await g.page.addInitScript(()=>{ localStorage.setItem('k_server','https://script.google.com/macros/s/TEST/exec'); localStorage.setItem('k_welcome_skip','1'); });
+  await g.page.goto('http://localhost:8788/'); await g.page.waitForSelector('.card,.empty'); await g.page.waitForTimeout(300);
+  calls.length=0; await g.page.click('#btnAuth'); await g.page.fill('#pw','Secret123'); await g.page.click('#go'); await g.page.waitForSelector('#fab',{state:'visible'}); await g.page.waitForTimeout(500);
+  ok(calls.join()==='login','الدخول طلب واحد يحمل البيانات: '+calls.join()); ok(await g.page.evaluate(()=>st.items.some(i=>i.visibility==='خاصة')),'ظهرت الفوائد الخاصة بعد الدخول');
+  console.log('الخروج يمسح نسخة المالك من الجهاز');
+  await g.page.click('#btnAuth'); await g.page.waitForFunction(()=>!st.owner&&st.items.every(i=>i.visibility==='عامة')); await g.page.waitForTimeout(400);
+  ok(await g.page.evaluate(async()=>{ const k=srv()+'|o'; const d=await IDB.get(k); return d===null; }),'لا فوائد خاصة محفوظة في الجهاز بعد الخروج');
+  console.log(errors.filter(e=>!/ERR_FAILED/.test(e)),g.errors);
+  console.log(pass+' نجح، '+fail+' فشل'); await browser.close(); gas.srv.close(); web.close(); process.exit(fail?1:0);
+})().catch(e=>{console.error(e);process.exit(1)});
