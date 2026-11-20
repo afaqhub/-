@@ -11,8 +11,6 @@
     duck: { f: '#FFD84A', s: '#D9A81E', b: '#FFEFA0', foot: '#FF9A3D', tail: 'nub' },
     frog: { f: '#5ED38A', s: '#2F8F57', b: '#C9F5D8', foot: '#4BBF78', tail: null },
     lamb: { f: '#FFF6EA', s: '#E0CFAE', b: '#FFFFFF', foot: '#6A5648', tail: 'nub' },
-    turtle: { f: '#6FCB8F', s: '#2F8F57', b: '#F6E7B8', foot: '#5FBF86', tail: null, shell: 1 },
-    owl: { f: '#9B7BD8', s: '#6B4FB0', b: '#E4D8FF', foot: '#FFB62E', tail: null }
   };
   var POSE = { joy: 1, sad: 1, cry: 1, scared: 1, surprised: 1, think: 1, strain: 1, sleepy: 1, angry: 1 };
 
