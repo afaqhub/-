@@ -220,6 +220,18 @@ t('الأداء: ذاكرة boot المؤقتة صحيحة وتتجدد مع ا�
   const v = E.call('boot',{},tok).data.ver; const s = E.call('boot',{ver:v,owner:true,hasQ:true},tok).data; assert.ok(s.same&&!s.items&&!s.q,'same بلا q إن كان عند المتصفح');
   assert.ok(E.call('boot',{ver:v,owner:true},tok).data.q,'وإلا يُرسَل q');
 });
+t('لقب الشخص ودعاؤه: يُحفظان ويصلان للزائر، ويُحجبان مع حجب الاسم', () => {
+  E.call('savePerson',{name:'',data:{name:'عالم اختبار اللقب',title:'الشيخ',dua:'رحمه الله'}},tok);
+  const id = E.call('save',{item:{text:'فائدة بقائل له لقب',speaker:'عالم اختبار اللقب',visibility:'عامة'}},tok).data.id;
+  const P = E.call('people',{},tok).data.find(p=>p.name==='عالم اختبار اللقب'); assert.strictEqual(P.title,'الشيخ');
+  assert.strictEqual(E.call('meta',{},tok).data.people.find(p=>p.n==='عالم اختبار اللقب').t,'الشيخ');
+  let x = E.call('listPublic').data.find(i=>i.id===id); assert.strictEqual(x.lakab,'الشيخ'); assert.strictEqual(x.dua,'رحمه الله');
+  E.call('savePerson',{name:'عالم اختبار اللقب',data:{name:'عالم اختبار اللقب',title:'الشيخ',dua:'رحمه الله',hide:'الاسم',rep:'بعض أهل العلم'}},tok);
+  x = E.call('listPublic').data.find(i=>i.id===id); assert.strictEqual(x.speaker,'بعض أهل العلم'); assert.ok(!x.lakab&&!x.dua);
+  E.call('importMeta',{people:[{name:'عالم اختبار اللقب',title:'الدكتور',dua:'وفقه الله'},{name:'شخص جديد بلقب',title:'الإمام',dua:'رحمه الله'}]},tok);
+  const L = E.call('people',{},tok).data; assert.strictEqual(L.find(p=>p.name==='عالم اختبار اللقب').title,'الشيخ');   // لا يُستبدل الموجود
+  assert.strictEqual(L.find(p=>p.name==='شخص جديد بلقب').title,'الإمام');
+});
 t('إخفاء كتاب بعينه عن الزوار: اسمه فقط أو كل فوائده', () => {
   const id = E.call('save',{item:{text:'فائدة من كتاب سيُحجب',speaker:'مؤلف ما',ref:'كتاب سري تجريبي',locus:'ص٣',via:'كتاب وسيط سري',vlocus:'ص٩',visibility:'عامة'}},tok).data.id;
   E.call('saveRef',{title:'كتاب سري تجريبي',author:'مؤلف ما'},tok);

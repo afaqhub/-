@@ -26,7 +26,7 @@ var COLS = ['المعرّف','العنوان','النص','النوع','القا�
             'وسيلة التلقي','رقم النشر','تاريخ النشر','يحتاج تحقق','إخفاءات','من فوائد هذا الكلام','موضع الوسيط','بالتصرف','من عندي'];
 
 var HEAD_C = ['الاسم','الأب','اللون','الأيقونة','الترتيب','الحالة'];
-var HEAD_S = ['الاسم المعتمد','الأسماء البديلة','سنة الوفاة','نبذة','إخفاء','عبارة بديلة','الدعاء'];
+var HEAD_S = ['الاسم المعتمد','الأسماء البديلة','سنة الوفاة','نبذة','إخفاء','عبارة بديلة','الدعاء','اللقب'];
 var HEAD_R = ['العنوان','المؤلف','النوع','الطبعة أو الرابط','إخفاء'];
 var HEAD_Q = ['المعرّف','الاسم','الإعدادات','الحالة','الترتيب','الظهور','الحالة الجارية','تاريخ الإنشاء'];
 var HEAD_G = ['الوقت','المعرّف','الخطة'];
@@ -124,7 +124,7 @@ function tempPassword_(){
 var _SC = {};
 
 /* ===================== الأداء: ذاكرة الطلب الواحد وذاكرة الخادم المؤقتة ===================== */
-var SCHEMA_ = '2026-11-03';   // ارفعه كلما غيّرتَ أعمدة الأوراق (COLS وHEAD_*) ليُفحص العنوان مرة واحدة فقط ثم يُتخطّى
+var SCHEMA_ = '2026-11-20';   // ارفعه كلما غيّرتَ أعمدة الأوراق (COLS وHEAD_*) ليُفحص العنوان مرة واحدة فقط ثم يُتخطّى
 var _P = null, _M = {}, _RO = false, _LR = [];
 var READ_FNS = {boot:1, list:1, listPublic:1, getPublic:1, metaPublic:1, settings:1, meta:1, people:1, refs:1, qplans:1, get:1, trash:1, qlog:1, templates:1, metaCounts:1, exportAll:1};
 function pAll_(){ if (!_P) _P = PropertiesService.getScriptProperties().getProperties(); return _P; }
@@ -484,7 +484,7 @@ function peopleRows_(){
   var sh = getSheet_(SH.S, HEAD_S);
   return sheetVals_(sh, HEAD_S.length).map(function(r,i){
     return {name:String(r[0]||''), aliases:splitList_(r[1]), death:String(r[2]||''), bio:String(r[3]||''),
-            hide:String(r[4]||''), rep:String(r[5]||''), dua:String(r[6]||''), _row:i+2};
+            hide:String(r[4]||''), rep:String(r[5]||''), dua:String(r[6]||''), title:String(r[7]||''), _row:i+2};
   }).filter(function(p){ return p.name; });
 }
 
@@ -526,7 +526,7 @@ function api_savePerson(a){
     var aliases = splitList_(Array.isArray(al) ? al.join('،') : al)
       .filter(function(x){ return norm_(x) !== norm_(name); });
     var hide = ['الاسم','كل شيء'].indexOf(d.hide) >= 0 ? d.hide : '';
-    var row = [name, aliases.join('، '), clip_(d.death,20), clip_(d.bio,1000), hide, clip_(d.rep,100), clip_(d.dua,60)];
+    var row = [name, aliases.join('، '), clip_(d.death,20), clip_(d.bio,1000), hide, clip_(d.rep,100), clip_(d.dua,60), clip_(d.title,40)];
     if (cur) sh.getRange(cur._row,1,1,HEAD_S.length).setValues([row]);
     else appendText_(sh, row);
     return api_people();
@@ -554,12 +554,12 @@ function registerPeople_(names, idx){
     if (!n) return;
     var k = norm_(n);
     if (idx.by[k] || seen[k]) return;
-    seen[k] = 1; add.push([n,'','','','','','']);
+    seen[k] = 1; add.push([n,'','','','','','','']);
   });
   if (!add.length) return;
   var sh = getSheet_(SH.S, HEAD_S);
   writeRows_(sh, lr_(sh) + 1, add, HEAD_S.length);
-  add.forEach(function(r){ idx.by[norm_(r[0])] = {name:r[0], aliases:[], hide:'', rep:'', dua:''}; });
+  add.forEach(function(r){ idx.by[norm_(r[0])] = {name:r[0], aliases:[], hide:'', rep:'', dua:'', title:''}; });
 }
 
 /* ===================== قراءة الفوائد ===================== */
@@ -651,15 +651,15 @@ function publicItems_(){
     if (hr === 'كل شيء' || hv === 'كل شيء') return;
     if ([ps,pv,pvb,prb].some(function(p){ return p && p.hide === 'كل شيء'; })) return;
     var c = pub_(o), h = o.hide || [];
-    c.dua = (ps && ps.dua) || '';
-    if (ps && ps.hide === 'الاسم') { c.speaker = ps.rep || ''; c.dua = ''; }
+    c.dua = (ps && ps.dua) || ''; c.lakab = (ps && ps.title) || '';
+    if (ps && ps.hide === 'الاسم') { c.speaker = ps.rep || ''; c.dua = ''; c.lakab = ''; }
     // الوسيط: شخصًا كان أو كتابًا لمحجوب الاسم، لا يظهر اسمه ولا مصدره
     if (pv && pv.hide === 'الاسم') c.via = pv.rep || '';
     if (pvb && pvb.hide === 'الاسم') c.via = '';
     if (hr === 'المرجع') { c.ref = ''; c.locus = ''; }
     if (hv === 'المرجع') { c.via = ''; c.vlocus = ''; }
     hiddenNames.forEach(function(p){ c.ref = scrubName_(c.ref, p); c.via = scrubName_(c.via, p); });
-    if (g.speaker || h.indexOf('speaker') >= 0) { c.speaker = ''; c.dua = ''; }
+    if (g.speaker || h.indexOf('speaker') >= 0) { c.speaker = ''; c.dua = ''; c.lakab = ''; }
     if (g.via || h.indexOf('via') >= 0) c.via = '';
     if (!c.via) c.vlocus = '';
     if (g.ref || h.indexOf('ref') >= 0) { c.ref = ''; c.locus = ''; }
@@ -764,7 +764,7 @@ function api_meta(){
   return { categories:cats, speakers:sp, refs:rf, tags:Object.keys(tags),
            types:splitList_(set['أنواع الفوائد'] || DEFAULT_TYPES.join('، ')),
            mediums:splitList_(set['وسائل التلقي'] || MEDIUMS.join('، ')),
-           people: pidx.rows.map(function(p){ return {n:p.name, a:p.aliases, d:p.dua}; }),
+           people: pidx.rows.map(function(p){ return {n:p.name, a:p.aliases, d:p.dua, t:p.title}; }),
            refsFull: refsFull_(),
            inbox: countNewMessages_() };
 }
@@ -1392,9 +1392,13 @@ function api_importMeta(a){
       var name = clip_(p && p.name, 100); if (!name) return;
       var cur = idx.by[norm_(name)];
       var al = splitList_(Array.isArray(p.aliases) ? p.aliases.join('،') : p.aliases);
-      if (cur) { al.forEach(function(x){ addAlias_(cur.name, x); }); return; }
+      if (cur) {
+        al.forEach(function(x){ addAlias_(cur.name, x); });
+        if (cur._row) { if (!cur.dua && p.dua) sh.getRange(cur._row,7).setNumberFormat('@').setValue(clip_(p.dua,60)); if (!cur.title && p.title) sh.getRange(cur._row,8).setNumberFormat('@').setValue(clip_(p.title,40)); }
+        return;
+      }
       var hide = ['الاسم','كل شيء'].indexOf(p.hide) >= 0 ? p.hide : '';
-      appendText_(sh, [name, al.join('، '), clip_(p.death,20), clip_(p.bio,1000), hide, clip_(p.rep,100), clip_(p.dua,60)]);
+      appendText_(sh, [name, al.join('، '), clip_(p.death,20), clip_(p.bio,1000), hide, clip_(p.rep,100), clip_(p.dua,60), clip_(p.title,40)]);
       idx.by[norm_(name)] = {name:name, aliases:al}; cnt.people++;
     });
     var rsh = getSheet_(SH.R, HEAD_R), haveR = listCol_(rsh,1).map(norm_);
